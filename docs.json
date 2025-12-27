@@ -17,7 +17,6 @@
           {
             "group": "Apple iOS",
             "icon": "compass-drafting",
-            "expanded": true,
             "pages": [
               "deployment/apple-ios/automatic",
               "deployment/apple-ios/manual"
@@ -26,7 +25,6 @@
           {
             "group": "Google Android",
             "icon": "user-robot",
-            "expanded": true,
             "pages": [
               "deployment/google-android/automatic",
               "deployment/google-android/manual"
@@ -43,6 +41,7 @@
       {
         "group": "Lovable",
         "icon": "heart",
+        "tag": "Framework",
         "expanded": true,
         "pages": [
           "lovable/how-it-works",
@@ -59,11 +58,13 @@
       {
         "group": "React",
         "icon": "atom-simple",
+        "tag": "Framework",
         "pages": []
       },
       {
         "group": "Vanilla JS",
         "icon": "code",
+        "tag": "Framework",
         "pages": []
       }
     ]
