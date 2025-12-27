@@ -1,7 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mint Starter Kit",
+  "theme": "aspen",
+  "name": "Despia + Lovable Documentation",
   "colors": {
     "primary": "#16A34A",
     "light": "#07C983",
@@ -12,6 +12,7 @@
     "groups": [
       {
         "group": "Default Guide",
+        "expanded": true,
         "pages": [
           "default-guide/how-it-works"
         ]
@@ -26,7 +27,7 @@
     "links": [
       {
         "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "href": "mailto:lovable@despia.com"
       }
     ],
     "primary": {
@@ -49,9 +50,17 @@
   },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "github": "https://github.com/despia_native",
+      "website": "https://despia.com",
+      "x": "https://x.com/despia_native"
     }
+  },
+  "integrations": {
+    "intercom": {
+      "appId": "tjfnyr17"
+    }
+  },
+  "background": {
+    "decoration": "grid"
   }
 }
