@@ -12,7 +12,6 @@
     "groups": [
       {
         "group": "Default Guide",
-        "expanded": true,
         "pages": [
           "default-guide/how-it-works"
         ]
