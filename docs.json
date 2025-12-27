@@ -19,7 +19,8 @@
             "icon": "compass-drafting",
             "expanded": true,
             "pages": [
-              "deployment/apple-i-os/automatic"
+              "deployment/apple-ios/automatic",
+              "deployment/apple-ios/manual"
             ]
           },
           {
@@ -27,7 +28,8 @@
             "icon": "user-robot",
             "expanded": true,
             "pages": [
-              "deployment/google-android/automatic"
+              "deployment/google-android/automatic",
+              "deployment/google-android/manual"
             ]
           }
         ]
