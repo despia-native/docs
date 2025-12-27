@@ -11,6 +11,28 @@
   "navigation": {
     "groups": [
       {
+        "group": "Deployment",
+        "icon": "rocket",
+        "pages": [
+          {
+            "group": "Apple iOS",
+            "icon": "compass-drafting",
+            "expanded": true,
+            "pages": [
+              "deployment/apple-i-os/automatic"
+            ]
+          },
+          {
+            "group": "Google Android",
+            "icon": "user-robot",
+            "expanded": true,
+            "pages": [
+              "deployment/google-android/automatic"
+            ]
+          }
+        ]
+      },
+      {
         "group": "Lovable",
         "icon": "heart",
         "tag": "Tool",
