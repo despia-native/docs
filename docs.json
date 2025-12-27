@@ -46,7 +46,7 @@
       {
         "group": "Lovable",
         "icon": "heart",
-        "tag": "Framework",
+        "tag": "Integration",
         "expanded": true,
         "pages": [
           "lovable/how-it-works",
@@ -63,13 +63,13 @@
       {
         "group": "React",
         "icon": "atom-simple",
-        "tag": "Framework",
+        "tag": "Integration",
         "pages": []
       },
       {
         "group": "Vanilla JS",
         "icon": "code",
-        "tag": "Framework",
+        "tag": "Integration",
         "pages": []
       },
       {
