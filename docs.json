@@ -9,8 +9,24 @@
   },
   "favicon": "/favicon.svg",
   "navigation": {
-    "pages": [
-      "sample"
+    "groups": [
+      {
+        "group": "Lovable",
+        "icon": "heart",
+        "tag": "Tool",
+        "expanded": true,
+        "pages": [
+          "lovable/how-it-works",
+          {
+            "group": "Native Features",
+            "icon": "bolt-lightning",
+            "expanded": true,
+            "pages": [
+              "lovable/untitled-group/platform-detection"
+            ]
+          }
+        ]
+      }
     ]
   },
   "logo": {
