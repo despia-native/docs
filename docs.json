@@ -9,7 +9,8 @@
   },
   "favicon": "/favicon.svg",
   "navigation": {
-    "groups": [
+    "pages": [
+      "introduction",
       {
         "group": "Deployment",
         "icon": "rocket",
