@@ -66,6 +66,37 @@
         "icon": "code",
         "tag": "Framework",
         "pages": []
+      },
+      {
+        "group": "Debugging",
+        "icon": "bug",
+        "pages": [
+          {
+            "group": "Build Errors",
+            "icon": "database",
+            "pages": []
+          },
+          {
+            "group": "Runtime Errors",
+            "icon": "gear",
+            "pages": []
+          }
+        ]
+      },
+      {
+        "group": "Best Practices",
+        "pages": [
+          {
+            "group": "App Foundation",
+            "icon": "folders",
+            "pages": []
+          },
+          {
+            "group": "Native Features",
+            "icon": "fingerprint",
+            "pages": []
+          }
+        ]
       }
     ]
   },
