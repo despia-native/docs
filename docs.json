@@ -1,7 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
   "theme": "aspen",
-  "name": "Despia + Lovable Documentation",
+  "name": "Despia Documentation",
   "colors": {
     "primary": "#16A34A",
     "light": "#07C983",
@@ -9,13 +9,8 @@
   },
   "favicon": "/favicon.svg",
   "navigation": {
-    "groups": [
-      {
-        "group": "Default Guide",
-        "pages": [
-          "default-guide/how-it-works"
-        ]
-      }
+    "pages": [
+      "sample"
     ]
   },
   "logo": {
