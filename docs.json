@@ -1,11 +1,11 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "aspen",
+  "theme": "mint",
   "name": "Despia Documentation",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#8b5cf6",
+    "light": "#9a75f1",
+    "dark": "#8b5cf6"
   },
   "favicon": "/favicon.svg",
   "navigation": {
@@ -35,9 +35,14 @@
         ]
       },
       {
+        "group": "Despia GO",
+        "icon": "play",
+        "tag": "SOON",
+        "pages": []
+      },
+      {
         "group": "Lovable",
         "icon": "heart",
-        "tag": "Connection",
         "expanded": true,
         "pages": [
           "lovable/how-it-works",
@@ -54,13 +59,11 @@
       {
         "group": "React",
         "icon": "atom-simple",
-        "tag": "Connection",
         "pages": []
       },
       {
         "group": "Vanilla JS",
         "icon": "code",
-        "tag": "Connection",
         "pages": []
       }
     ]
