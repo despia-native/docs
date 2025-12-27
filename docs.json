@@ -89,7 +89,9 @@
           {
             "group": "App Foundation",
             "icon": "folders",
-            "pages": []
+            "pages": [
+              "best-practices/app-foundation/page-structure"
+            ]
           },
           {
             "group": "Native Features",
