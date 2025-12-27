@@ -35,9 +35,14 @@
         ]
       },
       {
+        "group": "Despia GO",
+        "icon": "play",
+        "tag": "SOON",
+        "pages": []
+      },
+      {
         "group": "Lovable",
         "icon": "heart",
-        "tag": "Connection",
         "expanded": true,
         "pages": [
           "lovable/how-it-works",
@@ -54,13 +59,11 @@
       {
         "group": "React",
         "icon": "atom-simple",
-        "tag": "Connection",
         "pages": []
       },
       {
         "group": "Vanilla JS",
         "icon": "code",
-        "tag": "Connection",
         "pages": []
       }
     ]
