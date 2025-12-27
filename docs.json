@@ -66,8 +66,15 @@
         "group": "Vanilla JS",
         "icon": "code",
         "tag": "Integration",
-        "pages": []
-      }
+        "pages": [
+          "vanilla-js/how-it-works",
+          {
+            "group": "Native Features",
+            "pages": []
+          }
+        ]
+      },
+      "changelog"
     ]
   },
   "logo": {
