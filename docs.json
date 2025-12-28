@@ -67,7 +67,7 @@
             "icon": "bolt-lightning",
             "expanded": true,
             "pages": [
-              "lovable/untitled-group/platform-detection",
+              "lovable/native-features/user-agent",
               "lovable/native-features/untitled-page",
               "lovable/native-features/deeplinking",
               {
