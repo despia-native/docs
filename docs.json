@@ -37,7 +37,12 @@
         "group": "Despia GO",
         "icon": "play",
         "tag": "SOON",
-        "pages": []
+        "pages": [
+          "despia-go/how-it-works",
+          "despia-go/app-testing",
+          "despia-go/edit-projects",
+          "despia-go/deployments"
+        ]
       },
       {
         "group": "Lovable",
