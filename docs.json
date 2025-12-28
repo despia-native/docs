@@ -45,6 +45,22 @@
         "tag": "Integration",
         "expanded": true,
         "pages": [
+          {
+            "group": "Resources",
+            "icon": "book-open",
+            "pages": [
+              {
+                "group": "Courses",
+                "icon": "brain",
+                "pages": []
+              },
+              {
+                "group": "Templates",
+                "icon": "copy",
+                "pages": []
+              }
+            ]
+          },
           "lovable/how-it-works",
           {
             "group": "Native Features",
@@ -58,7 +74,8 @@
                 "group": "OAuth 2.0",
                 "icon": "key",
                 "pages": [
-                  "lovable/native-features/native-o-auth-2-0/google-auth"
+                  "lovable/native-features/native-o-auth-2-0/google-auth",
+                  "lovable/native-features/o-auth-2-0/tik-tok-auth"
                 ]
               }
             ]
