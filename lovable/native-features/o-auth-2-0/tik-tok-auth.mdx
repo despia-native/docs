@@ -1444,3 +1444,234 @@ description: "Access the real native TikTok OAuth 2.0 using the ASWebAuthSession
   | public/_redirects | SPA routing (Netlify/Lovable) |
   ````
 </Card>
+
+## Setup Requirements
+
+- Create a TikTok OAuth application in TikTok Developer Portal
+- Configure your Supabase project with TikTok OAuth credentials (custom provider - requires edge function)
+- Set up your Despia project with a deeplink scheme
+
+<Danger>
+  **Important:** This works with Lovable + Supabase projects but requires a custom edge function since TikTok is not natively supported by Supabase
+</Danger>
+
+## Understanding the Complete OAuth Flow
+
+### The Problem
+
+When you wrap a Lovable web app as a native iOS/Android app using Despia:
+
+- The app runs in a WebView (embedded browser)
+- WebViews cannot handle OAuth redirects properly
+- TikTok OAuth redirects back to a URL, but the WebView doesn't know what to do
+
+### The Solution
+
+**For native apps, we:**
+
+- Open OAuth in ASWebAuthenticationSession (iOS) or Chrome Custom Tabs (Android)
+- After login, exchange the authorization code for tokens via edge function
+- Redirect to a deeplink to close the session and return to app
+- The native app intercepts this deeplink, navigates to the correct page, and sets the session
+
+## How Native OAuth Works
+
+**Step 1: Detect if running in native app**
+
+When the user clicks "Sign in", your app first checks if it's running inside a Despia native app. Despia automatically adds `despia` to the userAgent string:
+
+```javascript
+const isNative = navigator.userAgent.toLowerCase().includes('despia');
+```
+
+**Step 2: Generate TikTok OAuth URL**
+
+For TikTok, we generate the OAuth URL on the frontend. The client key is public (visible in the OAuth URL anyway). We set a special redirect URL that points to `/native-callback` instead of `/auth`:
+
+```javascript
+// src/lib/tiktok-auth.ts
+const TIKTOK_CLIENT_KEY = 'your_client_key';
+const APP_URL = 'https://your-app.lovable.app';
+
+const redirectUri = isNative 
+  ? `${APP_URL}/native-callback`
+  : `${APP_URL}/auth`;
+
+const params = new URLSearchParams({
+  client_key: TIKTOK_CLIENT_KEY,
+  response_type: 'code',
+  scope: 'user.info.basic',
+  redirect_uri: redirectUri,
+  state: isNative ? `${uuid}|${deeplinkScheme}` : uuid,
+});
+
+const oauthUrl = `https://www.tiktok.com/v2/auth/authorize/?${params}`;
+```
+
+**Step 3: Open OAuth in secure browser session**
+
+Once you have the OAuth URL, open it using `despia('oauth://?url=...')`. The `oauth://` prefix tells Despia to open the URL in a secure native browser session:
+
+```javascript
+despia(`oauth://?url=${encodeURIComponent(oauthUrl)}`);
+```
+
+This opens the URL in:
+
+- **iOS:** ASWebAuthenticationSession (secure Safari sheet)
+- **Android:** Chrome Custom Tabs (secure Chrome overlay)
+
+**Step 4: User completes OAuth in the browser session**
+
+- User sees TikTok login inside ASWebAuthenticationSession / Chrome Custom Tab
+- After login, TikTok redirects to your `/native-callback` page with an authorization code
+- This page is still inside the ASWebAuthenticationSession / Chrome Custom Tab
+
+**Step 5: Exchange code for tokens via edge function**
+
+TikTok uses authorization code flow (not implicit like Google), so we need an edge function to exchange the code for Supabase tokens. The URL looks like `/native-callback?code=xxx&state=yyy`. Your callback page calls the edge function:
+
+```javascript
+// Get the authorization code from URL
+const code = searchParams.get('code');
+
+// Call edge function to exchange code for Supabase tokens
+const result = await supabase.functions.invoke('auth-tiktok-callback', {
+  body: { code, redirect_uri: `${APP_URL}/native-callback` },
+});
+
+// Extract the tokens
+const accessToken = result.data.access_token;
+const refreshToken = result.data.refresh_token;
+```
+
+**Step 6: Close browser session and return to app via deeplink**
+
+This is the crucial step. You're still inside the ASWebAuthenticationSession or Chrome Custom Tab and need to close it. Despia listens for deeplinks that contain the `oauth/` prefix:
+
+```javascript
+// From NativeCallback.tsx (still in ASWebAuthenticationSession/Chrome Tab)
+window.location.href = `myapp://oauth/auth?access_token=xxx&refresh_token=yyy`;
+```
+
+**Deeplink format:** `{scheme}://oauth/{path}?params`
+
+- `myapp://` - Your app's deeplink scheme
+- `oauth/` - Required prefix - tells native code to close the browser session
+- `{path}` - Where to navigate in your app (e.g., auth, home, profile)
+- `?params` - Query params passed to that page
+
+**Examples:**
+
+- `myapp://oauth/auth?access_token=xxx` - Closes browser, opens `/auth?access_token=xxx`
+- `myapp://oauth/home` - Closes browser, opens `/home`
+- `myapp://oauth/profile?tab=settings` - Closes browser, opens `/profile?tab=settings`
+
+**Step 7: App receives deeplink, navigates, sets session**
+
+- Native app intercepts `myapp://oauth/...` deeplink
+- Closes ASWebAuthenticationSession / Chrome Custom Tab
+- Navigates WebView to `/{path}?params` (e.g., `/auth?access_token=xxx`)
+- Your Auth.tsx parses tokens and sets the session:
+
+```javascript
+const accessToken = searchParams.get('access_token');
+const refreshToken = searchParams.get('refresh_token');
+
+await supabase.auth.setSession({
+  access_token: accessToken,
+  refresh_token: refreshToken || '',
+});
+
+// User is now logged in!
+navigate('/');
+```
+
+## How The Two Flows Work
+
+### Web Browser Flow
+
+```mermaid
+flowchart TD
+    A[User clicks 'Sign in'] --> B[App generates TikTok OAuth URL]
+    B --> C[User logs in with TikTok]
+    C --> D[TikTok redirects to /auth?code=xxx]
+    D --> E[Auth.tsx calls edge function to exchange code]
+    E --> F[Edge function returns Supabase tokens]
+    F --> G[Auth.tsx calls setSession with tokens]
+    G --> H[User is logged in]
+```
+
+### Native App Flow (Despia WebView)
+
+```mermaid
+flowchart TD
+    A[User clicks 'Sign in'] --> B[App detects it's running in Despia - checks userAgent]
+    B --> C[App generates TikTok OAuth URL with native redirect]
+    C --> D[despia oauth url opens ASWebAuthenticationSession / Chrome Custom Tab]
+    D --> E[User logs in with TikTok in the secure browser session]
+    E --> F[TikTok redirects to /native-callback?code=xxx - still in browser session]
+    F --> G[NativeCallback.tsx calls edge function to exchange code]
+    G --> H[Edge function returns Supabase tokens]
+    H --> I[NativeCallback.tsx redirects to myapp://oauth/auth?tokens]
+    I --> J[Native app intercepts deeplink, CLOSES browser session]
+    J --> K[Native app navigates WebView to /auth?tokens]
+    K --> L[Auth.tsx parses tokens, calls setSession]
+    L --> M[User is logged in in the WebView]
+```
+
+**Key points:**
+
+- `oauth://` prefix in `despia()` call opens ASWebAuthenticationSession / Chrome Custom Tab
+- `myapp://oauth/` prefix in deeplink closes the browser session
+- The path after `oauth/` (e.g., `/auth`) is where the WebView navigates
+- Session is set in the WebView (not the browser session) so cookies persist
+- TikTok uses authorization code flow, requiring an edge function to exchange the code
+
+# Installation
+
+Install the Despia package from NPM:
+
+```
+npm install despia-native
+```
+
+# Usage
+
+Import the SDK:
+
+```javascript
+import despia from 'despia-native';
+```
+
+**Opening the Native OAuth Session:**
+
+```javascript
+// Opens OAuth URL in secure native browser session
+despia(`oauth://?url=${encodeURIComponent(oauthUrl)}`);
+```
+
+**Exiting the Native Browser Session:**
+
+The native authentication tab (ASWebAuthenticationSession / Chrome Custom Tab) will automatically close when you redirect to a deeplink with the `oauth/` prefix. In your NativeCallback page, call this to exit the browser and return to your app:
+
+```javascript
+window.location.href = `myapp://oauth/auth?access_token=${accessToken}&refresh_token=${refreshToken}`;
+
+// This will open /auth?access_token=${accessToken}&refresh_token=${refreshToken} in the WebView - the "oauth/" will be stripped away!
+```
+
+The `oauth/` prefix is required - it tells Despia to close the browser session. Without it, the user will be stuck in the native browser tab.
+
+## Resources
+
+- [NPM Package](https://www.npmjs.com/package/despia-native)
+- View full NPM documentation for additional configuration options
+
+## Integration
+
+This SDK is optimized for prompt-based AI builders, enabling quick integration of native OAuth into your generated apps via the master prompt above.
+
+Need Help?
+
+For additional support or questions, please contact our support team at [**support@despia.com**](mailto:support@despia.com)
