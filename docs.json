@@ -52,7 +52,8 @@
             "expanded": true,
             "pages": [
               "lovable/untitled-group/platform-detection",
-              "lovable/native-features/untitled-page"
+              "lovable/native-features/untitled-page",
+              "lovable/native-features/deeplinking"
             ]
           }
         ]
