@@ -51,7 +51,8 @@
             "icon": "bolt-lightning",
             "expanded": true,
             "pages": [
-              "lovable/untitled-group/platform-detection"
+              "lovable/untitled-group/platform-detection",
+              "lovable/native-features/untitled-page"
             ]
           }
         ]
