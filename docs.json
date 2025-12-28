@@ -52,7 +52,15 @@
             "expanded": true,
             "pages": [
               "lovable/untitled-group/platform-detection",
-              "lovable/native-features/untitled-page"
+              "lovable/native-features/untitled-page",
+              "lovable/native-features/deeplinking",
+              {
+                "group": "OAuth 2.0",
+                "icon": "key",
+                "pages": [
+                  "lovable/native-features/native-o-auth-2-0/google-auth"
+                ]
+              }
             ]
           }
         ]

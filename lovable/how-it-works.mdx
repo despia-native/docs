@@ -5,6 +5,8 @@ description: "Add real native device features to your Lovable-generated app and 
 mode: "default"
 ---
 
+<iframe src="https://www.youtube.com/embed/n5C5EvdJ584" title="YouTube video player" frameborder="0" className="w-full aspect-video rounded-xl" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen />
+
 ## **Overview**
 
 Despia bridges the gap between web and native mobile development. Build your React web app using Lovable's AI-powered platform, then deploy it as a truly native application to the App Store and Google Play - complete with hardware acceleration, offline support, and deep OS integration.
@@ -134,7 +136,7 @@ Lovable will automatically generate the proper `despia()` function calls in your
 
 Lovable intelligently generates native feature implementations:
 
-```
+```javascript
 // Generated when you ask: "Add haptic feedback to the save button"
 const handleSave = async () => {
   try {
@@ -165,7 +167,7 @@ useEffect(() => {
 
 Lovable can generate proper environment handling:
 
-```
+```javascript
 // Auto-generated environment detection
 if (navigator.userAgent.includes('despia')) {
   // Use native features in mobile app
