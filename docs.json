@@ -9,7 +9,8 @@
   },
   "favicon": "/favicon.svg",
   "navigation": {
-    "groups": [
+    "pages": [
+      "introduction",
       {
         "group": "Deployment",
         "icon": "rocket",
@@ -70,46 +71,20 @@
         "group": "Vanilla JS",
         "icon": "code",
         "tag": "Integration",
-        "pages": []
-      },
-      {
-        "group": "Debugging",
-        "icon": "bug",
         "pages": [
-          {
-            "group": "Build Errors",
-            "icon": "database",
-            "pages": []
-          },
-          {
-            "group": "Runtime Errors",
-            "icon": "gear",
-            "pages": []
-          }
-        ]
-      },
-      {
-        "group": "Best Practices",
-        "pages": [
-          {
-            "group": "App Foundation",
-            "icon": "folders",
-            "pages": [
-              "best-practices/app-foundation/page-structure"
-            ]
-          },
+          "vanilla-js/how-it-works",
           {
             "group": "Native Features",
-            "icon": "fingerprint",
             "pages": []
           }
         ]
-      }
+      },
+      "changelog"
     ]
   },
   "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "light": "/images/Logo.svg",
+    "dark": "/images/Logo_2.svg"
   },
   "navbar": {
     "links": [
