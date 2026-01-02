@@ -77,7 +77,40 @@
                   "lovable/native-features/native-o-auth-2-0/google-auth",
                   "lovable/native-features/o-auth-2-0/tik-tok-auth"
                 ]
-              }
+              },
+              "lovable/native-features/paywalls",
+              "lovable/native-features/rewarded-ads",
+              "lovable/native-features/external-links",
+              "lovable/native-features/device-indexing",
+              "lovable/native-features/haptic-feedback",
+              "lovable/native-features/contact-access",
+              "lovable/native-features/health-kit",
+              "lovable/native-features/siri-shortcuts",
+              "lovable/native-features/biometrics",
+              "lovable/native-features/gps-location",
+              "lovable/native-features/app-privacy",
+              "lovable/native-features/safe-areas",
+              "lovable/native-features/camera-roll",
+              "lovable/native-features/offline-push",
+              "lovable/native-features/app-settings",
+              "lovable/native-features/home-widgets",
+              "lovable/native-features/file-sharing",
+              "lovable/native-features/screen-brightness",
+              "lovable/native-features/share-dialog",
+              "lovable/native-features/clipboard",
+              "lovable/native-features/store-location",
+              "lovable/native-features/share-extension",
+              "lovable/native-features/quick-actions",
+              "lovable/native-features/simple-storage",
+              "lovable/native-features/print-documents",
+              "lovable/native-features/restore-purchase",
+              "lovable/native-features/screenshot"
+            ]
+          },
+          {
+            "group": "Legacy Features",
+            "pages": [
+              "lovable/legacy-features/one-signal-v1"
             ]
           }
         ]
