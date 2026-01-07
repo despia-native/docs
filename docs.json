@@ -79,6 +79,7 @@
                 ]
               },
               "lovable/native-features/paywalls",
+              "lovable/native-features/storage-vault",
               "lovable/native-features/rewarded-ads",
               "lovable/native-features/external-links",
               "lovable/native-features/device-indexing",
