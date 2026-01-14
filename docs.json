@@ -12,6 +12,51 @@
     "pages": [
       "introduction",
       {
+        "group": "Native Features",
+        "icon": "airplay",
+        "pages": [
+          "lovable/native-features-copied-1/user-agent",
+          "lovable/native-features-copied-1/untitled-page",
+          "lovable/native-features-copied-1/deeplinking",
+          {
+            "group": "OAuth 2.0",
+            "icon": "key",
+            "pages": [
+              "lovable/native-features-copied-1/native-o-auth-2-0/google-auth",
+              "lovable/native-features-copied-1/o-auth-2-0/tik-tok-auth"
+            ]
+          },
+          "lovable/native-features-copied-1/paywalls",
+          "lovable/native-features-copied-1/storage-vault",
+          "lovable/native-features-copied-1/rewarded-ads",
+          "lovable/native-features-copied-1/external-links",
+          "lovable/native-features-copied-1/device-indexing",
+          "lovable/native-features-copied-1/haptic-feedback",
+          "lovable/native-features-copied-1/contact-access",
+          "lovable/native-features-copied-1/health-kit",
+          "lovable/native-features-copied-1/siri-shortcuts",
+          "lovable/native-features-copied-1/biometrics",
+          "lovable/native-features-copied-1/gps-location",
+          "lovable/native-features-copied-1/app-privacy",
+          "lovable/native-features-copied-1/safe-areas",
+          "lovable/native-features-copied-1/camera-roll",
+          "lovable/native-features-copied-1/offline-push",
+          "lovable/native-features-copied-1/app-settings",
+          "lovable/native-features-copied-1/home-widgets",
+          "lovable/native-features-copied-1/file-sharing",
+          "lovable/native-features-copied-1/screen-brightness",
+          "lovable/native-features-copied-1/share-dialog",
+          "lovable/native-features-copied-1/clipboard",
+          "lovable/native-features-copied-1/store-location",
+          "lovable/native-features-copied-1/share-extension",
+          "lovable/native-features-copied-1/quick-actions",
+          "lovable/native-features-copied-1/simple-storage",
+          "lovable/native-features-copied-1/print-documents",
+          "lovable/native-features-copied-1/restore-purchase",
+          "lovable/native-features-copied-1/screenshot"
+        ]
+      },
+      {
         "group": "Deployment",
         "icon": "rocket",
         "pages": [
@@ -34,33 +79,11 @@
         ]
       },
       {
-        "group": "Despia GO",
-        "icon": "play",
-        "tag": "SOON",
-        "pages": []
-      },
-      {
         "group": "Lovable",
         "icon": "heart",
         "tag": "Integration",
         "expanded": true,
         "pages": [
-          {
-            "group": "Resources",
-            "icon": "book-open",
-            "pages": [
-              {
-                "group": "Courses",
-                "icon": "brain",
-                "pages": []
-              },
-              {
-                "group": "Templates",
-                "icon": "copy",
-                "pages": []
-              }
-            ]
-          },
           "lovable/how-it-works",
           {
             "group": "Native Features",
@@ -115,26 +138,7 @@
             ]
           }
         ]
-      },
-      {
-        "group": "React",
-        "icon": "atom-simple",
-        "tag": "Integration",
-        "pages": []
-      },
-      {
-        "group": "Vanilla JS",
-        "icon": "code",
-        "tag": "Integration",
-        "pages": [
-          "vanilla-js/how-it-works",
-          {
-            "group": "Native Features",
-            "pages": []
-          }
-        ]
-      },
-      "changelog"
+      }
     ]
   },
   "logo": {
