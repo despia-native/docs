@@ -7,7 +7,7 @@
     "light": "#9a75f1",
     "dark": "#8b5cf6"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/images/Despia.com(15).png",
   "navigation": {
     "pages": [
       "introduction",
@@ -149,7 +149,7 @@
     "links": [
       {
         "label": "Support",
-        "href": "mailto:lovable@despia.com"
+        "href": "mailto:setup@despia.com"
       }
     ],
     "primary": {
