@@ -88,7 +88,6 @@
           {
             "group": "Native Features",
             "icon": "bolt-lightning",
-            "expanded": true,
             "pages": [
               "lovable/native-features/user-agent",
               "lovable/native-features/untitled-page",
@@ -139,7 +138,17 @@
           }
         ]
       },
-      "mcp-server"
+      "mcp-server",
+      {
+        "group": "Templates",
+        "icon": "copy",
+        "pages": [
+          "templates/revenue-cat",
+          "templates/one-signal",
+          "templates/o-auth-2-0",
+          "templates/guest-users"
+        ]
+      }
     ]
   },
   "logo": {
