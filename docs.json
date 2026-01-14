@@ -88,7 +88,6 @@
           {
             "group": "Native Features",
             "icon": "bolt-lightning",
-            "expanded": true,
             "pages": [
               "lovable/native-features/user-agent",
               "lovable/native-features/untitled-page",
@@ -137,6 +136,17 @@
               "lovable/legacy-features/one-signal-v1"
             ]
           }
+        ]
+      },
+      "mcp-server",
+      {
+        "group": "Templates",
+        "icon": "copy",
+        "pages": [
+          "templates/revenue-cat",
+          "templates/one-signal",
+          "templates/o-auth-2-0",
+          "templates/guest-users"
         ]
       }
     ]
