@@ -2,5 +2,550 @@
 title: "Introduction"
 icon: "hand-horns"
 mode: "default"
+description: "Native iOS and Android apps from web technologies. Framework-agnostic runtime with 30+ maintained native features accessible through a unified JavaScript SDK."
 ---
 
+## How it Works
+
+Build your web app with any framework (React, Vue, Angular, Svelte, or vanilla JavaScript), then deploy it as a truly native application to the App Store and Google Play - complete with hardware acceleration, offline support, and deep OS integration.
+
+Your existing web app runs in a native container with 30+ pre-built native features accessible through simple JavaScript commands. No plugins, no dependencies, no maintenance headaches.
+
+## Installation
+
+```
+npm install despia-native
+```
+
+Import in your components:
+
+```javascript
+import despia from 'despia-native';
+```
+
+That's it. Start calling native features.
+
+## Core Native Features
+
+### Haptic Feedback
+
+```javascript
+// 5 different haptic types
+despia('lighthaptic://');     // Light vibration
+despia('heavyhaptic://');     // Heavy vibration  
+despia('successhaptic://');   // Success feedback
+despia('warninghaptic://');   // Warning alert
+despia('errorhaptic://');     // Error feedback
+
+// Example: Add to button press
+const handleSave = async () => {
+  try {
+    await saveTask();
+    despia('successhaptic://'); // Success vibration
+    setShowSuccess(true);
+  } catch (error) {
+    despia('errorhaptic://');   // Error vibration
+    setShowError(true);
+  }
+};
+```
+
+### App Information & Device Data
+
+```javascript
+// Get app version
+const appInfo = await despia('getappversion://', ['versionNumber', 'bundleNumber']);
+console.log(appInfo.versionNumber);  // "1.2.3"
+console.log(appInfo.bundleNumber);   // "42"
+
+// Get device ID
+const deviceId = await despia('get-uuid://', ['uuid']);
+console.log(deviceId.uuid);  // Unique device identifier
+
+// Example: Display in settings
+const [appInfo, setAppInfo] = useState(null);
+
+useEffect(() => {
+  const getInfo = async () => {
+    if (navigator.userAgent.includes('despia')) {
+      const info = await despia('getappversion://', ['versionNumber', 'bundleNumber']);
+      setAppInfo(info);
+    }
+  };
+  getInfo();
+}, []);
+
+return (
+  <div>Version: {appInfo?.versionNumber}</div>
+);
+```
+
+### UI Controls
+
+```javascript
+// Loading spinner
+despia('spinneron://');       // Show loading
+despia('spinneroff://');      // Hide loading
+
+// Status bar
+despia('hidebars://on');      // Full screen mode
+despia('hidebars://off');     // Show status bar
+despia('statusbarcolor://{255, 255, 255}');  // White status bar
+
+// Example: Show loading during data fetch
+const fetchData = async () => {
+  despia('spinneron://');
+  try {
+    const data = await api.getData();
+    setData(data);
+  } finally {
+    despia('spinneroff://');
+  }
+};
+```
+
+## Advanced Features
+
+### In-App Purchases (RevenueCat Integration)
+
+```javascript
+// Purchase a product
+despia('revenuecat://purchase?external_id=user_777&product=monthly_premium');
+
+// Restore purchases
+const history = await despia('getpurchasehistory://', ['restoredData']);
+
+// Check entitlement status
+const activeSubs = history.restoredData.filter(p => 
+  p.isActive && p.entitlementId === 'premium'
+);
+
+if (activeSubs.length > 0) {
+  console.log('User has active entitlement');
+}
+
+// Launch RevenueCat paywall
+despia('revenuecat://launchPaywall?external_id=user_777&offering=default');
+
+// Example: Subscription button
+const handleUpgrade = () => {
+  if (navigator.userAgent.includes('despia')) {
+    despia('revenuecat://launchPaywall?external_id=' + userId + '&offering=default');
+  } else {
+    // Web fallback - redirect to pricing page
+    window.location.href = '/pricing';
+  }
+};
+```
+
+### Identity Vault (Cross-Device Sync)
+
+```javascript
+// Store data (syncs via iCloud KV on iOS, Android Backup KV on Android)
+await despia('setvault://?key=userId&value=user123&locked=false');
+
+// Retrieve data
+const data = await despia('readvault://?key=userId', ['userId']);
+console.log(data.userId);  // "user123"
+
+// Lock with Face ID / Touch ID
+await despia('setvault://?key=sessionToken&value=abc123&locked=true');
+
+// Reading locked data triggers biometric prompt
+const token = await despia('readvault://?key=sessionToken', ['sessionToken']);
+
+// Example: Prevent trial abuse
+const checkTrialUsed = async () => {
+  try {
+    const data = await despia('readvault://?key=trialUsed', ['trialUsed']);
+    if (data.trialUsed === 'yes') {
+      return false; // Already used trial
+    }
+  } catch {
+    // First time user
+    await despia('setvault://?key=trialUsed&value=yes&locked=false');
+    return true;
+  }
+};
+```
+
+### Contacts Access
+
+```javascript
+// Step 1: Request permission (call once, e.g., on settings page or first use)
+despia('requestcontactpermission://');
+
+// Step 2: Read contacts after permission granted (on UI interaction)
+const contacts = await despia('readcontacts://', ['contacts']);
+
+console.log(contacts.contacts);
+// {
+//   "John Appleseed": [
+//     "+12345678910"
+//   ],
+//   "Ann Wilson": [
+//     "+12345678910"
+//   ]
+// }
+
+// Example: Request permission on mount, read on button click
+useEffect(() => {
+  // Request permission when component loads
+  despia('requestcontactpermission://');
+}, []);
+
+const shareWithContact = async () => {
+  // Read contacts when user clicks button
+  const data = await despia('readcontacts://', ['contacts']);
+  setContactList(data.contacts);
+  setShowPicker(true);
+};
+```
+
+### Push Notifications
+
+```javascript
+// Register for push (only needed if auto register is turned off)
+despia('registerpush://');
+
+// Set OneSignal external user ID (Can be accessed via "include_external_user_ids" on the backend)
+despia(`setonesignalplayerid://?user_id=${userId}`);
+
+// Send local notification (Optional)
+despia('sendlocalpushmsg://push.send?s=60&msg=Task Due&!#Your task is due soon&!#myapp://tasks/123');
+
+// Example: Setup notifications on login
+const setupNotifications = async (userId) => {
+  if (navigator.userAgent.includes('despia')) {
+    despia('registerpush://'); // Optional only if using manual flow
+    despia(`setonesignalplayerid://?user_id=${userId}`);
+  }
+};
+```
+
+### Biometric Authentication
+
+```javascript
+// Example: Protect sensitive action
+const deleteAccount = async () => {
+  // Require biometric confirmation
+  await despia('setvault://?key=deleteConfirm&value=yes&locked=true');
+  
+  try {
+    const confirm = await despia('readvault://?key=deleteConfirm', ['deleteConfirm']);
+    if (confirm.deleteConfirm === 'yes') {
+      // Biometric passed - proceed with deletion
+      await performAccountDeletion();
+    }
+  } catch {
+    console.log('User cancelled or biometric failed');
+  }
+};
+```
+
+### Clipboard
+
+```javascript
+// Read clipboard
+const clipboard = await despia('getclipboard://', ['clipboarddata']);
+console.log(clipboard.clipboarddata);
+
+// Example: Paste button
+const handlePaste = async () => {
+  const data = await despia('getclipboard://', ['clipboarddata']);
+  setInputValue(data.clipboarddata);
+};
+```
+
+### Screenshots & Media
+
+```javascript
+// Take screenshot
+despia('takescreenshot://');
+
+// Save image from URL
+despia('savethisimage://?url=https://example.com/image.jpg');
+
+// Example: Save generated image
+const saveGeneratedImage = (imageUrl) => {
+  if (navigator.userAgent.includes('despia')) {
+    despia(`savethisimage://?url=${imageUrl}`);
+    despia('successhaptic://');
+  }
+};
+```
+
+### Native Sharing
+
+```javascript
+// Share text and URL
+despia('shareapp://message?=Check out this app&url=https://myapp.com');
+
+// Example: Share button
+const handleShare = () => {
+  const message = `Check out ${productName}`;
+  const url = `https://myapp.com/product/${productId}`;
+  despia(`shareapp://message?=${encodeURIComponent(message)}&url=${url}`);
+};
+```
+
+### iOS Home Widgets
+
+```javascript
+// Update widget with SVG content
+const svg = `<svg>...</svg>`;
+const refreshTime = 300; // seconds
+
+despia(`widget://${svg}?refresh=${refreshTime}`); // (The SVG needs to come from a server URL)
+
+// Example: Update widget with stats
+const updateWidget = (taskCount, completedCount) => {
+  const svg = `
+    <svg width="200" height="200">
+      <text x="10" y="30" font-size="24">Tasks: ${taskCount}</text>
+      <text x="10" y="60" font-size="24">Done: ${completedCount}</text>
+    </svg>
+  `;
+  despia(`widget://${svg}?refresh=300`);
+};
+```
+
+## Environment Detection
+
+Always check if running in native app before calling Despia features:
+
+```javascript
+// Basic check
+if (navigator.userAgent.includes('despia')) {
+  // Running in native app - use native features
+  despia('successhaptic://');
+} else {
+  // Running in web browser - use fallback
+  console.log('Haptic feedback unavailable in browser');
+}
+
+// React Hook example
+const useNative = () => {
+  const [isNative, setIsNative] = useState(false);
+  
+  useEffect(() => {
+    setIsNative(navigator.userAgent.includes('despia'));
+  }, []);
+  
+  return isNative;
+};
+
+// Usage
+const MyComponent = () => {
+  const isNative = useNative();
+  
+  const handleAction = () => {
+    if (isNative) {
+      despia('successhaptic://');
+    }
+    // Continue with action...
+  };
+  
+  return (
+    <button onClick={handleAction}>
+      Save {isNative && '(with haptic)'}
+    </button>
+  );
+};
+```
+
+## Native Safe Area Support
+
+Automatic CSS variables for device-specific layouts:
+
+```
+.header {
+  padding-top: var(--safe-area-top);
+  background: white;
+}
+
+.footer {
+  padding-bottom: var(--safe-area-bottom);
+  background: white;
+}
+
+.sidebar {
+  padding-left: var(--safe-area-left);
+  padding-right: var(--safe-area-right);
+}
+```
+
+React example:
+
+```tsx
+const Header = () => (
+  <div style={{ 
+    paddingTop: 'var(--safe-area-top)',
+    background: '#fff' 
+  }}>
+    <h1>My App</h1>
+  </div>
+);
+```
+
+## Offline Support with Localhost Server
+
+Install the build plugin:
+
+```
+npm install --save-dev @despia/local
+```
+
+Configure for your framework:
+
+**Vite:**
+
+```javascript
+// vite.config.js
+import { despiaLocalPlugin } from '@despia/local/vite';
+
+export default {
+  plugins: [despiaLocalPlugin()]
+};
+```
+
+**Next.js:**
+
+```javascript
+// next.config.js
+const { despiaLocalPlugin } = require('@despia/local/next');
+
+module.exports = despiaLocalPlugin({
+  // your Next.js config
+});
+```
+
+**Webpack:**
+
+```javascript
+// webpack.config.js
+const { DespiaLocalPlugin } = require('@despia/local/webpack');
+
+module.exports = {
+  plugins: [
+    new DespiaLocalPlugin()
+  ]
+};
+```
+
+This generates `/despia/local.json` manifest. The native container:
+
+1. Fetches manifest from your domain
+2. Caches assets locally
+3. Serves from `https://localhost` on device
+4. Full offline support + OTA updates
+
+## OTA Updates with Version Gating
+
+```
+npm install despia-version-guard
+```
+
+Conditionally render features based on runtime version:
+
+```javascript
+import { VersionGuard } from 'despia-version-guard';
+
+const MyApp = () => (
+  <div>
+    {/* Always visible */}
+    <OldFeature />
+    
+    {/* Only for users with runtime v21.0.3+ */}
+    <VersionGuard min_version="21.0.3">
+      <NewFeature />
+    </VersionGuard>
+  </div>
+);
+```
+
+Prevents broken UI for users with older native containers.
+
+## Complete Feature Reference
+
+**Payments & Identity:**
+
+- RevenueCat purchases, subscriptions, restore, paywalls
+- Biometric authentication (Face ID, Touch ID, fingerprint)
+- OAuth flows
+- Identity vault with cross-device sync
+
+**Device Access:**
+
+- Contacts, clipboard
+- Push notifications (local & remote, OneSignal)
+- File operations, image saving
+
+**UI & Platform:**
+
+- Haptics (5 types)
+- Status bar controls
+- Loading indicators
+- Screenshots
+- iOS Home Widgets
+- Siri Shortcuts
+- Native sharing
+- AirPrint
+
+**Platform SDK:**
+
+- App version, device ID
+- Local storage
+- Tracking controls
+- Store location data
+
+[Full SDK reference →](https://setup.despia.com/docs/features)
+
+## Deployment Options
+
+**Platform Mode:**
+
+- Visual config for native features
+- One-click deployment to App Store & Google Play
+- Automated code signing
+- OS updates managed automatically
+
+**Export & Build Manually:**
+
+- Get complete Xcode/Android Studio projects
+- Edit native code
+- Continue using Despia for future versions or build independently
+
+**Hosting:**
+
+- Remote: Load from any URL (Vercel, Netlify, AWS)
+- Localhost server: Full offline support with OTA updates
+
+## Framework Compatibility
+
+Works with any web framework:
+
+- React, Vue, Angular, Svelte
+- Next.js, Nuxt, SvelteKit, Astro, Remix
+- Vanilla JavaScript
+- AI builders: Lovable, Bolt, v0
+- No-code: WeWeb, Nordcraft
+
+## Source Code
+
+**Open source (MIT):**
+
+- [despia-native](https://www.npmjs.com/package/despia-native) - JavaScript SDK
+- [@despia/local](https://www.npmjs.com/package/@despia/local) - Offline bundler
+- [despia-version-guard](https://www.npmjs.com/package/despia-version-guard) - Version gating
+
+**Proprietary until export:**
+
+- Native feature implementations (Swift/Kotlin)
+
+## Need Help?
+
+- [Documentation](https://github.com/despia-native/docs) - Complete SDK reference
+- Support: [support@despia.com](mailto:support@despia.com)
+
+Ready to add native features to your web app? Install `despia-native` and start calling native SDK methods in minutes.
