@@ -102,6 +102,7 @@
                 ]
               },
               "lovable/native-features/paywalls",
+              "lovable/native-features/restore-purchase",
               "lovable/native-features/storage-vault",
               "lovable/native-features/rewarded-ads",
               "lovable/native-features/external-links",
@@ -127,7 +128,6 @@
               "lovable/native-features/quick-actions",
               "lovable/native-features/simple-storage",
               "lovable/native-features/print-documents",
-              "lovable/native-features/restore-purchase",
               "lovable/native-features/screenshot"
             ]
           },
