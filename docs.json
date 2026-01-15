@@ -13,7 +13,7 @@
       "introduction",
       {
         "group": "Native Features",
-        "icon": "airplay",
+        "icon": "bolt-lightning",
         "pages": [
           "native-features/user-agent",
           "native-features/onesignal",
