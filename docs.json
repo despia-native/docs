@@ -14,7 +14,7 @@
       {
         "group": "Native Features",
         "icon": "bolt-lightning",
-        "expanded": true,
+        "expanded": false,
         "pages": [
           "native-features/user-agent",
           "native-features/onesignal",
