@@ -12,6 +12,35 @@
     "pages": [
       "introduction",
       {
+        "group": "Deployment",
+        "icon": "rocket",
+        "pages": [
+          {
+            "group": "Apple iOS",
+            "icon": "compass-drafting",
+            "pages": [
+              "deployment/apple-ios/automatic",
+              "deployment/apple-ios/manual"
+            ]
+          },
+          {
+            "group": "Google Android",
+            "icon": "user-robot",
+            "pages": [
+              "deployment/google-android/automatic",
+              "deployment/google-android/manual"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "Local Server",
+        "icon": "globe",
+        "pages": [
+          "local-server/how-it-works"
+        ]
+      },
+      {
         "group": "Native Features",
         "icon": "bolt-lightning",
         "expanded": false,
@@ -55,28 +84,6 @@
           "native-features/simple-storage",
           "native-features/print-documents",
           "native-features/screenshot"
-        ]
-      },
-      {
-        "group": "Deployment",
-        "icon": "rocket",
-        "pages": [
-          {
-            "group": "Apple iOS",
-            "icon": "compass-drafting",
-            "pages": [
-              "deployment/apple-ios/automatic",
-              "deployment/apple-ios/manual"
-            ]
-          },
-          {
-            "group": "Google Android",
-            "icon": "user-robot",
-            "pages": [
-              "deployment/google-android/automatic",
-              "deployment/google-android/manual"
-            ]
-          }
         ]
       },
       {
