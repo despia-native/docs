@@ -1,0 +1,1248 @@
+---
+title: "Animations"
+icon: "waves-sine"
+description: "Build smooth, performant animations that maintain 60fps and degrade gracefully under system constraints. This guide covers CSS animations, JavaScript techniques, performance optimization, and accessibility considerations."
+---
+
+## Overview
+
+Well-optimized animations enhance user experience without compromising performance. This guide focuses on techniques that work efficiently with Despia's GPU-accelerated rendering engine.
+
+**Animation Performance Targets:**
+
+- 60fps in normal operation
+- Smooth degradation under Low Power Mode
+- \< 16.6ms per frame budget
+- No janky or stuttering animations
+
+---
+
+## CSS Transform and Opacity
+
+### GPU-Accelerated Properties
+
+Use `transform` and `opacity` for animations. These properties are GPU-accelerated and don't trigger layout or paint.
+
+```css
+/* Correct: GPU-accelerated */
+.card {
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-0.5rem);
+  opacity: 0.9;
+}
+
+/* Incorrect: triggers layout and paint */
+.card {
+  transition: top 0.3s ease, height 0.3s ease;
+}
+
+.card:hover {
+  top: -8px;
+  height: 220px;
+}
+```
+
+### Available Transform Functions
+
+```css
+/* Translation */
+transform: translateX(2rem);
+transform: translateY(-1rem);
+transform: translate(1rem, -0.5rem);
+transform: translateZ(0); /* Force GPU layer */
+
+/* Scaling */
+transform: scale(1.1);
+transform: scaleX(0.95);
+transform: scaleY(1.05);
+
+/* Rotation */
+transform: rotate(45deg);
+transform: rotateX(10deg);
+transform: rotateY(20deg);
+
+/* Combining transforms */
+transform: translate(1rem, -0.5rem) scale(1.05) rotate(2deg);
+```
+
+### Transform Origin
+
+Control the pivot point for transformations:
+
+```css
+.card {
+  transform-origin: center center; /* Default */
+}
+
+.menu-item {
+  transform-origin: left center; /* Scale from left */
+  transition: transform 0.2s ease;
+}
+
+.menu-item:hover {
+  transform: scaleX(1.1);
+}
+```
+
+---
+
+## CSS Transitions
+
+### Basic Transitions
+
+Apply smooth transitions between states:
+
+```css
+.button {
+  background: #007bff;
+  transform: scale(1);
+  opacity: 1;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.button:active {
+  transform: scale(0.95);
+  opacity: 0.8;
+}
+```
+
+### Transition Timing
+
+Choose appropriate durations:
+
+```css
+/* Quick interactions */
+.button {
+  transition: transform 0.15s ease;
+}
+
+/* Standard transitions */
+.card {
+  transition: transform 0.3s ease;
+}
+
+/* Slower, deliberate animations */
+.modal {
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+```
+
+**Guidelines:**
+
+- User-triggered actions: 0.15s - 0.25s
+- Standard UI transitions: 0.3s - 0.4s
+- Large movements: 0.4s - 0.6s
+- Never exceed 0.6s for UI animations
+
+### Transition Timing Functions
+
+```css
+/* Linear (constant speed) */
+transition-timing-function: linear;
+
+/* Ease (start slow, speed up, end slow) - Default */
+transition-timing-function: ease;
+
+/* Ease-in (start slow, speed up) */
+transition-timing-function: ease-in;
+
+/* Ease-out (start fast, slow down) - Best for exits */
+transition-timing-function: ease-out;
+
+/* Ease-in-out (symmetric acceleration) */
+transition-timing-function: ease-in-out;
+
+/* Custom cubic-bezier */
+transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
+```
+
+### Recommended Easing Functions
+
+```css
+/* Material Design easing */
+.enter {
+  transition: transform 0.3s cubic-bezier(0.0, 0.0, 0.2, 1);
+}
+
+.exit {
+  transition: transform 0.2s cubic-bezier(0.4, 0.0, 1, 1);
+}
+
+/* Smooth deceleration */
+.smooth {
+  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Bounce effect */
+.bounce {
+  transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+```
+
+---
+
+## CSS Animations
+
+### Keyframe Animations
+
+Define reusable animation sequences:
+
+```css
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(1rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.element {
+  animation: fadeIn 0.4s ease;
+}
+```
+
+### Complex Keyframes
+
+```css
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+.notification {
+  animation: pulse 2s ease-in-out infinite;
+}
+```
+
+### Animation Properties
+
+```css
+.element {
+  animation-name: slideIn;
+  animation-duration: 0.5s;
+  animation-timing-function: ease-out;
+  animation-delay: 0.1s;
+  animation-iteration-count: 1;
+  animation-direction: normal;
+  animation-fill-mode: forwards;
+  animation-play-state: running;
+}
+
+/* Shorthand */
+.element {
+  animation: slideIn 0.5s ease-out 0.1s 1 normal forwards;
+}
+```
+
+### Animation Fill Mode
+
+```css
+/* Don't apply styles before/after animation */
+animation-fill-mode: none;
+
+/* Apply end state after animation */
+animation-fill-mode: forwards;
+
+/* Apply start state before animation */
+animation-fill-mode: backwards;
+
+/* Apply both */
+animation-fill-mode: both;
+```
+
+---
+
+## Hardware Acceleration
+
+### Forcing GPU Layers
+
+Create composite layers for smoother animations:
+
+```css
+.animated-element {
+  /* Force GPU layer */
+  transform: translateZ(0);
+  /* Or */
+  will-change: transform;
+}
+```
+
+### Will-Change Property
+
+Hint to browser which properties will animate:
+
+```css
+.button {
+  /* Prepare for transform animation */
+  will-change: transform;
+}
+
+/* Remove after animation */
+.button.animation-done {
+  will-change: auto;
+}
+```
+
+**Important:** Use `will-change` sparingly. Each will-change creates a composite layer consuming memory.
+
+```css
+/* Incorrect: too many layers */
+* {
+  will-change: transform, opacity;
+}
+
+/* Correct: only animated elements */
+.animated-card {
+  will-change: transform;
+}
+```
+
+### Managing Will-Change with JavaScript
+
+```javascript
+element.addEventListener('mouseenter', () => {
+  element.style.willChange = 'transform';
+});
+
+element.addEventListener('animationend', () => {
+  element.style.willChange = 'auto';
+});
+```
+
+---
+
+## JavaScript Animations
+
+### RequestAnimationFrame
+
+Use `requestAnimationFrame` for JavaScript-driven animations:
+
+```javascript
+function animate(element, from, to, duration) {
+  const start = performance.now();
+  
+  function step(currentTime) {
+    const elapsed = currentTime - start;
+    const progress = Math.min(elapsed / duration, 1);
+    
+    // Easing function
+    const eased = easeOutCubic(progress);
+    
+    // Update property
+    const value = from + (to - from) * eased;
+    element.style.transform = `translateX(${value}px)`;
+    
+    if (progress < 1) {
+      requestAnimationFrame(step);
+    }
+  }
+  
+  requestAnimationFrame(step);
+}
+
+function easeOutCubic(t) {
+  return 1 - Math.pow(1 - t, 3);
+}
+
+// Usage
+animate(element, 0, 200, 500);
+```
+
+### Cancelable Animations
+
+```javascript
+let animationId;
+
+function startAnimation() {
+  function step() {
+    // Animation logic
+    updatePosition();
+    animationId = requestAnimationFrame(step);
+  }
+  animationId = requestAnimationFrame(step);
+}
+
+function stopAnimation() {
+  if (animationId) {
+    cancelAnimationFrame(animationId);
+    animationId = null;
+  }
+}
+```
+
+### Performance Monitoring
+
+```javascript
+let frameCount = 0;
+let lastTime = performance.now();
+
+function measurePerformance() {
+  frameCount++;
+  const currentTime = performance.now();
+  
+  if (currentTime >= lastTime + 1000) {
+    const fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
+    
+    if (fps < 50) {
+      console.warn(`Animation dropping frames: ${fps}fps`);
+    }
+    
+    frameCount = 0;
+    lastTime = currentTime;
+  }
+  
+  requestAnimationFrame(measurePerformance);
+}
+```
+
+---
+
+## Animation Libraries
+
+### Recommended Libraries
+
+**Lightweight options that work well with Despia:**
+
+```
+# GSAP - Industry standard, 50kb
+npm install gsap
+
+# Framer Motion - React animations, 35kb
+npm install framer-motion
+
+# Motion One - Modern, 5kb
+npm install motion
+```
+
+### GSAP Example
+
+```javascript
+import gsap from 'gsap';
+
+// Simple animation
+gsap.to('.element', {
+  x: 100,
+  duration: 0.5,
+  ease: 'power2.out'
+});
+
+// Timeline
+const tl = gsap.timeline();
+tl.to('.card', { opacity: 1, duration: 0.3 })
+  .to('.card', { y: -10, duration: 0.2 })
+  .to('.card', { y: 0, duration: 0.2 });
+```
+
+### Framer Motion Example
+
+```javascript
+import { motion } from 'framer-motion';
+
+function Card() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      Content
+    </motion.div>
+  );
+}
+```
+
+### Motion One Example
+
+```javascript
+import { animate } from 'motion';
+
+animate(
+  '.element',
+  { opacity: [0, 1], transform: ['translateY(20px)', 'translateY(0)'] },
+  { duration: 0.3, easing: 'ease-out' }
+);
+```
+
+---
+
+## Properties to Avoid
+
+### Layout-Triggering Properties
+
+These properties trigger layout recalculation and should not be animated:
+
+```css
+/* Avoid animating these */
+width, height
+top, right, bottom, left
+margin, padding
+border-width
+font-size
+```
+
+### Paint-Triggering Properties
+
+These trigger paint but not layout (better than layout, but still expensive):
+
+```css
+/* Expensive to animate */
+background-color
+border-color
+box-shadow
+color
+```
+
+### Safe Alternatives
+
+```css
+/* Instead of animating width */
+.incorrect {
+  transition: width 0.3s;
+}
+
+.correct {
+  transition: transform 0.3s;
+  transform: scaleX(1.2);
+}
+
+/* Instead of animating background-color */
+.incorrect {
+  transition: background-color 0.3s;
+}
+
+.correct {
+  position: relative;
+}
+
+.correct::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: #007bff;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.correct:hover::before {
+  opacity: 1;
+}
+```
+
+---
+
+## Staggered Animations
+
+### CSS Delays
+
+```css
+.list-item {
+  opacity: 0;
+  transform: translateY(1rem);
+  animation: fadeInUp 0.4s ease forwards;
+}
+
+.list-item:nth-child(1) { animation-delay: 0s; }
+.list-item:nth-child(2) { animation-delay: 0.1s; }
+.list-item:nth-child(3) { animation-delay: 0.2s; }
+.list-item:nth-child(4) { animation-delay: 0.3s; }
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+```
+
+### JavaScript Stagger
+
+```javascript
+const items = document.querySelectorAll('.item');
+
+items.forEach((item, index) => {
+  setTimeout(() => {
+    item.style.opacity = '1';
+    item.style.transform = 'translateY(0)';
+  }, index * 100);
+});
+```
+
+### GSAP Stagger
+
+```javascript
+gsap.to('.item', {
+  opacity: 1,
+  y: 0,
+  duration: 0.4,
+  stagger: 0.1
+});
+```
+
+---
+
+## Scroll-Based Animations
+
+### Intersection Observer
+
+Trigger animations when elements enter viewport:
+
+```javascript
+const observer = new IntersectionObserver(
+  (entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('animate-in');
+        observer.unobserve(entry.target);
+      }
+    });
+  },
+  { threshold: 0.1 }
+);
+
+document.querySelectorAll('.animate-on-scroll').forEach((el) => {
+  observer.observe(el);
+});
+```
+
+```javascript
+.animate-on-scroll {
+  opacity: 0;
+  transform: translateY(2rem);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.animate-on-scroll.animate-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+```
+
+### Scroll-Driven Animations
+
+```javascript
+function handleScroll() {
+  const scrolled = window.scrollY;
+  const element = document.querySelector('.parallax');
+  
+  // Parallax effect
+  element.style.transform = `translateY(${scrolled * 0.5}px)`;
+}
+
+window.addEventListener('scroll', handleScroll, { passive: true });
+```
+
+---
+
+## Accessibility
+
+### Reduced Motion
+
+Respect user's motion preferences:
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+```
+
+### Conditional Animations
+
+```javascript
+const prefersReducedMotion = window.matchMedia(
+  '(prefers-reduced-motion: reduce)'
+).matches;
+
+if (!prefersReducedMotion) {
+  element.classList.add('animate');
+}
+```
+
+### Accessible Alternatives
+
+```css
+/* Default: animated */
+.button {
+  transition: transform 0.2s ease;
+}
+
+.button:hover {
+  transform: scale(1.05);
+}
+
+/* Reduced motion: instant feedback */
+@media (prefers-reduced-motion: reduce) {
+  .button {
+    transition: none;
+  }
+  
+  .button:hover {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+  }
+}
+```
+
+---
+
+## Loading Animations
+
+### Skeleton Screens
+
+```css
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #f0f0f0 25%,
+    #e0e0e0 50%,
+    #f0f0f0 75%
+  );
+  background-size: 200% 100%;
+  animation: loading 1.5s ease-in-out infinite;
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+```
+
+### Spinners
+
+```css
+.spinner {
+  width: 2.5rem;
+  height: 2.5rem;
+  border: 0.25rem solid #f0f0f0;
+  border-top-color: #007bff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+```
+
+### Progress Indicators
+
+```css
+.progress-bar {
+  width: 100%;
+  height: 0.25rem;
+  background: #f0f0f0;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #007bff;
+  transform: translateX(-100%);
+  animation: progress 2s ease-in-out forwards;
+}
+
+@keyframes progress {
+  to {
+    transform: translateX(0);
+  }
+}
+```
+
+---
+
+## Modal and Dialog Animations
+
+### Fade and Scale
+
+```css
+.modal-overlay {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.modal-overlay.open {
+  opacity: 1;
+}
+
+.modal-content {
+  opacity: 0;
+  transform: scale(0.9) translateY(-1rem);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.modal-content.open {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+```
+
+### Slide from Bottom
+
+```css
+.drawer {
+  transform: translateY(100%);
+  transition: transform 0.3s cubic-bezier(0.0, 0.0, 0.2, 1);
+}
+
+.drawer.open {
+  transform: translateY(0);
+}
+```
+
+---
+
+## Page Transition Animations
+
+### Fade Transition
+
+```css
+.page {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.page.active {
+  opacity: 1;
+}
+```
+
+### Slide Transition
+
+```css
+.page {
+  position: absolute;
+  width: 100%;
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.0, 0.0, 0.2, 1);
+}
+
+.page.active {
+  transform: translateX(0);
+}
+
+.page.exiting {
+  transform: translateX(-100%);
+}
+```
+
+## Common Animation Patterns
+
+### Button Tap Feedback
+
+```css
+.button {
+  transform: scale(1);
+  transition: transform 0.1s ease;
+}
+
+.button:active {
+  transform: scale(0.95);
+}
+```
+
+### Card Hover Effect
+
+```css
+.card {
+  transform: translateY(0);
+  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-0.5rem);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+}
+```
+
+### Toggle Switch
+
+```css
+.toggle {
+  width: 3rem;
+  height: 1.5rem;
+  background: #ccc;
+  border-radius: 1.5rem;
+  position: relative;
+  transition: background 0.3s ease;
+}
+
+.toggle.active {
+  background: #007bff;
+}
+
+.toggle-handle {
+  width: 1.25rem;
+  height: 1.25rem;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 0.125rem;
+  left: 0.125rem;
+  transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+.toggle.active .toggle-handle {
+  transform: translateX(1.5rem);
+}
+```
+
+### Ripple Effect
+
+```css
+.button {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  transform: scale(0);
+  animation: ripple-animation 0.6s ease-out;
+}
+
+@keyframes ripple-animation {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+```
+
+```javascript
+button.addEventListener('click', function(e) {
+  const ripple = document.createElement('span');
+  ripple.classList.add('ripple');
+  
+  const rect = this.getBoundingClientRect();
+  const size = Math.max(rect.width, rect.height);
+  const x = e.clientX - rect.left - size / 2;
+  const y = e.clientY - rect.top - size / 2;
+  
+  ripple.style.width = ripple.style.height = size + 'px';
+  ripple.style.left = x + 'px';
+  ripple.style.top = y + 'px';
+  
+  this.appendChild(ripple);
+  
+  setTimeout(() => ripple.remove(), 600);
+});
+```
+
+---
+
+## Performance Optimization
+
+### Debouncing Animations
+
+```javascript
+let timeoutId;
+
+function animateOnResize() {
+  clearTimeout(timeoutId);
+  timeoutId = setTimeout(() => {
+    // Animation logic
+    updateLayout();
+  }, 150);
+}
+
+window.addEventListener('resize', animateOnResize);
+```
+
+### Batching DOM Updates
+
+```javascript
+// Incorrect: causes multiple reflows
+elements.forEach(el => {
+  el.style.transform = `translateX(${getValue()}px)`;
+});
+
+// Correct: batch updates
+const values = elements.map(el => getValue());
+requestAnimationFrame(() => {
+  elements.forEach((el, i) => {
+    el.style.transform = `translateX(${values[i]}px)`;
+  });
+});
+```
+
+### Limiting Concurrent Animations
+
+```javascript
+let activeAnimations = 0;
+const MAX_CONCURRENT = 10;
+
+function animate(element) {
+  if (activeAnimations >= MAX_CONCURRENT) {
+    console.warn('Too many concurrent animations');
+    return;
+  }
+  
+  activeAnimations++;
+  
+  element.addEventListener('animationend', () => {
+    activeAnimations--;
+  }, { once: true });
+  
+  element.classList.add('animate');
+}
+```
+
+---
+
+## Testing Animations
+
+### Chrome DevTools
+
+```
+// Performance recording
+// 1. Open DevTools → Performance tab
+// 2. Record while triggering animations
+// 3. Check for:
+//    - Frame rate drops
+//    - Long tasks (> 50ms)
+//    - Layout thrashing
+```
+
+### Manual FPS Testing
+
+```javascript
+const fpsDisplay = document.createElement('div');
+fpsDisplay.style.cssText = 'position:fixed;top:0;left:0;background:black;color:white;padding:0.5rem;z-index:9999;';
+document.body.appendChild(fpsDisplay);
+
+let lastTime = performance.now();
+let frames = 0;
+
+function measureFPS() {
+  frames++;
+  const currentTime = performance.now();
+  
+  if (currentTime >= lastTime + 1000) {
+    const fps = Math.round((frames * 1000) / (currentTime - lastTime));
+    fpsDisplay.textContent = `${fps} FPS`;
+    
+    if (fps < 50) {
+      fpsDisplay.style.background = 'red';
+    } else if (fps < 55) {
+      fpsDisplay.style.background = 'orange';
+    } else {
+      fpsDisplay.style.background = 'green';
+    }
+    
+    frames = 0;
+    lastTime = currentTime;
+  }
+  
+  requestAnimationFrame(measureFPS);
+}
+
+measureFPS();
+```
+
+---
+
+## Common Mistakes
+
+### Animating Layout Properties
+
+```css
+/* Incorrect: causes layout recalculation */
+.card {
+  transition: width 0.3s, height 0.3s;
+}
+
+/* Correct: GPU-accelerated */
+.card {
+  transition: transform 0.3s;
+}
+```
+
+### Too Many Will-Change
+
+```css
+/* Incorrect: creates excessive layers */
+.card, .button, .image, .text {
+  will-change: transform, opacity;
+}
+
+/* Correct: only actively animating elements */
+.animating {
+  will-change: transform;
+}
+```
+
+### Blocking Main Thread
+
+```javascript
+// Incorrect: blocks rendering
+function animate() {
+  for (let i = 0; i < 1000; i++) {
+    expensiveCalculation();
+  }
+  element.style.transform = `translateX(${value}px)`;
+}
+
+// Correct: spread work across frames
+async function animate() {
+  for (let i = 0; i < 1000; i += 10) {
+    await new Promise(resolve => requestAnimationFrame(resolve));
+    for (let j = 0; j < 10; j++) {
+      expensiveCalculation();
+    }
+  }
+}
+```
+
+### No Reduced Motion Support
+
+```css
+/* Incorrect: ignores accessibility */
+.element {
+  animation: spin 2s infinite;
+}
+
+/* Correct: respects user preference */
+.element {
+  animation: spin 2s infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .element {
+    animation: none;
+  }
+}
+```
+
+---
+
+## Animation Performance Budget
+
+### Recommended Limits
+
+| Metric                  | Target    | Maximum  |
+| :---------------------- | :-------- | :------- |
+| Animation Duration      | 0.3s      | 0.6s     |
+| Simultaneous Animations | 5         | 10       |
+| Keyframe Complexity     | 3-5 steps | 10 steps |
+| Will-Change Elements    | 2-3       | 5        |
+| Animation FPS           | 60fps     | 50fps    |
+
+### Performance Checklist
+
+- Use transform and opacity only
+- Apply will-change sparingly
+- Remove will-change after animation
+- Respect prefers-reduced-motion
+- Limit concurrent animations
+- Use requestAnimationFrame for JS animations
+- Avoid animating layout properties
+- Test on low-end devices
+- Monitor frame rates during development
+
+---
+
+## Platform Considerations
+
+### iOS Performance
+
+- WKWebView handles GPU-accelerated animations efficiently
+- Observe ~30fps under Low Power Mode constraints
+- Transform and opacity maintain smoothness across power states
+- Avoid complex box-shadow animations
+
+### Android Performance
+
+- Performance varies by device
+- Test on mid-range devices (4GB RAM)
+- GPU acceleration generally good on modern Android
+- Be conservative with simultaneous animations
+
+---
+
+## Quick Reference
+
+### Safe Animation Properties
+
+```
+/* Always safe (GPU-accelerated) */
+transform
+opacity
+
+/* Use cautiously (paint only) */
+background-color (via pseudo-element)
+color (via pseudo-element)
+
+/* Avoid */
+width, height, top, left, margin, padding
+```
+
+### Timing Guidelines
+
+```
+/* Micro-interactions */
+0.1s - 0.15s
+
+/* Standard transitions */
+0.2s - 0.3s
+
+/* Larger movements */
+0.3s - 0.5s
+
+/* Maximum */
+0.6s
+```
+
+### Essential Easing Functions
+
+```
+/* Default smooth */
+ease-out
+
+/* Entering elements */
+cubic-bezier(0.0, 0.0, 0.2, 1)
+
+/* Exiting elements */
+cubic-bezier(0.4, 0.0, 1, 1)
+
+/* Emphasis */
+cubic-bezier(0.68, -0.55, 0.265, 1.55)
+```
+
+### Reduced Motion Pattern
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+```

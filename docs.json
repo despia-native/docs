@@ -148,13 +148,32 @@
       },
       "mcp-server",
       {
-        "group": "Templates",
-        "icon": "copy",
+        "group": "Best Practices",
+        "icon": "thumbs-up",
         "pages": [
-          "templates/revenue-cat",
-          "templates/one-signal",
-          "templates/o-auth-2-0",
-          "templates/guest-users"
+          {
+            "group": "Frontend",
+            "icon": "circle-nodes",
+            "pages": [
+              "best-practices/frontend/structure",
+              "best-practices/frontend/performance",
+              "best-practices/frontend/animations"
+            ]
+          },
+          {
+            "group": "Backend",
+            "icon": "chart-tree-map",
+            "pages": [
+              {
+                "group": "RevenueCat",
+                "icon": "cat",
+                "pages": [
+                  "best-practices/backend/revenue-cat/webhooks",
+                  "best-practices/backend/revenue-cat/cron-jobs"
+                ]
+              }
+            ]
+          }
         ]
       }
     ]
