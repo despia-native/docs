@@ -41,6 +41,36 @@
         ]
       },
       {
+        "group": "Best Practices",
+        "icon": "thumbs-up",
+        "expanded": true,
+        "pages": [
+          {
+            "group": "Frontend",
+            "icon": "circle-nodes",
+            "pages": [
+              "best-practices/frontend/structure",
+              "best-practices/frontend/performance",
+              "best-practices/frontend/animations"
+            ]
+          },
+          {
+            "group": "Backend",
+            "icon": "chart-tree-map",
+            "pages": [
+              {
+                "group": "RevenueCat",
+                "icon": "cat",
+                "pages": [
+                  "best-practices/backend/revenue-cat/webhooks",
+                  "best-practices/backend/revenue-cat/cron-jobs"
+                ]
+              }
+            ]
+          }
+        ]
+      },
+      {
         "group": "Native Features",
         "icon": "bolt-lightning",
         "expanded": false,
@@ -146,36 +176,7 @@
           }
         ]
       },
-      "mcp-server",
-      {
-        "group": "Best Practices",
-        "icon": "thumbs-up",
-        "pages": [
-          {
-            "group": "Frontend",
-            "icon": "circle-nodes",
-            "pages": [
-              "best-practices/frontend/structure",
-              "best-practices/frontend/performance",
-              "best-practices/frontend/animations"
-            ]
-          },
-          {
-            "group": "Backend",
-            "icon": "chart-tree-map",
-            "pages": [
-              {
-                "group": "RevenueCat",
-                "icon": "cat",
-                "pages": [
-                  "best-practices/backend/revenue-cat/webhooks",
-                  "best-practices/backend/revenue-cat/cron-jobs"
-                ]
-              }
-            ]
-          }
-        ]
-      }
+      "mcp-server"
     ]
   },
   "logo": {
