@@ -11,6 +11,7 @@
   "navigation": {
     "pages": [
       "introduction",
+      "mcp-server",
       {
         "group": "Deployment",
         "icon": "rocket",
@@ -89,6 +90,7 @@
           "native-features/paywalls",
           "native-features/restore-purchase",
           "native-features/storage-vault",
+          "native-features/gps-location-1",
           "native-features/rewarded-ads",
           "native-features/external-links",
           "native-features/device-indexing",
@@ -97,7 +99,6 @@
           "native-features/healthkit",
           "native-features/siri-shortcuts",
           "native-features/biometrics",
-          "native-features/gps-location",
           "native-features/app-privacy",
           "native-features/safe-areas",
           "native-features/camera-roll",
@@ -113,7 +114,14 @@
           "native-features/quick-actions",
           "native-features/simple-storage",
           "native-features/print-documents",
-          "native-features/screenshot"
+          "native-features/screenshot",
+          {
+            "group": "Legacy Features",
+            "icon": "book",
+            "pages": [
+              "native-features/gps-location"
+            ]
+          }
         ]
       },
       {
@@ -141,6 +149,7 @@
               "lovable/native-features/paywalls",
               "lovable/native-features/restore-purchase",
               "lovable/native-features/storage-vault",
+              "lovable/native-features/gps-location-1",
               "lovable/native-features/rewarded-ads",
               "lovable/native-features/external-links",
               "lovable/native-features/device-indexing",
@@ -149,7 +158,6 @@
               "lovable/native-features/health-kit",
               "lovable/native-features/siri-shortcuts",
               "lovable/native-features/biometrics",
-              "lovable/native-features/gps-location",
               "lovable/native-features/app-privacy",
               "lovable/native-features/safe-areas",
               "lovable/native-features/camera-roll",
@@ -171,12 +179,28 @@
           {
             "group": "Legacy Features",
             "pages": [
-              "lovable/legacy-features/one-signal-v1"
+              "lovable/legacy-features/one-signal-v1",
+              "lovable/native-features/gps-location"
             ]
           }
         ]
       },
-      "mcp-server"
+      {
+        "group": "Roadblocks",
+        "icon": "bug",
+        "pages": [
+          {
+            "group": "Runtime",
+            "icon": "lightbulb-gear",
+            "pages": [
+              "roadblocks/runtime/lost-auth-tokens",
+              "roadblocks/runtime/o-auth-failures",
+              "roadblocks/runtime/slow-apps",
+              "roadblocks/runtime/empty-pages"
+            ]
+          }
+        ]
+      }
     ]
   },
   "logo": {
