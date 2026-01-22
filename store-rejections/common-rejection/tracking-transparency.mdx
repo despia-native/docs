@@ -1,6 +1,7 @@
 ---
 title: "Tracking Transparency"
 description: "Your app was rejected for issues with Apple's App Tracking Transparency (ATT). Here's what went wrong and how to fix it."
+icon: "align-left"
 ---
 
 ## What are tracking transparency rejections?
@@ -129,7 +130,7 @@ See: [App Privacy](https://setup.despia.com/lovable/native-features/app-privacy)
 
 ### Vendor ID is not IDFA
 
-`despia.uuid`**is the Vendor ID, not the advertising identifier** 
+`despia.uuid`**is the Vendor ID, not the advertising identifier**
 
 Despia provides access to the device's Vendor ID (IDFV) through `despia.uuid`. This is different from IDFA and does not require ATT consent when used internally.
 
@@ -138,7 +139,7 @@ Despia provides access to the device's Vendor ID (IDFV) through `despia.uuid`. T
 | IDFA (Advertising ID) | Used for ad tracking across apps     | Yes                       |
 | IDFV (Vendor ID)      | Unique to your app/developer account | No (when used internally) |
 
-**You can use **`despia.uuid`**freely for:** 
+\*\*You can use \*\*`despia.uuid`**freely for:**
 
 - Linking devices to user accounts in your own database
 - Preventing account sharing
@@ -146,7 +147,7 @@ Despia provides access to the device's Vendor ID (IDFV) through `despia.uuid`. T
 - Fraud detection
 - Session management
 
-**You still need ATT if you send **`despia.uuid`**to:** 
+\*\*You still need ATT if you send \*\*`despia.uuid`**to:**
 
 - Ad networks (Facebook, Google, TikTok)
 - Attribution services (Adjust, AppsFlyer)
@@ -405,14 +406,3 @@ If you keep getting rejected for tracking issues:
    - Your rejection notice in full
    - List of SDKs in your app
    - Screenshot of App Store Connect privacy declarations
-
----
-
-## Related documentation
-
-- [App Privacy](https://setup.despia.com/lovable/native-features/app-privacy)
-- [Device Indexing](https://setup.despia.com/lovable/native-features/device-indexing)
-- [OneSignal Push Notifications](https://setup.despia.com/lovable/native-features/onesignal)
-- [Privacy Policy Rejections](https://setup.despia.com/roadblocks/app-review/privacy-policy)
-- [Apple ATT Documentation](https://developer.apple.com/documentation/apptrackingtransparency)
-- [Apple Privacy Guidelines](https://developer.apple.com/app-store/user-privacy-and-data-use/)

@@ -193,6 +193,7 @@
         "pages": [
           {
             "group": "RevenueCat",
+            "icon": "cat",
             "pages": [
               "roadblocks/revenue-cat/missing-item"
             ]
@@ -216,8 +217,9 @@
           "store-rejections/introduction",
           {
             "group": "Common Rejection",
+            "icon": "message-dots",
             "pages": [
-              "store-rejections/common-rejection/minimun-functionality",
+              "store-rejections/common-rejection/minimum-functionality",
               "store-rejections/common-rejection/non-mobile-design",
               "store-rejections/common-rejection/in-app-purchases",
               "store-rejections/common-rejection/deceptive-paywalls",
