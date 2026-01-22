@@ -83,6 +83,7 @@
             "group": "OAuth 2.0",
             "icon": "key",
             "pages": [
+              "native-features/o-auth-2-0/apple-auth",
               "native-features/oauth/google",
               "native-features/oauth/tiktok"
             ]
@@ -142,6 +143,7 @@
                 "group": "OAuth 2.0",
                 "icon": "key",
                 "pages": [
+                  "lovable/native-features/o-auth-2-0/apple-auth",
                   "lovable/native-features/oauth/google",
                   "lovable/native-features/oauth/tiktok"
                 ]
@@ -190,6 +192,12 @@
         "icon": "bug",
         "pages": [
           {
+            "group": "RevenueCat",
+            "pages": [
+              "roadblocks/revenue-cat/missing-item"
+            ]
+          },
+          {
             "group": "Runtime",
             "icon": "lightbulb-gear",
             "pages": [
@@ -197,6 +205,29 @@
               "roadblocks/runtime/o-auth-failures",
               "roadblocks/runtime/slow-apps",
               "roadblocks/runtime/empty-pages"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "Store Rejections",
+        "icon": "brake-warning",
+        "pages": [
+          "store-rejections/introduction",
+          {
+            "group": "Common Rejection",
+            "pages": [
+              "store-rejections/common-rejection/minimun-functionality",
+              "store-rejections/common-rejection/non-mobile-design",
+              "store-rejections/common-rejection/in-app-purchases",
+              "store-rejections/common-rejection/deceptive-paywalls",
+              "store-rejections/common-rejection/privacy-policy",
+              "store-rejections/common-rejection/tracking-transparency",
+              "store-rejections/common-rejection/ai-processing",
+              "store-rejections/common-rejection/spam-and-copies",
+              "store-rejections/common-rejection/social-login-options",
+              "store-rejections/common-rejection/user-specific-data",
+              "store-rejections/common-rejection/blank-screen-redirects"
             ]
           }
         ]
