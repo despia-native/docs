@@ -71,7 +71,7 @@
                 "group": "OneSignal",
                 "icon": "bell",
                 "pages": [
-                  "best-practices/backend/one-signal/lifecycle"
+                  "best-practices/backend/one-signal/user-lifecycle"
                 ]
               }
             ]

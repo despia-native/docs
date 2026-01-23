@@ -1,5 +1,5 @@
 ---
-title: "Lifecycle"
+title: "User Lifecycle"
 description: "Complete implementation guide for OneSignal push notifications with a unified "app_user_id" that works across your database, RevenueCat, and OneSignal."
 ---
 
@@ -100,8 +100,8 @@ flowchart TD
 ### Self-Healing Rules
 
 1. **Vault fails/empty on startup** → Create new `app_user_id` from `despia.uuid`, try to save to vault
-2. **User logs in with account that has no **`app_user_id` → CLAIM: assign current ID to account
-3. **User logs in with account that has existing **`app_user_id` → RECOVER: use account's ID, heal vault
+2. \*\*User logs in with account that has no \*\*`app_user_id` → CLAIM: assign current ID to account
+3. \*\*User logs in with account that has existing \*\*`app_user_id` → RECOVER: use account's ID, heal vault
 4. **Always write to vault after login** → Ensures vault is synced with account's correct ID
 5. **Vault write fails** → Continue anyway, login will heal it next time
 
@@ -1512,7 +1512,7 @@ DATABASE_URL=postgresql://user:password@localhost:5432/dbname
 - `app_user_id` column added to accounts table
 - `/api/user/register` endpoint implemented
 - `/api/user/login` endpoint with CLAIM + RECOVER logic
--  `/api/user/get-app-user-id/:accountId` endpoint
+- `/api/user/get-app-user-id/:accountId` endpoint
 
 **Frontend:**
 
