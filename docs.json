@@ -59,10 +59,12 @@
             "group": "Backend",
             "icon": "chart-tree-map",
             "pages": [
+              "best-practices/backend/user-session",
               {
                 "group": "RevenueCat",
                 "icon": "cat",
                 "pages": [
+                  "best-practices/backend/revenue-cat/user-session",
                   "best-practices/backend/revenue-cat/webhooks",
                   "best-practices/backend/revenue-cat/cron-jobs"
                 ]
