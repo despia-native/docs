@@ -66,6 +66,13 @@
                   "best-practices/backend/revenue-cat/webhooks",
                   "best-practices/backend/revenue-cat/cron-jobs"
                 ]
+              },
+              {
+                "group": "OneSignal",
+                "icon": "bell",
+                "pages": [
+                  "best-practices/backend/one-signal/lifecycle"
+                ]
               }
             ]
           }
