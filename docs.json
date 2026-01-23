@@ -60,18 +60,18 @@
             "icon": "chart-tree-map",
             "pages": [
               {
-                "group": "OneSignal",
-                "icon": "cowbell",
-                "pages": [
-                  "best-practices/backend/one-signal/user-session"
-                ]
-              },
-              {
                 "group": "RevenueCat",
                 "icon": "cat",
                 "pages": [
                   "best-practices/backend/revenue-cat/webhooks",
                   "best-practices/backend/revenue-cat/cron-jobs"
+                ]
+              },
+              {
+                "group": "OneSignal",
+                "icon": "cowbell",
+                "pages": [
+                  "best-practices/backend/one-signal/user-session"
                 ]
               }
             ]
