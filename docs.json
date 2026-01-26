@@ -59,14 +59,96 @@
             "group": "Backend",
             "icon": "chart-tree-map",
             "pages": [
+              "best-practices/backend/user-session",
               {
                 "group": "RevenueCat",
                 "icon": "cat",
                 "pages": [
+                  "best-practices/backend/revenue-cat/user-session",
                   "best-practices/backend/revenue-cat/webhooks",
                   "best-practices/backend/revenue-cat/cron-jobs"
                 ]
+              },
+              {
+                "group": "OneSignal",
+                "icon": "cowbell",
+                "pages": [
+                  "best-practices/backend/one-signal/user-session"
+                ]
               }
+            ]
+          }
+        ]
+      },
+      {
+        "group": "Roadblocks",
+        "icon": "bug",
+        "pages": [
+          {
+            "group": "Deployment",
+            "icon": "alt",
+            "pages": [
+              {
+                "group": "Apple iOS",
+                "icon": "apple-whole",
+                "pages": [
+                  "roadblocks/deployment/apple-i-os/health-kit"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "RevenueCat",
+            "icon": "cat",
+            "pages": [
+              "roadblocks/revenue-cat/missing-item"
+            ]
+          },
+          {
+            "group": "Runtime",
+            "icon": "lightbulb-gear",
+            "pages": [
+              "roadblocks/runtime/lost-auth-tokens",
+              "roadblocks/runtime/o-auth-failures",
+              "roadblocks/runtime/slow-apps",
+              "roadblocks/runtime/empty-pages"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "Store Rejections",
+        "icon": "brake-warning",
+        "pages": [
+          "store-rejections/introduction",
+          {
+            "group": "Common Rejection",
+            "icon": "message-dots",
+            "pages": [
+              "store-rejections/common-rejection/minimum-functionality",
+              "store-rejections/common-rejection/non-mobile-design",
+              "store-rejections/common-rejection/in-app-purchases",
+              "store-rejections/common-rejection/deceptive-paywalls",
+              "store-rejections/common-rejection/privacy-policy",
+              "store-rejections/common-rejection/tracking-transparency",
+              "store-rejections/common-rejection/ai-processing",
+              "store-rejections/common-rejection/spam-and-copies",
+              "store-rejections/common-rejection/social-login-options",
+              "store-rejections/common-rejection/user-specific-data",
+              "store-rejections/common-rejection/blank-screen-redirects"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "Limitations",
+        "icon": "chart-line-down",
+        "pages": [
+          {
+            "group": "NoCode Tools",
+            "icon": "toolbox",
+            "pages": [
+              "limitations/no-code-tools/base44"
             ]
           }
         ]
@@ -83,6 +165,7 @@
             "group": "OAuth 2.0",
             "icon": "key",
             "pages": [
+              "native-features/o-auth-2-0/apple-auth",
               "native-features/oauth/google",
               "native-features/oauth/tiktok"
             ]
@@ -142,6 +225,7 @@
                 "group": "OAuth 2.0",
                 "icon": "key",
                 "pages": [
+                  "lovable/native-features/o-auth-2-0/apple-auth",
                   "lovable/native-features/oauth/google",
                   "lovable/native-features/oauth/tiktok"
                 ]
@@ -184,22 +268,6 @@
             ]
           }
         ]
-      },
-      {
-        "group": "Roadblocks",
-        "icon": "bug",
-        "pages": [
-          {
-            "group": "Runtime",
-            "icon": "lightbulb-gear",
-            "pages": [
-              "roadblocks/runtime/lost-auth-tokens",
-              "roadblocks/runtime/o-auth-failures",
-              "roadblocks/runtime/slow-apps",
-              "roadblocks/runtime/empty-pages"
-            ]
-          }
-        ]
       }
     ]
   },
@@ -216,7 +284,7 @@
     ],
     "primary": {
       "type": "button",
-      "label": "Dashboard",
+      "label": "Get Started",
       "href": "https://v3.despia.com"
     }
   },
