@@ -316,6 +316,6 @@
     "decoration": "grid"
   },
   "csp": {
-    "frame-ancestors": "*"
+    "frame-ancestors": ["*"]
   }
 }
