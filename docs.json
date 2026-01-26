@@ -81,6 +81,79 @@
         ]
       },
       {
+        "group": "Roadblocks",
+        "icon": "bug",
+        "pages": [
+          {
+            "group": "Deployment",
+            "icon": "alt",
+            "pages": [
+              {
+                "group": "Apple iOS",
+                "icon": "apple-whole",
+                "pages": [
+                  "roadblocks/deployment/apple-i-os/health-kit"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "RevenueCat",
+            "icon": "cat",
+            "pages": [
+              "roadblocks/revenue-cat/missing-item"
+            ]
+          },
+          {
+            "group": "Runtime",
+            "icon": "lightbulb-gear",
+            "pages": [
+              "roadblocks/runtime/lost-auth-tokens",
+              "roadblocks/runtime/o-auth-failures",
+              "roadblocks/runtime/slow-apps",
+              "roadblocks/runtime/empty-pages"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "Store Rejections",
+        "icon": "brake-warning",
+        "pages": [
+          "store-rejections/introduction",
+          {
+            "group": "Common Rejection",
+            "icon": "message-dots",
+            "pages": [
+              "store-rejections/common-rejection/minimum-functionality",
+              "store-rejections/common-rejection/non-mobile-design",
+              "store-rejections/common-rejection/in-app-purchases",
+              "store-rejections/common-rejection/deceptive-paywalls",
+              "store-rejections/common-rejection/privacy-policy",
+              "store-rejections/common-rejection/tracking-transparency",
+              "store-rejections/common-rejection/ai-processing",
+              "store-rejections/common-rejection/spam-and-copies",
+              "store-rejections/common-rejection/social-login-options",
+              "store-rejections/common-rejection/user-specific-data",
+              "store-rejections/common-rejection/blank-screen-redirects"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "Limitations",
+        "icon": "chart-line-down",
+        "pages": [
+          {
+            "group": "NoCode Tools",
+            "icon": "toolbox",
+            "pages": [
+              "limitations/no-code-tools/base44"
+            ]
+          }
+        ]
+      },
+      {
         "group": "Native Features",
         "icon": "bolt-lightning",
         "expanded": false,
@@ -192,53 +265,6 @@
             "pages": [
               "lovable/legacy-features/one-signal-v1",
               "lovable/native-features/gps-location"
-            ]
-          }
-        ]
-      },
-      {
-        "group": "Roadblocks",
-        "icon": "bug",
-        "pages": [
-          {
-            "group": "RevenueCat",
-            "icon": "cat",
-            "pages": [
-              "roadblocks/revenue-cat/missing-item"
-            ]
-          },
-          {
-            "group": "Runtime",
-            "icon": "lightbulb-gear",
-            "pages": [
-              "roadblocks/runtime/lost-auth-tokens",
-              "roadblocks/runtime/o-auth-failures",
-              "roadblocks/runtime/slow-apps",
-              "roadblocks/runtime/empty-pages"
-            ]
-          }
-        ]
-      },
-      {
-        "group": "Store Rejections",
-        "icon": "brake-warning",
-        "pages": [
-          "store-rejections/introduction",
-          {
-            "group": "Common Rejection",
-            "icon": "message-dots",
-            "pages": [
-              "store-rejections/common-rejection/minimum-functionality",
-              "store-rejections/common-rejection/non-mobile-design",
-              "store-rejections/common-rejection/in-app-purchases",
-              "store-rejections/common-rejection/deceptive-paywalls",
-              "store-rejections/common-rejection/privacy-policy",
-              "store-rejections/common-rejection/tracking-transparency",
-              "store-rejections/common-rejection/ai-processing",
-              "store-rejections/common-rejection/spam-and-copies",
-              "store-rejections/common-rejection/social-login-options",
-              "store-rejections/common-rejection/user-specific-data",
-              "store-rejections/common-rejection/blank-screen-redirects"
             ]
           }
         ]

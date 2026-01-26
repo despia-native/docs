@@ -1,0 +1,199 @@
+---
+title: "Base44"
+icon: "gear-code"
+description: "Base44 is a popular no-code platform, but it has real limitations for native mobile apps. You can't customize the login page, can't add Apple Sign-In, and the email OTP flow hurts conversion. If you're building for the App Store with social login, Base44 won't work. We recommend Lovable, Cursor, or v0 instead."
+---
+
+## Overview
+
+This document outlines important limitations when integrating Base44 with Despia's SDK for native mobile application development.
+
+Base44 is an AI-powered no-code platform that lets teams generate apps from natural language prompts. It's a powerful tool for building MVPs and early-stage SaaS products, featuring built-in hosting, database management, user authentication, and analytics, all without writing code. The platform was recently backed by Wix, further accelerating its development.
+
+While Base44 excels at rapid prototyping for web applications, certain authentication constraints impact its viability for native mobile app development. These limitations should be carefully considered during the planning phase.
+
+<Danger>
+  **Note: **These limitations apply broadly to all web-to-native mobile frameworks. Despia is simply the first to formally document them.
+</Danger>
+
+## Authentication Constraints
+
+### Limited Login Page Customization
+
+Base44's authentication system is designed for simplicity and speed, with built-in user auth that requires no Supabase, Auth0, or third-party plugins. However, this convenience comes with trade-offs for native mobile development.
+
+**Key limitations include:**
+
+- No ability to inject custom code into the login page
+- Cannot customize authentication flows or fine-tune the login experience
+- Cannot implement compliant OAuth 2.0 flows via `ASWebAuthenticationSession` (iOS) or equivalent Android methods through Despia's SDK
+- Limited branding and UX customization options
+
+Unlike other AI-powered builders that allow full customization of the authentication experience, Base44 requires the use of their built-in login interface with no option to override it.
+
+### Apple Sign-In Not Supported
+
+Base44 does not currently offer Apple Sign-In integration. This presents a significant constraint for iOS applications, as **Apple requires apps that offer third-party social login options (Google, Facebook, etc.) to also provide Sign in with Apple**.
+
+**Implications:**
+
+- Apps with social authentication cannot be published to the App Store without violating Apple's guidelines
+- Projects requiring social login must seek alternative backend solutions
+
+### Email-Only Authentication
+
+Due to the above constraints, applications built with Despia + Base44 are effectively limited to email-based authentication.
+
+**Current email login experience:**
+
+- Base44's built-in email authentication relies on one-time passwords (OTP) sent via email
+- Users must switch to their email app, locate the code, and return to enter it
+- This flow introduces significant friction, particularly on mobile devices where context-switching impacts conversion rates
+
+---
+
+## Platform Context
+
+It's worth noting that these limitations align with Base44's core design philosophy. The platform is optimized for:
+
+- Rapid prototyping and MVP validation
+- Web-based applications
+- Simplicity over flexibility
+- Built-in infrastructure that "just works"
+
+Base44 explicitly trades customization for speed and ease of use. As documented in third-party reviews, the platform has "less control. You can't fine-tune database indexes, customize authentication flows, or deploy to your own infrastructure without significant limitations."
+
+This is not a criticism of Base44's approach. It's the right choice for many use cases. However, native mobile apps with modern authentication requirements fall outside that scope.
+
+---
+
+## Recommended Alternatives
+
+While you _can_ use Despia + Base44 for your MVP, there are better and more cost-effective alternatives that offer greater flexibility for mobile app development.
+
+### Lovable
+
+A popular AI-powered builder with a user base that tends to be more comfortable investing time to work through technical challenges. Lovable provides greater customization options and supports the Despia MCP for streamlined mobile integration.
+
+### Cursor
+
+An AI-powered code editor that gives you full control over your codebase while accelerating development. Ideal for developers who want AI assistance without sacrificing flexibility. Supports MCP integrations including the Despia MCP.
+
+### v0 (by Vercel)
+
+Excellent for UI/UX generation, particularly for mobile-friendly designs. v0 produces modern, polished interfaces that are far better suited for App Store submission than generic web templates. Supports MCPs including the Despia MCP.
+
+### Why These Alternatives Work Better
+
+| Feature                  | Base44  | Lovable / Cursor / v0 |
+| :----------------------- | :------ | :-------------------- |
+| Custom authentication    | No      | Yes                   |
+| Apple Sign-In capable    | No      | Yes                   |
+| MCP support              | No      | Yes                   |
+| Despia MCP integration   | No      | Yes                   |
+| Mobile-optimized UI/UX   | Limited | Yes                   |
+| Login page customization | No      | Yes                   |
+| Price                    | $$      | $ to $$               |
+
+**All three alternatives support Model Context Protocol (MCP), allowing direct integration with the Despia MCP for a smoother development workflow when building native mobile applications.**
+
+---
+
+## Setting Realistic Expectations
+
+### Mobile Development Requires Patience
+
+While not a Base44 limitation specifically, we've observed that Base44's target audience often underestimates the complexity involved in mobile app development. Mobile development has never been easy. It requires patience, attention to detail, and a willingness to troubleshoot unfamiliar processes.
+
+Users of comparable platforms (such as Lovable) tend to be more prepared to invest several hours working through challenges. This mindset is essential for mobile app development regardless of which tools you use.
+
+**Common areas where users encounter friction:**
+
+- Locating and configuring App Store Connect API keys
+- Creating and managing Bundle IDs
+- Generating properly formatted asset files (splash screens, app icons, etc.)
+- Understanding Apple and Google's submission requirements
+
+These tasks are standard requirements for any mobile app submission and are not unique to Despia. However, if these processes feel overwhelming, mobile app development may require more preparation than initially anticipated.
+
+### Design and App Review Considerations
+
+Base44-generated applications tend to produce generic web-style interfaces (commonly featuring purple gradients and standard web UI patterns). While acceptable for web applications, this aesthetic can create challenges during App Store review.
+
+**Key considerations:**
+
+- Apple's App Review team expects mobile apps to feel native, not like wrapped websites
+- Apps with an overly "web-ish" appearance may face rejection or require design revisions
+- Performance optimization and UI refactoring are often necessary before submission
+- Generic templates may need significant customization to meet platform guidelines
+
+We recommend planning for design iteration and potential restructuring when converting a Base44 web app into a native mobile experience. Alternatively, consider starting with v0, which produces mobile-optimized designs from the outset.
+
+### A Note on Expectations
+
+Despia is sometimes presented online as an "easy solution" for converting web apps to mobile. While Despia significantly streamlines the process, mobile development itself remains inherently complex. If you're new to app development, we encourage you to:
+
+1. Allocate sufficient time for learning the submission process
+2. Familiarize yourself with Apple and Google developer console requirements
+3. Be prepared to iterate on design and performance
+4. Approach the process with patience and persistence
+
+---
+
+## Recommendations
+
+### When Base44 + Despia Works Well
+
+- Internal tools and admin dashboards
+- Applications where email authentication is acceptable
+- Rapid prototyping and proof-of-concept development
+- Projects that do not require App Store distribution with social login
+- Web-first applications being tested on mobile
+- Users comfortable with mobile development workflows
+
+### When to Choose Alternatives
+
+If your project requires any of the following, we recommend Lovable, Cursor, or v0:
+
+1. Custom-branded login experiences
+2. Social authentication (Google, Apple, Facebook, etc.)
+3. Optimized mobile conversion funnels
+4. Full OAuth 2.0 compliance with native authentication sessions
+5. App Store distribution with social login options
+6. Native-feeling UI out of the box
+7. Despia MCP integration for streamlined workflows
+
+---
+
+## Summary
+
+| Feature                                  | Base44 Support                            |
+| :--------------------------------------- | :---------------------------------------- |
+| Custom login page                        | Not supported                             |
+| Custom authentication flows              | Not supported                             |
+| OAuth 2.0 via ASWebAuthenticationSession | Not supported                             |
+| Apple Sign-In                            | Not supported                             |
+| Google/Social Sign-In                    | Supported, but unusable for iOS App Store |
+| Email + OTP login                        | Supported                                 |
+| Despia NPM integration                   | Supported                                 |
+| Despia MCP integration                   | Not supported                             |
+| Rapid MVP prototyping                    | Excellent                                 |
+| Native mobile UI design                  | Requires significant customization        |
+
+---
+
+## Conclusion
+
+Base44 can be used for rapid prototyping and web-based MVPs. Its AI-powered app generation produces functional applications in minutes, making it useful for quick idea validation.
+
+However, for mobile applications, even at the MVP stage, we recommend considering **Lovable**, **Cursor**, or **v0** instead. These alternatives offer:
+
+- Better pricing
+- Full authentication customization
+- MCP support (including the Despia MCP)
+- Superior mobile UI/UX (especially v0)
+- A path to production-ready apps without major refactoring
+
+If you proceed with Base44, be prepared for the realities of mobile app development, including design refinement, asset creation, authentication limitations, and navigating App Store submission requirements.
+
+**For the smoothest path from MVP to App Store, we recommend starting with tools that support modern authentication flows and the Despia MCP from day one.**

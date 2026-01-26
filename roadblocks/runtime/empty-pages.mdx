@@ -4,6 +4,43 @@ icon: "page"
 description: "Your app loads but shows a blank white screen. Here's how to fix it."
 ---
 
+## Splash screen never appears (most common)
+
+**App "crashes" or shows white screen immediately on launch. You never see the splash screen logo.**
+
+This is the most common issue. If you're starting a fresh install and the splash screen GIF never displays at all, the problem is almost always a **corrupt or incompatible GIF file**.
+
+Despia uses a GIF library in Swift on iOS to render animated splash screens. This library is strict about GIF metadata. If your file doesn't meet its requirements, it fails silently and you get a white screen.
+
+### GIF requirements
+
+Your splash screen GIF needs proper metadata to work. Here's what the library expects:
+
+| Requirement                   | Details                                                                                               |
+| :---------------------------- | :---------------------------------------------------------------------------------------------------- |
+| **Global Color Table**        | Must be present. Some export tools skip this.                                                         |
+| **Frame delays**              | Each frame needs a valid delay time (typically 0.03s to 0.1s). Zero or missing delays break playback. |
+| **Logical Screen Descriptor** | Width/height must be defined in the GIF header, not just inferred from frames.                        |
+| **No corrupted frames**       | Partial or malformed frame data causes silent failures.                                               |
+| **Reasonable file size**      | Very large GIFs (10MB+) may cause memory issues on older devices.                                     |
+| **Transparent background**    | Recommended. Ensures the GIF displays correctly over your splash screen color.                        |
+
+### How to fix your GIF
+
+**Recommended: Use Canva**
+
+For most users, [Canva](https://canva.com/) is the easiest option. It exports GIFs with correct metadata automatically, even on the free plan. When exporting:
+
+- Select GIF format
+- Use a transparent background
+- Download and upload to Despia
+
+**Alternative: Photoshop**
+
+If you have Photoshop: File → Export → Save for Web (Legacy) → GIF. Make sure to use a transparent background.
+
+---
+
 ## Check your URL first
 
 **No https:// or missing SSL certificate**
@@ -16,7 +53,7 @@ Common mistakes:
 - No SSL certificate installed
 - Certificate expired or invalid
 
-Fix: Add `https://` and make sure your SSL cert is valid. Test the URL in a browser first.
+**Fix:** Add `https://` and make sure your SSL cert is valid. Test the URL in a browser first.
 
 ---
 
@@ -133,14 +170,15 @@ If you point Despia to `https://www.example.com` but haven't set up the www subd
 
 ## Quick debugging checklist
 
-1. ✓ URL has `https://` prefix
-2. ✓ SSL certificate is valid (test in browser)
-3. ✓ Local server manifest at `/despia/local.json` is valid
-4. ✓ App is client-side (not server-rendered)
-5. ✓ Router handles trailing slashes
-6. ✓ No redirect loops
-7. ✓ www/non-www matches your DNS setup
-8. ✓ If using Next.js, built with static export
+1. Splash screen GIF has valid metadata
+2. URL has `https://` prefix
+3. SSL certificate is valid (test in browser)
+4. Local server manifest at `/despia/local.json` is valid
+5. App is client-side (not server-rendered)
+6. Router handles trailing slashes
+7. No redirect loops
+8. www/non-www matches your DNS setup
+9. If using Next.js, built with static export
 
 ---
 
@@ -148,10 +186,11 @@ If you point Despia to `https://www.example.com` but haven't set up the www subd
 
 If none of this helps:
 
-1. Test your URL in a regular mobile browser (Safari/Chrome). Does it work there?
-2. Check browser console for errors (use remote debugging)
-3. Contact support: [support@despia.com](mailto:support@despia.com) with:
+1. **Test your URL in a regular mobile browser** (Safari/Chrome). Does it work there?
+2. **Check browser console for errors** (use remote debugging)
+3. **Contact support:** [support@despia.com](mailto:support@despia.com) with:
    - Your app URL
    - Screenshot of white screen
    - Browser console errors (if any)
    - Whether local server is on/off
+   - What splash screen file format you're using
