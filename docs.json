@@ -108,6 +108,7 @@
             "group": "Runtime",
             "icon": "lightbulb-gear",
             "pages": [
+              "roadblocks/runtime/no-ota-updates",
               "roadblocks/runtime/lost-auth-tokens",
               "roadblocks/runtime/o-auth-failures",
               "roadblocks/runtime/slow-apps",
@@ -165,6 +166,7 @@
             "group": "OAuth 2.0",
             "icon": "key",
             "pages": [
+              "native-features/o-auth-2-0/generic",
               "native-features/o-auth-2-0/apple-auth",
               "native-features/oauth/google",
               "native-features/oauth/tiktok"
