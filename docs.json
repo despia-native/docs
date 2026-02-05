@@ -42,6 +42,13 @@
         ]
       },
       {
+        "group": "Local CDN",
+        "icon": "box-open",
+        "pages": [
+          "how-it-works"
+        ]
+      },
+      {
         "group": "Best Practices",
         "icon": "thumbs-up",
         "expanded": true,
@@ -176,6 +183,7 @@
           "native-features/restore-purchase",
           "native-features/storage-vault",
           "native-features/gps-location-1",
+          "native-features/light-and-dark-mode",
           "native-features/rewarded-ads",
           "native-features/external-links",
           "native-features/device-indexing",
