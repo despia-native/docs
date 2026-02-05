@@ -1,0 +1,401 @@
+---
+title: "How it Works"
+description: "Despia's Local CDN solves offline media caching for hybrid apps - a problem that has challenged web developers for over 15 years."
+icon: "lightbulb"
+---
+
+## Why we built this
+
+Local CDN was built by web developers who love the web platform but need native power.
+
+We wanted offline media that works the way web developers expect: set a `src` attribute, use `fetch()`, work with standard URLs. No Base64 encoding. No Blob URL workarounds. No arbitrary storage limits.
+
+So we collaborated with native iOS and Android engineers. We studied how Spotify, Netflix, and YouTube handle offline downloads in their native apps. Then we brought that same architecture to hybrid web apps while keeping everything familiar to web developers.
+
+The result: cache gigabytes of media with two function calls, play it back with a standard URL, and maintain O(1) memory usage independent of file size.
+
+---
+
+## Cross-platform by design
+
+Local CDN is optimized for both iOS and Android through a unified JavaScript SDK.
+
+Write your code once. It works identically on both platforms. No iOS-specific workarounds. No Android edge cases. The API is fully standardized so you can focus on building your app instead of handling platform differences.
+
+```javascript
+// Same code. Both platforms.
+despia("localcdn://write?url=https://cdn.example.com/video.mp4&localname=videos/movie.mp4");
+```
+
+Under the hood, Despia handles the platform-specific implementations (Swift on iOS, Kotlin on Android) so your JavaScript stays clean and portable.
+
+---
+
+## Fully client-side. No cloud dependencies.
+
+Local CDN runs entirely on the device. There is no cloud component, no proprietary backend, no special hosting requirements.
+
+**Built on Despia Local Server.** Despia Local Server provides the HTTP infrastructure - a proprietary, production-grade localhost server that runs entirely within your app. Local CDN extends this by adding file storage and content serving capabilities through the native file system. Together, they form a complete on-device content delivery system.
+
+**Fully maintained, fully client-side.** Both Despia Local Server and Local CDN are compiled into your app binary. No external services, no cloud dependencies, no opinionated backend architecture forced on you. Everything runs on the device.
+
+**Use any hosting.** Cache files from any URL - your own servers, AWS S3, Cloudflare, Google Cloud Storage, or any public CDN. Local CDN does not care where files come from.
+
+**No cloud lock-in. No data lock-in.** Your files are standard files on the device file system. Your URLs are standard HTTP URLs. Your backend, your database, your API - all remain yours. Despia never sits between you and your infrastructure.
+
+**Runtime dependency only.** Local CDN and Despia Local Server are runtime dependencies, similar to any other SDK you include in your app. The proprietary component is the on-device localhost server and native file system integration. Your data formats, hosting choices, and backend architecture remain portable.
+
+**No per-user fees.** Unlike cloud-based solutions that charge per monthly active user, Local CDN has zero runtime costs. Scale to millions of users without infrastructure costs scaling with them.
+
+**Works offline completely.** Once files are cached, the entire system operates without any network connectivity. No license checks, no heartbeats, no server dependencies.
+
+---
+
+## Despia Local Server: The complete picture
+
+Local CDN is one part of the Despia Local Server ecosystem. The full Local Server provides:
+
+**Instant boot.** Zero network latency. Your entire web app loads in milliseconds from localhost.
+
+**Complete offline support.** Not "works offline sometimes" but actually works without any connectivity, forever.
+
+**OTA updates.** Push web app changes live without app store approval. Updates download in the background and apply on next launch.
+
+**Your hosting, your rules.** Keep using Netlify, Vercel, AWS, whatever you already have. No migration, no cloud lock-in, no MAU fees.
+
+**100% store compliant.** Fully approved architecture for both Apple App Store and Google Play Store.
+
+Local CDN handles media and file caching. Despia Local Server handles your entire web application. Together, they give you native-quality performance with web development workflows.
+
+For complete documentation on Despia Local Server including setup, OTA updates, and architecture details, see: [How Local Server Works](https://setup.despia.com/local-server/how-it-works)
+
+---
+
+## Who this is for
+
+Local CDN solves a specific problem for a specific type of app. It's not for everyone.
+
+**This is for you if:**
+
+- Your app caches large media files (videos, podcasts, audio courses, image libraries)
+- You need true offline playback, not just "works offline sometimes"
+- Memory constraints are a real problem - your app crashes or lags with current caching approaches
+- You're building for both iOS and Android and want one solution
+- You're comfortable with a runtime dependency in exchange for solving a hard problem
+
+**This is probably not for you if:**
+
+- Your app only caches small files (under 50MB total)
+- IndexedDB or browser cache already works fine for your use case
+- You prefer open-source solutions with no proprietary dependencies
+- You need to minimize third-party SDKs
+- Your team isn't hitting memory or storage limits with current approaches
+
+**The tradeoff is clear:** You get O(1) memory usage, unlimited storage, and cross-platform consistency. In exchange, you take a runtime dependency on Despia Local Server.
+
+For apps in the top 5% - podcast players, video learning platforms, music apps, offline-first enterprise tools - that tradeoff makes sense. For simpler apps, standard web caching is probably fine.
+
+---
+
+## The 15-year problem
+
+Since PhoneGap launched in 2009, hybrid web-native apps have struggled with offline media. The core issue: WebViews run in a sandboxed environment with no direct file system access.
+
+Every framework has attempted to solve this. None have done it well.
+
+**Cordova** required plugins and Blob URLs. Files had to be read into JavaScript memory before playback.
+
+**Ionic** inherited Cordova's limitations. Developers worked around them with complex caching strategies that still hit browser storage quotas.
+
+**Capacitor** improved file system access but still requires Base64 encoding to pass data through the JavaScript bridge. A 500MB video requires approximately 1.5GB of memory during the read-decode-play cycle.
+
+**React Native** offers partial solutions, but media handling remains complex and platform-specific.
+
+The fundamental problem across all these frameworks: everything passes through JavaScript. Files must be encoded, transferred across the bridge, decoded, and converted to Blob URLs before playback. Memory usage scales with file size. Large files crash apps.
+
+Web developers have been forced to choose between streaming everything (no offline support), caching small files only (poor user experience), or abandoning web technologies entirely.
+
+---
+
+## How other frameworks handle it
+
+### Capacitor's approach
+
+```javascript
+import { Filesystem, Directory } from '@capacitor/filesystem';
+
+// Write requires Base64 encoding
+await Filesystem.writeFile({
+  path: 'videos/movie.mp4',
+  data: base64Data,
+  directory: Directory.Data
+});
+
+// Read returns Base64
+const result = await Filesystem.readFile({
+  path: 'videos/movie.mp4',
+  directory: Directory.Data
+});
+
+// Playback requires Blob URL conversion
+const blob = base64ToBlob(result.data);
+const blobUrl = URL.createObjectURL(blob);
+videoElement.src = blobUrl;
+```
+
+This approach has several limitations:
+
+- Base64 encoding adds 33% size overhead
+- Entire file must load into JavaScript memory
+- Blob URL creation duplicates the memory reference
+- Large files cause out-of-memory crashes
+- Platform-specific quirks require additional handling
+
+### Framework comparison
+
+| Framework            | File System Access | Direct Playback | Memory Efficient | Cross-Platform | Offline Media    |
+| :------------------- | :----------------- | :-------------- | :--------------- | :------------- | :--------------- |
+| Cordova              | Plugin required    | No              | No               | Partial        | Limited          |
+| Capacitor            | Yes                | No              | No               | Partial        | Limited          |
+| React Native         | Yes                | Partial         | Partial          | Partial        | Complex          |
+| Flutter              | Yes                | Yes             | Yes              | Yes            | Not web-based    |
+| **Despia Local CDN** | **Yes**            | **Yes**         | **Yes**          | **Yes**        | **Full support** |
+
+---
+
+## Our approach
+
+Local CDN bypasses JavaScript entirely for file operations.
+
+When you cache a file, Despia's native layer (Swift on iOS, Kotlin on Android) downloads it directly to the device file system. The file never touches the JavaScript bridge.
+
+When you play it back, Local CDN serves the file through Despia Local Server via `http://localhost`. Your web app uses a standard URL - the same way you would load any media from a remote CDN.
+
+```javascript
+// Cache a file
+despia("localcdn://write?url=https://cdn.example.com/video.mp4&localname=videos/movie.mp4");
+
+// Get the local URL
+const data = await despia(
+  `localcdn://read?index=${encodeURIComponent(JSON.stringify(["/videos/movie.mp4"]))}`,
+  ["cdnItems"]
+);
+
+const items = JSON.parse(data.cdnItems);
+
+// Use it like any other URL
+videoElement.src = items[0].local_cdn;
+```
+
+Memory usage is O(1), independent of file size. The file streams from disk to the hardware video decoder. JavaScript is only involved in setting the `src` attribute.
+
+---
+
+## Built for web developers
+
+We kept everything familiar to web developers:
+
+**Standard URLs.** The `local_cdn` value is a regular HTTP URL. Use it anywhere you would use a CDN URL: `src` attributes, `fetch()` calls, CSS `url()` values.
+
+**No encoding.** Files stay as files. No Base64. No ArrayBuffers. No Blobs.
+
+**No new APIs to learn.** If you know how to set `videoElement.src`, you know how to use Local CDN.
+
+**Familiar patterns.** Write is like uploading to a CDN. Read is like querying a database. The response is JSON.
+
+```tsx
+// Works in video elements
+<video src={items[0].local_cdn} />
+
+// Works in audio elements
+<audio src={items[0].local_cdn} />
+
+// Works in image elements
+<img src={items[0].local_cdn} />
+
+// Works with fetch
+fetch(items[0].local_cdn)
+```
+
+The web platform is powerful. We kept it that way.
+
+---
+
+## Technical architecture
+
+### Write operation
+
+When you call `localcdn://write`:
+
+1. Despia's native layer receives the request
+2. Native HTTP client downloads the file directly to device storage
+3. File is saved to the app's dedicated cache directory
+4. Metadata (path, size, extension, original URL) is indexed
+5. JavaScript heap remains untouched
+
+### Read operation
+
+When you call `localcdn://read`:
+
+1. Despia looks up the requested files in the metadata index
+2. Returns file information including the `local_cdn` URL
+3. Local CDN serves files through Despia Local Server via `localhost`
+4. Media elements stream directly from disk
+5. Hardware decoders handle playback with native performance
+
+### Why localhost
+
+Despia Local Server provides the HTTP infrastructure. Local CDN stores files and serves them through this infrastructure via `http://localhost`. This architecture provides several advantages:
+
+- Standard web APIs work without modification
+- No CORS restrictions (same-origin)
+- HTTP range requests enable seeking without loading entire files
+- Localhost is treated as a secure context
+- Hardware-accelerated decoders work with HTTP sources
+
+---
+
+## Memory comparison
+
+### What O(1) means
+
+O(1) means "constant" - the memory usage stays the same regardless of input size. Whether you play a 10MB file or a 10GB file, Local CDN uses the same amount of memory.
+
+This is the opposite of traditional approaches where memory scales with file size (O(n)). Double the file size, double the memory usage. That's why large files crash apps.
+
+### 500MB video: Capacitor vs Despia
+
+Let's trace what happens when you play a 500MB video file.
+
+**Capacitor (traditional approach):**
+
+```
+Step 1: Read file from disk
+   → Base64 encoded string created: 665MB (33% overhead)
+   → JS heap: 665MB
+
+Step 2: Decode Base64 to ArrayBuffer
+   → ArrayBuffer created: 500MB
+   → JS heap: 665MB + 500MB = 1,165MB
+
+Step 3: Create Blob from ArrayBuffer
+   → Blob created: 500MB
+   → JS heap: 665MB + 500MB + 500MB = 1,665MB
+
+Step 4: Create Blob URL
+   → URL string + reference overhead: ~1MB
+   → JS heap: ~1,666MB
+
+Step 5: Garbage collection (eventually)
+   → Some memory freed, but timing unpredictable
+   → Peak memory: ~1.6GB for a 500MB file
+```
+
+**Despia Local CDN:**
+
+```
+Step 1: Set video.src to localhost URL
+   → URL string: ~100 bytes
+   → JS heap: ~100 bytes
+
+Step 2: Video element requests file via HTTP
+   → Request handled by Local CDN through Despia Local Server
+   → JS heap: ~100 bytes (unchanged)
+
+Step 3: File streams from disk
+   → Kernel read buffer: ~1-2MB
+   → Media pipeline buffer: ~2-4MB
+   → Hardware decoder buffer: ~1-2MB
+   → JS heap: ~100 bytes (unchanged)
+
+Total: ~5-8MB fixed (none in JS heap)
+```
+
+| Metric                | Capacitor | Despia Local CDN |
+| :-------------------- | :-------- | :--------------- |
+| Peak JS heap          | ~1,666MB  | ~100 bytes       |
+| System memory         | ~1,666MB  | ~5-8MB           |
+| Scales with file size | Yes       | No               |
+| 2GB video             | Crash     | Works            |
+
+### Where the ~2-8MB comes from
+
+Local CDN doesn't use zero memory - that would be physically impossible. Here's what actually uses memory during playback:
+
+**Kernel read buffer (~1-2MB):** The operating system reads files in chunks, not byte-by-byte. This buffer exists for any file read operation on any platform.
+
+**Media pipeline buffer (~2-4MB):** iOS and Android media frameworks buffer a few seconds of decoded frames for smooth playback. This is handled entirely in native code.
+
+**Hardware decoder buffer (~1-2MB):** The video decoder chip has its own memory for processing frames. This is separate from app memory.
+
+These buffers exist in native apps too - Spotify, Netflix, and YouTube all have them. The key difference: none of this memory is in your JavaScript heap, and none of it scales with file size.
+
+A 100MB video and a 2GB video use the same ~5-8MB of buffer memory. That's what O(1) means in practice.
+
+---
+
+## Use cases
+
+### Media-heavy applications
+
+Podcast apps can cache entire libraries. Video learning platforms can download courses for offline viewing. Music apps can store playlists locally. All without memory constraints.
+
+### Offline-first experiences
+
+Field service apps, travel apps, and educational tools that must work without connectivity can cache all required media assets during initial sync.
+
+### Performance-critical applications
+
+Localhost serving eliminates network latency entirely. Media plays instantly. Seeking is immediate. The experience matches native apps.
+
+---
+
+## Frequently asked questions
+
+**How much storage can I use?**
+
+The device's available storage. No artificial quotas like IndexedDB. Cache gigabytes of content.
+
+**Does this work offline?**
+
+Yes. Files are stored on the device file system and served from an on-device HTTP server. No network required after initial download.
+
+**What file types are supported?**
+
+Any file type: video (mp4, webm, mov), audio (mp3, wav, aac), images (jpg, png, webp), documents (pdf, json), and more.
+
+**Is this App Store compliant?**
+
+Yes. Downloading and caching media content is standard app behavior, identical to how Spotify, Netflix, and YouTube handle offline downloads.
+
+**What happens if storage is full?**
+
+The download will fail. Implement cache management logic to remove old files before downloading new ones.
+
+**Does it work the same on iOS and Android?**
+
+Yes. The JavaScript API is identical on both platforms. Despia handles platform-specific implementation details internally.
+
+---
+
+## Summary
+
+| Capability           | Traditional Web       | Local CDN                            |
+| :------------------- | :-------------------- | :----------------------------------- |
+| Memory usage         | Scales with file size | O(1) fixed                           |
+| Storage limit        | 50-100MB              | Device capacity                      |
+| Offline support      | Unreliable            | Complete                             |
+| Playback performance | Software decoded      | Hardware accelerated                 |
+| Cross-platform       | Platform quirks       | Unified SDK                          |
+| Cloud dependency     | Often required        | None                                 |
+| Data portability     | Varies                | Full (standard files, standard URLs) |
+| Implementation       | Complex               | Two function calls                   |
+| Large file support   | Crashes               | Works                                |
+
+Local CDN brings native-quality offline media to hybrid web apps. Files live on the file system. Playback uses hardware acceleration. Memory usage is O(1) independent of file size. One SDK works across iOS and Android.
+
+No cloud lock-in, no data lock-in, no per-user fees. The runtime dependency is Despia Local Server - a tradeoff that eliminates the 15-year hybrid app memory problem in exchange for a maintained, production-grade SDK.
+
+Combined with Despia Local Server for web app hosting and OTA updates, you get a complete offline-first infrastructure that runs entirely on-device.
+
+**After 15 years of workarounds, web developers can finally build media-rich offline experiences without abandoning the web platform.**
