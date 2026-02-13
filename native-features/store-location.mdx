@@ -6,7 +6,7 @@ icon: "globe"
 
 <iframe src="https://www.youtube.com/embed/jRK3xfWqi0w" title="YouTube video player" frameborder="0" className="w-full aspect-video rounded-xl" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen />
 
-<Card title="AI Prompt" icon="sparkles">
+<Card icon="sparkles" title="AI Prompt">
   Access the user's current store location for location-based services and regional content in your application using the Despia SDK from: [**https://www.npmjs.com/package/despia-native**](https://www.npmjs.com/package/despia-native)
 
   First, install the package: `npm install despia-native`
@@ -54,7 +54,7 @@ const storeLocation = despia.storeLocation;
 <div>
   <p>Your Store Location: {storeLocation}</p>
   
-  {storeLocation === 'USA' && (
+  {storeLocation === 'US' && (
     <button onClick={handleWebPayment}>
       Checkout with Web Payment
     </button>
