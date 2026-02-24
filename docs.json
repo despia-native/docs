@@ -166,6 +166,7 @@
         "icon": "bolt-lightning",
         "expanded": false,
         "pages": [
+          "native-features/in-app-purchases",
           "native-features/user-agent",
           "native-features/onesignal",
           "native-features/deeplinking",

@@ -1,0 +1,1019 @@
+---
+title: "In-App Purchases"
+description: "Add native App Store and Google Play billing to your Despia app using RevenueCat. Covers paywall setup, user identity, and optional backend reliability layers."
+icon: "money-bills"
+---
+
+**Required — get purchases working:**
+
+<CardGroup cols={2}>
+  <Card icon="window" title="Paywall integration">
+    Load products from RevenueCat, trigger purchases, and handle the `onRevenueCatPurchase` callback.
+  </Card>
+  <Card icon="user" title="User session">
+    Resolve a stable user ID using `@despia/user-identity` — survives reinstalls, recovers paying users automatically.
+  </Card>
+  <Card icon="cube" title="revenuecat-server">
+    Backend SDK for entitlement checks, route guards, and serving offering data to your frontend.
+  </Card>
+</CardGroup>
+
+**Optional — nice to have for production reliability:**
+
+<CardGroup cols={2}>
+  <Card icon="webhook" title="Webhook handler">
+    Near-instant DB sync on subscription events. Useful once you're ready to automate access changes.
+  </Card>
+  <Card icon="clock" title="Cron sync">
+    Self-healing backup that catches any events webhooks miss. Add this when reliability matters at scale.
+  </Card>
+</CardGroup>
+
+<Warning>
+  **Native capabilities required.** In-app purchases require native App Store / Google Play billing. All native capabilities are provided entirely by the `despia-native` npm package — no additional native libraries or SDK integrations needed.
+</Warning>
+
+---
+
+## Installation
+
+Install these packages — frontend packages in your app, `revenuecat-server` on the backend only.
+
+```bash
+# Native purchase triggers + user identity — frontend
+npm install despia-native @despia/user-identity
+
+# RevenueCat REST API client — backend only, never expose to frontend
+npm install revenuecat-server
+```
+
+<Warning>
+  **Server-side only.** `revenuecat-server` must only run on your backend. RevenueCat API keys must never be exposed to the client. Build secure proxy endpoints — your frontend calls your backend; your backend uses this SDK.
+</Warning>
+
+---
+
+## Purchase Flow
+
+The core flow requires no webhooks or cron jobs. Steps 1–3 are all you need to ship a working purchase experience. Steps 4–5 are optional reliability improvements you can add later.
+
+**Required:**
+
+| Step | Layer    | Detail                                                                            |
+| ---- | -------- | --------------------------------------------------------------------------------- |
+| 1    | Frontend | `initializeIdentity()` → `POST /api/user/register`                                |
+| 2    | Frontend | User taps Upgrade → `despia("revenuecat://purchase?...")` → Native billing dialog |
+| 3    | Frontend | `onRevenueCatPurchase()` fires → poll `/api/subscription-status` → grant access   |
+
+**Optional — add when you're ready:**
+
+| Step | Layer   | Detail                                                                        |
+| ---- | ------- | ----------------------------------------------------------------------------- |
+| 4    | Backend | `POST /webhooks/revenuecat` → near-instant DB sync on any subscription change |
+| 5    | Backend | Cron every 5 min → `rc.getActiveEntitlements()` → heal any drift              |
+
+<Info>
+  **You don't need webhooks or cron jobs to ship.** The `onRevenueCatPurchase` callback and backend polling is sufficient on its own. Webhooks and cron sync are reliability layers — add them when you want near-instant DB updates and automatic recovery from missed events.
+</Info>
+
+---
+
+## Paywall Integration
+
+The paywall logic is plain JavaScript — no framework required. The same functions work identically in React, Vue, Svelte, or a vanilla JS app. Wire them into whatever UI you're building.
+
+### Loading Products from RevenueCat
+
+Rather than hardcoding store identifiers, fetch them dynamically from your backend using `rc.getOfferingPackages()`. The response includes the correct `store_identifier` per platform — iOS and Android identifiers will typically differ, and RevenueCat knows both. Your entire offering is then managed from the RevenueCat dashboard with no code changes needed.
+
+<Note>
+  A backend connection is required to load products dynamically. See [Hardcoded Fallback](#hardcoded-fallback) below for offline resilience.
+</Note>
+
+**Step 1 — Backend proxy endpoint:**
+
+```javascript routes/offerings.js
+const { rc } = require('./lib/rc');
+
+// GET /api/offerings/:offeringId
+// Safe to expose — contains no secrets, just product metadata
+app.get('/api/offerings/:offeringId', async (req, res) => {
+  const packages = await rc.getOfferingPackages(req.params.offeringId);
+  return res.json({ packages });
+});
+```
+
+Each package in the response looks like:
+
+```javascript
+{
+  id:           'test_pkge_xxxxxxxxxxxx',
+  lookup_key:   'monthly',           // stable name you set in RC dashboard
+  display_name: 'Monthly',
+  position:     1,
+  products: {
+    ios:     [{ store_identifier: 'com.myapp.monthly',         display_name: '...' }],
+    android: [{ store_identifier: 'com.myapp.monthly.android', display_name: '...' }],
+    other:   []
+  }
+}
+```
+
+**Step 2 — Frontend fetch:**
+
+```javascript paywall.js
+// Detect which platform's store_identifier to use
+function detectPlatform() {
+  const ua = navigator.userAgent;
+  if (/iPhone|iPad|iPod/.test(ua)) return 'ios';
+  if (/Android/.test(ua))          return 'android';
+  return 'other';
+}
+
+async function loadProducts(offeringId = 'default') {
+  const res          = await fetch(`/api/offerings/${offeringId}`);
+  const { packages } = await res.json();
+  const platform     = detectPlatform();
+
+  return packages.map(pkg => ({
+    lookupKey:       pkg.lookup_key,                           // use this as your stable ID in UI logic
+    displayName:     pkg.display_name,
+    storeIdentifier: pkg.products[platform]?.[0]?.store_identifier ?? null,
+  }));
+}
+```
+
+Use `lookup_key` (e.g. `"monthly"`, `"lifetime"`) as your stable key in UI logic — never rely on array position, as ordering can change in the dashboard.
+
+<Note>
+  **Prices are not available from RevenueCat.** Use `store_identifier` with Apple StoreKit or Google Play Billing on the native layer to fetch localised prices.
+</Note>
+
+### Hardcoded Fallback
+
+If the backend is unreachable, fall back to hardcoded identifiers. iOS and Android are listed separately since they will typically differ.
+
+```javascript paywall.js
+// Fallback — used if /api/offerings is unreachable
+// Keep lookup_key values in sync with your RC dashboard
+const FALLBACK_PRODUCTS = {
+  monthly: {
+    lookupKey:   'monthly',
+    displayName: 'Monthly',
+    storeIdentifier: {
+      ios:     'com.myapp.monthly',
+      android: 'com.myapp.monthly.android',
+    },
+  },
+  lifetime: {
+    lookupKey:   'lifetime',
+    displayName: 'Lifetime',
+    storeIdentifier: {
+      ios:     'com.myapp.lifetime',
+      android: 'com.myapp.lifetime.android',
+    },
+  },
+};
+
+async function getProducts(offeringId = 'default') {
+  try {
+    return await loadProducts(offeringId);         // dynamic — preferred
+  } catch (err) {
+    console.warn('[paywall] Offering fetch failed, using fallback:', err);
+    const platform = detectPlatform();
+    return Object.values(FALLBACK_PRODUCTS).map(p => ({
+      lookupKey:       p.lookupKey,
+      displayName:     p.displayName,
+      storeIdentifier: p.storeIdentifier[platform] ?? null,
+    }));
+  }
+}
+```
+
+Call `getProducts()` everywhere — it transparently tries the dynamic path first and falls back silently:
+
+```javascript paywall.js
+// On paywall open
+const products = await getProducts();
+
+products.forEach(product => {
+  if (!product.storeIdentifier) return; // platform not supported
+  renderPaywallItem(product);
+});
+```
+
+### onRevenueCatPurchase Callback
+
+The Despia Native Runtime calls `window.onRevenueCatPurchase()` when an in-app purchase or subscription is successfully made on the client side. Register this once when your app boots — before any purchase can occur.
+
+Do not grant access here. The purchase is client-side only and not yet validated. This is the right moment to start polling your backend — if the RevenueCat webhook has already arrived and updated the user's status, polling will return immediately. If not, it will catch it within seconds.
+
+```javascript paywall.js
+// Register once on app boot — framework-agnostic
+window.onRevenueCatPurchase = async (purchaseInfo) => {
+  // ⚠  Do NOT grant access here — client only, not yet validated
+  // ✅  Start polling for webhook confirmation
+  onPurchasePending();
+
+  const result = await pollBackendForAccess(getCurrentUserId());
+
+  // Show success either way — cron heals state if webhook is delayed
+  onPurchaseComplete(result);
+};
+
+// Implement these to update your UI (React state, Vue reactive data, DOM, etc.)
+function onPurchasePending() { /* show loading state */ }
+function onPurchaseComplete(result) { /* show success state */ }
+function getCurrentUserId() { return window.__despiaUserId; }
+```
+
+<Tabs>
+  <Tab title="React">
+    ```jsx
+    useEffect(() => {
+      window.onRevenueCatPurchase = async () => {
+        setStatus('polling');
+        const result = await pollBackendForAccess(userId);
+        setStatus('success');
+      };
+    }, [userId]);
+    ```
+  </Tab>
+  <Tab title="Vue">
+    ```javascript
+    mounted() {
+      window.onRevenueCatPurchase = async () => {
+        this.status = 'polling';
+        const result = await pollBackendForAccess(this.userId);
+        this.status = 'success';
+      };
+    }
+    ```
+  </Tab>
+  <Tab title="Vanilla JS">
+    ```javascript
+    window.onRevenueCatPurchase = async () => {
+      document.getElementById('paywall-status').textContent = 'Processing…';
+      const result = await pollBackendForAccess(window.__despiaUserId);
+      document.getElementById('paywall-status').textContent = 'Access granted!';
+    };
+    ```
+  </Tab>
+</Tabs>
+
+### Backend Polling
+
+Poll `/api/subscription-status` after the runtime callback fires. If the RevenueCat webhook has already updated the user's status it resolves immediately; otherwise the loop keeps checking for up to ~20 seconds. The cron sync acts as a final safety net for any edge cases.
+
+You do not need to rely on webhooks at all if you prefer — `onRevenueCatPurchase` + polling is sufficient on its own. Webhooks and the cron job are complementary layers, not requirements.
+
+```javascript paywall.js
+async function pollBackendForAccess(userId, maxAttempts = 8, interval = 2500) {
+  for (let i = 0; i < maxAttempts; i++) {
+    try {
+      const res  = await fetch(`/api/subscription-status?userId=${userId}`);
+      const data = await res.json();
+      if (data.isActive) return { success: true, data };
+    } catch (_) {}
+    await new Promise(resolve => setTimeout(resolve, interval));
+  }
+  return { success: false };
+}
+```
+
+### Triggering a Purchase
+
+```javascript paywall.js
+import despia from 'despia-native';
+
+// Open RevenueCat's native paywall UI for an offering
+async function launchPaywall(offeringId = 'default') {
+  const userId = await getOrInitUserId();
+  await despia(`revenuecat://launchPaywall?external_id=${encodeURIComponent(userId)}&offering=${offeringId}`);
+}
+
+// Trigger a specific product directly (e.g. from your own custom UI)
+async function purchaseProduct(productId) {
+  const userId = await getOrInitUserId();
+  await despia(`revenuecat://purchase?external_id=${encodeURIComponent(userId)}&product=${encodeURIComponent(productId)}`);
+}
+```
+
+Use the `storeIdentifier` from `getProducts()` — this handles dynamic lookup with fallback transparently.
+
+<Tabs>
+  <Tab title="React">
+    ```jsx
+    const [products, setProducts] = useState([]);
+    
+    useEffect(() => {
+      getProducts().then(setProducts);
+    }, []);
+    
+    return products.map(product => (
+      <button key={product.lookupKey} onClick={() => purchaseProduct(product.storeIdentifier)}>
+        {product.displayName}
+      </button>
+    ));
+    ```
+  </Tab>
+  <Tab title="Vue">
+    ```html
+    <button
+      v-for="product in products"
+      :key="product.lookupKey"
+      @click="purchaseProduct(product.storeIdentifier)"
+    >
+      {{ product.displayName }}
+    </button>
+    
+    {/*  in setup / created:  */}
+    this.products = await getProducts();
+    ```
+  </Tab>
+  <Tab title="Vanilla JS">
+    ```javascript
+    const products = await getProducts();
+    
+    products.forEach(product => {
+      const btn = document.createElement('button');
+      btn.textContent = product.displayName;
+      btn.addEventListener('click', () => purchaseProduct(product.storeIdentifier));
+      document.getElementById('paywall-options').appendChild(btn);
+    });
+    ```
+  </Tab>
+</Tabs>
+
+<Warning>
+  **Identity must be resolved first.** Always call `userIdentity()` from `@despia/user-identity` and wait for backend registration before triggering a purchase. If the user doesn't exist in your DB when RevenueCat fires the webhook, the safety-net upsert will create them — but notifications and session linking may fail.
+</Warning>
+
+---
+
+## User Session
+
+Use [`@despia/user-identity`](https://www.npmjs.com/package/@despia/user-identity) to resolve and persist a stable `app_user_id` — the single identifier you pass to RevenueCat, OneSignal, and your backend. It handles iCloud / Android backup, purchase-history recovery, and fresh installs automatically.
+
+```bash
+npm install @despia/user-identity despia-native
+```
+
+Without a stable identity, users get "lost" on reinstall — they lose subscriptions, trials, and credits. This package keeps them linked without requiring an account or login.
+
+<Note>
+  `userIdentity()` returns `null` in a browser. Always check `if (result)` before syncing to any service.
+</Note>
+
+### Quick setup checklist
+
+<Steps>
+  <Step title="Call userIdentity() at app entry">
+    Before any paywall, push notification, or user-dependent feature.
+  </Step>
+  <Step title="Sync appUserId to all services">
+    RevenueCat `external_id`, OneSignal, and your backend register endpoint.
+  </Step>
+  <Step title="Add a Restore Purchases button">
+    Required by App Store and Play Store. Calls `restore()` and re-syncs.
+  </Step>
+  <Step title="Handle login (if you have accounts)">
+    After backend responds, call `setAppUserId()` so the vault stays in sync.
+  </Step>
+</Steps>
+
+### How the ID is resolved
+
+Every call to `userIdentity()` runs this chain in order:
+
+| Priority | Source    | When                                                                           |
+| -------- | --------- | ------------------------------------------------------------------------------ |
+| 1        | `vault`   | iCloud / Android backup restored the ID. Survives reinstalls.                  |
+| 2        | `restore` | Vault empty but a past purchase had `externalUserId` — recovered from receipt. |
+| 3        | `new`     | First install, no backup, no purchases — device install ID used.               |
+
+### At app launch
+
+```javascript
+import despia from 'despia-native';
+import { userIdentity } from '@despia/user-identity';
+
+const result = await userIdentity();
+// result.appUserId  — stable ID, use everywhere
+// result.source     — 'vault' | 'restore' | 'new'
+// result.installId  — device UUID (changes per install)
+// result.aliases    — any alternate IDs linked to this user
+
+if (result) {
+  const { appUserId, installId, source } = result;
+
+  // Recommended sync order:
+
+  // 1. RevenueCat — always pass appUserId as external_id
+  despia(`revenuecat://launchPaywall?external_id=${appUserId}&offering=default`);
+
+  // 2. OneSignal
+  despia(`setonesignalplayerid://?user_id=${appUserId}`);
+
+  // 3. Your backend
+  await fetch('/api/user/register', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      appUserId,
+      deviceId:  installId,
+      source,                        // 'vault' | 'restore' | 'new'
+      platform:  'ios',              // or 'android'
+      timestamp: new Date().toISOString()
+    })
+  });
+} else {
+  // Browser / non-Despia — use your own web identity (session, cookies, etc.)
+}
+```
+
+Wire into your framework's entry point:
+
+<Tabs>
+  <Tab title="React">
+    ```jsx App.jsx
+    import { userIdentity } from '@despia/user-identity';
+    
+    function App() {
+      const [userId, setUserId] = useState(null);
+    
+      useEffect(() => {
+        userIdentity().then(result => {
+          if (result) setUserId(result.appUserId);
+        });
+      }, []);
+    
+      if (!userId) return <LoadingScreen />;
+      return <MainApp userId={userId} />;
+    }
+    ```
+  </Tab>
+  <Tab title="Vue">
+    ```javascript main.js
+    import { createApp } from 'vue';
+    import { userIdentity } from '@despia/user-identity';
+    import App from './App.vue';
+    
+    const result = await userIdentity();
+    const appUserId = result?.appUserId ?? null;
+    
+    createApp(App).provide('userId', appUserId).mount('#app');
+    ```
+  </Tab>
+  <Tab title="Vanilla JS">
+    ```javascript main.js
+    import { userIdentity } from '@despia/user-identity';
+    
+    const result = await userIdentity();
+    if (result) {
+      window.__despiaUserId = result.appUserId;
+      document.getElementById('app').removeAttribute('hidden');
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Restore Purchases
+
+Required by App Store and Play Store. Wire `restore()` to a button in your settings or paywall screen and re-sync all services with the recovered ID.
+
+```javascript
+import { restore } from '@despia/user-identity';
+
+const restored = await restore();
+
+if (restored) {
+  const { appUserId } = restored;
+
+  despia(`setonesignalplayerid://?user_id=${appUserId}`);
+  await fetch('/api/user/register', {
+    method: 'POST',
+    body: JSON.stringify({ appUserId, source: 'restore_button' })
+  });
+} else {
+  // No purchases found — see warning below
+}
+```
+
+<Tabs>
+  <Tab title="React">
+    ```jsx
+    <button onClick={async () => {
+      const restored = await restore();
+      if (restored) setUserId(restored.appUserId);
+      else alert('No purchases found');
+    }}>
+      Restore Purchases
+    </button>
+    ```
+  </Tab>
+  <Tab title="Vue">
+    ```html
+    <button @click="onRestore">Restore Purchases</button>
+    
+    {/*  in methods:  */}
+    async onRestore() {
+      const restored = await restore();
+      if (restored) this.userId = restored.appUserId;
+      else alert('No purchases found');
+    }
+    ```
+  </Tab>
+  <Tab title="Vanilla JS">
+    ```javascript
+    document.getElementById('restore-btn').addEventListener('click', async () => {
+      const restored = await restore();
+      if (restored) window.__despiaUserId = restored.appUserId;
+      else alert('No purchases found');
+    });
+    ```
+  </Tab>
+</Tabs>
+
+<Warning>
+  **`Restore only works if external_id was set at purchase time.`** Always pass `appUserId` as `external_id` when launching RevenueCat paywalls. If purchases were made without it, `restore()` returns `null` and identity cannot be recovered.
+</Warning>
+
+### Login (optional)
+
+If your app has accounts, send the current `appUserId` to your login endpoint. The backend decides whether to **CLAIM** (new account, no existing ID) or **RECOVER** (existing account with an ID from another device), then returns the canonical ID. Call `setAppUserId()` so the vault is updated for future launches.
+
+```javascript
+import { setAppUserId } from '@despia/user-identity';
+
+const { appUserId, action } = await fetch('/api/user/login', {
+  method: 'POST',
+  body: JSON.stringify({
+    accountId:        'user-123',
+    currentAppUserId: result.appUserId,
+    credentials:      { email, password }
+  })
+}).then(r => r.json());
+// action: 'claimed'   — device ID linked to this account (new account)
+// action: 'recovered' — device switched to account's existing ID (returning user)
+
+await setAppUserId(appUserId); // persists to vault; future launches use this ID
+```
+
+| Action      | When                                 | What happens                                                                                       |
+| ----------- | ------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| `claimed`   | Account had no `app_user_id`         | Device ID saved to account. Future logins from any device use this ID.                             |
+| `recovered` | Account already had an `app_user_id` | Device vault overwritten with the account's canonical ID. Purchases from other devices apply here. |
+
+### Common scenarios
+
+| Scenario                              | Source             | What happens                                                             |
+| ------------------------------------- | ------------------ | ------------------------------------------------------------------------ |
+| First install, no backup              | `new`              | Device install ID used and persisted to vault                            |
+| Reinstall, backup restored            | `vault`            | Previous ID recovered from iCloud / Android backup                       |
+| Reinstall, no backup, had purchases   | `restore`          | ID recovered from purchase receipt                                       |
+| New device, same Apple/Google account | `restore` or `new` | Recovered if purchase history syncs; otherwise `new` until user restores |
+| User taps "Restore purchases"         | —                  | `restore()` recovers ID from purchase with `externalUserId`              |
+
+### API reference
+
+| Function           | Returns                                            | Description                                            |
+| ------------------ | -------------------------------------------------- | ------------------------------------------------------ |
+| `userIdentity()`   | `{ appUserId, installId, source, aliases } | null` | Resolve and persist identity. Call once at launch.     |
+| `restore()`        | `{ appUserId, aliases } | null`                    | Recover from purchase history. Use for Restore button. |
+| `setAppUserId(id)` | `void`                                             | Persist a specific ID (e.g. from login).               |
+| `linkAlias(id)`    | `void`                                             | Link an alternate ID for fraud detection / audit.      |
+| `isDespia()`       | `boolean`                                          | `true` if running in native Despia app.                |
+
+### Troubleshooting
+
+| Issue                           | Likely cause                                                                                                                            |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `userIdentity()` returns `null` | Running in a browser. Use `isDespia()` to check before calling.                                                                         |
+| `restore()` returns `null`      | Purchases weren't made with `external_id` set. Always pass `appUserId` when launching paywalls.                                         |
+| User "lost" after reinstall     | iCloud/Android backup may not have synced yet. Restore purchases button can still recover if they had a purchase with `externalUserId`. |
+
+## revenuecat-server SDK
+
+Despia ships a lightweight, zero-dependency SDK for the RevenueCat V2 REST API. It handles pagination, error normalisation, and entitlement guards so your backend code stays clean.
+
+```bash
+npm install revenuecat-server
+```
+
+<Note>
+  **License.** MIT. If you use, fork, or build on this package, attribution to `@despia-native` is required (e.g. in your README, about section, or attribution page).
+</Note>
+
+### Setup
+
+Create a single shared client and import it into any route handler, webhook, or cron job.
+
+```javascript lib/rc.js
+const { RevenueCatClient } = require('revenuecat-server');
+
+const rc = new RevenueCatClient({
+  apiKey:    process.env.REVENUECAT_API_KEY,    // v2 secret key — server only
+  projectId: process.env.REVENUECAT_PROJECT_ID,
+});
+
+module.exports = { rc };
+```
+
+### Entitlement Methods
+
+<AccordionGroup>
+  <Accordion title="rc.requireEntitlement(customerId, entitlementId) — Route Guard">
+    Throws `AccessDeniedError` if the customer lacks the entitlement. The cleanest way to gate API routes — no `if` blocks needed.
+
+    ```javascript
+    const { rc } = require('./lib/rc');
+    const { AccessDeniedError } = require('revenuecat-server');
+    
+    // Express route — premium content
+    app.get('/api/premium/report', async (req, res) => {
+      try {
+        await rc.requireEntitlement(req.user.id, 'premium');
+        // ✅ User has access — serve the content
+        return res.json(await generateReport());
+      } catch (err) {
+        if (err instanceof AccessDeniedError)
+          return res.status(403).json({ error: 'Premium required' });
+        throw err;
+      }
+    });
+    ```
+  </Accordion>
+  <Accordion title="rc.requireAnyEntitlement(customerId, entitlementIds[]) — Route Guard">
+    Throws `AccessDeniedError` if the customer has _none_ of the given entitlements. Use for "any premium tier" checks.
+
+    ```javascript
+    await rc.requireAnyEntitlement(userId, ['premium', 'pro', 'enterprise']);
+    ```
+  </Accordion>
+  <Accordion title="rc.hasEntitlement(customerId, entitlementId) — boolean">
+    Returns `true` / `false`. Use for conditional logic and feature flags rather than hard access control.
+
+    ```javascript
+    const isPremium = await rc.hasEntitlement(userId, 'premium');
+    const profile = {
+      name:        user.name,
+      showAds:     !isPremium,
+      exportLimit: isPremium ? null : 10,
+    };
+    ```
+  </Accordion>
+  <Accordion title="rc.getActiveEntitlements(customerId) — EntitlementItem[]">
+    Returns all active entitlements as a flat array. Auto-paginates. Ideal for syncing to your database in the cron job.
+
+    ```javascript
+    const entitlements = await rc.getActiveEntitlements(userId);
+    // [{ entitlement_id: "premium", expires_at: 1768651200000 }, ...]
+    
+    const isActive = entitlements.length > 0;
+    const ids      = entitlements.map(e => e.entitlement_id);
+    ```
+  </Accordion>
+  <Accordion title="rc.getCustomer(customerId, options?) — Customer">
+    Fetches a full customer record. `active_entitlements` is always included. Pass `expand: ["attributes"]` to also get email, displayName, and custom attributes.
+
+    ```javascript
+    const customer = await rc.getCustomer(userId, { expand: ['attributes'] });
+    // customer.active_entitlements.items
+    // customer.attributes.items (email, displayName, etc.)
+    ```
+  </Accordion>
+</AccordionGroup>
+
+**Quick reference:**
+
+| Need                              | Use                                                    |
+| --------------------------------- | ------------------------------------------------------ |
+| Gate an API route                 | `rc.requireEntitlement(userId, "premium")`             |
+| Conditional logic / feature flags | `rc.hasEntitlement(userId, "premium")`                 |
+| "Any of these tiers" check        | `rc.requireAnyEntitlement(userId, ["premium", "pro"])` |
+| Sync entitlements to DB (cron)    | `rc.getActiveEntitlements(userId)`                     |
+| Full customer record + attributes | `rc.getCustomer(userId, { expand: ["attributes"] })`   |
+
+### Offering Methods
+
+Serve paywall product data from your backend — your frontend calls a proxy endpoint, never RevenueCat directly.
+
+<Note>
+  Prices are not available from RevenueCat. Fetch those from Apple StoreKit / Google Play Billing using the returned `store_identifier`.
+</Note>
+
+```javascript
+// GET /api/offerings — proxy endpoint for your frontend
+app.get('/api/offerings', async (req, res) => {
+  const packages = await rc.getOfferingPackages('test_ofrnge_xxxxxxxxxxxx');
+  // [{ id, lookup_key, display_name, position,
+  //    products: { ios: [...], android: [...] } }]
+  return res.json({ packages });
+});
+
+// Products per platform for a specific package
+const products = await rc.getProductsByPlatform('test_ofrnge_xxxxxxxxxxxx', 'test_pkge_xxxxxxxxxxxx');
+// { ios: [{ store_identifier: 'com.app.monthly', ... }], android: [...] }
+```
+
+### Subscription Status Endpoint
+
+The endpoint polled by the frontend after `onRevenueCatPurchase` fires. With `revenuecat-server` the implementation collapses to a few lines:
+
+```javascript routes/subscription.js
+const { rc } = require('./lib/rc');
+
+// GET /api/subscription-status?userId=xxx
+app.get('/api/subscription-status', authenticate, async (req, res) => {
+  const userId       = req.query.userId || req.user.id;
+  const entitlements = await rc.getActiveEntitlements(userId);
+
+  return res.json({
+    isActive:     entitlements.length > 0,
+    entitlements: entitlements.map(e => e.entitlement_id),
+    checkedAt:    new Date(),
+  });
+});
+```
+
+### Error Handling
+
+```javascript
+const { RevenueCatError, AccessDeniedError } = require('revenuecat-server');
+
+try {
+  await rc.requireEntitlement(userId, 'premium');
+} catch (err) {
+  if (err instanceof AccessDeniedError) {
+    // err.customerId, err.entitlementIds
+    return res.status(403).json({ error: 'Premium required' });
+  }
+  if (err instanceof RevenueCatError) {
+    // err.status (404, 429, …), err.body
+    return res.status(502).json({ error: 'Upstream error' });
+  }
+  throw err;
+}
+```
+
+<Note>
+  **Rate limits.** Customer endpoints: 480 req/min. Offering / project config endpoints: 60 req/min. The cron job is pre-configured to stay within 70% of the customer limit (336 req/min).
+</Note>
+
+---
+
+## Webhook Handler (Optional)
+
+<Tip>
+  **Nice to have, not required.** Most apps ship without webhooks. The `onRevenueCatPurchase` callback and backend polling handles the purchase confirmation flow on its own. Add webhooks when you want your database to react automatically to subscription events like renewals, cancellations, billing issues, and refunds — without users needing to open the app.
+</Tip>
+
+Configure in RevenueCat Dashboard → **Integrations → Webhooks**, then mount the handler at `POST /webhooks/revenuecat`.
+
+### Authorization
+
+RevenueCat sends every webhook with an `Authorization: Bearer <SECRET>` header. Validate this before processing any event.
+
+```javascript webhook.js
+function validateAuthorization(req) {
+  const header = req.headers.authorization || '';
+  const token  = header.startsWith('Bearer ') ? header.slice(7) : header;
+  return token === process.env.REVENUECAT_WEBHOOK_SECRET;
+}
+```
+
+### Event Dispatch
+
+The handler syncs entitlements to your database on _every_ event, then calls your event-specific logic.
+
+| Event              | Active         | Action                                  |
+| ------------------ | -------------- | --------------------------------------- |
+| `INITIAL_PURCHASE` | ✅ Yes          | Grant access, send welcome notification |
+| `RENEWAL`          | ✅ Yes          | Extend expiry, log payment              |
+| `CANCELLATION`     | ⏳ Until expiry | Mark cancelled, schedule removal        |
+| `EXPIRATION`       | ❌ No           | Revoke access, send win-back            |
+| `BILLING_ISSUE`    | ⏳ Grace period | Flag account, send payment reminder     |
+| `REFUND`           | ❌ No           | Revoke immediately, log for accounting  |
+| `PRODUCT_CHANGE`   | ✅ Yes          | Update tier, adjust feature flags       |
+| `TRIAL_STARTED`    | ✅ Yes          | Grant trial access, send onboarding     |
+| `UNCANCELLATION`   | ✅ Yes          | Restore status, send confirmation       |
+
+<Note>
+  **Idempotency.** Always check `processed_webhook_events` before processing. RevenueCat may deliver the same event more than once. Return `200 OK` for duplicates and for your own internal errors — returning `5xx` triggers RevenueCat retries which can produce duplicate side effects.
+</Note>
+
+---
+
+## Cron Sync (Optional)
+
+<Tip>
+  **Nice to have, not required.** Add this after webhooks are in place. The cron catches the small number of events (∼1–3%) that webhooks miss due to network failures or delivery delays. It's a self-healing safety net — useful at scale, unnecessary for early-stage apps.
+</Tip>
+
+A scheduled job that runs every 5 minutes. It uses `rc.getActiveEntitlements()` to compare your database against RevenueCat, repairing any discrepancies from missed or delayed webhooks.
+
+| Parameter                          | Value               |
+| ---------------------------------- | ------------------- |
+| Schedule                           | `*/5 * * * *`       |
+| RC rate limit (customer endpoints) | 480 req / min       |
+| Safe buffer                        | 70% → 336 req / min |
+| Users per run                      | 336 × 5 = **1,680** |
+| Delay between calls                | ~179 ms             |
+
+```javascript cron-sync.js
+const { rc } = require('./lib/rc');
+
+async function syncUser(user) {
+  // getActiveEntitlements auto-paginates — no manual RC API calls needed
+  const entitlements = await rc.getActiveEntitlements(user.app_user_id);
+
+  const rcIsActive = entitlements.length > 0;
+  const rcIds      = entitlements.map(e => e.entitlement_id).sort().join(',');
+  const dbIds      = Object.keys(user.entitlements || {}).sort().join(',');
+
+  const hasDiscrepancy = user.is_active !== rcIsActive || dbIds !== rcIds;
+
+  if (hasDiscrepancy) {
+    await updateUserSubscription(user.app_user_id, {
+      is_active:    rcIsActive,
+      entitlements: Object.fromEntries(entitlements.map(e => [e.entitlement_id, e])),
+      last_revenuecat_sync_at: new Date(),
+    });
+    return 'synced';
+  }
+  return 'matched';
+}
+```
+
+### Priority Queue
+
+Users are selected in priority order so the most at-risk subscriptions are always checked first.
+
+| Priority                 | Quota | Condition                             |
+| ------------------------ | ----- | ------------------------------------- |
+| 1 · Expiring soon        | 30%   | `expires_at` within 7 days            |
+| 2 · Billing issues       | 20%   | `billing_issue = true`                |
+| 3 · Recent cancellations | 20%   | `cancelled_at` within 48 h            |
+| 4 · Stale cache          | 20%   | `last_revenuecat_sync_at` \> 24 h ago |
+| 5 · Random sample        | 10%   | General health check on active users  |
+
+### Scheduler Setup
+
+<Tabs>
+  <Tab title="node-cron">
+    ```javascript
+    const cron = require('node-cron');
+    const { syncSubscriptionsWithRevenueCat } = require('./cron-sync');
+    
+    cron.schedule('*/5 * * * *', async () => {
+      try { await syncSubscriptionsWithRevenueCat(); }
+      catch (e) { console.error('Cron failed:', e); }
+    });
+    ```
+  </Tab>
+  <Tab title="Vercel">
+    ```json vercel.json
+    {
+      "crons": [{ "path": "/api/cron/sync-subscriptions", "schedule": "*/5 * * * *" }]
+    }
+    ```
+
+    ```javascript pages/api/cron/sync-subscriptions.js
+    export default async function handler(req, res) {
+      if (req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`)
+        return res.status(401).json({ error: 'Unauthorized' });
+      const results = await syncSubscriptionsWithRevenueCat();
+      return res.json({ success: true, results });
+    }
+    ```
+  </Tab>
+  <Tab title="AWS Lambda">
+    ```javascript handler.js
+    // EventBridge rule: rate(5 minutes)
+    exports.handler = async () => {
+      const r = await syncSubscriptionsWithRevenueCat();
+      return { statusCode: 200, body: JSON.stringify(r) };
+    };
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Database Schema
+
+The first two tables are needed for the core purchase flow. The remaining tables are only required if you add webhooks and cron sync.
+
+<Tabs>
+  <Tab title="Core (required)">
+    ```sql
+    CREATE TABLE app_users (
+    id           SERIAL PRIMARY KEY,
+    app_user_id  VARCHAR(255) NOT NULL UNIQUE,
+    device_id    VARCHAR(255),
+    platform     VARCHAR(20),
+    source       VARCHAR(50),
+    is_anonymous BOOLEAN DEFAULT true,
+    account_id   VARCHAR(255),
+    created_at   TIMESTAMP DEFAULT NOW(),
+    last_seen    TIMESTAMP NOT NULL
+    );
+    
+    CREATE TABLE user_subscriptions (
+    id                      SERIAL PRIMARY KEY,
+    app_user_id             VARCHAR(255) UNIQUE NOT NULL,
+    email                   VARCHAR(255),
+    is_active               BOOLEAN DEFAULT false,
+    subscription_status     VARCHAR(50),   -- active|cancelled|expired|trial|paused
+    product_id              VARCHAR(255),
+    entitlements            JSONB,
+    expires_at              TIMESTAMP,
+    purchased_at            TIMESTAMP,
+    cancelled_at            TIMESTAMP,
+    grace_period_expires_at TIMESTAMP,
+    auto_renew              BOOLEAN DEFAULT true,
+    billing_issue           BOOLEAN DEFAULT false,
+    store                   VARCHAR(50),
+    environment             VARCHAR(20),
+    last_webhook_event_id   VARCHAR(255),
+    last_webhook_event_type VARCHAR(100),
+    last_revenuecat_sync_at TIMESTAMP,
+    last_updated            TIMESTAMP DEFAULT NOW()
+    );
+    ```
+  </Tab>
+  <Tab title="Webhooks + Cron (optional)">
+    ```sql
+    -- Only needed if adding webhook handling
+    CREATE TABLE processed_webhook_events (
+    event_id     VARCHAR(255) PRIMARY KEY,
+    event_type   VARCHAR(100) NOT NULL,
+    app_user_id  VARCHAR(255) NOT NULL,
+    environment  VARCHAR(20),
+    processed_at TIMESTAMP DEFAULT NOW()
+    );
+    
+    -- Only needed if adding cron sync
+    CREATE TABLE sync_logs (
+    id          SERIAL PRIMARY KEY,
+    app_user_id VARCHAR(255) NOT NULL,
+    status      VARCHAR(50),   -- matched|synced|not_found
+    discrepancy JSONB,
+    synced_at   TIMESTAMP DEFAULT NOW()
+    );
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Environment Variables
+
+<Tabs>
+  <Tab title="Core (required)">
+    ```bash .env
+    # RevenueCat — backend only, never expose to client
+    REVENUECAT_API_KEY=test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+    REVENUECAT_PROJECT_ID=test_proj_xxxxxxxxxxxx
+    
+    # Database
+    DATABASE_URL=postgresql://user:pass@localhost:5432/myapp
+    ```
+  </Tab>
+  <Tab title="Webhooks + Cron (optional)">
+    ```bash .env
+    # Webhook signature validation
+    REVENUECAT_WEBHOOK_SECRET=test_whsec_xxxxxxxxxxxxxxxxxxxx
+    
+    # Cron job auth (Vercel / Lambda)
+    CRON_SECRET=test_cron_xxxxxxxxxxxxxxxxxxxx
+    ```
+  </Tab>
+</Tabs>
+
+Required API key permissions for `revenuecat-server`:
+
+| Permission                            | Required for                                   |
+| ------------------------------------- | ---------------------------------------------- |
+| `customer_information:customers:read` | All customer / entitlement endpoints           |
+| `project_configuration:packages:read` | `getOfferingPackages`, `getProductsByPlatform` |
+| `project_configuration:products:read` | `getOffering`                                  |
+
+<Warning>
+  **Never commit secrets to version control.** Add `.env` to `.gitignore` and use your hosting provider's secret management for production values.
+</Warning>
+
+---
+
+## Troubleshooting
+
+| Issue                             | Cause                                    | Fix                                                                                     |
+| --------------------------------- | ---------------------------------------- | --------------------------------------------------------------------------------------- |
+| Webhook cannot find user          | DB sync failed before purchase           | Safety-net upsert in handler + gate paywall on `databaseSynced`                         |
+| Access not granted after purchase | Webhook delayed / poll timeout           | Show optimistic success; cron + `requireEntitlement()` heal state                       |
+| Duplicate notifications           | Webhook delivered twice                  | Idempotency check via `processed_webhook_events`                                        |
+| Lost purchases on reinstall       | Vault unavailable, restore not attempted | Always call `getpurchasehistory://` in identity init                                    |
+| 429 from RC in cron               | Real-time calls competing                | Increase delay between calls to 250 ms; note offering endpoints have a 60 req/min limit |
+| `AccessDeniedError` in prod       | User's entitlement genuinely expired     | Expected — return `403`. Verify EXPIRATION webhook fired.                               |
+| High discrepancy rate (\> 5%)     | Webhooks not processing                  | Check RC Dashboard → Integrations → delivery logs                                       |
