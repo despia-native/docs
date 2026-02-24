@@ -21,10 +21,10 @@ icon: "money-bills"
 **Optional — nice to have for production reliability:**
 
 <CardGroup cols={2}>
-  <Card icon="webhook" title="Webhook handler">
+  <Card icon="webhook" href="https://setup.despia.com/best-practices/backend/revenue-cat/webhooks" title="Webhook handler">
     Near-instant DB sync on subscription events. Useful once you're ready to automate access changes.
   </Card>
-  <Card icon="clock" title="Cron sync">
+  <Card icon="clock" href="https://setup.despia.com/best-practices/backend/revenue-cat/cron-jobs" title="Cron sync">
     Self-healing backup that catches any events webhooks miss. Add this when reliability matters at scale.
   </Card>
 </CardGroup>
@@ -211,8 +211,8 @@ Do not grant access here. The purchase is client-side only and not yet validated
 ```javascript paywall.js
 // Register once on app boot — framework-agnostic
 window.onRevenueCatPurchase = async (purchaseInfo) => {
-  // ⚠  Do NOT grant access here — client only, not yet validated
-  // ✅  Start polling for webhook confirmation
+  // Do NOT grant access here — client only, not yet validated
+  // Start polling for webhook confirmation
   onPurchasePending();
 
   const result = await pollBackendForAccess(getCurrentUserId());
@@ -577,13 +577,13 @@ await setAppUserId(appUserId); // persists to vault; future launches use this ID
 
 ### API reference
 
-| Function           | Returns                                            | Description                                            |
-| ------------------ | -------------------------------------------------- | ------------------------------------------------------ |
-| `userIdentity()`   | `{ appUserId, installId, source, aliases } | null` | Resolve and persist identity. Call once at launch.     |
-| `restore()`        | `{ appUserId, aliases } | null`                    | Recover from purchase history. Use for Restore button. |
-| `setAppUserId(id)` | `void`                                             | Persist a specific ID (e.g. from login).               |
-| `linkAlias(id)`    | `void`                                             | Link an alternate ID for fraud detection / audit.      |
-| `isDespia()`       | `boolean`                                          | `true` if running in native Despia app.                |
+| Function           | Returns                                  | Description                                       |                                                        |
+| ------------------ | ---------------------------------------- | ------------------------------------------------- | ------------------------------------------------------ |
+| `userIdentity()`   | \` appUserId, installId, source, aliases | null\`                                            | Resolve and persist identity. Call once at launch.     |
+| `restore()`        | \` appUserId, aliases                    | null\`                                            | Recover from purchase history. Use for Restore button. |
+| `setAppUserId(id)` | `void`                                   | Persist a specific ID (e.g. from login).          |                                                        |
+| `linkAlias(id)`    | `void`                                   | Link an alternate ID for fraud detection / audit. |                                                        |
+| `isDespia()`       | `boolean`                                | `true` if running in native Despia app.           |                                                        |
 
 ### Troubleshooting
 
