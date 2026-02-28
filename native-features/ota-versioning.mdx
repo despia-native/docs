@@ -1,0 +1,144 @@
+---
+title: "OTA Versioning"
+description: "Every time you ship a new binary through Despia, you give it a version number. At runtime, Despia exposes which version of that binary the user currently has installed on their device. This lets you gate new features behind a specific binary release and show an update prompt to users who are still on an older version."
+icon: "recycle"
+---
+
+<Card icon="sparkles" title="AI Prompt">
+  Add bundle version checking to my app using the Despia SDK from: https://www.npmjs.com/package/despia-native
+
+  \
+  First, install the package: `npm install despia-native`
+
+  Then import it: `import despia from 'despia-native'`
+
+  - Access the current bundle version using `despia.bundleNumber`. This value is automatically available at runtime, no async call is needed
+  - The bundle version uses the format `MAJOR.MINOR.PATCH` (e.g. `1.0.1`, `2.7.8`) and is set in **Despia \> Settings \> Versioning**
+  - Define the minimum required version as a constant using the same format
+  - Use a semantic version comparison function to compare `despia.bundleNumber` against your minimum required version. Do not compare version strings directly
+  - If the installed version is below the minimum, show an update prompt. If it meets the requirement, show the feature as normal
+
+  <Danger>
+    **This feature requires native capabilities which will be fully provided by the "despia-native" npm package, no additional native libraries are needed!**
+  </Danger>
+  Please follow the installation instructions for the `despia-native` npm package closely, and do not modify my instructions. Implementation as mentioned is critical.
+</Card>
+
+**How it works:** `despia.bundleNumber` reflects the native binary version currently installed on the user's device. By comparing it against a minimum required version, your app can detect whether the user has received a specific binary update and respond accordingly, prompting older users to update while showing the new capability to users who are already on the latest version. `despia.bundleNumber` is injected by the Despia runtime before your app starts, so it is available synchronously with no async call, no loading state, and no flash of incorrect content.
+
+## **The Difference**
+
+Changes made in Despia affect the native binary. This includes adding a native SDK, updating permissions, or changing entitlements. These changes require a rebuild and a new submission to the app stores. Users must download the update before the new native capability is available on their device.
+
+Changes made to your web app via your IDE, no-code tool, or any other coding environment affect the web layer. These are delivered over the air automatically. No rebuild is needed and users receive them silently in the background without having to take any action.
+
+## **Installation**
+
+```
+npm install despia-native
+```
+
+```javascript
+import despia from 'despia-native'
+```
+
+## **Usage**
+
+### Reading the Bundle Version
+
+```javascript
+import despia from 'despia-native'
+
+console.log(despia.bundleNumber); // e.g. "1.1.0"
+```
+
+### Version Comparison
+
+Do not compare version strings directly, as string comparison does not handle semantic versioning correctly. Use the following utility instead.
+
+```javascript
+function compareVersions(v1, v2) {
+  const a = v1.split('.').map(Number);
+  const b = v2.split('.').map(Number);
+  for (let i = 0; i < Math.max(a.length, b.length); i++) {
+    const diff = (a[i] || 0) - (b[i] || 0);
+    if (diff !== 0) return diff;
+  }
+  return 0;
+}
+```
+
+### Gating a Feature by Bundle Version
+
+```tsx
+import despia from 'despia-native'
+
+const MINIMUM_VERSION = '1.1.0';
+
+if (compareVersions(despia.bundleNumber, MINIMUM_VERSION) < 0) {
+  showUpdatePrompt();
+} else {
+  showFeature();
+}
+```
+
+### React
+
+Because `despia.bundleNumber` is available synchronously, you can evaluate the version check outside your component. The correct UI is rendered immediately on first paint with no loading state required.
+
+```javascript
+import despia from 'despia-native';
+
+const MINIMUM_VERSION = '1.1.0';
+const meetsRequirement = compareVersions(despia.bundleNumber, MINIMUM_VERSION) >= 0;
+
+export default function App() {
+  return meetsRequirement ? <Feature /> : <UpdatePrompt />;
+}
+```
+
+---
+
+## **When to Increment the Bundle Version**
+
+Increment the bundle version in **Despia \> Settings \> Versioning** whenever your change in Despia requires a new native binary. Changes made to your web app are delivered over the air and do not require a version increment.
+
+| Change                                    | Requires New Binary |
+| :---------------------------------------- | :------------------ |
+| New native SDK added in Despia            | Yes                 |
+| New permissions or entitlements in Despia | Yes                 |
+| Web app code update                       | No                  |
+| Web-layer bug fix                         | No                  |
+
+## **OTA Updates**
+
+Every change you make to your web app is delivered over the air. No rebuild, no app store submission, and no action required from your users. This is the primary update path for the majority of changes you will make to your app.
+
+Native features exposed through the Despia JS SDK are also delivered over the air. The native capability is already compiled into the binary. Your code calls into it via the SDK, and that code lives in your web layer, so it updates instantly like everything else in the editor.
+
+<Warning>
+  **Both Apple and Google explicitly permit OTA updates to the web layer of hybrid apps. Apple's Developer Program License Agreement allows downloaded interpreted code provided it does not change the primary purpose of the application, does not create a storefront for other code, and does not bypass platform security. Google Play applies the same principle.**
+</Warning>
+
+**Good uses for OTA updates:**
+
+- Bug fixes and critical patches
+- Performance improvements
+- UI and copy changes
+- A/B testing and phased rollouts
+- Adjusting how existing native features are used within your app
+
+**When to consider a binary release instead:**
+
+If a change substantially alters the experience of your app, the cleaner approach is to ship it as a binary update through the app stores. This keeps your versioning meaningful, gives users a clear update moment, and avoids any ambiguity around store compliance.
+
+<Danger>
+  **If a fix is genuinely critical and the existing experience is broken without it, shipping it as an OTA update is reasonable and generally accepted by both stores. Stores are not punitive when the reasoning is sound and the update can be characterised as a critical fix. Use good judgement: if you can explain it clearly and it serves the user, it is defensible.**
+</Danger>
+
+## **Resources**
+
+- [**NPM Package**](https://www.npmjs.com/package/despia-native)
+- View full NPM documentation for additional configuration options
+
+For additional support or questions, please contact our support team at [support@despia.com](mailto:support@despia.com)
