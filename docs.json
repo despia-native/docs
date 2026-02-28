@@ -84,6 +84,16 @@
                 ]
               }
             ]
+          },
+          {
+            "group": "Updates",
+            "icon": "rocket",
+            "pages": [
+              "overview",
+              "interface",
+              "logic",
+              "editor"
+            ]
           }
         ]
       },
