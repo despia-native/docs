@@ -226,7 +226,8 @@
             "pages": [
               "native-features/gps-location"
             ]
-          }
+          },
+          "native-features/notification-sounds"
         ]
       },
       {

@@ -1,89 +1,54 @@
 ---
 title: "Animations"
 icon: "waves-sine"
-description: "Build smooth, performant animations that maintain 60fps and degrade gracefully under system constraints. This guide covers CSS animations, JavaScript techniques, performance optimization, and accessibility considerations."
+description: "CSS animation first. Scroll-driven CSS for drawers, sheets, parallax, and page transitions. JS fallback only where CSS is not supported."
 ---
 
-## Overview
+## Philosophy
 
-Well-optimized animations enhance user experience without compromising performance. This guide focuses on techniques that work efficiently with Despia's GPU-accelerated rendering engine.
+CSS animations run on the compositor thread. They stay smooth under Low Power Mode, thermal throttling, and every other constraint a mobile device can throw at them. JavaScript animations run on the main thread and compete with everything else the app is doing.
 
-**Animation Performance Targets:**
+The hierarchy is:
 
-- 60fps in normal operation
-- Smooth degradation under Low Power Mode
-- \< 16.6ms per frame budget
-- No janky or stuttering animations
+1. **CSS scroll-driven** (`animation-timeline`) for anything swipe-driven - drawers, sheets, parallax, page stacks, carousels. Zero JS per frame. Compositor-only.
+2. **CSS transitions and keyframes** for everything else - tap feedback, modals, toasts, loaders. Still compositor-safe on `transform` and `opacity`.
+3. **JS `requestAnimationFrame`** only when CSS cannot express the result, and only as a fallback when scroll-driven is not supported.
+
+Only animate `transform` and `opacity`. Everything else triggers layout or paint on the main thread.
 
 ---
 
-## CSS Transform and Opacity
+## Touch Interaction Feedback
 
-### GPU-Accelerated Properties
+The input is always touch. Use `:active`, never `:hover`.
 
-Use `transform` and `opacity` for animations. These properties are GPU-accelerated and don't trigger layout or paint.
+`:active` fires on press and clears on release. `:hover` fires on tap and sticks with nothing to clear it.
 
 ```css
-/* Correct: GPU-accelerated */
+.button {
+  transition: transform 0.1s ease, opacity 0.1s ease;
+}
+.button:active {
+  transform: scale(0.95);
+  opacity: 0.8;
+}
+
 .card {
-  transition: transform 0.3s ease, opacity 0.3s ease;
+  transition: transform 0.1s ease, opacity 0.1s ease;
 }
-
-.card:hover {
-  transform: translateY(-0.5rem);
-  opacity: 0.9;
-}
-
-/* Incorrect: triggers layout and paint */
-.card {
-  transition: top 0.3s ease, height 0.3s ease;
-}
-
-.card:hover {
-  top: -8px;
-  height: 220px;
+.card:active {
+  transform: scale(0.98);
+  opacity: 0.85;
 }
 ```
 
-### Available Transform Functions
+If a component also renders in a browser, guard `:hover` with an input capability query. Screen width tells you nothing about input type.
 
 ```css
-/* Translation */
-transform: translateX(2rem);
-transform: translateY(-1rem);
-transform: translate(1rem, -0.5rem);
-transform: translateZ(0); /* Force GPU layer */
-
-/* Scaling */
-transform: scale(1.1);
-transform: scaleX(0.95);
-transform: scaleY(1.05);
-
-/* Rotation */
-transform: rotate(45deg);
-transform: rotateX(10deg);
-transform: rotateY(20deg);
-
-/* Combining transforms */
-transform: translate(1rem, -0.5rem) scale(1.05) rotate(2deg);
-```
-
-### Transform Origin
-
-Control the pivot point for transformations:
-
-```css
-.card {
-  transform-origin: center center; /* Default */
-}
-
-.menu-item {
-  transform-origin: left center; /* Scale from left */
-  transition: transform 0.2s ease;
-}
-
-.menu-item:hover {
-  transform: scaleX(1.1);
+@media (hover: hover) and (pointer: fine) {
+  .card:hover {
+    transform: translateY(-0.25rem);
+  }
 }
 ```
 
@@ -91,1154 +56,1095 @@ Control the pivot point for transformations:
 
 ## CSS Transitions
 
-### Basic Transitions
-
-Apply smooth transitions between states:
-
 ```css
-.button {
-  background: #007bff;
-  transform: scale(1);
-  opacity: 1;
-  transition: transform 0.2s ease, opacity 0.2s ease;
-}
+/* Tap feedback */
+.button { transition: transform 0.1s ease; }
 
-.button:active {
-  transform: scale(0.95);
-  opacity: 0.8;
-}
+/* State changes */
+.card   { transition: transform 0.3s ease; }
+
+/* Large entrances */
+.modal  { transition: opacity 0.4s ease, transform 0.4s ease; }
 ```
 
-### Transition Timing
-
-Choose appropriate durations:
-
-```css
-/* Quick interactions */
-.button {
-  transition: transform 0.15s ease;
-}
-
-/* Standard transitions */
-.card {
-  transition: transform 0.3s ease;
-}
-
-/* Slower, deliberate animations */
-.modal {
-  transition: opacity 0.4s ease, transform 0.4s ease;
-}
-```
-
-**Guidelines:**
-
-- User-triggered actions: 0.15s - 0.25s
-- Standard UI transitions: 0.3s - 0.4s
-- Large movements: 0.4s - 0.6s
-- Never exceed 0.6s for UI animations
-
-### Transition Timing Functions
+| Use case | Duration |
+| :--- | :--- |
+| Tap feedback | 0.1s to 0.15s |
+| Standard state change | 0.2s to 0.3s |
+| Large movements | 0.3s to 0.5s |
+| Maximum | 0.6s |
 
 ```css
-/* Linear (constant speed) */
-transition-timing-function: linear;
-
-/* Ease (start slow, speed up, end slow) - Default */
-transition-timing-function: ease;
-
-/* Ease-in (start slow, speed up) */
-transition-timing-function: ease-in;
-
-/* Ease-out (start fast, slow down) - Best for exits */
-transition-timing-function: ease-out;
-
-/* Ease-in-out (symmetric acceleration) */
-transition-timing-function: ease-in-out;
-
-/* Custom cubic-bezier */
-transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
-```
-
-### Recommended Easing Functions
-
-```css
-/* Material Design easing */
-.enter {
-  transition: transform 0.3s cubic-bezier(0.0, 0.0, 0.2, 1);
-}
-
-.exit {
-  transition: transform 0.2s cubic-bezier(0.4, 0.0, 1, 1);
-}
-
-/* Smooth deceleration */
-.smooth {
-  transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-/* Bounce effect */
-.bounce {
-  transition: transform 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-}
+.enter  { transition-timing-function: cubic-bezier(0.0,  0.0,  0.2, 1); }
+.exit   { transition-timing-function: cubic-bezier(0.4,  0.0,  1,   1); }
+.bounce { transition-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55); }
 ```
 
 ---
 
-## CSS Animations
-
-### Keyframe Animations
-
-Define reusable animation sequences:
+## CSS Keyframe Animations
 
 ```css
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(1rem);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(1rem); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .element {
-  animation: fadeIn 0.4s ease;
-}
-```
-
-### Complex Keyframes
-
-```css
-@keyframes pulse {
-  0%, 100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.05);
-    opacity: 0.8;
-  }
-}
-
-.notification {
-  animation: pulse 2s ease-in-out infinite;
-}
-```
-
-### Animation Properties
-
-```css
-.element {
-  animation-name: slideIn;
-  animation-duration: 0.5s;
-  animation-timing-function: ease-out;
-  animation-delay: 0.1s;
-  animation-iteration-count: 1;
-  animation-direction: normal;
-  animation-fill-mode: forwards;
-  animation-play-state: running;
-}
-
-/* Shorthand */
-.element {
-  animation: slideIn 0.5s ease-out 0.1s 1 normal forwards;
-}
-```
-
-### Animation Fill Mode
-
-```css
-/* Don't apply styles before/after animation */
-animation-fill-mode: none;
-
-/* Apply end state after animation */
-animation-fill-mode: forwards;
-
-/* Apply start state before animation */
-animation-fill-mode: backwards;
-
-/* Apply both */
-animation-fill-mode: both;
-```
-
----
-
-## Hardware Acceleration
-
-### Forcing GPU Layers
-
-Create composite layers for smoother animations:
-
-```css
-.animated-element {
-  /* Force GPU layer */
-  transform: translateZ(0);
-  /* Or */
-  will-change: transform;
-}
-```
-
-### Will-Change Property
-
-Hint to browser which properties will animate:
-
-```css
-.button {
-  /* Prepare for transform animation */
-  will-change: transform;
-}
-
-/* Remove after animation */
-.button.animation-done {
-  will-change: auto;
-}
-```
-
-**Important:** Use `will-change` sparingly. Each will-change creates a composite layer consuming memory.
-
-```css
-/* Incorrect: too many layers */
-* {
+  animation: fadeIn 0.4s ease forwards;
   will-change: transform, opacity;
 }
-
-/* Correct: only animated elements */
-.animated-card {
-  will-change: transform;
-}
 ```
 
-### Managing Will-Change with JavaScript
+```css
+animation-fill-mode: forwards;  /* hold end state */
+animation-fill-mode: both;      /* hold start before delay, end after */
+```
 
-```javascript
-element.addEventListener('mouseenter', () => {
-  element.style.willChange = 'transform';
-});
+---
 
+## Will-Change
+
+Add `will-change: transform` to `position: fixed` or `position: sticky` elements before they animate. Remove it after.
+
+```css
+.drawer  { will-change: transform; }
+```
+
+```js
 element.addEventListener('animationend', () => {
   element.style.willChange = 'auto';
-});
+}, { once: true });
 ```
+
+Never apply `will-change` globally. Each declaration allocates a compositor layer.
 
 ---
 
-## JavaScript Animations
+## Scroll-Driven Animations
 
-### RequestAnimationFrame
+For any swipe-driven UI, scroll-driven CSS is the preferred approach. The scroll position drives the animation directly on the compositor. No JS per frame, no touch event listeners, smooth under every power state.
 
-Use `requestAnimationFrame` for JavaScript-driven animations:
+### WebView Compatibility
 
-```javascript
-function animate(element, from, to, duration) {
-  const start = performance.now();
-  
-  function step(currentTime) {
-    const elapsed = currentTime - start;
-    const progress = Math.min(elapsed / duration, 1);
-    
-    // Easing function
-    const eased = easeOutCubic(progress);
-    
-    // Update property
-    const value = from + (to - from) * eased;
-    element.style.transform = `translateX(${value}px)`;
-    
-    if (progress < 1) {
-      requestAnimationFrame(step);
-    }
-  }
-  
-  requestAnimationFrame(step);
+| API | Available |
+| :--- | :--- |
+| CSS `animation-timeline: scroll()` | Yes |
+| CSS `animation-timeline: view()` | Yes |
+| `new ScrollTimeline()` in JS | No - throws ReferenceError |
+| `new ViewTimeline()` in JS | No - throws ReferenceError |
+
+### Browser Support and Fallbacks
+
+`animation-timeline` requires Chromium 115+ / Safari 18+. Use `@supports` to layer it on top of a working CSS fallback.
+
+**Write the fallback first, enhance inside `@supports`:**
+
+```css
+/* Fallback - works everywhere */
+.drawer {
+  transform: translateX(-100%);
+  transition: transform 0.3s cubic-bezier(0.0, 0.0, 0.2, 1);
+}
+.drawer.is-open {
+  transform: translateX(0);
 }
 
-function easeOutCubic(t) {
-  return 1 - Math.pow(1 - t, 3);
-}
-
-// Usage
-animate(element, 0, 200, 500);
-```
-
-### Cancelable Animations
-
-```javascript
-let animationId;
-
-function startAnimation() {
-  function step() {
-    // Animation logic
-    updatePosition();
-    animationId = requestAnimationFrame(step);
-  }
-  animationId = requestAnimationFrame(step);
-}
-
-function stopAnimation() {
-  if (animationId) {
-    cancelAnimationFrame(animationId);
-    animationId = null;
+/* Enhancement - scroll-driven where supported */
+@supports (animation-timeline: scroll()) {
+  .drawer {
+    transition: none;
+    animation: drawer-in linear both;
+    animation-timeline: scroll(nearest inline);
+    animation-range: 0% 50%;
   }
 }
 ```
 
-### Performance Monitoring
+**Always start items visible for scroll-reveal.** If `animation-timeline: view()` is unsupported, items stay at `opacity: 0` forever.
 
-```javascript
-let frameCount = 0;
-let lastTime = performance.now();
+```css
+/* Baseline - visible */
+.list-item { opacity: 1; transform: translateY(0); }
 
-function measurePerformance() {
-  frameCount++;
-  const currentTime = performance.now();
-  
-  if (currentTime >= lastTime + 1000) {
-    const fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
-    
-    if (fps < 50) {
-      console.warn(`Animation dropping frames: ${fps}fps`);
-    }
-    
-    frameCount = 0;
-    lastTime = currentTime;
+/* Enhancement - animate in */
+@supports (animation-timeline: scroll()) {
+  .list-item {
+    opacity: 0;
+    transform: translateY(1rem);
+    animation: fadeInUp 0.4s ease forwards;
+    animation-timeline: view();
+    animation-range: entry 0% entry 35%;
   }
-  
-  requestAnimationFrame(measurePerformance);
 }
-```
-
----
-
-## Animation Libraries
-
-### Recommended Libraries
-
-**Lightweight options that work well with Despia:**
-
-```
-# GSAP - Industry standard, 50kb
-npm install gsap
-
-# Framer Motion - React animations, 35kb
-npm install framer-motion
-
-# Motion One - Modern, 5kb
-npm install motion
-```
-
-### GSAP Example
-
-```javascript
-import gsap from 'gsap';
-
-// Simple animation
-gsap.to('.element', {
-  x: 100,
-  duration: 0.5,
-  ease: 'power2.out'
-});
-
-// Timeline
-const tl = gsap.timeline();
-tl.to('.card', { opacity: 1, duration: 0.3 })
-  .to('.card', { y: -10, duration: 0.2 })
-  .to('.card', { y: 0, duration: 0.2 });
-```
-
-### Framer Motion Example
-
-```javascript
-import { motion } from 'framer-motion';
-
-function Card() {
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-    >
-      Content
-    </motion.div>
-  );
-}
-```
-
-### Motion One Example
-
-```javascript
-import { animate } from 'motion';
-
-animate(
-  '.element',
-  { opacity: [0, 1], transform: ['translateY(20px)', 'translateY(0)'] },
-  { duration: 0.3, easing: 'ease-out' }
-);
-```
-
----
-
-## Properties to Avoid
-
-### Layout-Triggering Properties
-
-These properties trigger layout recalculation and should not be animated:
-
-```css
-/* Avoid animating these */
-width, height
-top, right, bottom, left
-margin, padding
-border-width
-font-size
-```
-
-### Paint-Triggering Properties
-
-These trigger paint but not layout (better than layout, but still expensive):
-
-```css
-/* Expensive to animate */
-background-color
-border-color
-box-shadow
-color
-```
-
-### Safe Alternatives
-
-```css
-/* Instead of animating width */
-.incorrect {
-  transition: width 0.3s;
-}
-
-.correct {
-  transition: transform 0.3s;
-  transform: scaleX(1.2);
-}
-
-/* Instead of animating background-color */
-.incorrect {
-  transition: background-color 0.3s;
-}
-
-.correct {
-  position: relative;
-}
-
-.correct::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: #007bff;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.correct:hover::before {
-  opacity: 1;
-}
-```
-
----
-
-## Staggered Animations
-
-### CSS Delays
-
-```css
-.list-item {
-  opacity: 0;
-  transform: translateY(1rem);
-  animation: fadeInUp 0.4s ease forwards;
-}
-
-.list-item:nth-child(1) { animation-delay: 0s; }
-.list-item:nth-child(2) { animation-delay: 0.1s; }
-.list-item:nth-child(3) { animation-delay: 0.2s; }
-.list-item:nth-child(4) { animation-delay: 0.3s; }
 
 @keyframes fadeInUp {
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  to { opacity: 1; transform: translateY(0); }
+}
+```
+
+**Branch in JS with `CSS.supports()`:**
+
+```js
+const supportsScrollTimeline = CSS.supports('animation-timeline: scroll()');
+
+function initDrawer(sceneEl, drawerEl) {
+  if (supportsScrollTimeline) {
+    initScrollDriver(sceneEl, drawerEl);
+  } else {
+    initClassToggle(drawerEl);
   }
 }
-```
 
-### JavaScript Stagger
+function initScrollDriver(sceneEl, drawerEl) {
+  const driver  = sceneEl.querySelector('.scroll-driver');
+  const openPos = driver.scrollWidth / 2;
 
-```javascript
-const items = document.querySelectorAll('.item');
+  sceneEl.querySelector('#menuBtn').addEventListener('click', () =>
+    driver.scrollTo({ left: openPos, behavior: 'smooth' }));
 
-items.forEach((item, index) => {
-  setTimeout(() => {
-    item.style.opacity = '1';
-    item.style.transform = 'translateY(0)';
-  }, index * 100);
-});
-```
+  sceneEl.querySelector('#scrim').addEventListener('click', () =>
+    driver.scrollTo({ left: 0, behavior: 'smooth' }));
 
-### GSAP Stagger
-
-```javascript
-gsap.to('.item', {
-  opacity: 1,
-  y: 0,
-  duration: 0.4,
-  stagger: 0.1
-});
-```
-
----
-
-## Scroll-Based Animations
-
-### Intersection Observer
-
-Trigger animations when elements enter viewport:
-
-```javascript
-const observer = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('animate-in');
-        observer.unobserve(entry.target);
-      }
-    });
-  },
-  { threshold: 0.1 }
-);
-
-document.querySelectorAll('.animate-on-scroll').forEach((el) => {
-  observer.observe(el);
-});
-```
-
-```javascript
-.animate-on-scroll {
-  opacity: 0;
-  transform: translateY(2rem);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  onScrollSettled(driver, () => {
+    const open = driver.scrollLeft >= openPos * 0.9;
+    drawerEl.classList.toggle('is-open', open);
+  });
 }
 
-.animate-on-scroll.animate-in {
-  opacity: 1;
-  transform: translateY(0);
+function initClassToggle(drawerEl) {
+  document.getElementById('menuBtn').addEventListener('click', () =>
+    drawerEl.classList.add('is-open'));
+  document.getElementById('scrim').addEventListener('click', () =>
+    drawerEl.classList.remove('is-open'));
 }
 ```
 
-### Scroll-Driven Animations
+**Support matrix:**
 
-```javascript
-function handleScroll() {
-  const scrolled = window.scrollY;
-  const element = document.querySelector('.parallax');
-  
-  // Parallax effect
-  element.style.transform = `translateY(${scrolled * 0.5}px)`;
-}
+| Environment | `animation-timeline` support |
+| :--- | :--- |
+| WKWebView - iOS 18+ | Yes |
+| WKWebView - iOS 17 and below | No - use `@supports` fallback |
+| Android WebView - Chrome 115+ | Yes |
+| Android WebView - older | No - use `@supports` fallback |
 
-window.addEventListener('scroll', handleScroll, { passive: true });
+### The Hidden Scroller Pattern
+
+The base technique for all swipe-driven UI. An invisible scroll container captures gestures. Its scroll position becomes the CSS timeline for the content below.
+
+```
+User swipes > invisible scroller moves > CSS timeline drives your UI
 ```
 
----
+No `touchstart`. No `touchmove`. No `requestAnimationFrame`. Native scroll engine handles physics, momentum, and snap.
 
-## Accessibility
-
-### Reduced Motion
-
-Respect user's motion preferences:
+```html
+<div class="scene">
+  <div class="animated-panel">...</div>
+  <div class="scroll-driver" id="driver">
+    <div class="scroll-driver-inner"></div>
+  </div>
+</div>
+```
 
 ```css
-@media (prefers-reduced-motion: reduce) {
-  * {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+.scene { position: relative; width: 100%; height: 100%; overflow: hidden; }
+
+.scroll-driver {
+  position: absolute; inset: 0;
+  overflow-x: scroll; overflow-y: hidden;
+  scrollbar-width: none;
+  z-index: 20;
+  -webkit-overflow-scrolling: touch;
 }
+.scroll-driver::-webkit-scrollbar { display: none; }
+.scroll-driver-inner { width: 200%; height: 1px; }
 ```
-
-### Conditional Animations
-
-```javascript
-const prefersReducedMotion = window.matchMedia(
-  '(prefers-reduced-motion: reduce)'
-).matches;
-
-if (!prefersReducedMotion) {
-  element.classList.add('animate');
-}
-```
-
-### Accessible Alternatives
 
 ```css
-/* Default: animated */
-.button {
-  transition: transform 0.2s ease;
+.animated-panel {
+  animation: enter linear both;
+  animation-timeline: scroll(nearest inline);
+  animation-range: 0% 50%;
+  will-change: transform;
 }
-
-.button:hover {
-  transform: scale(1.05);
+@keyframes enter {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
 }
+```
 
-/* Reduced motion: instant feedback */
-@media (prefers-reduced-motion: reduce) {
-  .button {
-    transition: none;
-  }
-  
-  .button:hover {
-    outline: 2px solid #007bff;
-    outline-offset: 2px;
+### Programmatic Open and Close
+
+```js
+const driver  = document.getElementById('driver');
+const openPos = driver.scrollWidth / 2;
+
+function open()  { driver.scrollTo({ left: openPos, behavior: 'smooth' }); }
+function close() { driver.scrollTo({ left: 0,       behavior: 'smooth' }); }
+```
+
+### scrollend
+
+`scrollend` fires once when scrolling settles. Update state here, not on every pixel.
+
+```js
+driver.addEventListener('scrollend', () => {
+  const isOpen = driver.scrollLeft >= openPos * 0.9;
+  document.body.dataset.drawer = isOpen ? 'open' : 'closed';
+});
+```
+
+Fallback for iOS 16.3 and below:
+
+```js
+function onScrollSettled(el, callback, delay = 100) {
+  if ('onscrollend' in el) {
+    el.addEventListener('scrollend', callback);
+  } else {
+    let t;
+    el.addEventListener('scroll', () => {
+      clearTimeout(t);
+      t = setTimeout(callback, delay);
+    }, { passive: true });
   }
 }
 ```
 
 ---
 
-## Loading Animations
+## Scroll-Driven Patterns
 
-### Skeleton Screens
+### Side Drawer
 
-```css
-.skeleton {
-  background: linear-gradient(
-    90deg,
-    #f0f0f0 25%,
-    #e0e0e0 50%,
-    #f0f0f0 75%
-  );
-  background-size: 200% 100%;
-  animation: loading 1.5s ease-in-out infinite;
-}
-
-@keyframes loading {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
-}
+```html
+<div class="drawer-scene">
+  <aside class="drawer" id="drawer">
+    <div class="drawer-inner">...</div>
+  </aside>
+  <div class="drawer-scrim" id="scrim"></div>
+  <div class="scroll-driver" id="drawerDriver">
+    <div class="scroll-driver-inner"></div>
+  </div>
+</div>
 ```
 
-### Spinners
-
 ```css
-.spinner {
-  width: 2.5rem;
-  height: 2.5rem;
-  border: 0.25rem solid #f0f0f0;
-  border-top-color: #007bff;
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+/* Light mode tokens */
+:root {
+  --drawer-bg:     #ffffff;
+  --drawer-text:   #111111;
+  --drawer-border: rgba(0, 0, 0, 0.08);
+  --drawer-scrim:  rgba(0, 0, 0, 0.45);
 }
 
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
+@media (prefers-color-scheme: dark) {
+  :root {
+    --drawer-bg:     #1c1c1e;
+    --drawer-text:   #f2f2f7;
+    --drawer-border: rgba(255, 255, 255, 0.1);
+    --drawer-scrim:  rgba(0, 0, 0, 0.65);
   }
 }
-```
 
-### Progress Indicators
+.drawer-scene { position: relative; width: 100%; height: 100%; overflow: hidden; }
 
-```css
-.progress-bar {
-  width: 100%;
-  height: 0.25rem;
-  background: #f0f0f0;
-  overflow: hidden;
+.drawer {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: 80vw; max-width: 320px;
+  background: var(--drawer-bg);
+  color: var(--drawer-text);
+  border-right: 1px solid var(--drawer-border);
+  will-change: transform;
+  animation: drawer-in linear both;
+  animation-timeline: scroll(nearest inline);
+  animation-range: 0% 50%;
+}
+@keyframes drawer-in {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(0); }
 }
 
-.progress-fill {
+.drawer-inner {
+  padding-top: var(--safe-area-top);
   height: 100%;
-  background: #007bff;
-  transform: translateX(-100%);
-  animation: progress 2s ease-in-out forwards;
+  overflow-y: auto;
 }
 
-@keyframes progress {
-  to {
-    transform: translateX(0);
+.drawer-scrim {
+  position: fixed; inset: 0;
+  background: var(--drawer-scrim);
+  opacity: 0;
+  pointer-events: none;
+  animation: scrim-in linear both;
+  animation-timeline: scroll(nearest inline);
+  animation-range: 0% 50%;
+}
+@keyframes scrim-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+```
+
+```js
+const driver  = document.getElementById('drawerDriver');
+const openPos = driver.scrollWidth / 2;
+
+document.getElementById('menuBtn').addEventListener('click', () =>
+  driver.scrollTo({ left: openPos, behavior: 'smooth' }));
+
+document.getElementById('scrim').addEventListener('click', () =>
+  driver.scrollTo({ left: 0, behavior: 'smooth' }));
+
+driver.addEventListener('scrollend', () => {
+  const open = driver.scrollLeft >= openPos * 0.9;
+  driver.setAttribute('aria-expanded', open);
+  document.body.classList.toggle('nav-open', open);
+});
+```
+
+### Bottom Sheet (Gesture-Driven)
+
+```css
+.sheet-driver {
+  position: absolute; inset: 0;
+  overflow-y: scroll; overflow-x: hidden;
+  scrollbar-width: none;
+  z-index: 20;
+  -webkit-overflow-scrolling: touch;
+}
+.sheet-driver-inner { height: 200%; width: 1px; }
+
+.bottom-sheet {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 60vh;
+  border-radius: 16px 16px 0 0;
+  background: var(--surface);
+  will-change: transform;
+  animation: sheet-up linear both;
+  animation-timeline: scroll(nearest block);
+  animation-range: 0% 50%;
+}
+@keyframes sheet-up {
+  from { transform: translateY(100%); }
+  to   { transform: translateY(0); }
+}
+```
+
+```js
+const driver  = document.getElementById('sheetDriver');
+const openPos = driver.scrollHeight / 2;
+
+function openSheet()  { driver.scrollTo({ top: openPos, behavior: 'smooth' }); }
+function closeSheet() { driver.scrollTo({ top: 0,       behavior: 'smooth' }); }
+
+onScrollSettled(driver, () => {
+  const open = driver.scrollTop >= openPos * 0.9;
+  document.body.dataset.sheet = open ? 'open' : 'closed';
+});
+```
+
+### Detent Sheet (Multiple Snap Points)
+
+A sheet that snaps to peek, half, and full open.
+
+```css
+.detent-driver {
+  position: absolute; inset: 0;
+  overflow-y: scroll; overflow-x: hidden;
+  scrollbar-width: none;
+  scroll-snap-type: y mandatory;
+  z-index: 30;
+  -webkit-overflow-scrolling: touch;
+}
+.detent-driver::-webkit-scrollbar { display: none; }
+.detent-driver-inner { height: 300%; width: 1px; }
+
+.detent-sheet {
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 90vh;
+  background: var(--surface);
+  border-radius: 12px 12px 0 0;
+  will-change: transform;
+  animation: detent-rise linear both;
+  animation-timeline: scroll(nearest block);
+  animation-range: 0% 100%;
+}
+@keyframes detent-rise {
+  0%   { transform: translateY(calc(90vh - 3rem)); }
+  33%  { transform: translateY(60%); }
+  100% { transform: translateY(0); }
+}
+
+.detent-handle {
+  width: 2.5rem; height: 4px;
+  background: var(--border);
+  border-radius: 2px;
+  margin: 0.75rem auto;
+}
+```
+
+```js
+const driver = document.getElementById('detentDriver');
+const PEEK   = driver.scrollHeight * 0.33;
+const OPEN   = driver.scrollHeight;
+
+function openPeek() { driver.scrollTo({ top: PEEK, behavior: 'smooth' }); }
+function openFull() { driver.scrollTo({ top: OPEN, behavior: 'smooth' }); }
+function close()    { driver.scrollTo({ top: 0,    behavior: 'smooth' }); }
+```
+
+### Full-Screen Page Swipe Stack
+
+Full-screen vertical snap-scroll. Each page scales up as it enters and scales down as it exits.
+
+```css
+.page-stack {
+  height: 100dvh;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+  scrollbar-width: none;
+  overscroll-behavior: contain;
+}
+.page-stack::-webkit-scrollbar { display: none; }
+
+.stack-page {
+  height: 100dvh;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  will-change: transform, opacity;
+  animation: stack-page-anim linear both;
+  animation-timeline: view(block);
+  animation-range: cover 0% cover 100%;
+}
+@keyframes stack-page-anim {
+  0%   { transform: scale(0.94) translateY(4%);  opacity: 0.5; }
+  30%  { transform: scale(1)    translateY(0);   opacity: 1;   }
+  70%  { transform: scale(1)    translateY(0);   opacity: 1;   }
+  100% { transform: scale(0.92) translateY(-2%); opacity: 0.4; }
+}
+```
+
+```js
+function goToPage(index) {
+  document.querySelectorAll('.stack-page')[index]
+    .scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+```
+
+### Parallax Hero with Fading Title
+
+```css
+.hero { position: relative; height: 60vh; overflow: hidden; }
+
+.hero-bg {
+  position: absolute;
+  inset: -20%;
+  background: url('hero.jpg') center / cover no-repeat;
+  will-change: transform;
+  animation: hero-parallax linear both;
+  animation-timeline: scroll(root block);
+  animation-range: 0vh 60vh;
+}
+@keyframes hero-parallax {
+  from { transform: translateY(0); }
+  to   { transform: translateY(25%); }
+}
+
+.hero-title {
+  will-change: transform, opacity;
+  animation: hero-title-out linear both;
+  animation-timeline: scroll(root block);
+  animation-range: 0vh 40vh;
+}
+@keyframes hero-title-out {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-2rem); }
+}
+```
+
+### Large Title Navigation Bar
+
+Bar title and border fade in as the large title scrolls away.
+
+```css
+.nav-bar {
+  position: sticky; top: 0;
+  height: 44px;
+  background: var(--surface);
+  border-bottom: 1px solid transparent;
+  z-index: 10;
+}
+
+.nav-bar-title {
+  opacity: 0;
+  animation: bar-title-in linear both;
+  animation-timeline: scroll(nearest block);
+  animation-range: 40px 80px;
+}
+@keyframes bar-title-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.nav-bar {
+  animation: bar-border-in linear both;
+  animation-timeline: scroll(nearest block);
+  animation-range: 40px 80px;
+}
+@keyframes bar-border-in {
+  from { border-color: transparent; }
+  to   { border-color: var(--border); }
+}
+
+.nav-large-title {
+  font-size: 2rem; font-weight: 700;
+  will-change: transform, opacity;
+  animation: large-title-out linear both;
+  animation-timeline: scroll(nearest block);
+  animation-range: 0px 70px;
+}
+@keyframes large-title-out {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to   { opacity: 0; transform: translateY(-0.5rem) scale(0.85); }
+}
+```
+
+### Swipe Card Stack
+
+```css
+.card-stack {
+  display: flex;
+  overflow-x: scroll;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.card-stack::-webkit-scrollbar { display: none; }
+
+.card {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+  will-change: transform, opacity;
+  animation: card-anim linear both;
+  animation-timeline: view(inline);
+  animation-range: cover 0% cover 100%;
+}
+@keyframes card-anim {
+  0%   { transform: scale(0.88) translateX(12%);  opacity: 0.4; }
+  33%  { transform: scale(1)    translateX(0);    opacity: 1;   }
+  66%  { transform: scale(1)    translateX(0);    opacity: 1;   }
+  100% { transform: scale(0.88) translateX(-12%); opacity: 0.4; }
+}
+```
+
+### Scroll-Reveal List
+
+```css
+/* Baseline - visible on unsupported browsers */
+.list-item { opacity: 1; transform: translateY(0); }
+
+@supports (animation-timeline: scroll()) {
+  .list-item {
+    opacity: 0;
+    transform: translateY(1rem);
+    animation: fadeInUp 0.4s ease forwards;
+    animation-timeline: view();
+    animation-range: entry 0% entry 35%;
   }
+  .list-item:nth-child(1) { animation-delay: 0s; }
+  .list-item:nth-child(2) { animation-delay: 0.1s; }
+  .list-item:nth-child(3) { animation-delay: 0.2s; }
+  .list-item:nth-child(4) { animation-delay: 0.3s; }
+}
+
+@keyframes fadeInUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+```
+
+### Strip Viewer
+
+Horizontal snap viewer for comics, onboarding, or photo strips. Progress bar requires no JS.
+
+```html
+<div class="strip" id="strip">
+  <div class="strip-page"><img src="page-01.jpg" alt="Page 1"></div>
+  <div class="strip-page"><img src="page-02.jpg" alt="Page 2"></div>
+</div>
+<span id="counter">1 / 12</span>
+<div class="strip-progress"></div>
+```
+
+```css
+.strip {
+  display: flex;
+  overflow-x: scroll;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+  width: 100%; height: 100%;
+}
+.strip::-webkit-scrollbar { display: none; }
+
+.strip-page {
+  flex: 0 0 100%;
+  scroll-snap-align: center;
+  animation: page-focus linear both;
+  animation-timeline: view(inline);
+  animation-range: cover 0% cover 100%;
+}
+@keyframes page-focus {
+  0%   { opacity: 0.2; transform: scale(0.92); }
+  33%  { opacity: 1;   transform: scale(1); }
+  66%  { opacity: 1;   transform: scale(1); }
+  100% { opacity: 0.2; transform: scale(0.92); }
+}
+
+.strip-page img {
+  max-width: 100%; max-height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+}
+
+.strip-progress {
+  position: fixed; bottom: 0; left: 0;
+  height: 2px; width: 100%;
+  background: var(--accent);
+  transform-origin: left;
+  animation: progress linear both;
+  animation-timeline: scroll(nearest inline);
+}
+@keyframes progress {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+```
+
+```js
+const strip = document.getElementById('strip');
+const total = strip.querySelectorAll('.strip-page').length;
+
+onScrollSettled(strip, () => {
+  const current = Math.round(strip.scrollLeft / strip.offsetWidth) + 1;
+  document.getElementById('counter').textContent = `${current} / ${total}`;
+});
+
+function goToPage(n) {
+  strip.scrollTo({ left: (n - 1) * strip.offsetWidth, behavior: 'smooth' });
+}
+```
+
+### Carousel with Indicator Dots
+
+```css
+.carousel {
+  display: flex;
+  overflow-x: scroll;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.carousel::-webkit-scrollbar { display: none; }
+.carousel-panel { flex: 0 0 100%; scroll-snap-align: start; }
+
+.dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--text-faint);
+  border: none;
+  transition: background 0.2s, transform 0.2s;
+}
+.dot.active { background: var(--accent); transform: scale(1.3); }
+```
+
+```js
+const carousel = document.getElementById('carousel');
+const dots     = document.querySelectorAll('.dot');
+
+dots.forEach(dot => {
+  dot.addEventListener('click', () =>
+    carousel.scrollTo({
+      left: parseInt(dot.dataset.index) * carousel.offsetWidth,
+      behavior: 'smooth'
+    })
+  );
+});
+
+onScrollSettled(carousel, () => {
+  const i = Math.round(carousel.scrollLeft / carousel.offsetWidth);
+  dots.forEach((d, j) => d.classList.toggle('active', i === j));
+});
+```
+
+### Context Menu Entrance
+
+Scales up from the tap point. Removes itself from DOM on dismiss.
+
+```css
+.context-menu {
+  position: fixed;
+  background: var(--surface);
+  border-radius: 14px;
+  min-width: 200px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  transform-origin: var(--origin-x, 50%) var(--origin-y, 0%);
+  animation: context-in 0.22s cubic-bezier(0.34, 1.36, 0.64, 1) forwards;
+  will-change: transform, opacity;
+}
+@keyframes context-in {
+  from { transform: scale(0.7); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.context-menu.is-dismissing {
+  animation: context-out 0.16s ease-in forwards;
+}
+@keyframes context-out {
+  from { transform: scale(1);    opacity: 1; }
+  to   { transform: scale(0.85); opacity: 0; }
+}
+
+.context-item {
+  display: block; width: 100%;
+  padding: 0.75rem 1rem;
+  background: none; border: none;
+  font-size: 1rem; color: var(--text); text-align: left;
+  transition: background 0.1s ease;
+}
+.context-item:active { background: var(--surface2); }
+.context-item--destructive { color: #ef4444; }
+```
+
+```js
+function showContextMenu(x, y) {
+  const menu = document.getElementById('contextMenu');
+  const vw = window.innerWidth, vh = window.innerHeight;
+
+  menu.style.left = `${x}px`;
+  menu.style.top  = `${y}px`;
+  menu.style.setProperty('--origin-x', `${(x / vw * 100).toFixed(1)}%`);
+  menu.style.setProperty('--origin-y', `${(y / vh * 100).toFixed(1)}%`);
+
+  document.body.appendChild(menu);
+  void menu.offsetHeight;
+  menu.classList.remove('is-dismissing');
+}
+
+function dismissContextMenu() {
+  const menu = document.getElementById('contextMenu');
+  if (!menu) return;
+  menu.classList.add('is-dismissing');
+  menu.addEventListener('animationend', () => menu.remove(), { once: true });
+}
+
+document.addEventListener('click', (e) => {
+  const menu = document.getElementById('contextMenu');
+  if (menu && !menu.contains(e.target)) dismissContextMenu();
+});
+```
+
+### Tab Bar with Sliding Indicator
+
+```css
+.tab-bar {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  height: calc(56px + var(--safe-area-bottom));
+  padding-bottom: var(--safe-area-bottom);
+  display: flex; align-items: stretch;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+}
+
+.tab {
+  flex: 1;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background: none; border: none;
+  transition: opacity 0.1s ease;
+}
+.tab:active { opacity: 0.6; }
+.tab-label  { font-size: 0.625rem; color: var(--text-faint); }
+.tab[aria-selected="true"] .tab-label { color: var(--accent); }
+
+.tab-indicator {
+  position: absolute; top: 6px;
+  width: 44px; height: 30px;
+  background: var(--accent-subtle, rgba(0, 122, 255, 0.12));
+  border-radius: 10px;
+  will-change: transform;
+  transition: transform 0.3s cubic-bezier(0.34, 1.2, 0.64, 1);
+}
+```
+
+```js
+const tabBar    = document.getElementById('tabBar');
+const indicator = document.getElementById('tabIndicator');
+const tabs      = tabBar.querySelectorAll('.tab');
+
+function updateIndicator(tab) {
+  const barRect = tabBar.getBoundingClientRect();
+  const tabRect = tab.getBoundingClientRect();
+  const centerX = tabRect.left + tabRect.width / 2 - barRect.left;
+  indicator.style.transform = `translateX(${centerX - 22}px)`;
+}
+
+updateIndicator(tabs[0]);
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    tabs.forEach(t => t.setAttribute('aria-selected', 'false'));
+    tab.setAttribute('aria-selected', 'true');
+    updateIndicator(tab);
+  });
+});
+```
+
+### Notification Banner
+
+Slides down from the top, auto-dismisses, removes from DOM on exit.
+
+```css
+.alert-banner {
+  position: fixed; top: 0; left: 1rem; right: 1rem;
+  margin-top: var(--safe-area-top);
+  background: var(--surface);
+  border-radius: 14px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.14);
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  z-index: 100;
+  will-change: transform, opacity;
+  transform: translateY(calc(-100% - var(--safe-area-top) - 1rem));
+}
+.alert-banner.is-entering {
+  animation: banner-in 0.45s cubic-bezier(0.34, 1.2, 0.64, 1) forwards;
+}
+.alert-banner.is-exiting {
+  animation: banner-out 0.3s cubic-bezier(0.4, 0.0, 1, 1) forwards;
+}
+@keyframes banner-in {
+  from { transform: translateY(calc(-100% - var(--safe-area-top) - 1rem)); opacity: 0.6; }
+  to   { transform: translateY(0.5rem); opacity: 1; }
+}
+@keyframes banner-out {
+  from { transform: translateY(0.5rem); opacity: 1; }
+  to   { transform: translateY(calc(-100% - var(--safe-area-top) - 1rem)); opacity: 0; }
+}
+```
+
+```js
+function showBanner(durationMs = 4000) {
+  const banner = document.getElementById('alertBanner');
+  document.body.appendChild(banner);
+  void banner.offsetHeight;
+  banner.classList.add('is-entering');
+
+  const t = setTimeout(() => dismissBanner(), durationMs);
+  banner.addEventListener('click', () => { clearTimeout(t); dismissBanner(); });
+}
+
+function dismissBanner() {
+  const banner = document.getElementById('alertBanner');
+  if (!banner) return;
+  banner.classList.remove('is-entering');
+  banner.classList.add('is-exiting');
+  banner.addEventListener('animationend', () => banner.remove(), { once: true });
 }
 ```
 
 ---
 
-## Modal and Dialog Animations
+## DOM Lifecycle
+
+Keep off-screen elements out of the DOM. Remove them after exit animations. Animate them in after inserting.
+
+### Remove After Exit
+
+```js
+function dismiss(el) {
+  el.classList.add('is-exiting');
+  el.addEventListener('transitionend', () => el.remove(), { once: true });
+}
+```
+
+### Animate In After Insert
+
+Inserting and immediately adding the active class in the same tick skips the transition. Force a reflow between the two.
+
+```js
+function show(el) {
+  document.body.appendChild(el);
+  void el.offsetHeight; // flush styles
+  el.classList.add('is-open');
+}
+```
+
+### Full Lifecycle
+
+```js
+function showToast(message) {
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+
+  void toast.offsetHeight;
+  toast.classList.add('is-visible');
+
+  setTimeout(() => {
+    toast.classList.remove('is-visible');
+    toast.classList.add('is-exiting');
+    toast.addEventListener('transitionend', () => toast.remove(), { once: true });
+  }, 3000);
+}
+```
+
+---
+
+## Modal and Sheet Animations
 
 ### Fade and Scale
 
 ```css
-.modal-overlay {
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.modal-overlay.open {
-  opacity: 1;
-}
+.modal-overlay { opacity: 0; transition: opacity 0.3s ease; }
+.modal-overlay.open { opacity: 1; }
 
 .modal-content {
   opacity: 0;
   transform: scale(0.9) translateY(-1rem);
   transition: opacity 0.3s ease, transform 0.3s ease;
 }
-
-.modal-content.open {
-  opacity: 1;
-  transform: scale(1) translateY(0);
-}
+.modal-content.open { opacity: 1; transform: scale(1) translateY(0); }
 ```
 
-### Slide from Bottom
+### Slide from Bottom (Class-Toggled)
+
+For sheets that do not need gesture tracking. Use the Hidden Scroller Pattern when gesture progress matters.
 
 ```css
-.drawer {
+.sheet {
   transform: translateY(100%);
   transition: transform 0.3s cubic-bezier(0.0, 0.0, 0.2, 1);
 }
-
-.drawer.open {
-  transform: translateY(0);
-}
+.sheet.open { transform: translateY(0); }
 ```
 
 ---
 
-## Page Transition Animations
-
-### Fade Transition
+## Page Transitions
 
 ```css
 .page {
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.page.active {
-  opacity: 1;
-}
-```
-
-### Slide Transition
-
-```css
-.page {
-  position: absolute;
-  width: 100%;
+  position: absolute; width: 100%;
   transform: translateX(100%);
   transition: transform 0.3s cubic-bezier(0.0, 0.0, 0.2, 1);
 }
-
-.page.active {
-  transform: translateX(0);
-}
-
-.page.exiting {
-  transform: translateX(-100%);
-}
+.page.active  { transform: translateX(0); }
+.page.exiting { transform: translateX(-100%); }
 ```
 
-## Common Animation Patterns
+---
+
+## Common Patterns
 
 ### Button Tap Feedback
 
 ```css
-.button {
-  transform: scale(1);
-  transition: transform 0.1s ease;
-}
-
-.button:active {
-  transform: scale(0.95);
-}
-```
-
-### Card Hover Effect
-
-```css
-.card {
-  transform: translateY(0);
-  box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-}
-
-.card:hover {
-  transform: translateY(-0.5rem);
-  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
-}
+.button { transition: transform 0.1s ease; }
+.button:active { transform: scale(0.95); }
 ```
 
 ### Toggle Switch
 
 ```css
 .toggle {
-  width: 3rem;
-  height: 1.5rem;
-  background: #ccc;
-  border-radius: 1.5rem;
+  width: 3rem; height: 1.5rem;
+  background: #ccc; border-radius: 1.5rem;
   position: relative;
   transition: background 0.3s ease;
 }
-
-.toggle.active {
-  background: #007bff;
-}
+.toggle.active { background: #007bff; }
 
 .toggle-handle {
-  width: 1.25rem;
-  height: 1.25rem;
-  background: white;
-  border-radius: 50%;
-  position: absolute;
-  top: 0.125rem;
-  left: 0.125rem;
+  width: 1.25rem; height: 1.25rem;
+  background: white; border-radius: 50%;
+  position: absolute; top: 0.125rem; left: 0.125rem;
   transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
 }
+.toggle.active .toggle-handle { transform: translateX(1.5rem); }
+```
 
-.toggle.active .toggle-handle {
-  transform: translateX(1.5rem);
+### Loading Skeleton
+
+```css
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: skeleton-sweep 1.5s ease-in-out infinite;
+}
+@keyframes skeleton-sweep {
+  0%   { background-position:  200% 0; }
+  100% { background-position: -200% 0; }
 }
 ```
 
-### Ripple Effect
+### Spinner
 
 ```css
-.button {
-  position: relative;
-  overflow: hidden;
-}
-
-.ripple {
-  position: absolute;
+.spinner {
+  width: 2.5rem; height: 2.5rem;
+  border: 0.25rem solid #f0f0f0;
+  border-top-color: #007bff;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.6);
-  transform: scale(0);
-  animation: ripple-animation 0.6s ease-out;
+  animation: spin 1s linear infinite;
 }
-
-@keyframes ripple-animation {
-  to {
-    transform: scale(4);
-    opacity: 0;
-  }
-}
-```
-
-```javascript
-button.addEventListener('click', function(e) {
-  const ripple = document.createElement('span');
-  ripple.classList.add('ripple');
-  
-  const rect = this.getBoundingClientRect();
-  const size = Math.max(rect.width, rect.height);
-  const x = e.clientX - rect.left - size / 2;
-  const y = e.clientY - rect.top - size / 2;
-  
-  ripple.style.width = ripple.style.height = size + 'px';
-  ripple.style.left = x + 'px';
-  ripple.style.top = y + 'px';
-  
-  this.appendChild(ripple);
-  
-  setTimeout(() => ripple.remove(), 600);
-});
+@keyframes spin { to { transform: rotate(360deg); } }
 ```
 
 ---
 
-## Performance Optimization
+## JS Fallback Animations
 
-### Debouncing Animations
+Use `requestAnimationFrame` only when CSS cannot express the result - physics simulations, canvas, procedural effects - or as a fallback for `animation-timeline` on unsupported browsers.
 
-```javascript
-let timeoutId;
+```js
+function animate(element, from, to, duration) {
+  const start = performance.now();
 
-function animateOnResize() {
-  clearTimeout(timeoutId);
-  timeoutId = setTimeout(() => {
-    // Animation logic
-    updateLayout();
-  }, 150);
+  function step(now) {
+    const progress = Math.min((now - start) / duration, 1);
+    const eased    = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+    element.style.transform = `translateX(${from + (to - from) * eased}px)`;
+    if (progress < 1) requestAnimationFrame(step);
+  }
+
+  requestAnimationFrame(step);
 }
-
-window.addEventListener('resize', animateOnResize);
 ```
 
-### Batching DOM Updates
+Read all layout values before writing. Interleaved reads and writes force repeated reflows.
 
-```javascript
-// Incorrect: causes multiple reflows
-elements.forEach(el => {
-  el.style.transform = `translateX(${getValue()}px)`;
-});
+```js
+// Wrong
+elements.forEach(el => { el.style.transform = `translateX(${el.offsetWidth * 0.5}px)`; });
 
-// Correct: batch updates
-const values = elements.map(el => getValue());
+// Correct
+const offsets = elements.map(el => el.offsetWidth * 0.5);
 requestAnimationFrame(() => {
-  elements.forEach((el, i) => {
-    el.style.transform = `translateX(${values[i]}px)`;
-  });
+  elements.forEach((el, i) => { el.style.transform = `translateX(${offsets[i]}px)`; });
 });
 ```
 
-### Limiting Concurrent Animations
-
-```javascript
-let activeAnimations = 0;
-const MAX_CONCURRENT = 10;
-
-function animate(element) {
-  if (activeAnimations >= MAX_CONCURRENT) {
-    console.warn('Too many concurrent animations');
-    return;
-  }
-  
-  activeAnimations++;
-  
-  element.addEventListener('animationend', () => {
-    activeAnimations--;
-  }, { once: true });
-  
-  element.classList.add('animate');
-}
-```
-
 ---
 
-## Testing Animations
-
-### Chrome DevTools
-
-```
-// Performance recording
-// 1. Open DevTools → Performance tab
-// 2. Record while triggering animations
-// 3. Check for:
-//    - Frame rate drops
-//    - Long tasks (> 50ms)
-//    - Layout thrashing
-```
-
-### Manual FPS Testing
-
-```javascript
-const fpsDisplay = document.createElement('div');
-fpsDisplay.style.cssText = 'position:fixed;top:0;left:0;background:black;color:white;padding:0.5rem;z-index:9999;';
-document.body.appendChild(fpsDisplay);
-
-let lastTime = performance.now();
-let frames = 0;
-
-function measureFPS() {
-  frames++;
-  const currentTime = performance.now();
-  
-  if (currentTime >= lastTime + 1000) {
-    const fps = Math.round((frames * 1000) / (currentTime - lastTime));
-    fpsDisplay.textContent = `${fps} FPS`;
-    
-    if (fps < 50) {
-      fpsDisplay.style.background = 'red';
-    } else if (fps < 55) {
-      fpsDisplay.style.background = 'orange';
-    } else {
-      fpsDisplay.style.background = 'green';
-    }
-    
-    frames = 0;
-    lastTime = currentTime;
-  }
-  
-  requestAnimationFrame(measureFPS);
-}
-
-measureFPS();
-```
-
----
-
-## Common Mistakes
-
-### Animating Layout Properties
-
-```css
-/* Incorrect: causes layout recalculation */
-.card {
-  transition: width 0.3s, height 0.3s;
-}
-
-/* Correct: GPU-accelerated */
-.card {
-  transition: transform 0.3s;
-}
-```
-
-### Too Many Will-Change
-
-```css
-/* Incorrect: creates excessive layers */
-.card, .button, .image, .text {
-  will-change: transform, opacity;
-}
-
-/* Correct: only actively animating elements */
-.animating {
-  will-change: transform;
-}
-```
-
-### Blocking Main Thread
-
-```javascript
-// Incorrect: blocks rendering
-function animate() {
-  for (let i = 0; i < 1000; i++) {
-    expensiveCalculation();
-  }
-  element.style.transform = `translateX(${value}px)`;
-}
-
-// Correct: spread work across frames
-async function animate() {
-  for (let i = 0; i < 1000; i += 10) {
-    await new Promise(resolve => requestAnimationFrame(resolve));
-    for (let j = 0; j < 10; j++) {
-      expensiveCalculation();
-    }
-  }
-}
-```
-
-### No Reduced Motion Support
-
-```css
-/* Incorrect: ignores accessibility */
-.element {
-  animation: spin 2s infinite;
-}
-
-/* Correct: respects user preference */
-.element {
-  animation: spin 2s infinite;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .element {
-    animation: none;
-  }
-}
-```
-
----
-
-## Animation Performance Budget
-
-### Recommended Limits
-
-| Metric                  | Target    | Maximum  |
-| :---------------------- | :-------- | :------- |
-| Animation Duration      | 0.3s      | 0.6s     |
-| Simultaneous Animations | 5         | 10       |
-| Keyframe Complexity     | 3-5 steps | 10 steps |
-| Will-Change Elements    | 2-3       | 5        |
-| Animation FPS           | 60fps     | 50fps    |
-
-### Performance Checklist
-
-- Use transform and opacity only
-- Apply will-change sparingly
-- Remove will-change after animation
-- Respect prefers-reduced-motion
-- Limit concurrent animations
-- Use requestAnimationFrame for JS animations
-- Avoid animating layout properties
-- Test on low-end devices
-- Monitor frame rates during development
-
----
-
-## Platform Considerations
-
-### iOS Performance
-
-- WKWebView handles GPU-accelerated animations efficiently
-- Observe ~30fps under Low Power Mode constraints
-- Transform and opacity maintain smoothness across power states
-- Avoid complex box-shadow animations
-
-### Android Performance
-
-- Performance varies by device
-- Test on mid-range devices (4GB RAM)
-- GPU acceleration generally good on modern Android
-- Be conservative with simultaneous animations
-
----
-
-## Quick Reference
-
-### Safe Animation Properties
-
-```
-/* Always safe (GPU-accelerated) */
-transform
-opacity
-
-/* Use cautiously (paint only) */
-background-color (via pseudo-element)
-color (via pseudo-element)
-
-/* Avoid */
-width, height, top, left, margin, padding
-```
-
-### Timing Guidelines
-
-```
-/* Micro-interactions */
-0.1s - 0.15s
-
-/* Standard transitions */
-0.2s - 0.3s
-
-/* Larger movements */
-0.3s - 0.5s
-
-/* Maximum */
-0.6s
-```
-
-### Essential Easing Functions
-
-```
-/* Default smooth */
-ease-out
-
-/* Entering elements */
-cubic-bezier(0.0, 0.0, 0.2, 1)
-
-/* Exiting elements */
-cubic-bezier(0.4, 0.0, 1, 1)
-
-/* Emphasis */
-cubic-bezier(0.68, -0.55, 0.265, 1.55)
-```
-
-### Reduced Motion Pattern
+## Accessibility
 
 ```css
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
@@ -1246,3 +1152,58 @@ cubic-bezier(0.68, -0.55, 0.265, 1.55)
   }
 }
 ```
+
+Wrap scroll-driven keyframes so items do not get stuck invisible on reduced motion:
+
+```css
+@media (prefers-reduced-motion: no-preference) {
+  .drawer {
+    animation: drawer-in linear both;
+    animation-timeline: scroll(nearest inline);
+    animation-range: 0% 50%;
+  }
+  @keyframes drawer-in {
+    from { transform: translateX(-100%); }
+    to   { transform: translateX(0); }
+  }
+}
+.drawer         { transform: translateX(-100%); transition: none; }
+.drawer.is-open { transform: translateX(0); }
+```
+
+---
+
+## Platform Notes
+
+**iOS (WKWebView)**
+- JS animations throttle to ~30fps under Low Power Mode
+- CSS scroll-driven animations are not throttled by Low Power Mode
+- `transform` and `opacity` stay smooth across all power states
+- Avoid animating `box-shadow` - triggers paint every frame
+
+**Android (WebView)**
+- Test on mid-range hardware (4GB RAM)
+- Be conservative with simultaneous animations
+
+---
+
+## Quick Reference
+
+```
+Always safe:   transform, opacity
+Never animate: width, height, top, left, margin, padding
+Avoid in scroll-driven: box-shadow, filter, backdrop-filter
+```
+
+**Checklist**
+- CSS scroll-driven first for drawers, sheets, parallax, page stacks
+- `@supports (animation-timeline: scroll())` fallback for all scroll-driven CSS
+- Start scroll-reveal items visible so they do not get stuck on unsupported browsers
+- `:active` for touch feedback, never `:hover`
+- `will-change` only on actively animating elements, remove after
+- `{ passive: true }` on all scroll listeners
+- State updates in `scrollend`, not per pixel
+- Remove elements from DOM after exit animations
+- `void el.offsetHeight` between insert and animate-in
+- Wrap scroll-driven keyframes in `prefers-reduced-motion: no-preference`
+- Test on mid-range Android and under iOS Low Power Mode
