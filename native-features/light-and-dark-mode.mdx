@@ -1,171 +1,172 @@
 ---
 title: "Light & Dark Mode"
-description: "Dynamically control the status bar text color (light/dark) to match your app's theme and create fully custom immersive experiences."
+description: "Use CSS prefers-color-scheme and Despia's safe area variables to implement automatic light and dark mode. No JavaScript or SDK calls required. Just CSS and the right settings in the Despia editor."
+icon: "moon-stars"
 ---
 
-<Card title="AI Prompt" icon="sparkles">
-  Add dynamic status bar text color control to your application using the Despia SDK from: https://www.npmjs.com/package/despia-native\\ \
-  First, install the package:
+<Card icon="sparkles" title="AI Prompt">
+  Add light and dark mode to my app using CSS `prefers-color-scheme` and the Despia runtime safe area variables.
 
-  ```
-  npm install despia-native
-  ```
+  \
+  **In the Despia editor, before writing any code:**
 
-  Then import it:
+  - Under **Status Bar settings**, enable **Fullscreen Mode**
+  - Disable **Auto-Inject Safe Area** so you can manage padding yourself in CSS
+  - Set the **Light Mode status bar text color** to **Black** and the **Dark Mode status bar text color** to **White** in the editor. These are managed natively and must be configured here rather than in code
 
-  ```javascript
-  import despia from 'despia-native';
-  ```
+  **In CSS:**
 
-  Control status bar text color using:
+  - Define light and dark color tokens in `:root` using CSS custom properties
+  - Override them inside `@media (prefers-color-scheme: dark)`. Do not use JavaScript state or a custom toggle
+  - Set `color-scheme: light` in `:root` and `color-scheme: dark` inside the media query. This tells the native container to render the status bar text as **black in light mode** and **white in dark mode** automatically
+  - Fullscreen mode removes the status bar background entirely. Use `padding-top: var(--safe-area-top)` on your header to fill that space with your own background color via CSS. Apply `padding-bottom: var(--safe-area-bottom)` to your footer the same way. These variables are injected by the Despia runtime
 
-  - `despia('statusbartextcolor://black')` for black text (use on light backgrounds)
-  - `despia('statusbartextcolor://white')` for white text (use on dark backgrounds)
-
-  For the best experience:
-
-  1. Go to Despia settings and enable **fullscreen mode** to disable the status bar background color
-  2. Use `var(--safe-area-top)` CSS variable to accommodate the status bar space
-  3. Detect system dark mode preference using `window.matchMedia('(prefers-color-scheme: dark)')`
-  4. Dynamically update status bar text color based on your app's current theme
-
-  <Danger>
-    This feature requires the despia-native npm package. Follow the installation instructions closely and do not modify the implementation.
-  </Danger>
+  <Warning>
+    **Always disable Auto-Inject Safe Area in the Despia editor when using fullscreen mode. Leaving it enabled will result in double padding and broken layouts.**
+  </Warning>
 </Card>
 
-**How it works:** The Despia SDK provides native bridge functionality to control the iOS/Android status bar text color dynamically through the `statusbartextcolor://{white||black}` command. When combined with fullscreen mode in Despia settings, you can create fully immersive experiences where your app controls the entire screen, including custom animations, transitions, and full-bleed imagery, with only the status bar text visible on top, styled to match your design.
+**How it works:** Enabling fullscreen mode in the Despia editor removes the status bar background entirely, giving you full control over that area in CSS. Your header's background color extends up behind the status bar, and `padding-top: var(--safe-area-top)` ensures your content sits below it. The CSS `color-scheme` property signals to the native container which status bar text style to use, with no SDK call required. The `prefers-color-scheme` media query handles all visual theming automatically based on the user's OS setting. The Despia runtime injects `--safe-area-top` and `--safe-area-bottom` CSS variables before your app starts, so they are available synchronously with no loading state.
 
-## Installation
+## **Despia Editor Setup**
 
-```
-npm install despia-native
-```
+Before writing any CSS, configure the following in the Despia dashboard under **Status Bar settings**:
 
-```javascript
-import despia from 'despia-native';
-```
+| Setting                          | Value        | Why                                                                                                      |
+| :------------------------------- | :----------- | :------------------------------------------------------------------------------------------------------- |
+| Fullscreen Mode                  | **Enabled**  | Removes the status bar background so you can manage that area yourself in CSS using the safe area insets |
+| Auto-Inject Safe Area            | **Disabled** | Lets you apply `--safe-area-top` and `--safe-area-bottom` yourself in CSS                                |
+| Light Mode Status Bar Text Color | **Black**    | Ensures readable dark text over your light background                                                    |
+| Dark Mode Status Bar Text Color  | **White**    | Ensures readable light text over your dark background                                                    |
 
----
+## **Usage**
 
-## Usage
+### CSS Color Tokens
 
-### 1. Basic Status Bar Text Color Control
-
-```javascript
-import despia from 'despia-native';
-
-// Set status bar text to black (for light backgrounds)
-despia('statusbartextcolor://black');
-
-// Set status bar text to white (for dark backgrounds)
-despia('statusbartextcolor://white');
-```
-
-### 2. Dark Mode Detection and Auto-Switching
-
-```javascript
-import despia from 'despia-native';
-
-// Check current system preference
-const isDarkMode = window.matchMedia && 
-  window.matchMedia('(prefers-color-scheme: dark)').matches;
-
-// Set initial status bar color based on system preference
-despia(isDarkMode ? 'statusbartextcolor://white' : 'statusbartextcolor://black');
-
-// Listen for system theme changes
-window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', event => {
-  despia(event.matches ? 'statusbartextcolor://white' : 'statusbartextcolor://black');
-});
-```
-
-### 3. Theme-Aware Component Example
-
-```javascript
-import { useEffect, useState } from 'react';
-import despia from 'despia-native';
-
-function App() {
-  const [isDark, setIsDark] = useState(
-    window.matchMedia('(prefers-color-scheme: dark)').matches
-  );
-
-  useEffect(() => {
-    // Update status bar text color when theme changes
-    despia(isDark ? 'statusbartextcolor://white' : 'statusbartextcolor://black');
-  }, [isDark]);
-
-  useEffect(() => {
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    const handleChange = (e: MediaQueryListEvent) => setIsDark(e.matches);
-    
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, []);
-
-  return (
-    <div className="app-root">
-      <div 
-        className="safe-area-top"
-        style={{ height: 'var(--safe-area-top)' }}
-      />
-      
-      <header className="app-header">
-        <h1>Theme-Aware App</h1>
-      </header>
-      
-      <main 
-        className={isDark ? 'bg-gray-900 text-white' : 'bg-white text-gray-900'}
-        style={{ flex: 1, padding: '1rem' }}
-      >
-        Your content here
-      </main>
-      
-      <div 
-        className="safe-area-bottom"
-        style={{ height: 'var(--safe-area-bottom)' }}
-      />
-    </div>
-  );
-}
-
-export default App;
-```
-
----
-
-## Safe Area Integration
-
-When controlling the status bar text color with fullscreen mode enabled, always accommodate the safe area space using CSS variables. The Despia native runtime automatically provides `var(--safe-area-top)` and `var(--safe-area-bottom)` CSS variables.
+Define your light and dark color tokens in `:root` and override them for dark mode. The `color-scheme` property controls the native status bar text color automatically.
 
 ```css
-.safe-area-top {
-  flex-shrink: 0;
-  height: var(--safe-area-top, env(safe-area-inset-top, 0));
+/* Light mode (default) */
+:root {
+  --bg: #ffffff;
+  --text: #1e293b;
+  --surface: #f1f5f9;
+  --border: #e2e8f0;
+  color-scheme: light;
 }
 
-.safe-area-bottom {
-  flex-shrink: 0;
-  height: var(--safe-area-bottom, env(safe-area-inset-bottom, 0));
+/* Dark mode (activated automatically when the OS is in dark mode) */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f172a;
+    --text: #f8fafc;
+    --surface: #1e293b;
+    --border: #334155;
+    color-scheme: dark;
+  }
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  margin: 0;
 }
 ```
 
-```html
-// Top Safe Area Spacer
-<div style={{ height: 'var(--safe-area-top)' }} />
+### Safe Area Insets
 
-// Your app content here
+With fullscreen mode enabled and Auto-Inject Safe Area disabled, the status bar background is gone and you own that space. Use `--safe-area-top` on your header so its background color fills the status bar area, and `--safe-area-bottom` on your footer to clear the home indicator:
 
-// Bottom Safe Area Spacer
-<div style={{ height: 'var(--safe-area-bottom)' }} />
+```css
+/* Header, sits directly below the status bar */
+.header {
+  padding-top: var(--safe-area-top);
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-bottom: 1rem;
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+/* Footer, sits directly above the home indicator */
+.footer {
+  padding-bottom: var(--safe-area-bottom);
+  padding-top: 1rem;
+  background-color: var(--surface);
+  border-top: 1px solid var(--border);
+}
+```
+
+### Full Example
+
+A complete CSS setup combining theming and safe area handling:
+
+```css
+:root {
+  --bg: #ffffff;
+  --text: #1e293b;
+  --surface: #f1f5f9;
+  --border: #e2e8f0;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f172a;
+    --text: #f8fafc;
+    --surface: #1e293b;
+    --border: #334155;
+    color-scheme: dark;
+  }
+}
+
+body {
+  background-color: var(--bg);
+  color: var(--text);
+  margin: 0;
+}
+
+.header {
+  padding-top: var(--safe-area-top);
+  padding-left: 1rem;
+  padding-right: 1rem;
+  padding-bottom: 1rem;
+  background-color: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.footer {
+  padding-bottom: var(--safe-area-bottom);
+  padding-top: 1rem;
+  background-color: var(--surface);
+  border-top: 1px solid var(--border);
+}
 ```
 
 ---
 
-## Resources
+## **`Optional: statusbartextcolor:// SDK Override`**
 
-- **NPM Package**: [despia-native](https://www.npmjs.com/package/despia-native)
-- **CSS Variables**: `var(--safe-area-top)` and `var(--safe-area-bottom)` automatically provided by Despia runtime
+In most cases `color-scheme` handles status bar text color automatically and no SDK call is needed. The correct default should be configured in the **Despia editor** under Status Bar settings rather than set in code.
 
-For additional support or questions about status bar implementation, please contact our support team at [**support@despia.com**](mailto:support@despia.com)
+If you have a specific runtime override case, for example navigating to a screen with a hardcoded background that does not follow your CSS tokens, the SDK command is available:
+
+```javascript
+import despia from 'despia-native';
+
+despia('statusbartextcolor://black'); // Dark text, for light backgrounds
+despia('statusbartextcolor://white'); // Light text, for dark backgrounds
+```
+
+<Warning>
+  Only use this as a last resort. Set the correct default in the Despia editor and let `color-scheme` handle the rest via CSS. **Do not use this command to implement dark mode logic. That belongs in CSS.**
+</Warning>
+
+---
+
+## **Resources**
+
+- [**NPM Package**](https://www.npmjs.com/package/despia-native)
+- View full NPM documentation for additional configuration options
+
+For additional support or questions, please contact our support team at [support@despia.com](mailto:support@despia.com)
