@@ -337,5 +337,8 @@
   },
   "background": {
     "decoration": "grid"
+  },
+  "csp": {
+    "frame-ancestors": ["*"]
   }
 }
