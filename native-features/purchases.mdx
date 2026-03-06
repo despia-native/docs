@@ -1,7 +1,7 @@
 ---
 title: "Purchases"
-icon: "gem"
-description: "Purchase a specific product directly using RevenueCat through Apple App Store and Google Play billing - without launching a full paywall UI."
+icon: "money-bill-wave"
+description: "Purchase a specific product directly using RevenueCat through Apple App Store and Google Play billing."
 ---
 
 <Card icon="sparkles" title="AI Prompt">
@@ -16,7 +16,7 @@ description: "Purchase a specific product directly using RevenueCat through Appl
   Detect the platform using the Despia user agent and use the correct product identifier for each store. If not running in Despia (i.e. the user is on your web app), fall back to a RevenueCat Web Purchase Link:
 
   ```javascript
-  const isDespia    = navigator.userAgent.toLowerCase().includes('despia');
+  const isDespia = navigator.userAgent.toLowerCase().includes('despia');
   const isDespiaIOS = isDespia && (
     navigator.userAgent.toLowerCase().includes('iphone') ||
     navigator.userAgent.toLowerCase().includes('ipad')
@@ -43,9 +43,9 @@ description: "Purchase a specific product directly using RevenueCat through Appl
   }
   ```
 
-  <Tip>
+  <Danger>
     Always append the user's ID to the RevenueCat Web Purchase Link URL. This links the web payment directly to their account - so if they later open your mobile app, the purchase and entitlements are already there waiting for them.
-  </Tip>
+  </Danger>
   In RevenueCat, create a single entitlement (e.g. `"premium"`) and link both the iOS and Android products to it. This means `entitlementId` will be `"premium"` for all platforms - check with `p.entitlementId === "premium"`. For one-time purchases, match the exact `entitlementId` (e.g. `"no_ads"`).
 
   <Note>
@@ -157,84 +157,114 @@ function handleUpgrade() {
 }
 ```
 
-<Tip>
-  Always include the user's ID in the Web Purchase Link URL. This ties the web payment to their account so entitlements are instantly available across both your web app and mobile app - no extra steps needed for the user.
-</Tip>
+<Danger>
+  **Always include the user's ID in the Web Purchase Link URL. This ties the web payment to their account so entitlements are instantly available across both your web app and mobile app - no extra steps needed for the user.**
+</Danger>
 
-### Web Purchase Link URL parameters
+#### Web Checkout Link (non-Despia fallback)
 
-All URL parameters should be [URL encoded](https://www.urlencoder.org/). Web Purchase Links support the following optional parameters:
+To get your `pay.rev.cat` token, go to RevenueCat and create a new Web Purchase Link - select an existing offering or create a new one with your web products:
 
-**Email** - Pre-fills the email field on the checkout page (cannot be overridden by the user):
+[**RevenueCat → Web → Create Purchase Link**](https://app.revenuecat.com)
 
-```bash
-https://pay.rev.cat/<token>/<userId>?email=<customerEmail>
-```
-
-<Warning>
-  The `app_user_id` in the URL is what RevenueCat includes in every webhook event. **The user must already exist in your database before you redirect them to the Web Purchase Link** - otherwise when the `INITIAL_PURCHASE` webhook fires, your backend won't find the user and won't be able to grant access. Always ensure the user is created in your DB first.
-</Warning>
-
-When the purchase completes, RevenueCat fires a webhook event to your backend containing the email. You can store it against the user's account at that point - and since the purchase is linked to the same `app_user_id`, users who are logged in on mobile will have full access to their entitlements in the app as well.
-
-**Currency** - Override automatic currency selection:
+Once created, append the user's `app_user_id` directly to the URL - this is the critical part that links the web purchase to their account:
 
 ```bash
-https://pay.rev.cat/<token>/<userId>?currency=EUR
+https://pay.rev.cat/<token>/<userId>
 ```
 
-**Package ID** - Pre-select a specific package and skip straight to checkout:
+Optional URL parameters (all should be [URL encoded](https://www.urlencoder.org/)):
 
-```bash
-https://pay.rev.cat/<token>/<userId>?package_id=<packageId>
-```
+| Parameter                    | Description                                                            |
+| ---------------------------- | ---------------------------------------------------------------------- |
+| `email`                      | Pre-fills the email field on checkout - `?email=<customerEmail>`       |
+| `currency`                   | Override automatic currency selection - `?currency=EUR`                |
+| `package_id`                 | Pre-select a package and skip straight to checkout                     |
+| `skip_purchase_success=true` | Skip the success page and trigger your configured redirect immediately |
 
-**Skip purchase success** - Bypass the "Purchase Complete" page and immediately trigger your configured success behavior:
+<Danger>
+  The `app_user_id` in the URL is what RevenueCat includes in every webhook event. **The user must already exist in your database before redirecting them to the checkout link** - otherwise when the `INITIAL_PURCHASE` webhook fires, your backend won't find the user and won't be able to grant access.
+</Danger>
 
-```bash
-https://pay.rev.cat/<token>/<userId>?skip_purchase_success=true
-```
-
-**Combined example:**
-
-```javascript
-const webPurchaseUrl = new URL(`https://pay.rev.cat/<your_token>/${encodeURIComponent(userId)}`);
-
-if (userEmail) webPurchaseUrl.searchParams.set('email', userEmail);
-if (currency)  webPurchaseUrl.searchParams.set('currency', currency);
-
-window.location.href = webPurchaseUrl.toString();
-```
-
-````text
+When the purchase completes, RevenueCat fires a webhook to your backend. Since it's linked to the same `app_user_id`, the user's entitlements will be active in the mobile app too.
 
 ### 3. Handle the Purchase Callback
 
-The Despia Native Runtime calls `onRevenueCatPurchase()` once the store confirms the transaction. Register this handler globally before triggering any purchase:
+The Despia Native Runtime calls `onRevenueCatPurchase()` once the store confirms the transaction. Register this handler globally before triggering any purchase.
+
+**With a backend:**
 
 ```javascript
 window.onRevenueCatPurchase = async () => {
-  // Do not grant access yet - poll your backend until the webhook confirms
+  // Poll your backend until the webhook confirms
   const verified = await pollForPurchaseVerification(userId);
-
   if (verified) {
     setIsPremium(true);
-    showSuccessMessage('Purchase complete!');
   }
 };
-````
+```
 
-<Warning>
-  Never grant access based on the client-side callback alone. Always wait for your backend to confirm the purchase via the RevenueCat webhook before unlocking features.
-</Warning>
+**No backend:**
+
+```javascript
+window.onRevenueCatPurchase = async () => {
+  // Re-check entitlements directly from the store
+  const hasPremium = await hasEntitlement("premium");
+  if (hasPremium) {
+    unlockPremiumFeatures();
+  }
+};
+```
+
+<Danger>
+  **Never grant access based on the client-side callback alone if you have a backend. Always wait for your backend to confirm the purchase via the RevenueCat webhook before unlocking features.**
+</Danger>
 
 ## Complete Client-Side Example
 
-If you don't have a backend, you can use `getpurchasehistory://` as your source of truth - both to confirm a purchase right after it completes, and to check entitlements anywhere in your app before gating a feature.
+### Set up entitlements in RevenueCat
 
-<Note>
-  `getpurchasehistory://` queries the native store directly, reflecting the real-time entitlement state from Apple or Google. It's reliable for client-side access checks with no backend required.
-</Note>
+Before checking entitlements in code, set them up in your RevenueCat dashboard:
+
+1. Go to [**RevenueCat Dashboard**](https://app.revenuecat.com) → your project → **Entitlements**
+2. Click **New Entitlement** and name it `premium` (or `no_ads` for one-time purchases)
+3. Click into the entitlement and click **Attach products**
+4. Attach your iOS product (e.g. `monthly_premium_ios`) and your Android product (e.g. `premium:monthly_premium_android`)
+5. Both platforms will now resolve to the same `entitlementId` in your app
+
+Repeat for any additional entitlements (e.g. `no_ads`).
+
+### Check entitlements client-side
+
+`getpurchasehistory://` queries the native store directly and returns real-time entitlement state from Apple or Google. No backend required for native purchases.
+
+```javascript
+const data = await despia("getpurchasehistory://", ["restoredData"]);
+const purchases = data.restoredData;
+
+// Filter for active purchases only
+const activePurchases = purchases.filter(p => p.isActive);
+
+// Check if user has premium access
+const hasPremium = activePurchases.some(p => p.entitlementId === "premium");
+
+if (hasPremium) {
+  unlockPremiumFeatures();
+}
+
+// One-time purchase check
+const hasNoAds = activePurchases.some(p => p.entitlementId === "no_ads");
+
+if (hasNoAds) {
+  removeAds();
+}
+```
+
+<Warning>
+  This client-side check only works for **native iOS and Android purchases**. If the user purchased on web, `getpurchasehistory://` will return empty even if they have an active subscription. For apps with web payments you need a single source of truth - your backend. Check your backend first and only fall back to the native store check if there is no backend record.
+</Warning>
+
+### Full example
 
 ```javascript
 import despia from 'despia-native';
@@ -250,8 +280,6 @@ const isDespiaIOS = isDespia && (
 const isDespiaAndroid = isDespia &&
   navigator.userAgent.toLowerCase().includes('android');
 
-// In RevenueCat, create one "premium" entitlement and link both iOS and Android
-// products to it. entitlementId will be "premium" on both platforms.
 // Product ID format:
 //   iOS:     "monthly_premium_ios"            (plain)
 //   Android: "premium:monthly_premium_android" (Google Play group:productId format)
@@ -261,28 +289,21 @@ const PRODUCTS = {
   removeAds: "remove_ads",
 };
 
-// ─── Entitlement helpers ──────────────────────────────────────────────────────
+// ─── Entitlement check ────────────────────────────────────────────────────────
 
-async function getPurchases() {
+async function getActivePurchases() {
   const data = await despia("getpurchasehistory://", ["restoredData"]);
-  return data.restoredData ?? [];
+  return (data.restoredData ?? []).filter(p => p.isActive);
 }
 
-// Both iOS and Android resolve to entitlementId "premium" via RevenueCat entitlements
-async function hasPremiumEntitlement() {
-  const purchases = await getPurchases();
-  return purchases.some(p => p.isActive && p.entitlementId === "premium");
-}
-
-// One-time purchases use an exact entitlementId match
 async function hasEntitlement(entitlementId) {
-  const purchases = await getPurchases();
-  return purchases.some(p => p.isActive && p.entitlementId === entitlementId);
+  const active = await getActivePurchases();
+  return active.some(p => p.entitlementId === entitlementId);
 }
 
 // ─── On app load: gate features ───────────────────────────────────────────────
 
-if (await hasPremiumEntitlement()) {
+if (await hasEntitlement("premium")) {
   unlockPremiumFeatures();
 }
 
@@ -290,20 +311,17 @@ if (await hasEntitlement("no_ads")) {
   removeAds();
 }
 
-// ─── Purchase callback: confirm via restore, then show success ────────────────
+// ─── Purchase callback ────────────────────────────────────────────────────────
 
 window.onRevenueCatPurchase = async () => {
-  const purchases = await getPurchases();
-  const latest = purchases.find(p => p.isActive);
-
+  const active = await getActivePurchases();
+  const latest = active[0];
   if (!latest) return;
 
   if (latest.entitlementId === "premium") {
     unlockPremiumFeatures();
-    alert(" Welcome to Premium! All features are now unlocked.");
   } else if (latest.entitlementId === "no_ads") {
     removeAds();
-    alert(" Ads removed! Thanks for your purchase.");
   }
 };
 
@@ -329,27 +347,24 @@ function handleRemoveAds() {
 // ─── Restore button (required by App Store guidelines) ───────────────────────
 
 async function handleRestore() {
-  const purchases = await getPurchases();
-  const active = purchases.filter(p => p.isActive);
+  const active = await getActivePurchases();
 
   if (active.length === 0) {
     alert("No active purchases found.");
     return;
   }
 
-  if (active.some(p => p.entitlementId.startsWith("premium"))) {
+  if (active.some(p => p.entitlementId === "premium")) {
     unlockPremiumFeatures();
   }
   if (active.some(p => p.entitlementId === "no_ads")) {
     removeAds();
   }
-
-  alert(" Purchases restored!");
 }
 ```
 
 <Tip>
-  Call `hasPremiumEntitlement()` or `hasEntitlement()` anywhere you need to gate a feature - on page load, before opening premium content, or when the user navigates to a restricted section. No server required.
+  Call `hasEntitlement("premium")` anywhere you need to gate a feature - on page load, before opening premium content, or when the user navigates to a restricted section. No server required.
 </Tip>
 
 ## Subscriptions: Set Up Webhooks for Best Practice
@@ -403,12 +418,11 @@ export async function POST(req) {
     // User is a tester - fall through and process as if production
   }
 
-  // 4. Extract entitlements - RevenueCat sends them as:
-  // { "premium": { "expires_date": "2025-02-15T...", "product_identifier": "..." } }
-  const entitlements = event.entitlements ?? {};
-  const isActive = Object.values(entitlements).some(ent =>
-    !ent.expires_date || new Date(ent.expires_date) > new Date()
-  );
+  // 4. Extract entitlements - RC webhook sends entitlement_ids as a flat array
+  // e.g. ["premium"] and entitlement_id as the primary single string
+  // store values are uppercase: "APP_STORE" | "PLAY_STORE" | "RC_BILLING" | "STRIPE"
+  const entitlementIds = event.entitlement_ids ?? [];
+  const hasPremium = entitlementIds.includes('premium');
 
   // 5. Handle the event type
   switch (type) {
@@ -421,7 +435,7 @@ export async function POST(req) {
         app_user_id,
         is_active: true,
         subscription_status: 'active',
-        entitlements: JSON.stringify(entitlements),
+        entitlements: JSON.stringify(entitlementIds),
         expires_at: event.expiration_at_ms ? new Date(event.expiration_at_ms) : null,
         product_id: event.product_id,
         store: event.store,
@@ -630,9 +644,9 @@ if (hasPremium) {
 
 ## Testing Your Integration
 
-<Warning>
+<Danger>
   **AI cannot test payment integrations for you.** RevenueCat, native StoreKit/Google Billing, webhooks, and your backend are cross-platform processes that require real end-to-end testing with multiple accounts and devices. There is no shortcut here - a payment integration is one of the most critical parts of your app and must be thoroughly verified by you before going live.
-</Warning>
+</Danger>
 
 Here's what you should test manually:
 
@@ -667,9 +681,10 @@ Here's what you should test manually:
 
 Payment integrations are complex and critical for most apps. We hope this documentation and our examples make it easier and provide helpful guidance - but a carefully and successfully tested setup by you is the only way to ship with confidence.
 
+## Resources
+
 - [**NPM Package**](https://www.npmjs.com/package/despia-native)
-- [RevenueCat Webhooks Template](https://setup.despia.com/best-practices/backend/revenue-cat/webhooks)
-- [RevenueCat Webhooks](https://www.revenuecat.com/docs/integrations/webhooks)
+- [RevenueCat Webhooks Template](https://setup.despia.com/best-practices/backend/revenue-cat/webhooks)\* [RevenueCat Webhooks](https://www.revenuecat.com/docs/integrations/webhooks)
 - [Webhook Event Types & Fields](https://www.revenuecat.com/docs/integrations/webhooks/event-types-and-fields)
 - [Sample Webhook Events](https://www.revenuecat.com/docs/integrations/webhooks/sample-events)
 - View full NPM documentation for additional configuration options

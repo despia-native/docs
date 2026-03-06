@@ -89,10 +89,10 @@
             "group": "Updates",
             "icon": "rocket",
             "pages": [
-              "overview",
-              "interface",
-              "logic",
-              "editor"
+              "best-practices/updates/overview",
+              "best-practices/updates/interface",
+              "best-practices/updates/logic",
+              "best-practices/updates/editor"
             ]
           }
         ]
