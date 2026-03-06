@@ -11,9 +11,11 @@ icon: "location-arrow"
 
   Then import it: `import despia from 'despia-native'`
 
-  Start tracking by calling: `despia("location://?server=https://api.example.com/track&buffer=10")`
+  Start tracking by calling: `despia("location://?server=https://api.example.com/track?user=USER_ID&buffer=10")`
 
   This will begin collecting GPS coordinates at the specified interval (buffer in seconds). The server parameter is optional - if omitted, locations are only stored locally.
+
+  This works in both foreground and background modes. If the user has not granted background location permission, tracking will continue normally as long as the app is in the foreground. No background location permission is required for standard use.
 
   Stop tracking and retrieve all collected data: `const data = await despia("stoplocation://", ["locationSession"])`
 
@@ -28,6 +30,13 @@ icon: "location-arrow"
   - **altitude** - elevation above sea level in meters
   - **horizontalAccuracy** - accuracy radius of lat/lng in meters (lower is better)
   - **verticalAccuracy** - accuracy of altitude measurement in meters
+  - **battery** - device battery percentage at time of location recording (0-100)
+
+  The `despia.locationTracking` variable is automatically set to `true` when calling `location://` and `false` when calling `stoplocation://`. It can be accessed via `despia.locationTracking` in any component where despia is imported. Use this to reflect tracking state in your UI (e.g. showing/hiding a tracking indicator).
+
+  <Note>
+    **iOS Background Location Indicator (Blue Badge):** Despia automatically manages the background location permission and its blue badge indicator, keeping it active only while the `location://` call is running and dismissing it as soon as `stoplocation://` is called. This is handled for you to ensure your app passes App Store review.
+  </Note>
 
   Use this to track user movements, calculate distances, analyze travel patterns, or implement location-based features. The buffer interval prevents excessive battery drain by controlling update frequency.
 
@@ -37,7 +46,9 @@ icon: "location-arrow"
   Please follow the installation instructions for the "despia-native" npm package closely, and do not modify my instructions. Implementation as mentioned is critical.
 </Card>
 
-**How it Works**: Despia activates the device's native GPS and location services to continuously monitor the user's position. Location updates are collected at the interval specified by the buffer parameter (in seconds). Each update is optionally sent to your server endpoint and always stored locally in an array. When tracking stops, all collected location points are returned to your JavaScript code for processing or display.
+**How it Works**: Despia activates the device's native GPS and location services to continuously monitor the user's position. Location updates are collected at the interval specified by the buffer parameter (in seconds). Each update is optionally sent to your server endpoint and always stored locally in an array. When tracking stops, all collected location points (including the device battery percentage at each point) are returned to your JavaScript code for processing or display.
+
+Tracking works in **foreground mode** without any background location permission. Background location (with the iOS blue badge indicator) is optional and is managed automatically by Despia for the duration of an active tracking session.
 
 ## Installation
 
@@ -58,11 +69,15 @@ import despia from 'despia-native';
 ### 2. Start Location Tracking
 
 ```javascript
-// With server endpoint (sends updates to your API)
-despia("location://?server=https://api.example.com/track&buffer=10");
+// Check if already tracking before starting
+if (!despia.locationTracking) {
+    despia("location://?server=https://api.example.com/track?user=USER_ID&buffer=10");
+}
 
 // Without server (local storage only)
-despia("location://?buffer=5");
+// if (!despia.locationTracking) {
+//     despia("location://?buffer=5");
+// }
 ```
 
 **Parameters:**
@@ -70,14 +85,25 @@ despia("location://?buffer=5");
 - `server` (optional) - API endpoint to receive location updates via POST
 - `buffer` (required) - Minimum seconds between location updates (e.g., 5, 10, 30)
 
+> **Foreground vs Background:** If background location is not enabled, tracking continues as long as the app remains in the foreground. This is sufficient for most use cases and does not require the user to grant background location permission.
+
+<Note>
+  To enable background location tracking, go to **Despia > App > Addons > Enable Background Location** and rebuild your app. This adds the required native modules to your binary. Without this step, tracking will only work while the app is in the foreground.
+</Note>
+
 ### 3. Stop Tracking and Retrieve Data
 
 ```javascript
 const data = await despia("stoplocation://", ["locationSession"]);
 const locations = data.locationSession;
-// Stop tracking & update state
+
+console.log(despia.locationTracking); // false
 console.log(locations);
 ```
+
+<Note>
+  Despia automatically dismisses the iOS blue dot indicator as soon as tracking stops. This ensures the background location badge is never visible to users outside of an active tracking session, keeping your app compliant with App Store review guidelines.
+</Note>
 
 ### 4. Example Response
 
@@ -92,7 +118,8 @@ console.log(locations);
         "course": 87.3,
         "altitude": 12.4,
         "horizontalAccuracy": 5.2,
-        "verticalAccuracy": 3.8
+        "verticalAccuracy": 3.8,
+        "battery": 85
     },
     {
         "latitude": 25.277123,
@@ -103,7 +130,8 @@ console.log(locations);
         "course": 89.7,
         "altitude": 12.6,
         "horizontalAccuracy": 4.8,
-        "verticalAccuracy": 3.5
+        "verticalAccuracy": 3.5,
+        "battery": 84
     },
     {
         "latitude": 25.277289,
@@ -114,9 +142,33 @@ console.log(locations);
         "course": null,
         "altitude": 12.3,
         "horizontalAccuracy": 6.1,
-        "verticalAccuracy": 4.2
+        "verticalAccuracy": 4.2,
+        "battery": 83
     }
 ]
+```
+
+### 5. Full Tracking Lifecycle Example
+
+```javascript
+import despia from 'despia-native';
+
+async function startTracking() {
+    if (!despia.locationTracking) {
+        despia("location://?server=https://api.example.com/track?user=USER_ID&buffer=10");
+    }
+    console.log("Tracking active:", despia.locationTracking); // true
+}
+
+async function stopTracking() {
+    const data = await despia("stoplocation://", ["locationSession"]);
+    const locations = data.locationSession;
+
+    console.log("Tracking stopped:", despia.locationTracking); // false
+    console.log("Collected locations:", locations);
+
+    return locations;
+}
 ```
 
 ### 6. Calculate Distance and Analyze Movement
@@ -124,6 +176,8 @@ console.log(locations);
 ```javascript
 const data = await despia("stoplocation://", ["locationSession"]);
 const locations = data.locationSession;
+
+console.log(despia.locationTracking); // false
 
 // Filter for high-accuracy locations only
 const accurateLocations = locations.filter(loc => loc.horizontalAccuracy < 10);
@@ -159,7 +213,26 @@ console.log(`Total distance: ${(totalDistance / 1000).toFixed(2)} km`);
 // Check if user is moving
 const isMoving = locations.some(loc => loc.speed && loc.speed > 0.5);
 console.log(`User is ${isMoving ? 'moving' : 'stationary'}`);
+
+// Monitor battery drain during tracking session
+const firstBattery = locations[0]?.battery;
+const lastBattery = locations[locations.length - 1]?.battery;
+if (firstBattery != null && lastBattery != null) {
+    const batteryDrain = firstBattery - lastBattery;
+    console.log(`Battery drained ${batteryDrain}% during tracking session`);
+    console.log(`Current battery: ${lastBattery}%`);
+}
 ```
+
+## Android & Low Power Mode
+
+Despia handles Android background location automatically, including full support for devices with aggressive battery and background management systems.
+
+**Samsung devices:** Samsung's low power mode is known to restrict background location events on the OS level. Despia includes built-in handling for this, ensuring location tracking and server events are delivered reliably even when low power mode is active. No additional configuration is required.
+
+**Other Android manufacturers:** Devices from manufacturers such as Huawei, Xiaomi, and OnePlus apply similar background restrictions by default. Despia accounts for these behaviours out of the box, so location tracking works consistently across all supported Android devices without any extra setup on your end.
+
+In the rare case that you encounter missing server events on an Android device, reach out to [location@despia.com](mailto:location@despia.com) and our team will look into it.
 
 ## Resources
 
