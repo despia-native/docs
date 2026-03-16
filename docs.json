@@ -45,7 +45,8 @@
         "group": "Local CDN",
         "icon": "box-open",
         "pages": [
-          "how-it-works"
+          "how-it-works",
+          "refernce"
         ]
       },
       {
