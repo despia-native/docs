@@ -4,6 +4,10 @@ description: "Despia's local server lets you ship native iOS and Android apps th
 icon: "circle-info"
 ---
 
+<Info>
+  This feature is still in our final beta round. If you’d like to get access to it as a beta tester, please send us an email at [offlinemode@despia.com](mailto:offlinemode@despia.com)
+</Info>
+
 ## What does it do?
 
 By default, Despia runs your web app from any URL. The local server takes a different approach: it downloads your web build to the device and serves it from an on-device HTTP server at `http://localhost`.
@@ -53,9 +57,9 @@ By default, Despia runs your web app from any URL. The local server takes a diff
     - Iterate on UI without app store resubmission
   </Step>
   <Step title="First launch hydration">
-    First time your user opens the app, Despia downloads your web build:
+    <u>First</u> time your user opens the app, Despia downloads your web build:
 
-    1. Fetches your latest build (HTML, CSS, JS, images, fonts) from your hosting
+    1. **Fetches** your latest build (HTML, CSS, JS, images, fonts) from your hosting
     2. Caches everything locally
     3. Starts the HTTP server at `http://localhost`
     4. Loads your app from localhost
@@ -80,8 +84,8 @@ By default, Despia runs your web app from any URL. The local server takes a diff
   <Step title="Background updates">
     When connectivity is available, Despia checks for new builds and downloads them in the background:
 
-    1. Checks for new build
-    2. Downloads complete new version in background
+    1. Fetches `despia/local.json` and compares `deployed_at` with the cached value
+    2. If `deployed_at` has changed, downloads the complete new version in the background
     3. Stores it separately (doesn't affect running app)
     4. Applies on next launch
 
@@ -111,6 +115,21 @@ By default, Despia runs your web app from any URL. The local server takes a diff
     Apple's interpretation of "feature changes" (Guideline 3.3.2) is subjective. This approach follows established patterns like Expo, but be conservative with major behavior changes. Test thoroughly and consider normal app store review for big feature additions.
   </Step>
 </Steps>
+
+---
+
+## Smart OTA cache system
+
+The `deployed_at` field in `despia/local.json` powers efficient conditional update logic. On startup, the client fetches the manifest and compares `deployed_at` with its cached value to determine whether a full asset download is required:
+
+| Scenario                | Behavior                                                                   |
+| ----------------------- | -------------------------------------------------------------------------- |
+| Good connection         | Fetch manifest and compare `deployed_at` to cached value                   |
+| `deployed_at` changed   | New deployment detected → download all assets → set as active app source   |
+| `deployed_at` unchanged | Serve from existing local cache; no download                               |
+| Poor or no connection   | Serve from offline cache; defer manifest check until connectivity improves |
+
+This minimizes network requests while preserving full OTA update capability. A complete asset download only happens when `deployed_at` has actually changed.
 
 ---
 
@@ -210,7 +229,7 @@ Why HTTP instead of HTTPS? Because `localhost` has inherent security guarantees:
 2. **Secure context.** Modern browsers treat `http://localhost` as secure, enabling all modern Web APIs (Service Workers, Web Crypto, Geolocation, MediaDevices, etc).
 3. **No network exposure.** Traffic never leaves the device. All communication on-device only.
 4. **Cannot be spoofed.** Hostname hardcoded to local machine. External attackers can't redirect it.
-5. **On-device security.** Combined with WebView sandbox, same-origin policy, and CSP, `localhost` provides secure execution.
+5. **On-device security.** Combined with WebView sandbox and same-origin policy, `localhost` provides secure execution.
 
 ### Why HTTP is the right choice
 
@@ -292,20 +311,24 @@ npm install --save-dev @despia/local
 
 ### Framework integration
 
-**Vite (React, Vue, Svelte):**
+**Vite (React, Vue, Svelte, Preact, Lit):**
 
 ```javascript
 // vite.config.js
+import { defineConfig } from 'vite';
 import { despiaLocalPlugin } from '@despia/local/vite';
 
 export default defineConfig({
   plugins: [
-    despiaLocalPlugin()
+    despiaLocalPlugin({
+      outDir: 'dist',         // optional, default: 'dist'
+      entryHtml: 'index.html' // optional, default: 'index.html'
+    })
   ]
 });
 ```
 
-**Webpack (Create React App, Vue CLI):**
+**Webpack (Create React App, Vue CLI, Angular):**
 
 ```javascript
 // webpack.config.js
@@ -313,9 +336,99 @@ const DespiaLocalPlugin = require('@despia/local/webpack');
 
 module.exports = {
   plugins: [
-    new DespiaLocalPlugin()
+    new DespiaLocalPlugin({
+      outDir: 'dist',         // optional, default: 'dist'
+      entryHtml: 'index.html' // optional, default: 'index.html'
+    })
   ]
 };
+```
+
+**Rollup:**
+
+```javascript
+// rollup.config.js
+import { despiaLocal } from '@despia/local/rollup';
+
+export default {
+  plugins: [
+    despiaLocal({
+      outDir: 'dist',
+      entryHtml: 'index.html'
+    })
+  ]
+};
+```
+
+**Nuxt:**
+
+```javascript
+// nuxt.config.js
+export default {
+  modules: ['@despia/local/nuxt'],
+  despiaLocal: {
+    entryHtml: 'index.html'
+  }
+}
+```
+
+**SvelteKit:**
+
+```javascript
+// vite.config.js
+import { sveltekit } from '@sveltejs/kit/vite';
+import { despiaLocalSvelteKit } from '@despia/local/sveltekit';
+
+export default {
+  plugins: [
+    sveltekit(),
+    despiaLocalSvelteKit({ entryHtml: 'index.html' })
+  ]
+};
+```
+
+**Astro:**
+
+```javascript
+// astro.config.mjs
+import { defineConfig } from 'astro/config';
+import despiaLocal from '@despia/local/astro';
+
+export default defineConfig({
+  integrations: [
+    despiaLocal({ entryHtml: 'index.html', outDir: 'dist' })
+  ]
+});
+```
+
+**Remix:**
+
+```javascript
+// vite.config.js
+import { remix } from '@remix-run/dev';
+import { despiaLocalRemix } from '@despia/local/remix';
+
+export default {
+  plugins: [
+    remix(),
+    despiaLocalRemix({ entryHtml: 'index.html', outDir: 'build/client' })
+  ]
+};
+```
+
+**esbuild:**
+
+```javascript
+import { build } from 'esbuild';
+import { despiaLocalEsbuild } from '@despia/local/esbuild';
+
+await build({
+  entryPoints: ['src/index.js'],
+  outdir: 'dist',
+  plugins: [
+    despiaLocalEsbuild({ outDir: 'dist', entryHtml: 'index.html' })
+  ]
+});
 ```
 
 **Universal (any build system):**
@@ -329,14 +442,40 @@ module.exports = {
 }
 ```
 
-### What the plugin does
+Or run manually:
 
-Generates a `despia/local.json` manifest:
+```shellscript
+npx despia-local [outputDir] [entryHtml]
+```
+
+```shellscript
+# Generates manifest at outputDir/despia/local.json
+npx despia-local dist
+```
+
+### Configuration options
+
+All plugins accept the following options:
+
+| Option      | Type   | Default        | Description                                |
+| ----------- | ------ | -------------- | ------------------------------------------ |
+| `outDir`    | string | `'dist'`       | Output directory to scan for assets        |
+| `entryHtml` | string | `'index.html'` | Entry HTML filename to include in manifest |
+
+### What the plugin generates
+
+The plugin hooks into your build tool's completion event, scans the output directory, and generates the manifest at `despia/local.json` — this path is fixed and required by the Despia runtime:
+
+<Note>
+  The manifest must always be served at `despia/local.json` relative to your web app's root. Do not change this path. Despia expects it at this exact location to detect and apply updates.
+</Note>
 
 ```json
 {
   "entry": "/index.html",
+  "deployed_at": "1737225600000",
   "assets": [
+    "/index.html",
     "/assets/app.abc123.css",
     "/assets/app.def456.js",
     "/assets/logo.xyz789.png"
@@ -344,12 +483,18 @@ Generates a `despia/local.json` manifest:
 }
 ```
 
+| Field         | Description                                                                                                                                             |
+| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `entry`       | The entry HTML file path. Always required for client-side rendering.                                                                                    |
+| `deployed_at` | Timestamp in milliseconds (as string) when the manifest was generated. Updated on every deployment — used by the OTA cache system to detect new builds. |
+| `assets`      | Alphabetically sorted array of all asset paths, including the entry file.                                                                               |
+
 This manifest enables Despia to:
 
-- **Discover all assets**. Ensures complete caching
-- **Determine changes**. Identifies what needs updating
-- **Enable offline operation**. Guarantees all required assets are available
-- **Perform atomic updates**. Ensures safe, complete updates
+- **Discover all assets.** Ensures complete caching
+- **Determine changes.** Uses `deployed_at` to identify new deployments efficiently
+- **Enable offline operation.** Guarantees all required assets are available
+- **Perform atomic updates.** Ensures safe, complete updates
 
 ---
 
@@ -368,10 +513,34 @@ import { VersionGuard } from 'despia-version-guard';
 
 **Why use version guards:**
 
-- **Store compliance**. Version-gate major UI changes
-- **Prevent broken UI**. Ensure features work with available runtime
-- **Smooth rollouts**. Gradually introduce new capabilities
-- **Enterprise reliability**. Maintain stability across deployments
+- **Store compliance.** Version-gate major UI changes
+- **Prevent broken UI.** Ensure features work with available runtime
+- **Smooth rollouts.** Gradually introduce new capabilities
+- **Enterprise reliability.** Maintain stability across deployments
+
+Supports React, Vue, Angular, Svelte, and Vanilla JS/Web Components.
+
+---
+
+## Troubleshooting
+
+**Manifest not generated**
+
+- Ensure the build completes successfully
+- Check that the output directory exists
+- Verify the `outDir` option matches your build configuration
+- Check console for error messages
+
+**Missing assets in manifest**
+
+- The plugin scans the entire output directory — ensure assets are copied there during build
+- Check that file paths are correctly formatted
+
+**Path format issues**
+
+- All paths are automatically normalized to root-relative format
+- Paths starting with `/` are preserved as-is
+- Windows backslashes are converted to forward slashes
 
 ---
 
@@ -438,25 +607,25 @@ import { VersionGuard } from 'despia-version-guard';
 ## Frequently asked questions
 
 <AccordionGroup>
-  <Accordion title="Do I need to use Despia's local server?" defaultOpen icon="sparkles">
+  <Accordion defaultOpen icon="sparkles" title="Do I need to use Despia's local server?">
     No, it's completely optional. Despia can run your web app directly from any URL. Use the local server when you need that extra performance or guaranteed offline functionality.
   </Accordion>
-  <Accordion title="Will Apple/Google approve my app?" defaultOpen icon="sparkles">
+  <Accordion defaultOpen icon="sparkles" title="Will Apple/Google approve my app?">
     Yes. Despia's local server is fully compliant with both stores. It downloads and caches web content (HTML/CSS/JS) for offline viewing, identical to how browsers work. No native code or executables are downloaded.
   </Accordion>
-  <Accordion title="Can I update my app without app store review?" defaultOpen>
+  <Accordion defaultOpen title="Can I update my app without app store review?">
     Yes, for web UI changes. You can update HTML, CSS, JavaScript, images, and fonts instantly. However, be mindful that dramatic changes to app behavior may require review, especially on iOS. Use good judgment when deploying significant feature changes.
   </Accordion>
-  <Accordion title="What happens if the user goes offline permanently?" defaultOpen>
+  <Accordion defaultOpen title="What happens if the user goes offline permanently?">
     The app continues to work with the last hydrated version. If the device never regains connectivity, the app remains functional indefinitely with the cached content.
   </Accordion>
-  <Accordion title="How do updates work for users?" defaultOpen>
-    Updates download automatically in the background when connectivity is available. They're applied on the next app launch, ensuring zero downtime and no broken states.
+  <Accordion defaultOpen title="How do updates work for users?">
+    On startup, Despia fetches your `despia/local.json` manifest and compares the `deployed_at` timestamp with the cached value. If it's changed, the new build is downloaded in the background and applied on the next app launch — ensuring zero downtime and no broken states.
   </Accordion>
   <Accordion title="Can I add new native features via updates?">
     You can update your web UI to use native APIs that already exist in the binary. For example, if Face ID is already implemented, you can add it to new screens via an update. You cannot add entirely new native capabilities that weren't in the original submission.
   </Accordion>
-  <Accordion title="Is the JavaScript bridge secure?" defaultOpen>
+  <Accordion defaultOpen title="Is the JavaScript bridge secure?">
     Yes. The JavaScript bridge exposes only the native APIs you included at submission time. All JavaScript executes within the WebView's security sandbox, and native code cannot be modified after submission.
   </Accordion>
 </AccordionGroup>
