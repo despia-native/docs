@@ -4,6 +4,38 @@ description: "The latest updates and improvements to Despia."
 icon: "clock-rotate-left"
 ---
 
+<Update label="March 26, 2026" description="This week's updates" tags={["Feature", "Update"]}>
+  ## MCP server for AI code builders
+
+  The Despia Documentation MCP is now available. Connect it to Cursor, VS Code, Windsurf, Claude Desktop, or web-based builders like Lovable and Bolt so your AI assistant can write correct Despia code without you explaining the API. Just paste the MCP URL and your tool gains full knowledge of every native feature and its implementation pattern.
+
+  [Set up the MCP server](/mcp-server)
+
+  ## Share extension
+
+  Your app can now receive shared content from other apps on the device. When a user shares an image, URL, or text to your app via the system share sheet, the Despia runtime calls your `onSharedDataReceived` callback with the shared data. Images arrive as data URLs, and URLs and text arrive as plain strings.
+
+  [Read the share extension guide](/native-features/share-extension)
+
+  ## iOS home widgets
+
+  You can now display dynamic, data-driven widgets on the iOS home screen. Widgets are SVG-based and refresh on a configurable interval, even when your app is closed. Point the widget at a backend endpoint that returns personalized SVG content and Despia handles the rest — including background refresh and user-specific data injection.
+
+  [Read the home widgets guide](/native-features/home-widgets)
+
+  ## Animation best practices
+
+  A new best practices guide covers scroll-driven animations using pure CSS `animation-timeline`, the hidden scroller pattern, and ready-made patterns for drawers, bottom sheets, carousels, parallax heroes, and more — all optimized for WebView performance on iOS and Android.
+
+  [Read the animations guide](/best-practices/frontend/animations)
+
+  ## Performance best practices
+
+  A new guide walks through JavaScript and CSS optimization, image handling, virtual scrolling, memory management, font loading, and bundle size reduction — with platform-specific notes for WKWebView and Android WebView.
+
+  [Read the performance guide](/best-practices/frontend/performance)
+</Update>
+
 <Update label="March 19, 2026" description="This week's updates" tags={["Feature", "Update", "Fix"]}>
   ## RevenueCat Paywalls
 
