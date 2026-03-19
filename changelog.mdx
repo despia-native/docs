@@ -4,6 +4,32 @@ description: "The latest updates and improvements to Despia."
 icon: "clock-rotate-left"
 ---
 
+<Update label="April 30, 2026" description="This week's updates" tags={["Feature", "Update"]}>
+  ## RevenueCat server-side SDK
+
+  A new open-source package, `revenuecat-server`, gives you a lightweight server-side client for the RevenueCat v2 REST API. Check entitlements, fetch offerings and packages, and gate access — all from your backend with zero dependencies. Works with Node.js 18+, Deno, and Bun, and fits into any backend framework (Express, Fastify, Hono, Next.js API routes, Lambda, etc.).
+
+  [RevenueCat webhook guide](/best-practices/backend/revenue-cat/webhooks) · [RevenueCat user session guide](/best-practices/backend/revenue-cat/user-session)
+
+  ## OAuth component kit for React
+
+  The new `@oauth-kit/react` package provides drop-in React components and hooks for OAuth authentication in Despia apps. It automatically detects whether your app is running in a native container or a web browser and handles the right flow for each — ASWebAuthenticationSession on iOS, Chrome Custom Tabs on Android, and standard redirects on web. One set of components, every provider.
+
+  [Generic OAuth guide](/native-features/o-auth-2-0/generic) · [Google OAuth guide](/native-features/oauth/google) · [TikTok OAuth guide](/native-features/oauth/tiktok)
+
+  ## Local Server manifest improvements
+
+  The `@despia/local` build plugin now generates an object-based manifest with an explicit `entry` field alongside the `assets` array. This makes the entry HTML file a required, first-class part of the manifest instead of an implicit convention. The new format improves reliability during hydration and updates. Next.js support has been removed — the plugin now targets client-side rendered apps (React, Vue, Svelte, etc.) for the best offline experience.
+
+  [Local Server guide](/local-server/how-it-works) · [Local CDN reference](/refernce)
+
+  ## SDK error handling improvements
+
+  The `despia-native` SDK now treats `null` as a valid resolution value for single-variable promises. This means native features can signal "not found" or "error" by returning `null`, and your `await` call resolves immediately instead of waiting for the 30-second timeout. Multi-variable promises still require all values to be non-null before resolving.
+
+  [Read the SDK guide](/how-it-works)
+</Update>
+
 <Update label="April 23, 2026" description="This week's updates" tags={["Feature", "Update"]}>
   ## iOS and Android deployment guides
 
