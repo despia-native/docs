@@ -4,6 +4,26 @@ description: "The latest updates and improvements to Despia."
 icon: "clock-rotate-left"
 ---
 
+<Update label="May 7, 2026" description="This week's updates" tags={["Feature", "Update"]}>
+  ## Base44 OAuth support
+
+  A new `despia-base44-oauth` package adds native-safe OAuth to Base44 apps running inside Despia. Drop in `<Base44OAuthButton>` or the `useBase44OAuth` hook and the package handles the full flow — ASWebAuthenticationSession on iOS, Chrome Custom Tabs on Android, and standard web redirects when running in a browser. Supports Google, Microsoft, and Facebook via the Base44 SDK. Includes a `DespiaOAuthPage` component for Base44's no-code page system so you can set up OAuth without modifying your router.
+
+  [Base44 limitations guide](/limitations/no-code-tools/base44)
+
+  ## HTTP Upload API for Local Server
+
+  Apps served via Despia Local Server can now upload user files to on-device storage using a standard `FormData` POST to `localhost:7777/api/upload`. The endpoint returns a localhost URL you can use directly in `<img>`, `<video>`, or any element that accepts a `src`. This is separate from the `localcdn://write` protocol, which downloads remote files — the Upload API stores files that originate on the device itself.
+
+  [Local CDN reference](/refernce) · [Local Server guide](/local-server/how-it-works)
+
+  ## Local Server build tool adapters
+
+  The `@despia/local` build plugin now ships with dedicated adapters for Webpack, Rollup, Nuxt, SvelteKit, Astro, Remix, and esbuild — in addition to the existing Vite plugin. A universal postbuild CLI is also available for any build system not listed. One install, one config line, and the manifest is generated automatically at build time.
+
+  [Local Server setup guide](/local-server/how-it-works)
+</Update>
+
 <Update label="April 30, 2026" description="This week's updates" tags={["Feature", "Update"]}>
   ## RevenueCat server-side SDK
 
