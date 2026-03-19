@@ -4,12 +4,16 @@ description: "The latest updates and improvements to Despia."
 icon: "clock-rotate-left"
 ---
 
+<Update label="May 14, 2026" description="This week's updates" tags={["Update"]}>
+  ## Full Base44 support for native mobile apps
+
+  Base44 apps are now fully supported for native mobile development with Despia. The authentication limitations that previously blocked Base44 apps from shipping to the App Store with social login have been resolved. With the `despia-base44-oauth` package (shipped last week), Base44 apps can now use Google, Microsoft, and Facebook sign-in through native OAuth flows on both iOS and Android. Apple Sign-In, custom login pages, and OAuth 2.0 compliance via ASWebAuthenticationSession are all supported. Base44 is no longer a limited platform — you can take a Base44 app from prototype to App Store without switching tools.
+</Update>
+
 <Update label="May 7, 2026" description="This week's updates" tags={["Feature", "Update"]}>
   ## Base44 OAuth support
 
   A new `despia-base44-oauth` package adds native-safe OAuth to Base44 apps running inside Despia. Drop in `<Base44OAuthButton>` or the `useBase44OAuth` hook and the package handles the full flow — ASWebAuthenticationSession on iOS, Chrome Custom Tabs on Android, and standard web redirects when running in a browser. Supports Google, Microsoft, and Facebook via the Base44 SDK. Includes a `DespiaOAuthPage` component for Base44's no-code page system so you can set up OAuth without modifying your router.
-
-  [Base44 limitations guide](/limitations/no-code-tools/base44)
 
   ## HTTP Upload API for Local Server
 
@@ -77,9 +81,7 @@ icon: "clock-rotate-left"
 
   ## Base44 limitations
 
-  A new limitations guide documents the authentication and design constraints when using Base44 with Despia for native mobile apps. Covers why Apple Sign-In, custom login pages, and OAuth flows are not supported, and recommends Lovable, Cursor, or v0 as alternatives that support the Despia MCP.
-
-  [Read the Base44 limitations guide](/limitations/no-code-tools/base44)
+  A new limitations guide documents the authentication and design constraints when using Base44 with Despia for native mobile apps. Covers why Apple Sign-In, custom login pages, and OAuth flows are not supported, and recommends Lovable, Cursor, or v0 as alternatives that support the Despia MCP. *(These limitations have since been resolved — see the May 14 changelog.)*
 </Update>
 
 <Update label="April 16, 2026" description="This week's updates" tags={["Feature", "Update"]}>
