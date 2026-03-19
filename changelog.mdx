@@ -4,6 +4,46 @@ description: "The latest updates and improvements to Despia."
 icon: "clock-rotate-left"
 ---
 
+<Update label="May 21, 2026" description="This week's updates" tags={["Feature", "Update"]}>
+  ## Apple Sign-In
+
+  Apple Sign-In is now fully documented with a dedicated implementation guide for Lovable apps. The guide covers platform-specific flows — native Face ID dialog on iOS, the `oauth://` protocol on Android, and the Apple JS SDK on web — plus Supabase edge function setup, Apple Developer Console configuration, and environment variable management. Works alongside the existing Google and TikTok OAuth guides.
+
+  [Apple Auth guide (Lovable)](/lovable/native-features/o-auth-2-0/apple-auth) · [Generic OAuth guide](/native-features/o-auth-2-0/generic)
+
+  ## Screen Shield
+
+  You can now prevent screenshots and screen recordings across both iOS and Android. When enabled, the runtime blocks screen capture system-wide — useful for apps handling sensitive financial data, medical records, or premium content. Toggle it on from the Despia editor.
+
+  ## Mobile wallet passes
+
+  PkPass support is now available for both platforms. Generate and deliver passes to Apple Wallet on iOS and Google Wallet on Android directly from your web app.
+
+  ## AdMob advertising
+
+  The AdMob SDK bridge is now available alongside the existing rewarded ads feature. Use it to display banner, interstitial, and native ads through Google AdMob without adding any native code.
+
+  [Rewarded ads guide](/native-features/rewarded-ads)
+
+  ## Jailbreak and root detection
+
+  A new security feature detects jailbroken iOS devices and rooted Android devices at runtime. You can configure it to block app access entirely or log the status for your own risk-based decisions. Enabled from the Despia editor.
+
+  ## Native background audio
+
+  Audio playback now continues when the app is backgrounded or the screen is locked. This enables music players, podcast apps, meditation timers, and any app where audio should persist outside the foreground.
+
+  ## Device orientation control
+
+  You can now lock device orientation per device class — phone, tablet, or auto — from the Despia editor. Force portrait on phones while allowing landscape on tablets, or let the system decide. No code changes required.
+
+  ## App Clips
+
+  iOS App Clips are now configurable from the Despia editor. Create lightweight App Clip targets alongside your main app without opening Xcode. Manage App Clips, Share Extensions, and Home Widgets through editor toggles.
+
+  [Home widgets guide](/native-features/home-widgets) · [Share extension guide](/native-features/share-extension)
+</Update>
+
 <Update label="May 14, 2026" description="This week's updates" tags={["Update"]}>
   ## Full Base44 support for native mobile apps
 
