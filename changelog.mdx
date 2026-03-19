@@ -4,6 +4,58 @@ description: "The latest updates and improvements to Despia."
 icon: "clock-rotate-left"
 ---
 
+<Update label="April 9, 2026" description="This week's updates" tags={["Feature", "Update"]}>
+  ## Storage Vault
+
+  Your app can now persist user data across sessions, reinstalls, and even device changes using the native iCloud Key-Value Store on iOS and Google Key-Value Backup on Android. Data syncs automatically across all devices signed into the same account. You can optionally require Face ID or fingerprint authentication to read sensitive values — useful for protecting session tokens or gating destructive actions like account deletion.
+
+  Storage Vault is ideal for identifying returning users, preventing free trial abuse, and keeping login sessions alive without a custom backend.
+
+  [Read the Storage Vault guide](/native-features/storage-vault)
+
+  ## Restore purchases
+
+  A new `getpurchasehistory://` call retrieves a user's complete purchase history from the App Store or Google Play. The response includes active and expired subscriptions, one-time purchases, entitlement IDs, renewal status, and raw receipts for server-side validation. Use it to build the "Restore Purchases" button that both stores require, and to recover user identity on new devices.
+
+  [Read the restore purchases guide](/native-features/restore-purchase)
+
+  ## Apple HealthKit integration
+
+  You can now read and write Apple Health data directly from your web app. Request step counts, heart rate, body mass, walking distance, and any other HealthKit metric over a configurable day range. Write values back to HealthKit with a single SDK call. All data is returned as structured JSON, normalized by date and unit.
+
+  [Read the HealthKit guide](/native-features/healthkit)
+
+  ## Rewarded video ads
+
+  Monetize your app with native rewarded video ads. Users tap a button, watch a full-screen video, and your app receives a callback when the ad completes — letting you grant in-app rewards like coins, lives, or premium access. Includes built-in user agent verification and guidance on daily limits to prevent abuse.
+
+  [Read the rewarded ads guide](/native-features/rewarded-ads)
+
+  ## Siri Shortcuts (beta)
+
+  Users can now register custom Siri voice commands that open your app and execute a JavaScript function. Say "Order Coffee" and Siri launches the app and runs the mapped function automatically. Works on iPhone, iPad, Apple Watch, HomePod, and CarPlay.
+
+  [Read the Siri Shortcuts guide](/native-features/siri-shortcuts)
+
+  ## User session management best practices
+
+  A new backend guide covers the full user identity architecture for Despia apps — from resolving a persistent `app_user_id` across sessions using Storage Vault and purchase history, to syncing that identity with RevenueCat, OneSignal, Stripe, and your own database. Includes claim-vs-recover login flows, paywall readiness checks, and a reference database schema.
+
+  [Read the user session guide](/best-practices/backend/user-session)
+
+  ## RevenueCat webhook and cron job guides
+
+  Two new backend guides walk through processing RevenueCat webhooks end-to-end — authorization validation, event type handling, entitlement management, and self-healing subscription sync — plus a companion cron job guide for scheduled subscription status reconciliation with rate limiting and circuit breakers.
+
+  [Webhooks guide](/best-practices/backend/revenue-cat/webhooks) · [Cron jobs guide](/best-practices/backend/revenue-cat/cron-jobs)
+
+  ## OTA update best practices
+
+  Three new guides break down what you can safely ship over the air versus what requires a new binary. The interface guide covers UI changes, the logic guide covers JavaScript and API updates, and the editor guide covers native binary changes — with clear rules on App Store compliance and how to use VersionGuard to manage feature rollouts.
+
+  [Interface updates](/best-practices/updates/interface) · [Logic updates](/best-practices/updates/logic) · [Editor changes](/best-practices/updates/editor)
+</Update>
+
 <Update label="April 2, 2026" description="This week's updates" tags={["Feature", "Update"]}>
   ## Automatic light and dark mode
 
