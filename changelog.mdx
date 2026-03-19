@@ -4,6 +4,44 @@ description: "The latest updates and improvements to Despia."
 icon: "clock-rotate-left"
 ---
 
+<Update label="March 26, 2026" description="This week's updates" tags={["Feature", "Update"]}>
+  ## MCP server for AI code builders
+
+  You can now connect your AI code builder to Despia's documentation MCP server. Paste `https://setup.despia.com/mcp` into Lovable, Bolt, v0, Cursor, VS Code, Windsurf, or Claude Desktop, and your AI assistant gets full context on every native feature and the correct SDK patterns — no copy-pasting docs into chat.
+
+  [Set up the MCP server](/mcp-server)
+
+  ## CSS-first light and dark mode
+
+  Light and dark mode now works entirely through CSS using `prefers-color-scheme` and the `color-scheme` property — no JavaScript or SDK calls needed. The Despia runtime automatically matches status bar text color to your theme. Set fullscreen mode in the editor, manage safe areas with `var(--safe-area-top)` and `var(--safe-area-bottom)`, and your theme follows the user's OS setting.
+
+  [Read the light and dark mode guide](/native-features/light-and-dark-mode)
+
+  ## Scroll-driven animations
+
+  The animations best practices guide now covers native-feel scroll-driven patterns using `animation-timeline: scroll()`. Includes patterns for drawers, bottom sheets, parallax, and stacked cards — all in pure CSS. `@supports` and `CSS.supports()` fallbacks are documented so everything degrades gracefully on older devices.
+
+  [Read the animations guide](/best-practices/frontend/animations)
+
+  ## Lovable integration docs
+
+  A dedicated Lovable section is now available with integration setup and Lovable-specific versions of every native feature guide. If you build with Lovable, the prompts and implementation steps are tailored to your workflow.
+
+  [Read the Lovable guide](/lovable/how-it-works)
+
+  ## RevenueCat server-side SDK
+
+  A new `@despia/revenuecat-server` package handles server-side subscription verification, webhook processing, and cron-based sync. Use it alongside the client-side paywall and purchase flows to keep subscription state accurate on your backend.
+
+  [RevenueCat webhook guide](/best-practices/backend/revenue-cat/webhooks) · [Cron jobs guide](/best-practices/backend/revenue-cat/cron-jobs)
+
+  ## OAuth kit updates
+
+  The OAuth kit now supports implicit flow with hash-based tokens, handles native deeplink callback tokens, and includes production-ready examples for Supabase, Google, and Auth0.
+
+  [Read the OAuth guide](/native-features/o-auth-2-0/generic)
+</Update>
+
 <Update label="March 19, 2026" description="This week's updates" tags={["Feature", "Update", "Fix"]}>
   ## RevenueCat Paywalls
 
