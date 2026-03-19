@@ -4,6 +4,38 @@ description: "The latest updates and improvements to Despia."
 icon: "clock-rotate-left"
 ---
 
+<Update label="April 2, 2026" description="This week's updates" tags={["Feature", "Update"]}>
+  ## Automatic light and dark mode
+
+  The Despia runtime now reads the CSS `color-scheme` property and automatically sets the status bar text color to match your theme — no SDK call needed. Set `color-scheme: light` in your root styles and `color-scheme: dark` inside a `prefers-color-scheme` media query, and the native container handles the rest. New editor settings for fullscreen mode and manual safe area control give you full ownership of the status bar area in CSS.
+
+  [Read the light and dark mode guide](/native-features/light-and-dark-mode)
+
+  ## Generic OAuth 2.0 flow
+
+  A new provider-agnostic OAuth guide documents how the `oauth://` and deeplink callback protocols work across any OAuth 2.0 provider. The same flow covers Google, Apple, TikTok, GitHub, or any custom provider using ASWebAuthenticationSession on iOS and Chrome Custom Tabs on Android. One pattern, any provider.
+
+  [Read the generic OAuth guide](/native-features/o-auth-2-0/generic)
+
+  ## TikTok and Google OAuth guides
+
+  Dedicated setup guides for TikTok and Google OAuth are now available with step-by-step instructions, video walkthroughs, and full AI prompts you can paste into Lovable or Cursor to scaffold the entire integration.
+
+  [TikTok OAuth guide](/native-features/oauth/tiktok) · [Google OAuth guide](/native-features/oauth/google)
+
+  ## Lovable integration — full native feature support
+
+  The Lovable integration section now covers every native feature Despia offers, including OAuth, paywalls, GPS location, haptic feedback, biometrics, camera roll, share extensions, home widgets, and more. Each page includes Lovable-specific setup instructions and AI prompts tailored to Lovable's React codebase.
+
+  [Get started with Lovable](/lovable/how-it-works)
+
+  ## Store rejection guides
+
+  A new section walks through the most common App Store and Google Play rejection reasons — minimum functionality, non-mobile design, in-app purchase requirements, deceptive paywalls, privacy policy issues, and more — with specific fixes for Despia apps.
+
+  [Read the store rejections guide](/store-rejections/introduction)
+</Update>
+
 <Update label="March 26, 2026" description="This week's updates" tags={["Feature", "Update"]}>
   ## MCP server for AI code builders
 
