@@ -12,6 +12,7 @@
     "pages": [
       "introduction",
       "mcp-server",
+      "changelog",
       {
         "group": "Deployment",
         "icon": "rocket",
@@ -155,19 +156,6 @@
               "store-rejections/common-rejection/social-login-options",
               "store-rejections/common-rejection/user-specific-data",
               "store-rejections/common-rejection/blank-screen-redirects"
-            ]
-          }
-        ]
-      },
-      {
-        "group": "Limitations",
-        "icon": "chart-line-down",
-        "pages": [
-          {
-            "group": "NoCode Tools",
-            "icon": "toolbox",
-            "pages": [
-              "limitations/no-code-tools/base44"
             ]
           }
         ]
