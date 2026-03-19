@@ -161,19 +161,6 @@
         ]
       },
       {
-        "group": "Limitations",
-        "icon": "chart-line-down",
-        "pages": [
-          {
-            "group": "NoCode Tools",
-            "icon": "toolbox",
-            "pages": [
-              "limitations/no-code-tools/base44"
-            ]
-          }
-        ]
-      },
-      {
         "group": "Native Features",
         "icon": "bolt-lightning",
         "expanded": false,
