@@ -4,6 +4,34 @@ description: "The latest updates and improvements to Despia."
 icon: "clock-rotate-left"
 ---
 
+<Update label="May 28, 2026" description="This week's updates" tags={["Feature", "Update"]}>
+  ## Native web interception
+
+  Standard HTML file inputs now route to native device pickers automatically — no SDK calls required. Use `<input type="file">` and the Despia runtime opens the native file picker. Add the `capture` attribute and it opens the native camera. Set `accept="image/*"` or `accept="video/*"` and users get the native media gallery with full-resolution previews. Your existing web code works as-is on both iOS and Android.
+
+  ## Custom notification sounds
+
+  You can now configure custom notification sounds for push notifications on both iOS and Android. Add your own audio files and assign them to specific notification types so users hear a distinct sound for each kind of alert.
+
+  [Notification sounds guide](/native-features/notification-sounds)
+
+  ## Native loading spinner
+
+  Show and hide a native loading overlay from JavaScript using `despia('spinneron://')` and `despia('spinneroff://')`. The spinner renders outside the WebView at the OS level, so it stays visible even during heavy page transitions or data fetches.
+
+  ## Status bar and display controls
+
+  Several runtime display settings are now configurable from both the Despia editor and the SDK:
+
+  - **Fullscreen mode** — hide the status bar background entirely and control the space yourself with CSS safe area variables
+  - **Status bar color** — set the status bar text and background color to match your app's theme
+  - **Prevent zoom** — disable pinch-to-zoom for apps where zoom breaks the layout
+  - **Prevent sleep** — keep the screen awake for use cases like timers, media playback, or kiosk displays
+  - **Splash screen** — configure the native launch screen from the editor with no Xcode or Android Studio required
+
+  [Light and dark mode guide](/native-features/light-and-dark-mode) · [Safe areas guide](/native-features/safe-areas)
+</Update>
+
 <Update label="May 21, 2026" description="This week's updates" tags={["Feature", "Update"]}>
   ## Apple Sign-In
 
