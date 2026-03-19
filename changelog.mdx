@@ -4,6 +4,82 @@ description: "The latest updates and improvements to Despia."
 icon: "clock-rotate-left"
 ---
 
+<Update label="April 16, 2026" description="This week's updates" tags={["Feature", "Update"]}>
+  ## OneSignal push notifications
+
+  Send targeted remote push notifications to your users through OneSignal. Link each user's device to their account using the new external ID system, then trigger notifications from your backend even when the app is closed. Works on both iOS (Apple Push Notification Service) and Android (Firebase Cloud Messaging).
+
+  [Read the OneSignal guide](/native-features/onesignal)
+
+  ## Deep linking
+
+  Universal links on iOS and app links on Android are now fully supported. When a user taps a link to your domain, the app opens directly to the right screen instead of loading in a browser. Includes setup for Apple App Site Association, Android asset links, and web app synchronization.
+
+  [Read the deep linking guide](/native-features/deeplinking)
+
+  ## Biometric authentication
+
+  Protect sensitive areas of your app with Face ID, Touch ID, or device passcode. You get dedicated callbacks for success, failure, and unavailability so you can gracefully handle every scenario. Use it to gate account deletion, payment confirmation, or any high-stakes action.
+
+  [Read the biometrics guide](/native-features/biometrics)
+
+  ## Quick actions
+
+  Add home screen shortcuts that let users long-press your app icon and jump straight into a specific workflow — like "New Post" or "Scan QR Code." Each shortcut runs a JavaScript function you define, with a custom icon and label. Configured in the Despia editor.
+
+  [Read the quick actions guide](/native-features/quick-actions)
+
+  ## Local push notifications
+
+  Schedule push notifications that fire at a specific time, even when the app is closed — no server required. Set the title, message, delay, and an optional deep link URL so tapping the notification opens the right screen in your app.
+
+  [Read the local notifications guide](/native-features/offline-push)
+
+  ## Contact access
+
+  Read the user's device contacts (names and phone numbers) directly from your web app. Useful for invite flows, social features, or syncing an address book. Permission is requested natively before any data is shared.
+
+  [Read the contact access guide](/native-features/contact-access)
+
+  ## Safe area handling
+
+  The Despia runtime now injects `--safe-area-top` and `--safe-area-bottom` CSS variables automatically, so your layout never gets hidden behind notches, status bars, or home indicators. No package install required — just use the variables in your CSS.
+
+  [Read the safe areas guide](/native-features/safe-areas)
+
+  ## More native features
+
+  Several additional native capabilities are now available:
+
+  - **Camera roll** — save images directly to the user's photo gallery. [Guide](/native-features/camera-roll)
+  - **Clipboard** — read text from the user's clipboard. [Guide](/native-features/clipboard)
+  - **Haptic feedback** — trigger five vibration patterns (heavy, light, success, warning, error) on user interaction. [Guide](/native-features/haptic-feedback)
+  - **Share dialog** — open the native share sheet with a pre-filled message and URL. [Guide](/native-features/share-dialog)
+  - **File sharing** — share files of any type through the device's native sharing options. [Guide](/native-features/file-sharing)
+  - **Print documents** — print images and PDFs via the native print dialog. [Guide](/native-features/print-documents)
+  - **Screenshot** — capture a full-page screenshot and save it to the camera roll. [Guide](/native-features/screenshot)
+  - **Simple storage** — persist data on-device between sessions using lightweight local storage. [Guide](/native-features/simple-storage)
+  - **App settings** — open the native settings page so users can manage permissions. [Guide](/native-features/app-settings)
+  - **App privacy** — check App Tracking Transparency consent status for GDPR and ATT compliance. [Guide](/native-features/app-privacy)
+  - **Screen brightness** — control display brightness for scanning and detection use cases. [Guide](/native-features/screen-brightness)
+  - **Store location** — detect the user's app store region for localized content. [Guide](/native-features/store-location)
+  - **Device indexing** — access the unique device identifier for user session management. [Guide](/native-features/device-indexing)
+  - **External links** — control whether URLs open in-app or in Safari. [Guide](/native-features/external-links)
+  - **User agent detection** — detect whether the app is running inside the Despia native runtime and on which platform. [Guide](/native-features/user-agent)
+
+  ## Frontend structure best practices
+
+  A new guide covers the root frame architecture for Despia apps — safe area layout, scroll containers, touch target sizing, spacing systems, and common pitfalls when building production-quality mobile UIs on WKWebView and Android WebView.
+
+  [Read the frontend structure guide](/best-practices/frontend/structure)
+
+  ## OneSignal user session guide
+
+  A new backend guide walks through linking user identity to OneSignal for push notifications — identity resolution on app launch, login and logout flows, and backend endpoint patterns for syncing users across OneSignal, RevenueCat, and your database.
+
+  [Read the OneSignal user session guide](/best-practices/backend/one-signal/user-session)
+</Update>
+
 <Update label="April 9, 2026" description="This week's updates" tags={["Feature", "Update"]}>
   ## Storage Vault
 
