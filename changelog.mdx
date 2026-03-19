@@ -4,6 +4,38 @@ description: "The latest updates and improvements to Despia."
 icon: "clock-rotate-left"
 ---
 
+<Update label="April 23, 2026" description="This week's updates" tags={["Feature", "Update"]}>
+  ## iOS and Android deployment guides
+
+  Full step-by-step deployment guides are now available for both platforms. The automatic deployment guides walk you through prerequisites, app icons, splash screens, bundle ID configuration, building, testing, and store submission — all from the Despia dashboard. The manual export guides cover downloading the native Xcode or Android Studio project for advanced customization and publishing directly from the IDE.
+
+  [iOS automatic deployment](/deployment/apple-ios/automatic) · [iOS manual export](/deployment/apple-ios/manual) · [Android automatic deployment](/deployment/google-android/automatic) · [Android manual export](/deployment/google-android/manual)
+
+  ## Troubleshooting guides
+
+  A new Roadblocks section covers the most common issues users run into and how to fix them:
+
+  - **Slow apps** — profiling with DevTools, fixing memory leaks, reducing bundle size, and optimizing images and DOM nodes. [Guide](/roadblocks/runtime/slow-apps)
+  - **OAuth failures** — understanding the difference between web and native OAuth flows, debugging browser issues, and fixing redirect URI mismatches. [Guide](/roadblocks/runtime/o-auth-failures)
+  - **OTA updates not working** — identifying PWA plugins that block updates, removing service workers, and understanding why Despia's Local Server is a better alternative. [Guide](/roadblocks/runtime/no-ota-updates)
+  - **Lost auth tokens** — fixing cookie configuration, switching to offline-compatible storage, and building a hybrid session strategy. [Guide](/roadblocks/runtime/lost-auth-tokens)
+  - **Blank screens** — diagnosing corrupt splash screens, HTTPS issues, local server failures, and routing problems. [Guide](/roadblocks/runtime/empty-pages)
+  - **RevenueCat products not loading** — debugging configuration mismatches between the Despia editor, RevenueCat dashboard, and App Store or Google Play Console. [Guide](/roadblocks/revenue-cat/missing-item)
+  - **HealthKit build failures** — enabling the HealthKit capability in the Apple Developer portal after toggling it in the Despia editor. [Guide](/roadblocks/deployment/apple-i-os/health-kit)
+
+  ## RevenueCat user session management
+
+  A new backend guide covers user identity resolution for in-app purchases with RevenueCat. It walks through the full identity priority chain (Storage Vault, restore purchases, install ID), database synchronization, paywall launch gating, login and logout flows, webhook handling, and a reference database schema.
+
+  [Read the RevenueCat user session guide](/best-practices/backend/revenue-cat/user-session)
+
+  ## Base44 limitations
+
+  A new limitations guide documents the authentication and design constraints when using Base44 with Despia for native mobile apps. Covers why Apple Sign-In, custom login pages, and OAuth flows are not supported, and recommends Lovable, Cursor, or v0 as alternatives that support the Despia MCP.
+
+  [Read the Base44 limitations guide](/limitations/no-code-tools/base44)
+</Update>
+
 <Update label="April 16, 2026" description="This week's updates" tags={["Feature", "Update"]}>
   ## OneSignal push notifications
 
