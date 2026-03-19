@@ -1,0 +1,45 @@
+---
+title: "Changelog"
+description: "The latest updates and improvements to Despia."
+icon: "clock-rotate-left"
+---
+
+<Update label="March 19, 2026" description="This week's updates" tags={["Feature", "Update", "Fix"]}>
+  ## RevenueCat Paywalls
+
+  You can now launch fully native RevenueCat Paywalls directly from your web app. Design your paywall in the RevenueCat dashboard, then trigger it with a single SDK call. The paywall handles the complete purchase flow through Apple's App Store or Google Play, including subscription management, exit offers, and web fallback via RevenueCat Web Purchase Links.
+
+  [Read the paywalls guide](/native-features/paywalls)
+
+  ## Direct product purchases
+
+  A new `revenuecat://purchase` protocol lets you trigger a specific product purchase without showing a full paywall. This is useful when you already have your own product selection UI and just need to handle the native billing step. Supports platform-specific product IDs for iOS and Android, including Android subscription group prefixes.
+
+  [Read the purchases guide](/native-features/purchases)
+
+  ## OTA versioning and VersionGuard
+
+  `despia.bundleNumber` is now available at runtime, giving you the installed binary version on the user's device. Pair it with the new `despia-version-guard` component to gate features behind a specific binary release. Users on older versions see a fallback or update prompt instead of a broken experience.
+
+  [Read about OTA versioning](/native-features/ota-versioning) · [Update best practices](/best-practices/updates/overview)
+
+  ## User identity management
+
+  The new `@despia/user-identity` package handles user identity resolution across sessions. It resolves install IDs, integrates with RevenueCat and OneSignal, and runs vault, purchases, and install ID resolution in parallel for faster startup.
+
+  ## GPS location tracking improvements
+
+  The GPS location API now includes battery level at each data point, configurable tracking intervals via the `buffer` parameter, and automatic iOS background location indicator management. The `despia.locationTracking` variable lets you reflect tracking state in your UI in real time.
+
+  [Read the GPS location guide](/native-features/gps-location)
+
+  ## Local CDN and Local Server (beta)
+
+  Local CDN now has a full API reference for offline media caching with background downloads. The Local Server, which serves your web app from `http://localhost` for instant boot and full offline support, is in its final beta round. Both features work cross-platform with a single JavaScript SDK.
+
+  [Local CDN reference](/refernce) · [Local Server guide](/local-server/how-it-works)
+
+  ## SDK compatibility fix
+
+  The `despia-native` npm package now works correctly with pnpm thanks to an added `exports` field in the package configuration.
+</Update>
