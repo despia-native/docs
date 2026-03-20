@@ -131,7 +131,8 @@
               "roadblocks/runtime/lost-auth-tokens",
               "roadblocks/runtime/o-auth-failures",
               "roadblocks/runtime/slow-apps",
-              "roadblocks/runtime/empty-pages"
+              "roadblocks/runtime/empty-pages",
+              "roadblocks/runtime/wrong-framework"
             ]
           }
         ]
