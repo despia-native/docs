@@ -4,20 +4,148 @@ icon: "lightbulb"
 description: "Detect whether your app is running in the Despia native runtime and identify the platform (iOS or Android) by checking the user agent string."
 ---
 
-<Card title="AI Prompt" icon="sparkles">
-  Detect the Despia native runtime environment using JavaScript user agent string checks to conditionally show platform-specific features in your application.
+<Prompt description={`**AI Prompt:**\\
+\\
+Detect the Despia native runtime environment using JavaScript user agent string checks to conditionally show platform-specific features in your application.
 
-  1. Check if `navigator.userAgent` includes "despia" to detect the native runtime
-  2. Check for "iphone" or "ipad" in the user agent for iOS detection
-  3. Check for "android" in the user agent for Android detection
-  4. Use conditional rendering to show appropriate UI elements
-  5. Show native features (in-app purchases) when in Despia, or web features (Stripe) when not
+1. Check if \`navigator.userAgent\` includes "despia" to detect the native runtime
+2. Check for "iphone" or "ipad" in the user agent for iOS detection
+3. Check for "android" in the user agent for Android detection
+4. Use conditional rendering to show appropriate UI elements
+5. Show native features (in-app purchases) when in Despia, or web features (Stripe) when not
 
-  <Danger>
-    **This feature works in any web application - no npm package installation required!**
-  </Danger>
-  Please follow the implementation instructions closely. The user agent string is automatically set by the Despia Native runtime environment.
-</Card>
+<Badge color="purple" size="lg" icon="info-circle">This feature works in any web application - no npm package installation required!</Badge>
+
+Please follow the implementation instructions closely. The user agent string is automatically set by the Despia Native runtime environment.`} icon="sparkle" actions={["copy", "cursor"]}>
+# Task: Detect the Despia Native Runtime Using User Agent Checks
+
+Detect the Despia native runtime environment using JavaScript user agent string checks to conditionally show platform-specific features in the application. Follow the instructions below exactly — do not deviate from them.
+
+---
+
+## Installation
+
+**No installation required.** The user agent string is automatically set by the Despia Native runtime environment. This feature works in any web application.
+
+---
+
+## Implementation Requirements
+
+1. Check if `navigator.userAgent` includes `"despia"` to detect the native runtime.
+2. Check for `"iphone"` or `"ipad"` in the user agent for iOS detection.
+3. Check for `"android"` in the user agent for Android detection.
+4. Use conditional rendering to show appropriate UI elements based on the detected platform.
+5. Show **native features (e.g. in-app purchases)** when running in Despia, or **web features (e.g. Stripe)** when not.
+
+---
+
+## Platform Detection
+
+```js
+const userAgent = navigator.userAgent.toLowerCase();
+
+// Detect if running in Despia
+const isDespia = userAgent.includes('despia');
+
+// Detect iOS in Despia
+const isDespiaIOS = isDespia &&
+  (userAgent.includes('iphone') || userAgent.includes('ipad'));
+
+// Detect Android in Despia
+const isDespiaAndroid = isDespia && userAgent.includes('android');
+```
+
+---
+
+## Conditional Feature Rendering (React)
+
+```tsx
+import { useState, useEffect } from 'react';
+
+function CheckoutButton() {
+  const [platform, setPlatform] = useState({
+    isDespia: false,
+    isIOS: false,
+    isAndroid: false
+  });
+
+  useEffect(() => {
+    const userAgent = navigator.userAgent.toLowerCase();
+    const isDespia = userAgent.includes('despia');
+
+    setPlatform({
+      isDespia: isDespia,
+      isIOS: isDespia && (userAgent.includes('iphone') || userAgent.includes('ipad')),
+      isAndroid: isDespia && userAgent.includes('android')
+    });
+  }, []);
+
+  // Show Stripe checkout for web, in-app purchase for Despia native
+  if (!platform.isDespia) {
+    return (
+      <button
+        className="bg-blue-600 text-white px-6 py-3 rounded-lg"
+        onClick={() => {
+          // Stripe checkout logic
+          window.location.href = 'https://checkout.stripe.com/...';
+        }}
+      >
+        Purchase with Stripe
+      </button>
+    );
+  }
+
+  return (
+    <button
+      className="bg-green-600 text-white px-6 py-3 rounded-lg"
+      onClick={() => {
+        // RevenueCat in-app purchase logic
+        console.log('Trigger in-app purchase');
+      }}
+    >
+      Purchase in App
+    </button>
+  );
+}
+```
+
+---
+
+## Platform-Specific UI
+
+```tsx
+function App() {
+  const userAgent = navigator.userAgent.toLowerCase();
+  const isDespia = userAgent.includes('despia');
+  const isDespiaIOS = isDespia &&
+    (userAgent.includes('iphone') || userAgent.includes('ipad'));
+  const isDespiaAndroid = isDespia && userAgent.includes('android');
+
+  return (
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">My App</h1>
+
+      {isDespia && (
+        <div className="mb-4 p3 bg-blue-100 rounded">
+          Running in Despia on {isDespiaIOS ? 'iOS' : 'Android'}
+        </div>
+      )}
+
+      <CheckoutButton />
+    </div>
+  );
+}
+```
+
+---
+
+## Important Notes
+
+- **No npm package or native library is needed.** This works in any JavaScript/web environment.
+- Always call `navigator.userAgent.toLowerCase()` before checking — all string comparisons must be **case-insensitive**.
+- The user agent string is **automatically set by the Despia Native runtime** — no configuration required.
+- Follow the implementation instructions closely. The detection logic as specified is critical.
+</Prompt>
 
 **How it works:** When your Lovable-generated web application runs inside the Despia native runtime on iOS or Android, the user agent string automatically includes "despia" along with platform identifiers like "iphone", "ipad", or "android". Your JavaScript code can check `navigator.userAgent` to detect this and conditionally render platform-specific features, such as showing RevenueCat in-app purchase buttons when running natively in Despia, or Stripe checkout buttons when running in a standard web browser.
 

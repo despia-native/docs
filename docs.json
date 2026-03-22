@@ -186,7 +186,14 @@
           "native-features/storage-vault",
           "native-features/gps-location",
           "native-features/light-and-dark-mode",
-          "native-features/rewarded-ads",
+          {
+            "group": "AdMob",
+            "icon": "clapperboard-play",
+            "pages": [
+              "native-features/admob/inline-ads",
+              "native-features/admob/rewarded-ads"
+            ]
+          },
           "native-features/external-links",
           "native-features/device-indexing",
           "native-features/haptic-feedback",

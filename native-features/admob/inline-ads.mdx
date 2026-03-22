@@ -451,7 +451,7 @@ The correct pattern is to add the safe area inset to the fixed or sticky contain
   The CSS variables `var(--safe-area-top)` and `var(--safe-area-bottom)` are provided by the Despia runtime only. They will be `0` or undefined when running in a standard desktop browser, so layout will appear unaffected during local development. Always verify safe area behaviour on a physical device or simulator running your Despia-built app.
 </Warning>
 
-<Prompt description="**Apply safe area insets to top and bottom ad banners.** Despia injects `var(--safe-area-top)` and `var(--safe-area-bottom)` into every WebView. Any banner at the top or bottom of the viewport must use these values or it will be obscured by the notch, status bar, or home indicator. Apply the inset to the wrapping container, not to the ad unit itself." icon="sparkles" actions={["copy", "cursor"]}>
+<Prompt description="**Apply safe area insets to top and bottom ad banners.** Despia injects `var(--safe-area-top)` and `var(--safe-area-bottom)` into every WebView. Any banner at the top or bottom of the viewport must use these values or it will be obscured by the notch, status bar, or home indicator. Apply the inset to the wrapping container, not to the ad unit itself." actions={["copy", "cursor"]}>
 ## Core context — read this before writing any code
 
 ### What Despia Inline Ads is
@@ -824,7 +824,7 @@ In a standard WebView-based app, the native navigation bar sits outside the WebV
   Use `data-full-width-responsive="true"` so the banner fills the full device width automatically, exactly like a native banner ad unit. If your navigation bar is fixed or the banner sits at the very top of the layout, add a spacer div with `height: var(--safe-area-top)` above the nav to keep content clear of the notch and status bar. See the Safe areas section above.
 </Tip>
 
-<Prompt description="**Place a banner ad directly below your navigation bar.** Normally impossible in a WebView app without a native overlay. With Inline Ads the banner is a real DOM element positioned with flexbox below the nav bar and above the scrollable content. Provide your AdSense publisher ID and slot ID." icon="sparkles" actions={["copy", "cursor"]}>
+<Prompt description="**Place a banner ad directly below your navigation bar.** Normally impossible in a WebView app without a native overlay. With Inline Ads the banner is a real DOM element positioned with flexbox below the nav bar and above the scrollable content. Provide your AdSense publisher ID and slot ID." actions={["copy", "cursor"]}>
 ## Core context — read this before writing any code
 
 ### What Despia Inline Ads is
@@ -1120,7 +1120,7 @@ A classic mobile ad placement. a persistent leaderboard banner anchored to the b
   </Tab>
 </Tabs>
 
-<Prompt description="**Pin a persistent banner to the bottom of the viewport.** Implemented as a sticky flex child in CSS with no native overlay required. Apply `padding-bottom: var(--safe-area-bottom)` to the banner container to clear the home indicator on iOS. Provide your AdSense publisher ID and slot ID." icon="sparkles" actions={["copy", "cursor"]}>
+<Prompt description="**Pin a persistent banner to the bottom of the viewport.** Implemented as a sticky flex child in CSS with no native overlay required. Apply `padding-bottom: var(--safe-area-bottom)` to the banner container to clear the home indicator on iOS. Provide your AdSense publisher ID and slot ID." actions={["copy", "cursor"]}>
 ## Core context — read this before writing any code
 
 ### What Despia Inline Ads is
@@ -1423,7 +1423,7 @@ Ads interspersed between list items or content cards. the same pattern used by I
   Use `data-ad-format="fluid"` with `data-ad-layout="in-article"` for ads that automatically size themselves to blend naturally between content items.
 </Tip>
 
-<Prompt description="**Insert AdSense ads between every nth card in a content feed.** Uses the fluid in-article format so the unit sizes to match surrounding content. Provide your feed array name, AdSense publisher ID, slot ID, and the interval between ads (default: every 3rd item)." icon="sparkles" actions={["copy", "cursor"]}>
+<Prompt description="**Insert AdSense ads between every nth card in a content feed.** Uses the fluid in-article format so the unit sizes to match surrounding content. Provide your feed array name, AdSense publisher ID, slot ID, and the interval between ads (default: every 3rd item)." actions={["copy", "cursor"]}>
 ## Core context — read this before writing any code
 
 ### What Despia Inline Ads is
@@ -1809,7 +1809,7 @@ A full-screen ad that appears between user actions. e.g., after finishing an art
   AdSense and Ad Manager policies require that interstitial-style placements must be clearly dismissible and must not trap users. Always include a visible close mechanism. Review [AdSense program policies](https://support.google.com/adsense/answer/48182) before deploying.
 </Warning>
 
-<Prompt description="**Show a full-screen ad overlay between user actions.** Renders a fixed-position overlay inside the WebView triggered by JavaScript. A countdown runs before the close button appears. Subject to AdSense interstitial policy: the overlay must be dismissible. Provide your publisher ID, slot ID, trigger action, and countdown duration." icon="sparkles" actions={["copy", "cursor"]}>
+<Prompt description="**Show a full-screen ad overlay between user actions.** Renders a fixed-position overlay inside the WebView triggered by JavaScript. A countdown runs before the close button appears. Subject to AdSense interstitial policy: the overlay must be dismissible. Provide your publisher ID, slot ID, trigger action, and countdown duration." actions={["copy", "cursor"]}>
 ## Core context — read this before writing any code
 
 ### What Despia Inline Ads is
@@ -2167,7 +2167,7 @@ An ad unit that sits naturally between paragraphs of an article or long-form con
   </Tab>
 </Tabs>
 
-<Prompt description="**Inject a fluid banner between paragraphs of an article.** Uses `data-ad-format` set to `fluid` and `data-ad-layout` set to `in-article` so the unit sizes automatically to the reading column and loads on scroll. Specify the paragraph position and provide your AdSense publisher ID and slot ID." icon="sparkles" actions={["copy", "cursor"]}>
+<Prompt description="**Inject a fluid banner between paragraphs of an article.** Uses `data-ad-format` set to `fluid` and `data-ad-layout` set to `in-article` so the unit sizes automatically to the reading column and loads on scroll. Specify the paragraph position and provide your AdSense publisher ID and slot ID." actions={["copy", "cursor"]}>
 ## Core context — read this before writing any code
 
 ### What Despia Inline Ads is
@@ -2510,7 +2510,7 @@ A video ad that plays before your main content video. the same pattern used by Y
   Despia configures the WebView with `mediaPlaybackRequiresUserGesture = false` (Android) and `mediaTypesRequiringUserActionForPlayback = []` (iOS), so video ads autoplay without requiring a tap. exactly as you'd expect from a native video ad.
 </Info>
 
-<Prompt description="**Play a pre-roll video ad before a content video.** Uses Video.js 8.23.8, the Google IMA SDK, videojs-contrib-ads 7.5.2, and videojs-ima 2.4.0. Despia configures the WebView so the ad autoplays without a user tap on both Android and iOS. Provide your ad tag URL and content video URL." icon="sparkles" actions={["copy", "cursor"]}>
+<Prompt description="**Play a pre-roll video ad before a content video.** Uses Video.js 8.23.8, the Google IMA SDK, videojs-contrib-ads 7.5.2, and videojs-ima 2.4.0. Despia configures the WebView so the ad autoplays without a user tap on both Android and iOS. Provide your ad tag URL and content video URL." actions={["copy", "cursor"]}>
 ## Core context — read this before writing any code
 
 ### What Despia Inline Ads is
@@ -2923,7 +2923,7 @@ Show an ad in exchange for unlocking gated content. a premium article, extra liv
   </Tab>
 </Tabs>
 
-<Prompt description="**Gate premium content behind a watched ad.** The user opts in, an AdSense unit mounts inside the WebView, a countdown runs, and JavaScript reveals the locked content automatically on completion. No native layer involved. Provide your publisher ID, slot ID, what is being unlocked, and the countdown duration." icon="sparkles" actions={["copy", "cursor"]}>
+<Prompt description="**Gate premium content behind a watched ad.** The user opts in, an AdSense unit mounts inside the WebView, a countdown runs, and JavaScript reveals the locked content automatically on completion. No native layer involved. Provide your publisher ID, slot ID, what is being unlocked, and the countdown duration." actions={["copy", "cursor"]}>
 ## Core context — read this before writing any code
 
 ### What Despia Inline Ads is
@@ -3300,7 +3300,7 @@ On tablet-sized screens or landscape layouts, render a persistent ad in a side r
   Combine this with a CSS media query (`@media (min-width: 600px)`) to only show the sidebar ad on tablets and landscape phones, and fall back to a banner ad on portrait mobile.
 </Tip>
 
-<Prompt description="**Add a sticky 160x600 sidebar ad for tablet and landscape layouts.** A two-column flex layout where the ad sits in a sticky right rail. Hidden below 600px viewport width via a CSS media query to avoid the ad appearing on portrait phones. Provide your AdSense publisher ID and slot ID." icon="sparkles" actions={["copy", "cursor"]}>
+<Prompt description="**Add a sticky 160x600 sidebar ad for tablet and landscape layouts.** A two-column flex layout where the ad sits in a sticky right rail. Hidden below 600px viewport width via a CSS media query to avoid the ad appearing on portrait phones. Provide your AdSense publisher ID and slot ID." actions={["copy", "cursor"]}>
 ## Core context — read this before writing any code
 
 ### What Despia Inline Ads is
