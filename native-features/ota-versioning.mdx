@@ -18,12 +18,15 @@ This works by connecting Google's Mobile Ads SDK directly to the WebView (Androi
   <Card title="Improved monetization" icon="chart-line">
     App-level signals (device ID, audience data) are passed to ad tags, improving CPMs and fill rates.
   </Card>
+
   <Card title="Spam protection" icon="shield-check">
     Google's SDK validates ad requests from within the WebView, protecting advertisers and your account standing.
   </Card>
+
   <Card title="100% NoCode setup" icon="wand-magic-sparkles">
     Enable, configure, and rebuild entirely from the Despia dashboard. No native code needed.
   </Card>
+
   <Card title="Video ad support" icon="circle-play">
     Inline video ads play automatically without user interaction, fully compatible with AdSense and IMA for HTML5.
   </Card>
@@ -107,7 +110,7 @@ MobileAds.shared.register]
 <Info>
   These steps must be completed manually in the Despia dashboard. They cannot be automated with an AI agent prompt.
 
-  1. Go to **Your App > Settings > AdMob**
+  1. Go to **Your App \> Settings \> AdMob**
   2. Toggle **Enable AdMob** to on
   3. Paste your AdMob App ID (format: `ca-app-pub-XXXXXXXXXXXXXXXX~YYYYYYYYYY`)
   4. Click **Rebuild App**
@@ -135,41 +138,27 @@ When you enable Inline Ads and rebuild, Despia handles all the native setup behi
     It also configures your WebView with the correct settings and calls `MobileAds.registerWebView()` on the main thread during app startup:
 
     <Tabs>
-      <Tab title="Kotlin">
-        ```kotlin MainActivity.kt (auto-generated)
-        import android.webkit.CookieManager
-        import android.webkit.WebView
-        import com.google.android.gms.ads.MobileAds
-
-        // Called in onCreate()
-        CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true)
-        webView.settings.javaScriptEnabled = true
-        webView.settings.domStorageEnabled = true
-        webView.settings.mediaPlaybackRequiresUserGesture = false
-
-        MobileAds.registerWebView(webView)
-        ```
-      </Tab>
       <Tab title="Java">
         ```java MainActivity.java (auto-generated)
         import android.webkit.CookieManager;
         import android.webkit.WebView;
         import com.google.android.gms.ads.MobileAds;
-
+        
         // Called in onCreate()
         CookieManager.getInstance().setAcceptThirdPartyCookies(webView, true);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
         webView.getSettings().setMediaPlaybackRequiresUserGesture(false);
-
+        
         MobileAds.registerWebView(webView);
         ```
       </Tab>
     </Tabs>
 
     **Requirements met automatically:**
+
     - Google Mobile Ads SDK ≥ 20.6.0
-    - Android API level 21+
+    - Android API level 21\+
     - Third-party cookies enabled
     - JavaScript and DOM storage enabled
   </Tab>
@@ -186,19 +175,20 @@ When you enable Inline Ads and rebuild, Despia handles all the native setup behi
 
     ```swift ViewController.swift (auto-generated)
     import WebKit
-
+    
     // Called in viewDidLoad()
     let webViewConfiguration = WKWebViewConfiguration()
     webViewConfiguration.allowsInlineMediaPlayback = true
     webViewConfiguration.mediaTypesRequiringUserActionForPlayback = []
-
+    
     webView = WKWebView(frame: view.frame, configuration: webViewConfiguration)
     view.addSubview(webView)
-
+    
     MobileAds.shared.register(webView)
     ```
 
     **Requirements met automatically:**
+
     - Google Mobile Ads SDK ≥ 9.6.0
     - Inline media playback enabled
     - Autoplay without user gesture enabled
@@ -266,11 +256,11 @@ Once Inline Ads is enabled and your app is rebuilt, you serve ads from within yo
     <!-- videojs-ima 2.4.0 -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/videojs-ima/2.4.0/videojs.ima.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-ima/2.4.0/videojs.ima.min.js"></script>
-
+    
     <video id="my-video" class="video-js vjs-default-skin" controls playsinline>
       <source src="YOUR_VIDEO_URL.mp4" type="video/mp4" />
     </video>
-
+    
     <script>
       var player = videojs('my-video');
       player.ima({
@@ -296,7 +286,7 @@ Once Inline Ads is enabled and your app is rebuilt, you serve ads from within yo
 Despia's native runtime automatically injects two CSS variables into every WebView:
 
 | Variable | What it measures |
-|---|---|
+| --- | --- |
 | `var(--safe-area-top)` | Status bar, notch, Dynamic Island |
 | `var(--safe-area-bottom)` | Home indicator, gesture bar |
 
@@ -314,10 +304,10 @@ The correct pattern is to add the safe area inset to the fixed or sticky contain
     export default function SafeAreaAdLayout({ children }) {
       return (
         <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-
+    
           {/* Top safe area spacer — pushes everything below the status bar / notch */}
           <div style={{ height: "var(--safe-area-top)", flexShrink: 0 }} />
-
+    
           {/* Navigation bar */}
           <nav style={{
             height: 56,
@@ -330,7 +320,7 @@ The correct pattern is to add the safe area inset to the fixed or sticky contain
           }}>
             My App
           </nav>
-
+    
           {/* Top banner — sits below nav, inside the safe area */}
           <div style={{ width: "100%", flexShrink: 0 }}>
             <ins
@@ -343,12 +333,12 @@ The correct pattern is to add the safe area inset to the fixed or sticky contain
             />
             <script>{`(adsbygoogle = window.adsbygoogle || []).push({});`}</script>
           </div>
-
+    
           {/* Scrollable content */}
           <main style={{ flex: 1, overflowY: "auto", padding: 16 }}>
             {children}
           </main>
-
+    
           {/* Bottom banner — sits above the home indicator */}
           <div style={{
             width: "100%",
@@ -367,7 +357,7 @@ The correct pattern is to add the safe area inset to the fixed or sticky contain
             />
             <script>{`(adsbygoogle = window.adsbygoogle || []).push({});`}</script>
           </div>
-
+    
         </div>
       );
     }
@@ -382,10 +372,10 @@ The correct pattern is to add the safe area inset to the fixed or sticky contain
         flex-direction: column;
         height: 100vh;
       }
-
+    
       .safe-top    { height: var(--safe-area-top); flex-shrink: 0; }
       .safe-bottom { height: var(--safe-area-bottom); }
-
+    
       nav {
         height: 56px;
         background: #1a1a2e;
@@ -395,9 +385,9 @@ The correct pattern is to add the safe area inset to the fixed or sticky contain
         padding: 0 16px;
         flex-shrink: 0;
       }
-
+    
       .ad-top    { width: 100%; flex-shrink: 0; }
-
+    
       .ad-bottom {
         width: 100%;
         background: #fff;
@@ -405,18 +395,18 @@ The correct pattern is to add the safe area inset to the fixed or sticky contain
         flex-shrink: 0;
         padding-bottom: var(--safe-area-bottom);
       }
-
+    
       main { flex: 1; overflow-y: auto; padding: 16px; }
     </style>
-
+    
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"></script>
-
+    
     <!-- Pushes everything below the status bar / notch -->
     <div class="safe-top"></div>
-
+    
     <nav>My App</nav>
-
+    
     <!-- Top banner — below nav, inside the safe area -->
     <div class="ad-top">
       <ins class="adsbygoogle"
@@ -427,11 +417,11 @@ The correct pattern is to add the safe area inset to the fixed or sticky contain
            data-full-width-responsive="true"></ins>
       <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
     </div>
-
+    
     <main>
       <h1>Your content</h1>
     </main>
-
+    
     <!-- Bottom banner — padding-bottom clears the home indicator -->
     <div class="ad-bottom">
       <ins class="adsbygoogle"
@@ -745,7 +735,7 @@ In a standard WebView-based app, the native navigation bar sits outside the WebV
     export default function App() {
       return (
         <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-
+    
           {/* Your web navigation bar */}
           <nav style={{
             height: 56,
@@ -758,7 +748,7 @@ In a standard WebView-based app, the native navigation bar sits outside the WebV
           }}>
             <span>My App</span>
           </nav>
-
+    
           {/* AdSense banner - sits directly under the nav, inside the WebView */}
           <div style={{ width: "100%", overflow: "hidden", flexShrink: 0 }}>
             <ins
@@ -773,13 +763,13 @@ In a standard WebView-based app, the native navigation bar sits outside the WebV
               {`(adsbygoogle = window.adsbygoogle || []).push({});`}
             </script>
           </div>
-
+    
           {/* Scrollable page content below the ad */}
           <main style={{ flex: 1, overflowY: "auto", padding: 16 }}>
             <h1>Welcome</h1>
             <p>Your page content here...</p>
           </main>
-
+    
         </div>
       );
     }
@@ -794,13 +784,13 @@ In a standard WebView-based app, the native navigation bar sits outside the WebV
       .ad-strip { width: 100%; overflow: hidden; flex-shrink: 0; }
       main { flex: 1; overflow-y: auto; padding: 16px; }
     </style>
-
+    
     <!-- AdSense script — place once in <head> -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"></script>
-
+    
     <nav>My App</nav>
-
+    
     <!-- Banner lives inside the WebView, flush under the nav -->
     <div class="ad-strip">
       <ins class="adsbygoogle"
@@ -811,7 +801,7 @@ In a standard WebView-based app, the native navigation bar sits outside the WebV
            data-full-width-responsive="true"></ins>
       <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
     </div>
-
+    
     <main>
       <h1>Welcome</h1>
       <p>Your page content here...</p>
@@ -1050,12 +1040,12 @@ A classic mobile ad placement. a persistent leaderboard banner anchored to the b
     export default function BottomBannerLayout({ children }) {
       return (
         <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
-
+    
           {/* Scrollable content takes all available space */}
           <main style={{ flex: 1, overflowY: "auto", padding: 16 }}>
             {children}
           </main>
-
+    
           {/* Sticky bottom banner - part of the web layout, not a native overlay */}
           <div style={{
             position: "sticky",
@@ -1077,7 +1067,7 @@ A classic mobile ad placement. a persistent leaderboard banner anchored to the b
               {`(adsbygoogle = window.adsbygoogle || []).push({});`}
             </script>
           </div>
-
+    
         </div>
       );
     }
@@ -1097,15 +1087,15 @@ A classic mobile ad placement. a persistent leaderboard banner anchored to the b
         flex-shrink: 0;
       }
     </style>
-
+    
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"></script>
-
+    
     <main>
       <h1>Your content</h1>
       <p>Lots of scrollable content...</p>
     </main>
-
+    
     <!-- Pinned to the bottom of the WebView viewport -->
     <div class="bottom-banner">
       <ins class="adsbygoogle"
@@ -1346,7 +1336,7 @@ Ads interspersed between list items or content cards. the same pattern used by I
       { id: 5, title: "Post five" },
       { id: 6, title: "Post six" },
     ];
-
+    
     function AdCard() {
       return (
         <div style={{ margin: "12px 0", background: "#f9f9f9", borderRadius: 8 }}>
@@ -1364,7 +1354,7 @@ Ads interspersed between list items or content cards. the same pattern used by I
         </div>
       );
     }
-
+    
     export default function Feed() {
       return (
         <div style={{ padding: 16 }}>
@@ -1372,7 +1362,7 @@ Ads interspersed between list items or content cards. the same pattern used by I
             <>
               {/* Insert an ad after every 3rd card */}
               {index > 0 && index % 3 === 0 && <AdCard key={`ad-${index}`} />}
-
+    
               <div key={post.id} style={{
                 padding: 16, marginBottom: 12,
                 border: "1px solid #e0e0e0", borderRadius: 8,
@@ -1390,17 +1380,17 @@ Ads interspersed between list items or content cards. the same pattern used by I
     ```html feed.html
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"></script>
-
+    
     <style>
       .card { padding: 16px; margin-bottom: 12px;
               border: 1px solid #e0e0e0; border-radius: 8px; }
       .ad-card { margin: 12px 0; background: #f9f9f9; border-radius: 8px; }
     </style>
-
+    
     <div class="card"><h3>Post one</h3></div>
     <div class="card"><h3>Post two</h3></div>
     <div class="card"><h3>Post three</h3></div>
-
+    
     <!-- Ad after every 3rd item -->
     <div class="ad-card">
       <ins class="adsbygoogle"
@@ -1411,7 +1401,7 @@ Ads interspersed between list items or content cards. the same pattern used by I
            data-ad-layout="in-article"></ins>
       <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
     </div>
-
+    
     <div class="card"><h3>Post four</h3></div>
     <div class="card"><h3>Post five</h3></div>
     <div class="card"><h3>Post six</h3></div>
@@ -1675,14 +1665,14 @@ A full-screen ad that appears between user actions. e.g., after finishing an art
   <Tab title="React">
     ```jsx InterstitialAd.jsx
     import { useState, useEffect } from "react";
-
+    
     function InterstitialAd({ onClose }) {
       const [countdown, setCountdown] = useState(5);
-
+    
       useEffect(() => {
         // Push the ad unit once the overlay mounts
         (window.adsbygoogle = window.adsbygoogle || []).push({});
-
+    
         const timer = setInterval(() => {
           setCountdown((c) => {
             if (c <= 1) { clearInterval(timer); return 0; }
@@ -1691,7 +1681,7 @@ A full-screen ad that appears between user actions. e.g., after finishing an art
         }, 1000);
         return () => clearInterval(timer);
       }, []);
-
+    
       return (
         <div style={{
           position: "fixed", inset: 0, zIndex: 9999,
@@ -1713,7 +1703,7 @@ A full-screen ad that appears between user actions. e.g., after finishing an art
               </span>
             )}
           </div>
-
+    
           {/* Full-screen ad unit inside the overlay */}
           <ins
             className="adsbygoogle"
@@ -1724,10 +1714,10 @@ A full-screen ad that appears between user actions. e.g., after finishing an art
         </div>
       );
     }
-
+    
     export default function App() {
       const [showAd, setShowAd] = useState(false);
-
+    
       return (
         <div style={{ padding: 16 }}>
           {showAd && <InterstitialAd onClose={() => setShowAd(false)} />}
@@ -1744,7 +1734,7 @@ A full-screen ad that appears between user actions. e.g., after finishing an art
     ```html interstitial.html
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"></script>
-
+    
     <style>
       #interstitial {
         display: none;
@@ -1761,27 +1751,27 @@ A full-screen ad that appears between user actions. e.g., after finishing an art
         display: none;
       }
     </style>
-
+    
     <button onclick="showInterstitial()">Next article →</button>
-
+    
     <!-- Full-screen overlay ad - entirely inside the WebView -->
     <div id="interstitial">
       <span id="countdown" style="color:#aaa;font-size:14px;position:absolute;top:20px;right:16px">
         Close in 5s
       </span>
       <button id="close-btn" onclick="closeInterstitial()">Close</button>
-
+    
       <ins class="adsbygoogle"
            style="display:block;width:320px;height:480px;"
            data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
            data-ad-slot="YYYYYYYYYY"></ins>
     </div>
-
+    
     <script>
       function showInterstitial() {
         document.getElementById("interstitial").classList.add("active");
         (adsbygoogle = window.adsbygoogle || []).push({});
-
+    
         let n = 5;
         const el = document.getElementById("countdown");
         const btn = document.getElementById("close-btn");
@@ -1796,7 +1786,7 @@ A full-screen ad that appears between user actions. e.g., after finishing an art
           }
         }, 1000);
       }
-
+    
       function closeInterstitial() {
         document.getElementById("interstitial").classList.remove("active");
       }
@@ -2103,24 +2093,24 @@ An ad unit that sits naturally between paragraphs of an article or long-form con
         </div>
       );
     }
-
+    
     export default function Article() {
       return (
         <article style={{ maxWidth: 680, margin: "0 auto", padding: 16 }}>
           <h1>The Future of Mobile Apps</h1>
-
+    
           <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
           Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-
+    
           <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco
           laboris nisi ut aliquip ex ea commodo consequat.</p>
-
+    
           {/* Ad sits naturally between paragraphs, scrolls with content */}
           <InArticleAd />
-
+    
           <p>Duis aute irure dolor in reprehenderit in voluptate velit esse
           cillum dolore eu fugiat nulla pariatur.</p>
-
+    
           <p>Excepteur sint occaecat cupidatat non proident, sunt in culpa
           qui officia deserunt mollit anim id est laborum.</p>
         </article>
@@ -2132,22 +2122,22 @@ An ad unit that sits naturally between paragraphs of an article or long-form con
     ```html article.html
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"></script>
-
+    
     <style>
       article { max-width: 680px; margin: 0 auto; padding: 16px; }
       .in-article-ad { margin: 24px 0; text-align: center; }
       .ad-label { font-size: 10px; color: #999; margin-bottom: 4px; }
     </style>
-
+    
     <article>
       <h1>The Future of Mobile Apps</h1>
-
+    
       <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.
       Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
-
+    
       <p>Ut enim ad minim veniam, quis nostrud exercitation ullamco
       laboris nisi ut aliquip ex ea commodo consequat.</p>
-
+    
       <!-- Mid-article ad - scrolls with content, loads on scroll into view -->
       <div class="in-article-ad">
         <p class="ad-label">Advertisement</p>
@@ -2159,7 +2149,7 @@ An ad unit that sits naturally between paragraphs of an article or long-form con
              data-ad-layout="in-article"></ins>
         <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
       </div>
-
+    
       <p>Duis aute irure dolor in reprehenderit in voluptate velit esse
       cillum dolore eu fugiat nulla pariatur.</p>
     </article>
@@ -2412,19 +2402,19 @@ automatically]
     style G fill:#e8f0fe,stroke:#4285f4,color:#000
 ```
 
-A video ad that plays before your main content video. the same pattern used by YouTube. Using Video.js + the IMA plugin, the ad plays inline within your web UI, the user can skip after 5 seconds (if configured), and then your content video starts automatically.
+A video ad that plays before your main content video. the same pattern used by YouTube. Using Video.js \+ the IMA plugin, the ad plays inline within your web UI, the user can skip after 5 seconds (if configured), and then your content video starts automatically.
 
 <Tabs>
   <Tab title="React">
     ```jsx VideoWithPreroll.jsx
     import { useEffect, useRef } from "react";
-
+    
     export default function VideoWithPreroll() {
       const videoRef = useRef(null);
-
+    
       useEffect(() => {
         if (!videoRef.current) return;
-
+    
         // videojs and videojs-ima are loaded via <script> tags in your HTML <head>
         const player = window.videojs(videoRef.current, {
           controls: true,
@@ -2432,20 +2422,20 @@ A video ad that plays before your main content video. the same pattern used by Y
           muted: true,         // Required for autoplay on most browsers
           playsinline: true,   // Required for inline playback in iOS WebView
         });
-
+    
         // Attach the IMA plugin - pre-roll ad plays before content
         player.ima({
           adTagUrl:
             "https://pubads.g.doubleclick.net/gampad/ads?YOUR_AD_TAG_PARAMS",
         });
-
+    
         return () => player.dispose();
       }, []);
-
+    
       return (
         <div style={{ padding: 16 }}>
           <h2>Watch: Product Overview</h2>
-
+    
           {/* Video.js + IMA handles the pre-roll ad automatically */}
           <div data-vjs-player>
             <video
@@ -2472,15 +2462,15 @@ A video ad that plays before your main content video. the same pattern used by Y
     <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-contrib-ads/7.5.2/videojs.ads.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/videojs-ima/2.4.0/videojs.ima.css" rel="stylesheet" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/videojs-ima/2.4.0/videojs.ima.min.js"></script>
-
+    
     <style>
       .video-wrap { padding: 16px; }
       video { width: 100%; border-radius: 8px; }
     </style>
-
+    
     <div class="video-wrap">
       <h2>Watch: Product Overview</h2>
-
+    
       <!-- Pre-roll ad plays inline before the content video -->
       <video
         id="content-video"
@@ -2493,10 +2483,10 @@ A video ad that plays before your main content video. the same pattern used by Y
         <source src="https://example.com/your-content-video.mp4" type="video/mp4" />
       </video>
     </div>
-
+    
     <script>
       var player = videojs("content-video");
-
+    
       player.ima({
         adTagUrl:
           "https://pubads.g.doubleclick.net/gampad/ads?YOUR_AD_TAG_PARAMS",
@@ -2776,16 +2766,16 @@ Show an ad in exchange for unlocking gated content. a premium article, extra liv
   <Tab title="React">
     ```jsx RewardedContent.jsx
     import { useState } from "react";
-
+    
     function AdGate({ onUnlock }) {
       const [watching, setWatching] = useState(false);
       const [countdown, setCountdown] = useState(null);
-
+    
       function startAd() {
         setWatching(true);
         // Push the ad unit
         (window.adsbygoogle = window.adsbygoogle || []).push({});
-
+    
         // Simulate a 10s ad view then unlock
         let n = 10;
         setCountdown(n);
@@ -2795,7 +2785,7 @@ Show an ad in exchange for unlocking gated content. a premium article, extra liv
           if (n <= 0) { clearInterval(timer); onUnlock(); }
         }, 1000);
       }
-
+    
       return (
         <div style={{
           border: "2px dashed #ccc", borderRadius: 12,
@@ -2803,7 +2793,7 @@ Show an ad in exchange for unlocking gated content. a premium article, extra liv
         }}>
           <p style={{ fontSize: 18, fontWeight: 600 }}>Premium content (locked)</p>
           <p style={{ color: "#666" }}>Watch a short ad to read this article for free.</p>
-
+    
           {!watching ? (
             <button onClick={startAd} style={{
               background: "#4CAF50", color: "#fff",
@@ -2828,15 +2818,15 @@ Show an ad in exchange for unlocking gated content. a premium article, extra liv
         </div>
       );
     }
-
+    
     export default function PremiumArticle() {
       const [unlocked, setUnlocked] = useState(false);
-
+    
       return (
         <article style={{ maxWidth: 680, margin: "0 auto", padding: 16 }}>
           <h1>The Secret to 10x Growth</h1>
           <p>Here's the introduction everyone can read...</p>
-
+    
           {/* The rest of the article is gated behind the ad */}
           {unlocked ? (
             <p>Here is all the premium content, now fully visible after watching the ad.</p>
@@ -2852,7 +2842,7 @@ Show an ad in exchange for unlocking gated content. a premium article, extra liv
     ```html rewarded.html
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"></script>
-
+    
     <style>
       article { max-width: 680px; margin: 0 auto; padding: 16px; }
       #ad-gate {
@@ -2867,17 +2857,17 @@ Show an ad in exchange for unlocking gated content. a premium article, extra liv
         font-size: 16px; cursor: pointer;
       }
     </style>
-
+    
     <article>
       <h1>The Secret to 10x Growth</h1>
       <p>Here's the introduction everyone can read...</p>
-
+    
       <!-- Ad gate - entirely inside the WebView -->
       <div id="ad-gate">
         <p style="font-size:18px;font-weight:600">Premium content (locked)</p>
         <p style="color:#666">Watch a short ad to read this article for free.</p>
         <button id="unlock-btn" onclick="startAd()">Watch ad to unlock</button>
-
+    
         <ins id="ad-unit"
              class="adsbygoogle"
              style="display:block"
@@ -2885,19 +2875,19 @@ Show an ad in exchange for unlocking gated content. a premium article, extra liv
              data-ad-slot="YYYYYYYYYY"></ins>
         <p id="countdown-label" style="color:#666;display:none"></p>
       </div>
-
+    
       <div id="premium-content">
         <p>Here is all the premium content, now fully visible after watching the ad.</p>
       </div>
     </article>
-
+    
     <script>
       function startAd() {
         document.getElementById("unlock-btn").style.display = "none";
         const adUnit = document.getElementById("ad-unit");
         adUnit.style.display = "block";
         (adsbygoogle = window.adsbygoogle || []).push({});
-
+    
         let n = 10;
         const label = document.getElementById("countdown-label");
         label.style.display = "block";
@@ -2913,7 +2903,7 @@ Show an ad in exchange for unlocking gated content. a premium article, extra liv
           }
         }, 1000);
       }
-
+    
       function unlock() {
         document.getElementById("ad-gate").style.display = "none";
         document.getElementById("premium-content").style.display = "block";
@@ -3239,19 +3229,19 @@ On tablet-sized screens or landscape layouts, render a persistent ad in a side r
         </aside>
       );
     }
-
+    
     export default function TabletLayout({ children }) {
       return (
         <div style={{ display: "flex", padding: 16, maxWidth: 960, margin: "0 auto" }}>
-
+    
           {/* Main content */}
           <main style={{ flex: 1, minWidth: 0 }}>
             {children}
           </main>
-
+    
           {/* Sticky sidebar ad - only show on wider screens */}
           <SidebarAd />
-
+    
         </div>
       );
     }
@@ -3261,7 +3251,7 @@ On tablet-sized screens or landscape layouts, render a persistent ad in a side r
     ```html sidebar.html
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"
         data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"></script>
-
+    
     <style>
       .layout { display: flex; padding: 16px; max-width: 960px; margin: 0 auto; }
       main { flex: 1; min-width: 0; }
@@ -3275,13 +3265,13 @@ On tablet-sized screens or landscape layouts, render a persistent ad in a side r
       }
       .sidebar-ad .label { font-size: 10px; color: #999; margin-bottom: 4px; }
     </style>
-
+    
     <div class="layout">
       <main>
         <h1>Main content</h1>
         <p>Your article or app content here. It scrolls while the ad stays fixed in the rail.</p>
       </main>
-
+    
       <!-- Sticky sidebar ad - inside the WebView, no native layer needed -->
       <div class="sidebar-ad">
         <p class="label">Ad</p>
@@ -3595,7 +3585,7 @@ Tapping the link loads the test page inside your app's WebView, which means the 
 A green status bar for each item confirms a successful integration.
 
 | Test | What it verifies |
-|------|-----------------|
+| --- | --- |
 | WebView connected to GMA SDK | Core SDK registration is successful |
 | JavaScript enabled | JS is enabled in the WebView |
 | DOM storage enabled | `localStorage` is available |
@@ -3660,18 +3650,23 @@ If you need a unified consent flow across your native app and web content:
   <Card title="AdSense setup" icon="circle-dollar-to-slot" href="https://support.google.com/adsense/answer/9274634">
     Official AdSense code setup guide for web content.
   </Card>
+
   <Card title="Google Publisher Tag" icon="tag" href="https://support.google.com/admanager/answer/181073">
     GPT reference for Ad Manager publishers.
   </Card>
+
   <Card title="IMA for HTML5" icon="film" href="https://support.google.com/adsense/answer/6391192">
     Interactive Media Ads SDK for HTML5 video.
   </Card>
+
   <Card title="videojs-ima plugin" icon="github" href="https://github.com/googleads/videojs-ima">
-    Open-source plugin for IMA + Video.js integration.
+    Open-source plugin for IMA \+ Video.js integration.
   </Card>
+
   <Card title="AdMob WebView API. iOS" icon="apple" href="https://developers.google.com/admob/ios/browser/webview/api-for-ads">
     Google's official iOS WebView API for Ads docs.
   </Card>
+
   <Card title="AdMob WebView API. Android" icon="android" href="https://developers.google.com/admob/android/browser/webview/api-for-ads">
     Google's official Android WebView API for Ads docs.
   </Card>
