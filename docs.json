@@ -12,7 +12,6 @@
     "pages": [
       "introduction",
       "mcp-server",
-      "changelog",
       {
         "group": "Deployment",
         "icon": "rocket",
