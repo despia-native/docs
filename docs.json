@@ -39,7 +39,8 @@
         "group": "Local Server",
         "icon": "globe",
         "pages": [
-          "local-server/how-it-works"
+          "local-server/introduction",
+          "local-server/reference"
         ]
       },
       {
