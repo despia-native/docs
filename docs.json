@@ -12,7 +12,7 @@
     "pages": [
       "introduction",
       "mcp-server",
-      "changelog",
+      "chnagelog",
       {
         "group": "Deployment",
         "icon": "rocket",
