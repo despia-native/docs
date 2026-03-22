@@ -166,7 +166,6 @@
         "icon": "bolt-lightning",
         "expanded": false,
         "pages": [
-          "native-features/ota-versioning",
           "native-features/user-agent",
           "native-features/onesignal",
           "native-features/deeplinking",
