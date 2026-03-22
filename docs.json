@@ -48,7 +48,7 @@
         "icon": "box-open",
         "pages": [
           "how-it-works",
-          "refernce"
+          "reference"
         ]
       },
       {
@@ -310,15 +310,15 @@
   },
   "contextual": {
     "options": [
-     "copy",
-     "view",
-     "chatgpt",
-     "claude",
-     "perplexity",
-     "mcp",
-     "cursor",
-     "vscode"
-   ]
+      "copy",
+      "view",
+      "chatgpt",
+      "claude",
+      "perplexity",
+      "mcp",
+      "cursor",
+      "vscode"
+    ]
   },
   "footer": {
     "socials": {
