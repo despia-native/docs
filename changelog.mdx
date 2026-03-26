@@ -4,46 +4,6 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
-<Update label="March 26, 2026" description="Inline Ads - AdMob in your web UI, generally available">
-  ## Inline Ads
-
-  Despia now supports AdMob ads rendered directly inside your web UI as real DOM elements, not as native overlays above or below the WebView.
-
-  This works by connecting Google's Mobile Ads SDK to the WebView (Android) or WKWebView (iOS) that Despia bundles inside your app. When your web content loads ad tags via AdSense, Google Publisher Tag, or IMA for HTML5, the SDK bridges app-level signals to improve ad relevance, fill rates, and revenue.
-
-  **What ships today:**
-
-  - **On-device SDK bridge.** `MobileAds.registerWebView()` (Android) and `MobileAds.shared.register()` (iOS) are called automatically during app startup. No JavaScript call is needed to activate the bridge.
-  - **AdSense support.** Place standard `<ins>` ad units anywhere in your web UI. The SDK bridges app signals automatically.
-  - **Google Publisher Tag support.** GPT slots work without modification once the WebView is registered.
-  - **IMA for HTML5 video ads.** Pre-roll, mid-roll, and post-roll video ads play inline with no fullscreen takeover. Autoplay is supported on both Android and iOS without a user gesture.
-  - **Safe area CSS variables.** `var(--safe-area-top)` and `var(--safe-area-bottom)` are injected automatically into every WebView, so top and bottom ad banners clear the notch, status bar, and home indicator.
-  - **100% no-code setup.** Enable AdMob, paste your AdMob App ID, and rebuild from the Despia dashboard. No native code required.
-
-  **Store compliance.** The SDK registers the WebView for ad signals only. No native code or executables are downloaded after submission. Compliant with Apple App Store Guideline 3.3.2 and the Google Play Malicious Behavior Policy.
-
-  A rebuild is required after enabling Inline Ads in **Your App - Settings - AdMob**. The SDK registration cannot be applied over-the-air.
-
-  **Documentation:** [Inline Ads](https://setup.despia.com/native-features/admob/inline-ads)
-</Update>
-
-<Update label="March 26, 2026" description="Share into app - cold start white screen fix">
-  ## Share into app on cold start
-
-  Share-into-app flows on cold start now navigate to the correct root screen instead of showing a white screen.
-
-  Previously, when a user shared content into the app while it was fully closed, the share handler fired before the root navigation tree was mounted and function injection was ready. The result was a blank white screen that required a force-quit and retry to recover from.
-
-  The fix holds the incoming share event until the root page is fully initialised and function injection is available, then delivers the payload and navigates correctly.
-
-  **What changes:**
-
-  - **Cold start share navigation.** The app now boots to a valid root screen when launched via a share sheet interaction. The share payload is delivered after initialisation completes.
-  - **Function injection timing.** The share handler now waits for function injection to be ready before executing, eliminating the race condition that caused the blank screen.
-
-  No dashboard configuration changes or integration code changes are required. The fix applies automatically to new deployments.
-</Update>
-
 <Update label="March 22, 2026" description="Local Server - generally available in beta">
   ## Local server
 
@@ -66,5 +26,5 @@ icon: "clock-rotate-left"
   **Packages:**
 
   - [`@despia/local`](https://www.npmjs.com/package/@despia/local) — build plugin
-  - `despia-native` — native SDK and JavaScript bridge
+  - [`despia-native`](https://www.npmjs.com/package/despia-native) — native SDK and JavaScript bridge
 </Update>
