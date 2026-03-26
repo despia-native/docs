@@ -3,6 +3,22 @@ title: "Changelog"
 description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
+<Update label="March 26, 2026" description="Local CDN - new query method to fetch all cached items">
+  ## Local CDN - query all cached files
+
+  A new `localcdn://query` method is available on the Local CDN API, returning every cached file in a single call without requiring individual IDs.
+
+  Previously, retrieving cached file metadata required passing a known list of index IDs to `localcdn://read`. There was no way to get a full inventory of the cache without tracking IDs separately in application state.
+
+  **What ships today:**
+
+  - **localcdn://query.** Calling `await despia('localcdn://query', ['cdnItems'])` returns the full `cdnItems` array containing every file currently in the local cache, across all folders.
+  - **Same response schema.** Each item in the returned array follows the existing response schema - `index`, `index_full`, `local_cdn`, `local_path`, `cdn`, `size`, `status`, and `created_at` - identical to `localcdn://read` output.
+
+  Full reference documentation is available on the [Local CDN reference page](/local-cdn/reference).
+
+  No dashboard configuration changes or rebuild steps are required. Update `despia-native` to the latest version to access the new method.
+</Update>
 
 <Update label="March 22, 2026" description="Local Server - generally available in beta">
   ## Local server
