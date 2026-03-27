@@ -139,25 +139,18 @@
         ]
       },
       {
-        "group": "Store Rejections",
-        "icon": "brake-warning",
+        "group": "Analytics",
+        "icon": "chart-mixed",
         "pages": [
-          "store-rejections/introduction",
           {
-            "group": "Common Rejection",
-            "icon": "message-dots",
+            "group": "AppsFlyer",
+            "icon": "chart-pie-simple",
             "pages": [
-              "store-rejections/common-rejection/minimum-functionality",
-              "store-rejections/common-rejection/non-mobile-design",
-              "store-rejections/common-rejection/in-app-purchases",
-              "store-rejections/common-rejection/deceptive-paywalls",
-              "store-rejections/common-rejection/privacy-policy",
-              "store-rejections/common-rejection/tracking-transparency",
-              "store-rejections/common-rejection/ai-processing",
-              "store-rejections/common-rejection/spam-and-copies",
-              "store-rejections/common-rejection/social-login-options",
-              "store-rejections/common-rejection/user-specific-data",
-              "store-rejections/common-rejection/blank-screen-redirects"
+              "analytics/appsflyer/introduction",
+              "analytics/appsflyer/attribution",
+              "analytics/appsflyer/deeplinking",
+              "analytics/appsflyer/campaigns",
+              "analytics/appsflyer/events"
             ]
           }
         ]
@@ -190,6 +183,7 @@
             "group": "AdMob",
             "icon": "clapperboard-play",
             "pages": [
+              "native-features/admob/Iinterstitial",
               "native-features/admob/inline-ads",
               "native-features/admob/rewarded-ads"
             ]
@@ -225,6 +219,30 @@
             ]
           },
           "native-features/notification-sounds"
+        ]
+      },
+      {
+        "group": "Store Rejections",
+        "icon": "brake-warning",
+        "pages": [
+          "store-rejections/introduction",
+          {
+            "group": "Common Rejection",
+            "icon": "message-dots",
+            "pages": [
+              "store-rejections/common-rejection/minimum-functionality",
+              "store-rejections/common-rejection/non-mobile-design",
+              "store-rejections/common-rejection/in-app-purchases",
+              "store-rejections/common-rejection/deceptive-paywalls",
+              "store-rejections/common-rejection/privacy-policy",
+              "store-rejections/common-rejection/tracking-transparency",
+              "store-rejections/common-rejection/ai-processing",
+              "store-rejections/common-rejection/spam-and-copies",
+              "store-rejections/common-rejection/social-login-options",
+              "store-rejections/common-rejection/user-specific-data",
+              "store-rejections/common-rejection/blank-screen-redirects"
+            ]
+          }
         ]
       },
       {

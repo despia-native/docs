@@ -1,0 +1,171 @@
+---
+description: "Track installs, attribution, and in-app events across TikTok, Meta, Google, and organic channels on iOS and Android using the Despia AppsFlyer bridge."
+icon: "chart-mixed"
+title: "Introduction"
+---
+
+<Danger>
+  **This feature is in our public beta - please email [appsflyer@despia.com](mailto:appsflyer@despia.com) to join our beta group!**
+</Danger>
+
+AppsFlyer attribution, deep linking, and event tracking. Fully bridged to your web layer on both iOS and Android. Know exactly where every user came from, route them to the right page on install, and send conversion events back to Meta and TikTok without writing a line of native code.
+
+<Info>
+  AppsFlyer must be enabled in **Despia \> App \> Settings \> Integrations \> AppsFlyer** and your AppsFlyer dev key configured before any data will flow.
+</Info>
+
+---
+
+## Installation
+
+<Tabs>
+  <Tab title="Bundle">
+    <CodeGroup>
+
+    ```bash npm
+    npm install despia-native
+    ```
+
+    ```bash pnpm
+    pnpm add despia-native
+    ```
+
+    ```bash yarn
+    yarn add despia-native
+    ```
+
+    </CodeGroup>
+
+    ```javascript
+    import despia from 'despia-native';
+    ```
+  </Tab>
+  <Tab title="CDN">
+    <CodeGroup>
+
+    ```html UMD
+    <script src="https://cdn.jsdelivr.net/npm/despia-native/index.min.js"></script>
+    ```
+
+    ```html ESM
+    <script type="module">
+        import despia from 'https://cdn.jsdelivr.net/npm/despia-native/+esm'
+    </script>
+    ```
+
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+---
+
+## How it works
+
+Despia activates the native AppsFlyer SDK at install time and caches attribution data locally on the device. On every subsequent page load, three variables are injected automatically into your web layer with no setup, no requests, no waiting. Works identically on iOS and Android.
+
+```javascript
+despia.appsFlyerAttribution  // full attribution object
+despia.appsFlyerReferrer     // e.g. "tiktok_ad", "facebook_organic", "organic"
+despia.appsFlyerUID          // unique AppsFlyer user ID
+```
+
+Events fired from your web layer using `despia("appsflyer://...")` are intercepted natively and forwarded to AppsFlyer in real time. AppsFlyer then postbacks to your connected partners (Meta, TikTok, Google) based on your dashboard configuration. Emails and phone numbers are hashed with SHA256 automatically before transmission.
+
+<Note>
+  The native AppsFlyer iOS and Android SDKs are integrated and managed fully automatically by Despia. You do not need to install, configure, or update either SDK yourself. For reference only: [iOS SDK](https://dev.appsflyer.com/hc/docs/ios-sdk) · [Android SDK](https://dev.appsflyer.com/hc/docs/android-sdk)
+</Note>
+
+<CardGroup cols={2}>
+  <Card title="Attribution" icon="bullseye-arrow" href="/analytics/appsflyer/attribution">
+    Read where every user came from across TikTok, Meta, Google, affiliate, or organic.
+  </Card>
+
+  <Card title="Deep Linking" icon="link" href="/analytics/appsflyer/deep-linking">
+    Route users to specific pages inside the app from ad campaigns.
+  </Card>
+
+  <Card title="Ad Campaigns" icon="rectangle-ad" href="/analytics/appsflyer/ad-campaigns">
+    Track ad revenue per platform and measure ROAS per acquisition channel.
+  </Card>
+
+  <Card title="Events" icon="bolt" href="/analytics/appsflyer/events">
+    Log standard and custom in-app events back to Meta and TikTok.
+  </Card>
+</CardGroup>
+
+---
+
+## User Identification
+
+Call `set_user_id` as soon as the user logs in. This ties all subsequent events to your internal user ID across AppsFlyer, Meta, and TikTok dashboards.
+
+```javascript
+const userId = "user_123"
+despia("appsflyer://set_user_id?customer_user_id=" + encodeURIComponent(userId))
+```
+
+Pass email and phone for audience matching. Both are hashed with SHA256 automatically before being sent. You never transmit raw PII.
+
+```javascript
+const email = "user@example.com"
+despia("appsflyer://set_email?email=" + encodeURIComponent(email))
+
+const phone = "+15550001234"
+despia("appsflyer://set_phone?phone=" + encodeURIComponent(phone))
+```
+
+If you need the AppsFlyer UID immediately in the same flow, use the await pattern:
+
+```javascript
+const data = await despia("appsflyer://get_uid", ["appsFlyerUID"])
+const uid = data.appsFlyerUID
+// use uid immediately, e.g. send to your backend
+```
+
+---
+
+## Consent
+
+Call `set_consent` based on the user's cookie banner choice. Required for GDPR compliance. Controls whether AppsFlyer tracks the user at all.
+
+<Tabs>
+  <Tab title="User Accepted">
+    ```javascript
+    const isGdpr = true
+    const hasConsent = true
+    despia("appsflyer://set_consent?is_gdpr=" + encodeURIComponent(isGdpr) + "&has_consent=" + encodeURIComponent(hasConsent))
+    ```
+  </Tab>
+  <Tab title="User Declined">
+    ```javascript
+    const isGdpr = true
+    const hasConsent = false
+    despia("appsflyer://set_consent?is_gdpr=" + encodeURIComponent(isGdpr) + "&has_consent=" + encodeURIComponent(hasConsent))
+    ```
+  </Tab>
+  <Tab title="Non-GDPR Region">
+    ```javascript
+    const isGdpr = false
+    const hasConsent = true
+    despia("appsflyer://set_consent?is_gdpr=" + encodeURIComponent(isGdpr) + "&has_consent=" + encodeURIComponent(hasConsent))
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card title="NPM Package" icon="npm" href="https://www.npmjs.com/package/despia-native">
+    Install the Despia SDK
+  </Card>
+
+  <Card title="AF Events Reference" icon="chart-bar" href="https://support.appsflyer.com/hc/en-us/articles/4410481112081">
+    Full list of standard AppsFlyer events
+  </Card>
+
+  <Card title="Support" icon="envelope" href="mailto:support@despia.com">
+    Contact our support team
+  </Card>
+</CardGroup>

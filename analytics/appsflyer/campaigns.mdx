@@ -1,0 +1,164 @@
+---
+title: "Campaigns"
+description: "Connect TikTok and Meta as integrated partners, create custom attribution links, and measure which campaigns drive the most valuable users."
+icon: "rectangle-ad"
+---
+
+## Installation
+
+<Tabs>
+  <Tab title="Bundle">
+    <CodeGroup>
+
+    ```bash npm
+    npm install despia-native
+    ```
+
+    ```bash pnpm
+    pnpm add despia-native
+    ```
+
+    ```bash yarn
+    yarn add despia-native
+    ```
+
+    </CodeGroup>
+
+    ```javascript
+    import despia from 'despia-native';
+    ```
+  </Tab>
+  <Tab title="CDN">
+    <CodeGroup>
+
+    ```html UMD
+    <script src="https://cdn.jsdelivr.net/npm/despia-native/index.min.js"></script>
+    ```
+
+    ```html ESM
+    <script type="module">
+        import despia from 'https://cdn.jsdelivr.net/npm/despia-native/+esm'
+    </script>
+    ```
+
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+Connect your TikTok and Meta ad accounts to AppsFlyer to get accurate install attribution, event postbacks, and ROAS reporting per campaign. Combined with conversion events from the [Events](/analytics/appsflyer/events) page, this gives you a full picture of which campaigns drive the most valuable users, not just the most installs.
+
+---
+
+## Connect Partners in AppsFlyer Dashboard
+
+For install attribution and event postbacks to flow to Meta and TikTok you need to connect them as integrated partners.
+
+<Steps>
+  <Step title="Open Integrated Partners">
+    In your AppsFlyer dashboard, go to **Configuration > Integrated Partners**
+  </Step>
+  <Step title="Connect Meta">
+    Find **Meta ads**, click **Edit**, enable the integration, and enter your Meta App ID
+  </Step>
+  <Step title="Map conversion events">
+    Under **In-App Events**, map `af_purchase`, `af_subscribe`, and any other conversion events you want Meta to optimize for
+  </Step>
+  <Step title="Repeat for TikTok">
+    Find **TikTok for Business** and repeat the same process
+  </Step>
+</Steps>
+
+<Note>
+  Set event postbacks to **All media sources including organic** for the Install event. This ensures Meta and TikTok receive data for all installs, not just their own attributed ones.
+</Note>
+
+---
+
+## Custom Attribution Links
+
+Create campaign-specific OneLink URLs to track performance per campaign, ad set, or creative.
+
+<Steps>
+  <Step title="Open OneLink Management">
+    Go to **Engage > OneLink Management** in your AppsFlyer dashboard
+  </Step>
+  <Step title="Create a link">
+    Select your OneLink template and click **Add Link**
+  </Step>
+  <Step title="Configure the link">
+    Set the media source, campaign name, and any custom parameters like `deep_link_value` or `page_id`
+  </Step>
+  <Step title="Use in your ads">
+    Paste the generated link directly into your TikTok or Meta ad creative as the destination URL
+  </Step>
+</Steps>
+
+```
+https://yourapp.onelink.me/xxxx?pid=tiktokads_int&c=summer_2025&deep_link_value=product&page_id=sneaker_42
+```
+
+---
+
+## Ad Revenue Tracking
+
+<Info>
+  Ad revenue tracking via `despia("appsflyer://log_ad_revenue?...")` is coming soon. This will allow you to report impression-level revenue from Meta, TikTok, and AdMob back to AppsFlyer to calculate LTV and ROAS per acquisition channel. Stay tuned.
+</Info>
+
+---
+
+## Web-to-App Attribution
+
+If users discover your app through your website before installing, add the AppsFlyer Smart Banner to stitch the web visit to the app install. Without this, users who visit your site and later install the app will appear as organic in AppsFlyer.
+
+Add this to your website `<head>`:
+
+```html
+<script>
+!function(t,e,n,s,a,c,i,o,p){t.AppsFlyerSdkObject=a,t.AF=t.AF||function(){
+(t.AF.q=t.AF.q||[]).push([Date.now()].concat(Array.prototype.slice.call(arguments)))},
+t.AF.id=t.AF.id||i,t.AF.plugins={},o=e.createElement(n),p=e.getElementsByTagName(n)[0],o.async=1,
+o.src="https://websdk.appsflyersdk.com?"+(c.length>0?"st="+c.split(",").sort().join(",")+"&":"")+(i.length>0?"af_id="+i:""),
+p.parentNode.insertBefore(o,p)}(window,document,"script",0,"AF","banners",{banners:{key:"YOUR_WEB_KEY"}});
+AF('banners', 'showBanner');
+</script>
+```
+
+<Warning>
+  Replace `YOUR_WEB_KEY` with the web key from your AppsFlyer dashboard under **Settings > Brand Bundles > Web dev key**. This is a web-only change. No native code changes are required.
+</Warning>
+
+---
+
+## Frequently Asked Questions
+
+<AccordionGroup>
+  <Accordion title="Why use AppsFlyer instead of Meta and TikTok SDKs directly?">
+    If you install Meta SDK and TikTok SDK separately, each platform only sees its own data and will overclaim credit for the same install. AppsFlyer acts as a neutral middleman. It determines which channel actually gets credit using last-click attribution and reports back to each platform what it earned. Your ROAS numbers become trustworthy.
+  </Accordion>
+  <Accordion title="Will Meta and TikTok numbers always match AppsFlyer?">
+    No, and that is expected. Meta and TikTok use their own attribution models which typically show higher install counts than AppsFlyer. AppsFlyer's numbers are more accurate for your own budget decisions. Use AppsFlyer to decide where to spend, use Meta and TikTok dashboards to manage creatives.
+  </Accordion>
+  <Accordion title="What events should I map for TikTok and Meta optimization?">
+    Map `af_complete_registration`, `af_purchase`, and `af_subscribe` at minimum. These give the ad algorithms enough signal to find users likely to convert. If you only map installs, the algorithms optimize for install volume which rarely correlates with revenue.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card icon="npm" href="https://www.npmjs.com/package/despia-native" title="NPM Package">
+    Install the Despia SDK
+  </Card>
+  <Card icon="code" href="https://dev.appsflyer.com/hc/docs/dl_smart_banner_v2" title="Smart Banners Docs">
+    AppsFlyer Smart Banner SDK reference
+  </Card>
+  <Card icon="chart-bar" href="https://support.appsflyer.com/hc/en-us/articles/4410480904081" title="Meta Ads Integration">
+    Meta ads event mapping guide
+  </Card>
+  <Card icon="envelope" href="mailto:support@despia.com" title="Support">
+    Contact our support team
+  </Card>
+</CardGroup>
