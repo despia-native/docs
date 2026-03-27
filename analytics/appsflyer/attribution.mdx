@@ -1,0 +1,342 @@
+---
+title: "Attribution"
+description: "Read where every user came from across TikTok, Meta, Google, affiliate, or organic using data injected by Despia on every page load."
+icon: "bullseye-arrow"
+---
+
+## Installation
+
+<Tabs>
+  <Tab title="Bundle">
+    <CodeGroup>
+
+    ```bash npm
+    npm install despia-native
+    ```
+
+    ```bash pnpm
+    pnpm add despia-native
+    ```
+
+    ```bash yarn
+    yarn add despia-native
+    ```
+
+    </CodeGroup>
+
+    ```javascript
+    import despia from 'despia-native';
+    ```
+  </Tab>
+  <Tab title="CDN">
+    <CodeGroup>
+
+    ```html UMD
+    <script src="https://cdn.jsdelivr.net/npm/despia-native/index.min.js"></script>
+    ```
+
+    ```html ESM
+    <script type="module">
+        import despia from 'https://cdn.jsdelivr.net/npm/despia-native/+esm'
+    </script>
+    ```
+
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+Attribution data is injected automatically into your web layer on every page load. No requests, no waiting. The data is captured at install time by the native AppsFlyer SDK on both iOS and Android, cached on-device, and available immediately on every subsequent launch even after app restarts.
+
+<Info>
+  Attribution data survives app restarts. It is cached natively and available on every page load without any additional setup or API calls.
+</Info>
+
+---
+
+## Attribution Variables
+
+Three variables are injected by native on every page load. They are read-only.
+
+```javascript
+despia.appsFlyerAttribution  // full attribution object
+despia.appsFlyerReferrer     // normalized source string
+despia.appsFlyerUID          // unique AppsFlyer user ID
+```
+
+<Tip>
+  Use `despia.appsFlyerReferrer` for quick source checks. Use `despia.appsFlyerAttribution` when you need full campaign details like ad set, campaign ID, or UTM parameters.
+</Tip>
+
+---
+
+## appsFlyerReferrer
+
+A normalized string identifying the traffic source. Built automatically from raw attribution data. No parsing required.
+
+<Accordion title="All possible values">
+
+| Value | Meaning |
+|---|---|
+| `tiktok_ad` | Paid TikTok campaign |
+| `tiktok_organic` | Organic TikTok traffic |
+| `facebook_ad` | Paid Meta / Facebook / Instagram campaign |
+| `facebook_organic` | Organic Meta traffic |
+| `google_ad` | Paid Google / AdMob campaign |
+| `google_organic` | Organic Google traffic |
+| `snapchat_ad` | Paid Snapchat campaign |
+| `twitter_ad` | Paid Twitter / X campaign |
+| `affiliate_[code]` | Affiliate traffic, suffixed with the affiliate code |
+| `organic` | No identifiable media source |
+| raw `utm_source` | Any other tracked source |
+
+</Accordion>
+
+```javascript
+if (despia.appsFlyerReferrer === "tiktok_ad") {
+    // show TikTok-specific onboarding
+}
+
+if (despia.appsFlyerReferrer === "organic") {
+    // show default onboarding
+}
+```
+
+<Info>
+  If a `deep_link_value` is present in the attribution data, it is used as the referrer directly before falling back to the media source logic. If an `affiliate_code` is present, the referrer becomes `affiliate_[code]`.
+</Info>
+
+---
+
+## appsFlyerAttribution
+
+The full attribution object containing all campaign, ad set, deep link, affiliate, and cost data from AppsFlyer.
+
+<ResponseField name="media_source" type="string">
+  Raw media source from AppsFlyer, e.g. `"tiktokads_int"`, `"facebook"`, `"googleadwords_int"`
+</ResponseField>
+
+<ResponseField name="campaign" type="string">
+  Campaign name set in the ad platform
+</ResponseField>
+
+<ResponseField name="campaign_id" type="string">
+  Campaign ID
+</ResponseField>
+
+<ResponseField name="ad_set" type="string">
+  Ad set name
+</ResponseField>
+
+<ResponseField name="ad_set_id" type="string">
+  Ad set ID
+</ResponseField>
+
+<ResponseField name="ad" type="string">
+  Individual ad name
+</ResponseField>
+
+<ResponseField name="ad_id" type="string">
+  Individual ad ID
+</ResponseField>
+
+<ResponseField name="channel" type="string">
+  Channel within the media source
+</ResponseField>
+
+<ResponseField name="click_id" type="string">
+  Click ID from the ad network
+</ResponseField>
+
+<ResponseField name="site_id" type="string">
+  Publisher site ID
+</ResponseField>
+
+<ResponseField name="utm_source" type="string">
+  UTM source parameter from the campaign link
+</ResponseField>
+
+<ResponseField name="utm_medium" type="string">
+  UTM medium parameter
+</ResponseField>
+
+<ResponseField name="utm_campaign" type="string">
+  UTM campaign parameter
+</ResponseField>
+
+<ResponseField name="utm_content" type="string">
+  UTM content parameter
+</ResponseField>
+
+<ResponseField name="utm_term" type="string">
+  UTM term parameter
+</ResponseField>
+
+<ResponseField name="affiliate_code" type="string">
+  Affiliate code if the install came from an affiliate link
+</ResponseField>
+
+<ResponseField name="deep_link_value" type="string">
+  Deep link destination value set in the OneLink URL, e.g. `"product"`, `"collection"`, `"offer"`
+</ResponseField>
+
+<ResponseField name="deep_link_sub1" type="string">
+  Deep link sub-parameter 1
+</ResponseField>
+
+<ResponseField name="deep_link_sub2" type="string">
+  Deep link sub-parameter 2
+</ResponseField>
+
+<ResponseField name="is_organic" type="boolean">
+  Whether the install was organic (not from a paid campaign)
+</ResponseField>
+
+<ResponseField name="install_type" type="string">
+  One of `"install"`, `"re-engagement"`, or `"re-attribution"`
+</ResponseField>
+
+<ResponseField name="is_first_launch" type="boolean">
+  Whether this is the user's first ever app launch
+</ResponseField>
+
+<ResponseField name="apps_flyer_uid" type="string">
+  Unique AppsFlyer user ID
+</ResponseField>
+
+<ResponseField name="cost_model" type="string">
+  Cost model of the campaign, e.g. `"cpi"`, `"cpa"`
+</ResponseField>
+
+<ResponseField name="cost_value" type="string">
+  Cost value of the install
+</ResponseField>
+
+<ResponseField name="cost_currency" type="string">
+  Currency of the cost value
+</ResponseField>
+
+<ResponseField name="click_time" type="string">
+  Timestamp of the ad click
+</ResponseField>
+
+<ResponseField name="install_time" type="string">
+  Timestamp of the app install
+</ResponseField>
+
+<Accordion title="Example response">
+```json
+{
+    "media_source": "tiktokads_int",
+    "campaign": "summer_2025",
+    "campaign_id": "1234567890",
+    "ad_set": "summer_collection_adset",
+    "ad_set_id": "9876543210",
+    "channel": "tiktok",
+    "utm_source": "tiktok",
+    "utm_medium": "paid",
+    "utm_campaign": "summer_2025",
+    "deep_link_value": "product",
+    "page_id": "123",
+    "is_organic": false,
+    "install_type": "install",
+    "is_first_launch": true,
+    "apps_flyer_uid": "1a2b3c4d5e6f7g8h",
+    "click_time": "2025-03-15 14:22:00",
+    "install_time": "2025-03-15 14:23:45"
+}
+```
+</Accordion>
+
+---
+
+## appsFlyerUID
+
+A unique ID assigned by AppsFlyer to every install. Use this to stitch user journeys across web and app or to match events in server-side reporting.
+
+```javascript
+console.log(despia.appsFlyerUID) // "1a2b3c4d5e6f..."
+```
+
+You can also request it on demand in two ways. Fire-and-forget refreshes the variable silently. The await pattern lets you use the value immediately in the same flow.
+
+<Tabs>
+  <Tab title="Fire and forget">
+    ```javascript
+    despia("appsflyer://get_uid")
+    // despia.appsFlyerUID is refreshed in the background
+    ```
+  </Tab>
+  <Tab title="Await">
+    ```javascript
+    const data = await despia("appsflyer://get_uid", ["appsFlyerUID"])
+    const uid = data.appsFlyerUID
+    console.log(uid) // "1a2b3c4d5e6f..."
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Request Attribution On Demand
+
+Attribution is injected on load automatically. If attribution arrives after the page has already rendered, or if you need the latest data mid-session, request it explicitly.
+
+<Tabs>
+  <Tab title="Fire and forget">
+    ```javascript
+    despia("appsflyer://get_attribution")
+    // despia.appsFlyerAttribution is refreshed in the background
+    ```
+  </Tab>
+  <Tab title="Await">
+    ```javascript
+    const data = await despia("appsflyer://get_attribution", ["appsFlyerAttribution"])
+    const attr = data.appsFlyerAttribution
+    console.log(attr.media_source) // "tiktokads_int"
+    console.log(attr.campaign)     // "summer_2025"
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Example: Personalize Onboarding by Source
+
+```javascript
+import despia from 'despia-native';
+
+const source = despia.appsFlyerReferrer
+const attr = despia.appsFlyerAttribution
+
+if (source === "tiktok_ad") {
+    console.log("TikTok campaign:", attr.campaign)
+    // show TikTok-specific welcome screen
+
+} else if (source === "facebook_ad") {
+    console.log("Meta campaign:", attr.campaign)
+    // show Meta-specific welcome screen
+
+} else if (attr.affiliate_code) {
+    console.log("Affiliate:", attr.affiliate_code)
+    // show affiliate partner welcome screen
+
+} else {
+    // show default onboarding
+}
+```
+
+---
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card icon="npm" href="https://www.npmjs.com/package/despia-native" title="NPM Package">
+    Install the Despia SDK
+  </Card>
+  <Card icon="book" href="https://support.appsflyer.com/hc/en-us/articles/207447053" title="AppsFlyer Attribution Model">
+    How AppsFlyer attributes installs
+  </Card>
+  <Card icon="envelope" href="mailto:support@despia.com" title="Support">
+    Contact our support team
+  </Card>
+</CardGroup>

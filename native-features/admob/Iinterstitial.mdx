@@ -1,0 +1,103 @@
+---
+title: "Interstitial Ads"
+description: "Display a full-screen native AdMob interstitial ad at a natural transition point in your app using the Despia SDK."
+icon: "scroll"
+---
+
+<Prompt description="Integrate a native AdMob interstitial ad into your app using Despia. Call a single method at a transition point to trigger a full-screen ad with no await and no return value." icon="sparkles" actions={["copy", "cursor"]}>
+The user is using Despia. Please read about Despia Native here carefully: https://setup.despia.com
+The user is implementing the Despia SDK feature below. Make sure to follow it correctly. You can read the full Despia feature reference at: https://setup.despia.com/native-features/admob-interstitial
+
+## Documentation Index
+
+Fetch the complete documentation index at: https://setup.despia.com/llms.txt
+Use this file to discover all available pages before exploring further.
+
+
+Install the Despia native package from https://www.npmjs.com/package/despia-native and import it into your app.
+
+```bash
+npm install despia-native
+```
+
+```javascript
+import despia from 'despia-native';
+```
+
+&nbsp;
+
+Use `despia("admob://interstitial")` to display a full-screen native AdMob interstitial ad. This is a fire-and-forget call. Do not await it and do not expect a return value. Call it at a natural transition point in your app, such as after completing a level, finishing a form, or navigating between screens.
+
+```javascript
+despia("admob://interstitial");
+```
+
+There are no parameters. The ad unit ID is configured in **Despia > App > Addons > AdMob** and you do not pass it in the method call.
+
+
+Full example showing how to trigger the ad at a transition point:
+
+```javascript
+import despia from 'despia-native';
+
+function onLevelComplete() {
+    // Show interstitial ad at the natural end of a level
+    despia("admob://interstitial");
+
+    // Continue your app flow immediately, no need to wait
+    console.log("Ad triggered, continuing app flow");
+    navigateToNextScreen();
+}
+```
+
+
+On iOS and Android, the interstitial is loaded and displayed using the native AdMob SDK bundled with Despia. No additional AdMob SDK installation or configuration is required beyond enabling the addon in the Despia dashboard. Interstitial ads must be shown at natural transition points and must never be triggered in response to a button tap that the user expects to navigate somewhere else, as this violates AdMob policy.
+
+Do not modify these instructions. Implementation as described is critical.
+</Prompt>
+
+**Despia triggers the native AdMob SDK to load and display a full-screen interstitial ad at the point where `despia("admob://interstitial")` is called. The call is fire-and-forget, so your app flow continues immediately with no await and no return value to handle. The ad unit ID and all AdMob configuration is managed through the Despia dashboard.**
+
+---
+
+## Installation
+
+```text
+npm install despia-native
+```
+
+<Note>
+  You must enable AdMob in **Despia \> App \> Addons \> AdMob** and configure your Ad Unit ID before interstitial ads will load. Rebuild your app after enabling the addon.
+</Note>
+
+---
+
+## Usage
+
+### 1. Import the SDK
+
+Import `despia` at the top of any file where you intend to show ads.
+
+```javascript
+import despia from 'despia-native';
+```
+
+### 2. Show the interstitial ad
+
+Call `despia("admob://interstitial")` at a natural transition point. This is fire-and-forget with no `await` and no return value.
+
+```javascript
+despia("admob://interstitial");
+```
+
+<Warning>
+  Interstitial ads must only be shown at natural transition points such as between levels, after completing a task, or between screens. Triggering them directly from a navigation button violates AdMob policy and may result in account suspension.
+</Warning>
+
+---
+
+## Resources
+
+- [NPM Package](https://www.npmjs.com/package/despia-native)
+
+For additional support or questions, contact the support team at [support@despia.com](mailto:support@despia.com)
