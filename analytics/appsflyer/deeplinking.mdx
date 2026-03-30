@@ -373,17 +373,13 @@ All deep linking configuration is handled directly in the Despia dashboard. No c
     Enter your Facebook App ID, TikTok App ID, AdMob App ID, and any other ad platform credentials in the same screen
   </Step>
   <Step title="Save and rebuild">
-    Save the configuration and rebuild your app. Despia handles all the native plumbing automatically.
+    Save the configuration and rebuild your app. Despia handles all the native plumbing automatically on both iOS and Android.
   </Step>
 </Steps>
 
 <Info>
-  Despia configures Universal Links automatically based on the OneLink URLs you enter in the dashboard. No entitlements files, no native developer involvement required.
+  Despia configures Universal Links on iOS and App Links on Android automatically based on the OneLink URLs you enter in the dashboard. No entitlements files, no native developer involvement required.
 </Info>
-
-<Note>
-  Despia also registers the `appsflyer://` URI scheme automatically. This is an AppsFlyer SDK requirement for URI scheme deep linking fallback — it allows deep links to open the app when Universal Links are unavailable, for example in some in-app browsers or older iOS versions. This is separate from Despia's internal web bridge commands and requires no configuration on your part.
-</Note>
 
 ---
 
