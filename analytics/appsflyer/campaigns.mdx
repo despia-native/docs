@@ -1,5 +1,5 @@
 ---
-title: "Campaigns"
+title: "Ad Campaigns"
 description: "Connect TikTok and Meta as integrated partners, create custom attribution links, and measure which campaigns drive the most valuable users."
 icon: "rectangle-ad"
 ---
@@ -101,9 +101,68 @@ https://yourapp.onelink.me/xxxx?pid=tiktokads_int&c=summer_2025&deep_link_value=
 
 ## Ad Revenue Tracking
 
-<Info>
-  Ad revenue tracking via `despia("appsflyer://log_ad_revenue?...")` is coming soon. This will allow you to report impression-level revenue from Meta, TikTok, and AdMob back to AppsFlyer to calculate LTV and ROAS per acquisition channel. Stay tuned.
-</Info>
+Report impression-level ad revenue back to AppsFlyer per platform. This enables LTV and ROAS reporting per acquisition channel so you can see which campaigns drive the most revenue, not just the most installs.
+
+Use `log_ad_revenue` each time an ad is shown to the user.
+
+<Tabs>
+  <Tab title="Meta / Facebook">
+    ```javascript
+    const metaRevenue = {
+        "ad_platform": "facebook",
+        "currency": "USD",
+        "revenue": 0.008,
+        "ad_type": "interstitial",
+        "ad_unit_id": "your_unit_id"
+    }
+    despia("appsflyer://log_ad_revenue?" + new URLSearchParams(metaRevenue).toString())
+    ```
+  </Tab>
+  <Tab title="TikTok">
+    ```javascript
+    const tiktokRevenue = {
+        "ad_platform": "tiktok",
+        "currency": "USD",
+        "revenue": 0.005,
+        "ad_type": "banner",
+        "ad_unit_id": "your_unit_id"
+    }
+    despia("appsflyer://log_ad_revenue?" + new URLSearchParams(tiktokRevenue).toString())
+    ```
+  </Tab>
+  <Tab title="AdMob">
+    ```javascript
+    const admobRevenue = {
+        "ad_platform": "admob",
+        "currency": "USD",
+        "revenue": 0.012,
+        "ad_type": "rewarded",
+        "ad_unit_id": "ca-app-pub-xxx/yyy"
+    }
+    despia("appsflyer://log_ad_revenue?" + new URLSearchParams(admobRevenue).toString())
+    ```
+  </Tab>
+</Tabs>
+
+<ParamField path="ad_platform" type="string" required>
+  Ad network name. Accepted values: `"facebook"`, `"tiktok"`, `"admob"`
+</ParamField>
+
+<ParamField path="currency" type="string" required>
+  3-character ISO 4217 currency code, e.g. `"USD"`, `"EUR"`, `"AED"`. Defaults to `"USD"` if omitted.
+</ParamField>
+
+<ParamField path="revenue" type="number" required>
+  Revenue amount for this ad impression. No commas or currency signs.
+</ParamField>
+
+<ParamField path="ad_type" type="string">
+  Type of ad served. Accepted values: `"banner"`, `"interstitial"`, `"rewarded"`, `"native"`
+</ParamField>
+
+<ParamField path="ad_unit_id" type="string">
+  Your ad unit ID from the ad network
+</ParamField>
 
 ---
 
