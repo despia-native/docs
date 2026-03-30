@@ -167,8 +167,8 @@
             "group": "OAuth 2.0",
             "icon": "key",
             "pages": [
-              "native-features/o-auth-2-0/generic",
-              "native-features/o-auth-2-0/apple-auth",
+              "native-features/oauth/introduction",
+              "native-features/oauth/apple",
               "native-features/oauth/google",
               "native-features/oauth/tiktok"
             ]
