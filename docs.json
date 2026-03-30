@@ -74,9 +74,9 @@
                 "group": "RevenueCat",
                 "icon": "cat",
                 "pages": [
-                  "best-practices/backend/revenue-cat/user-session",
-                  "best-practices/backend/revenue-cat/webhooks",
-                  "best-practices/backend/revenue-cat/cron-jobs"
+                  "best-practices/backend/revenuecat/user-session",
+                  "best-practices/backend/revenuecat/webhooks",
+                  "best-practices/backend/revenuecat/cron-jobs"
                 ]
               },
               {
@@ -161,8 +161,23 @@
         "expanded": false,
         "pages": [
           "native-features/user-agent",
-          "native-features/onesignal",
+          {
+            "group": "OneSignal",
+            "icon": "bell-ring",
+            "pages": [
+              "native-features/onesignal/introduction",
+              "native-features/onesignal/reference"
+            ]
+          },
           "native-features/deeplinking",
+          {
+            "group": "RevenueCat",
+            "icon": "coins",
+            "pages": [
+              "native-features/revenuecat/introduction",
+              "native-features/revenuecat/reference"
+            ]
+          },
           {
             "group": "OAuth 2.0",
             "icon": "key",
@@ -211,13 +226,6 @@
           "native-features/simple-storage",
           "native-features/print-documents",
           "native-features/screenshot",
-          {
-            "group": "Legacy Features",
-            "icon": "book",
-            "pages": [
-              "native-features/legacy/gps-location"
-            ]
-          },
           "native-features/notification-sounds"
         ]
       },
@@ -246,6 +254,17 @@
         ]
       },
       {
+        "group": "Platform Support",
+        "icon": "trophy",
+        "pages": [
+          "platform-support/lovable",
+          "platform-support/base44",
+          "platform-support/replit",
+          "platform-support/claude-code",
+          "platform-support/cursor"
+        ]
+      },
+      {
         "group": "Lovable",
         "icon": "heart",
         "tag": "Integration",
@@ -255,6 +274,7 @@
           {
             "group": "Native Features",
             "icon": "bolt-lightning",
+            "hidden": true,
             "pages": [
               "lovable/native-features/user-agent",
               "lovable/native-features/onesignal",
@@ -300,6 +320,7 @@
           },
           {
             "group": "Legacy Features",
+            "hidden": true,
             "pages": [
               "lovable/legacy-features/one-signal-v1",
               "lovable/native-features/gps-location"

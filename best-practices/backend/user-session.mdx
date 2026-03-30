@@ -8,7 +8,7 @@ description: "This guide covers the general user identity management pattern for
 
 Every Despia app needs a single, consistent user identifier (`app_user_id`) that persists across sessions and devices. This identifier connects all your services together.
 
-```javascript
+```mermaid placement="bottom-right"
 flowchart TD
     ID[app_user_id] --> RC[RevenueCat]
     ID --> OS[OneSignal]
@@ -20,11 +20,11 @@ flowchart TD
 
 On every app launch, resolve the user's identity using this priority:
 
-| Priority | Source           | Description                                                                 |
-| :------- | :--------------- | :-------------------------------------------------------------------------- |
-| 1        | Storage Vault    | Synced via iCloud/Google backup                                             |
-| 2        | Service Recovery | Recovers users via service-specific IDs (e.g., RevenueCat `externalUserId`) |
-| 3        | Install ID       | Fallback for new users (`despia.uuid`)                                      |
+| Priority | Source | Description |
+| :-- | :-- | :-- |
+| 1 | Storage Vault | Synced via iCloud/Google backup |
+| 2 | Service Recovery | Recovers users via service-specific IDs (e.g., RevenueCat `externalUserId`) |
+| 3 | Install ID | Fallback for new users (`despia.uuid`) |
 
 ### Implementation
 
@@ -170,7 +170,7 @@ flowchart TD
     SyncDB --> Ready([Paywall can open])
 ```
 
-> **Note:** The `getpurchasehistory://` step is RevenueCat-specific. If not using RevenueCat, the flow goes directly from "Vault not found" to "Use install_id".
+> **Note:** The `getpurchasehistory://` step is RevenueCat-specific. If not using RevenueCat, the flow goes directly from "Vault not found" to "Use install\_id".
 
 ## Paywall Readiness
 
@@ -206,10 +206,10 @@ When a user authenticates, the backend determines whether to **claim** the curre
 
 ### Login Actions
 
-| Action      | Condition                         | Result                                |
-| :---------- | :-------------------------------- | :------------------------------------ |
-| **CLAIM**   | Account has no `app_user_id`      | Link current `app_user_id` to account |
-| **RECOVER** | Account already has `app_user_id` | Return existing `app_user_id`         |
+| Action | Condition | Result |
+| :-- | :-- | :-- |
+| **CLAIM** | Account has no `app_user_id` | Link current `app_user_id` to account |
+| **RECOVER** | Account already has `app_user_id` | Return existing `app_user_id` |
 
 ### Client-Side Implementation
 
@@ -465,21 +465,21 @@ async function checkPremiumAccess() {
 
 The `getpurchasehistory://` response includes:
 
-| Field                   | Description                                      |
-| :---------------------- | :----------------------------------------------- |
-| `transactionId`         | Unique identifier for this transaction           |
-| `originalTransactionId` | Links to original purchase (for renewals)        |
-| `productId`             | Product ID from App Store Connect / Play Console |
-| `type`                  | `"subscription"` or `"product"`                  |
-| `entitlementId`         | The entitlement this purchase grants             |
-| `isActive`              | Whether purchase currently grants access         |
-| `willRenew`             | Whether subscription will auto-renew             |
-| `purchaseDate`          | ISO timestamp of transaction                     |
-| `expirationDate`        | When access expires (null for lifetime)          |
-| `externalUserId`        | The `app_user_id` linked to this purchase        |
-| `store`                 | `"app_store"` or `"play_store"`                  |
+| Field | Description |
+| :-- | :-- |
+| `transactionId` | Unique identifier for this transaction |
+| `originalTransactionId` | Links to original purchase (for renewals) |
+| `productId` | Product ID from App Store Connect / Play Console |
+| `type` | `"subscription"` or `"product"` |
+| `entitlementId` | The entitlement this purchase grants |
+| `isActive` | Whether purchase currently grants access |
+| `willRenew` | Whether subscription will auto-renew |
+| `purchaseDate` | ISO timestamp of transaction |
+| `expirationDate` | When access expires (null for lifetime) |
+| `externalUserId` | The `app_user_id` linked to this purchase |
+| `store` | `"app_store"` or `"play_store"` |
 
-#### Hybrid Payment Example (Native + Web)
+#### Hybrid Payment Example (Native \+ Web)
 
 ```javascript
 const handleUpgrade = () => {
@@ -656,13 +656,13 @@ CREATE TABLE user_devices (
 
 ## Summary
 
-| Component     | Key                    | Purpose                                        |
-| :------------ | :--------------------- | :--------------------------------------------- |
-| Storage Vault | `app_user_id`          | Persistent identity across sessions/reinstalls |
-| Backend DB    | `app_user_id`          | Central user record                            |
-| RevenueCat    | `external_id`          | Links purchases to user                        |
-| OneSignal     | `external_user_id`     | Links push notifications to user               |
-| Stripe        | `metadata.app_user_id` | Links payments to user                         |
-| Any SDK       | varies                 | Always map back to `app_user_id`               |
+| Component | Key | Purpose |
+| :-- | :-- | :-- |
+| Storage Vault | `app_user_id` | Persistent identity across sessions/reinstalls |
+| Backend DB | `app_user_id` | Central user record |
+| RevenueCat | `external_id` | Links purchases to user |
+| OneSignal | `external_user_id` | Links push notifications to user |
+| Stripe | `metadata.app_user_id` | Links payments to user |
+| Any SDK | varies | Always map back to `app_user_id` |
 
 The `app_user_id` is the single source of truth. Every service integration should either accept it directly or map their internal IDs back to it via your backend.

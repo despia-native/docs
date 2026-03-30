@@ -1,0 +1,132 @@
+---
+description: "Native App Store and Google Play billing in your web app via the Despia SDK and RevenueCat."
+icon: "circle-info"
+title: "Introduction"
+---
+
+Native iOS and Android billing fully bridged to your web layer. Trigger purchases, display native paywalls, and check entitlements from your web app using `despia()`, with no native code and no native billing SDK to configure.
+
+<Info>
+  RevenueCat must be enabled in **Despia \> App \> Settings \> Integrations \> RevenueCat** and your RevenueCat API key configured before any purchases will work.
+</Info>
+
+---
+
+## Installation
+
+<Tabs>
+  <Tab title="Bundle">
+    <CodeGroup>
+
+    ```bash npm
+    npm install despia-native
+    ```
+
+    ```bash pnpm
+    pnpm add despia-native
+    ```
+
+    ```bash yarn
+    yarn add despia-native
+    ```
+
+    </CodeGroup>
+
+    ```javascript
+    import despia from 'despia-native';
+    ```
+  </Tab>
+  <Tab title="CDN">
+    <CodeGroup>
+
+    ```html UMD
+    <script src="https://cdn.jsdelivr.net/npm/despia-native/index.min.js"></script>
+    ```
+
+    ```html ESM
+    <script type="module">
+        import despia from 'https://cdn.jsdelivr.net/npm/despia-native/+esm'
+    </script>
+    ```
+
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+---
+
+## How it works
+
+Despia bridges your web layer to the native RevenueCat SDK. Purchases go through the App Store or Google Play billing system. When a transaction completes, the runtime fires `window.onRevenueCatPurchase()` in your web layer. You can then check entitlements instantly using `getpurchasehistory://`, which queries the native store directly with no backend needed.
+
+```javascript
+// Check entitlements on load and after every purchase
+const data   = await despia('getpurchasehistory://', ['restoredData'])
+const active = (data.restoredData ?? []).filter(p => p.isActive)
+
+if (active.some(p => p.entitlementId === 'premium')) unlockPremium()
+```
+
+For users on the web app who are not in the Despia WebView, fall back to a RevenueCat Web Purchase Link with the user's ID appended.
+
+```javascript
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+if (isDespia) {
+    despia(`revenuecat://launchPaywall?external_id=${userId}&offering=default`)
+} else {
+    window.location.href = `https://pay.rev.cat/<your_token>/${encodeURIComponent(userId)}`
+}
+```
+
+<CardGroup cols={2}>
+  <Card title="Reference" icon="book" href="/native-features/revenuecat/reference">
+    All schemes, parameters, response fields, callback behaviour, and webhook setup.
+  </Card>
+
+  <Card title="Webhooks" icon="webhook" href="https://setup.despia.com/best-practices/backend/revenuecat/webhooks">
+    Full backend webhook handler covering all RevenueCat event types.
+  </Card>
+</CardGroup>
+
+---
+
+## Entitlement check
+
+Set up entitlements in your RevenueCat dashboard first. Create an entitlement (e.g. `premium`), then attach both your iOS and Android products to it. Both platforms will return the same `entitlementId` in the response.
+
+```javascript
+// Reuse this function on app load, page navigation, and in onRevenueCatPurchase
+async function checkEntitlements() {
+    const data   = await despia('getpurchasehistory://', ['restoredData'])
+    const active = (data.restoredData ?? []).filter(p => p.isActive)
+
+    if (active.some(p => p.entitlementId === 'premium')) unlockPremium()
+    if (active.some(p => p.entitlementId === 'no_ads'))  removeAds()
+}
+
+checkEntitlements()
+window.onRevenueCatPurchase = checkEntitlements
+```
+
+---
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card title="NPM Package" icon="npm" href="https://www.npmjs.com/package/despia-native">
+    despia-native
+  </Card>
+
+  <Card title="RevenueCat Dashboard" icon="link" href="https://app.revenuecat.com">
+    Configure entitlements, offerings, and paywalls
+  </Card>
+
+  <Card title="RevenueCat Webhooks" icon="book" href="https://www.revenuecat.com/docs/integrations/webhooks">
+    Event types, fields, and sample payloads
+  </Card>
+
+  <Card title="Support" icon="envelope" href="mailto:support@despia.com">
+    [support@despia.com](mailto:support@despia.com)
+  </Card>
+</CardGroup>

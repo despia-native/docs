@@ -1,0 +1,391 @@
+---
+title: "Reference"
+description: "Complete reference for all Despia in-app purchase schemes, parameters, callbacks, entitlement checks, and webhook handling."
+icon: "code"
+---
+
+## Installation
+
+<Tabs>
+  <Tab title="Bundle">
+    <CodeGroup>
+
+    ```bash npm
+    npm install despia-native
+    ```
+
+    ```bash pnpm
+    pnpm add despia-native
+    ```
+
+    ```bash yarn
+    yarn add despia-native
+    ```
+
+    </CodeGroup>
+
+    ```javascript
+    import despia from 'despia-native';
+    ```
+  </Tab>
+  <Tab title="CDN">
+    <CodeGroup>
+
+    ```html UMD
+    <script src="https://cdn.jsdelivr.net/npm/despia-native/index.min.js"></script>
+    ```
+
+    ```html ESM
+    <script type="module">
+        import despia from 'https://cdn.jsdelivr.net/npm/despia-native/+esm'
+    </script>
+    ```
+
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+---
+
+## Schemes
+
+### Launch a paywall
+
+Opens the RevenueCat native paywall UI configured in your RevenueCat dashboard. The paywall handles product selection, pricing display, and the purchase flow.
+
+```javascript
+despia(`revenuecat://launchPaywall?external_id=${userId}&offering=default`)
+```
+
+| Parameter | Required | Description |
+| --- | --- | --- |
+| `external_id` | Yes | Your user's ID in RevenueCat. Must match the ID used everywhere else in your app. |
+| `offering` | Yes | The RevenueCat offering ID to display. Set to `default` to use your default offering. |
+
+---
+
+### Direct purchase
+
+Triggers a purchase for a specific product without showing a paywall UI. Use this when you have your own custom purchase UI.
+
+```javascript
+despia(`revenuecat://purchase?external_id=${userId}&product=monthly_premium_ios`)
+```
+
+| Parameter | Required | Description |
+| --- | --- | --- |
+| `external_id` | Yes | Your user's ID in RevenueCat. |
+| `product` | Yes | The product ID. iOS uses the plain product ID. Android requires the subscription group prefix: `group:productId`. |
+
+**iOS product ID format:**
+
+```text
+monthly_premium_ios
+```
+
+**Android product ID format:**
+
+```text
+premium:monthly_premium_android
+```
+
+The prefix before `:` is the subscription group name as configured in Google Play Console.
+
+---
+
+### Check entitlements
+
+Queries the native store for all purchases on the current device/account. Returns active subscriptions, expired subscriptions, and one-time purchases. Instant and offline-capable.
+
+```javascript
+const data = await despia('getpurchasehistory://', ['restoredData'])
+const purchases = data.restoredData
+```
+
+Call this on app load, on page navigation, and before gating any premium feature.
+
+---
+
+## Purchase callback
+
+The Despia runtime calls `window.onRevenueCatPurchase()` immediately when the store confirms a transaction client-side. This is a signal that a transaction occurred, not confirmation that access should be granted.
+
+```javascript
+window.onRevenueCatPurchase = async () => {
+    // Re-run your entitlement check here
+    await checkEntitlements()
+}
+```
+
+<Danger>
+  Do not grant access based on the callback alone if you have a backend. The callback fires before your server has received and processed the RevenueCat webhook. Always wait for your backend to confirm before unlocking features.
+</Danger>
+
+If you have no backend, use `getpurchasehistory://` inside the callback to check entitlements directly from the store:
+
+```javascript
+window.onRevenueCatPurchase = async () => {
+    const data   = await despia('getpurchasehistory://', ['restoredData'])
+    const active = (data.restoredData ?? []).filter(p => p.isActive)
+
+    if (active.some(p => p.entitlementId === 'premium')) unlockPremium()
+    if (active.some(p => p.entitlementId === 'no_ads'))  removeAds()
+}
+```
+
+---
+
+## `getpurchasehistory://` response fields
+
+Each item in `restoredData` has the following fields:
+
+| Field | Type | Description |
+| --- | --- | --- |
+| `transactionId` | string | Unique ID for this specific transaction |
+| `originalTransactionId` | string | ID of the original purchase, links renewals together |
+| `productId` | string | Product identifier from App Store Connect or Google Play Console |
+| `type` | string | `"subscription"` or `"product"` (one-time purchase) |
+| `entitlementId` | string | The entitlement this purchase grants, as configured in RevenueCat |
+| `isActive` | boolean | Whether this purchase currently grants access |
+| `willRenew` | boolean | Whether a subscription will auto-renew |
+| `purchaseDate` | string | ISO timestamp of the most recent transaction |
+| `originalPurchaseDate` | string | ISO timestamp of the first purchase |
+| `expirationDate` | string \| null | ISO timestamp when access expires. Null for lifetime purchases. |
+| `store` | string | `"app_store"` or `"play_store"` |
+| `country` | string | User's country code |
+| `environment` | string | `"production"` or `"sandbox"` |
+| `externalUserId` | string | The `external_id` set during purchase |
+| `receipt` | string | Raw receipt data for server-side validation |
+
+---
+
+## Entitlement check pattern
+
+Set up entitlements in your RevenueCat dashboard first: create an entitlement (e.g. `premium`), then attach both your iOS and Android products to it. Both platforms will then return the same `entitlementId` in the response.
+
+```javascript
+async function checkEntitlements() {
+    const data   = await despia('getpurchasehistory://', ['restoredData'])
+    const active = (data.restoredData ?? []).filter(p => p.isActive)
+
+    if (active.some(p => p.entitlementId === 'premium')) unlockPremium()
+    if (active.some(p => p.entitlementId === 'no_ads'))  removeAds()
+}
+
+// Call on app load
+checkEntitlements()
+
+// Reuse for the purchase callback
+window.onRevenueCatPurchase = checkEntitlements
+```
+
+<Info>
+  Client-side entitlement checks only reflect native iOS and Android purchases. If a user purchased on web, `getpurchasehistory://` will not show that purchase. For apps with web payments, check your backend first and use the native store check as a secondary fallback.
+</Info>
+
+---
+
+## Web fallback
+
+Neither `launchPaywall` nor `purchase` work in a standard browser. Always detect the Despia runtime and fall back to a RevenueCat Web Purchase Link.
+
+```javascript
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+const isDespiaIOS = isDespia && (
+    navigator.userAgent.toLowerCase().includes('iphone') ||
+    navigator.userAgent.toLowerCase().includes('ipad')
+)
+const isDespiaAndroid = isDespia &&
+    navigator.userAgent.toLowerCase().includes('android')
+```
+
+```javascript
+// Paywall approach
+if (isDespia) {
+    despia(`revenuecat://launchPaywall?external_id=${userId}&offering=default`)
+} else {
+    window.location.href = `https://pay.rev.cat/<your_token>/${encodeURIComponent(userId)}`
+}
+```
+
+```javascript
+// Direct purchase approach
+if (isDespiaIOS) {
+    despia(`revenuecat://purchase?external_id=${userId}&product=monthly_premium_ios`)
+} else if (isDespiaAndroid) {
+    despia(`revenuecat://purchase?external_id=${userId}&product=premium:monthly_premium_android`)
+} else {
+    window.location.href = `https://pay.rev.cat/<your_token>/${encodeURIComponent(userId)}`
+}
+```
+
+<Danger>
+  Always append the user's ID to the Web Purchase Link URL. The user must already exist in your database before you redirect them, RevenueCat includes the `app_user_id` in every webhook event, and if your backend cannot find that user the purchase cannot be granted.
+</Danger>
+
+**Optional Web Purchase Link parameters:**
+
+| Parameter | Description |
+| --- | --- |
+| `?email=` | Pre-fills the email field at checkout |
+| `?currency=EUR` | Override automatic currency selection |
+| `?package_id=` | Pre-select a package and skip to checkout |
+| `?skip_purchase_success=true` | Skip the success page and fire the configured redirect immediately |
+
+---
+
+## Webhook handler
+
+Server-side webhooks are the recommended way to track subscription state. They let you revoke access on expiry, handle billing issues, and sync state across platforms in real time.
+
+### Register the webhook
+
+1. Go to **RevenueCat Dashboard \> Integrations \> Webhooks**
+2. Set the URL to your endpoint e.g. `https://yourapp.com/webhooks/revenuecat`
+3. Set the Authorization header to a random secret stored in your environment variables
+4. Select **All events** and save
+
+### Endpoint
+
+```javascript
+// POST /webhooks/revenuecat
+export async function POST(req) {
+    const auth  = req.headers.get('authorization') ?? ''
+    const token = auth.startsWith('Bearer ') ? auth.slice(7) : auth
+
+    if (token !== process.env.REVENUECAT_WEBHOOK_SECRET) {
+        return new Response('Unauthorized', { status: 401 })
+    }
+
+    const { event } = await req.json()
+    if (!event) return new Response('Bad Request', { status: 400 })
+
+    const { type, app_user_id, environment, entitlement_ids = [] } = event
+
+    // Skip sandbox events unless the user is a tester
+    if (environment === 'SANDBOX') {
+        const user = await db.findOne('users', { app_user_id })
+        if (!user?.is_tester) return new Response('OK', { status: 200 })
+    }
+
+    switch (type) {
+        case 'INITIAL_PURCHASE':
+        case 'RENEWAL':
+        case 'UNCANCELLATION':
+        case 'SUBSCRIPTION_EXTENDED':
+            await db.upsert('user_subscriptions', {
+                app_user_id, is_active: true, subscription_status: 'active',
+                entitlements: JSON.stringify(entitlement_ids),
+                expires_at: event.expiration_at_ms ? new Date(event.expiration_at_ms) : null,
+                product_id: event.product_id, store: event.store,
+                last_webhook_event: type, last_updated: new Date(),
+            })
+            break
+
+        case 'CANCELLATION':
+            await db.upsert('user_subscriptions', {
+                app_user_id, is_active: true, subscription_status: 'cancelled',
+                expires_at: event.expiration_at_ms ? new Date(event.expiration_at_ms) : null,
+                last_webhook_event: type, last_updated: new Date(),
+            })
+            break
+
+        case 'EXPIRATION':
+        case 'REFUND':
+            await db.upsert('user_subscriptions', {
+                app_user_id, is_active: false, subscription_status: 'expired',
+                last_webhook_event: type, last_updated: new Date(),
+            })
+            break
+
+        case 'BILLING_ISSUE':
+            await db.upsert('user_subscriptions', {
+                app_user_id, billing_issue: true,
+                grace_period_expires_at: event.grace_period_expires_at_ms
+                    ? new Date(event.grace_period_expires_at_ms) : null,
+                last_webhook_event: type, last_updated: new Date(),
+            })
+            break
+    }
+
+    return new Response('OK', { status: 200 })
+}
+```
+
+<Info>
+  Some backends (Supabase Edge Functions, Convex) apply authentication middleware by default that will block incoming RevenueCat requests. Disable the default auth middleware on this endpoint so RevenueCat's Authorization header reaches your handler.
+</Info>
+
+### Webhook event types
+
+| Event | `is_active` | Notes |
+| --- | --- | --- |
+| `INITIAL_PURCHASE` | `true` | First purchase of a product |
+| `RENEWAL` | `true` | Subscription renewed |
+| `UNCANCELLATION` | `true` | User re-enabled a cancelled subscription |
+| `SUBSCRIPTION_EXTENDED` | `true` | Expiry extended |
+| `CANCELLATION` | `true` | Cancelled but active until `expires_at` |
+| `EXPIRATION` | `false` | Access ended, revoke immediately |
+| `REFUND` | `false` | Refunded, revoke immediately |
+| `BILLING_ISSUE` | `true` | Grace period started |
+
+### Database schema
+
+```sql
+CREATE TABLE user_subscriptions (
+    app_user_id             VARCHAR(255) PRIMARY KEY,
+    is_active               BOOLEAN DEFAULT false,
+    subscription_status     VARCHAR(50),
+    product_id              VARCHAR(255),
+    entitlements            JSONB,
+    expires_at              TIMESTAMP,
+    grace_period_expires_at TIMESTAMP,
+    billing_issue           BOOLEAN DEFAULT false,
+    store                   VARCHAR(50),
+    last_webhook_event      VARCHAR(100),
+    last_updated            TIMESTAMP DEFAULT NOW()
+);
+```
+
+---
+
+## Restore purchases
+
+Required by App Store guidelines. Call `getpurchasehistory://` and re-grant any active entitlements found.
+
+```javascript
+async function handleRestore() {
+    const data   = await despia('getpurchasehistory://', ['restoredData'])
+    const active = (data.restoredData ?? []).filter(p => p.isActive)
+
+    if (active.length === 0) {
+        showMessage('No active purchases found.')
+        return
+    }
+
+    if (active.some(p => p.entitlementId === 'premium')) unlockPremium()
+    if (active.some(p => p.entitlementId === 'no_ads'))  removeAds()
+}
+```
+
+---
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card title="NPM Package" icon="npm" href="https://www.npmjs.com/package/despia-native">
+    despia-native
+  </Card>
+
+  <Card title="RevenueCat Dashboard" icon="link" href="https://app.revenuecat.com">
+    Configure entitlements, offerings, and paywalls
+  </Card>
+
+  <Card title="RevenueCat Webhooks" icon="book" href="https://www.revenuecat.com/docs/integrations/webhooks">
+    Event types, fields, and sample payloads
+  </Card>
+
+  <Card title="Support" icon="envelope" href="mailto:support@despia.com">
+    [support@despia.com](mailto:support@despia.com)
+  </Card>
+</CardGroup>

@@ -1,0 +1,151 @@
+---
+title: "Introduction"
+description: "Send targeted remote push notifications to your users via OneSignal. Despia includes the native OneSignal SDK, no native code required."
+icon: "circle-info"
+---
+
+Send targeted push notifications to specific users even when your app is closed. Despia includes the native OneSignal SDK at runtime. You link your users to their devices with two function calls, then send notifications from your backend using OneSignal's REST API.
+
+<Info>
+  OneSignal is moving away from Player IDs toward `external_id`, your own user ID from your database. Despia supports this. Pass your logged-in user's ID via `setonesignalplayerid://` and use `include_external_user_ids` when sending from your backend.
+</Info>
+
+---
+
+## Installation
+
+<Tabs>
+  <Tab title="Bundle">
+    <CodeGroup>
+
+    ```bash npm
+    npm install despia-native
+    ```
+
+    ```bash pnpm
+    pnpm add despia-native
+    ```
+
+    ```bash yarn
+    yarn add despia-native
+    ```
+
+    </CodeGroup>
+
+    ```javascript
+    import despia from 'despia-native';
+    ```
+  </Tab>
+  <Tab title="CDN">
+    <CodeGroup>
+
+    ```html UMD
+    <script src="https://cdn.jsdelivr.net/npm/despia-native/index.min.js"></script>
+    ```
+
+    ```html ESM
+    <script type="module">
+        import despia from 'https://cdn.jsdelivr.net/npm/despia-native/+esm'
+    </script>
+    ```
+
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+---
+
+## How it works
+
+Despia registers the device with OneSignal automatically when the app launches. You link that device to your user by calling `setonesignalplayerid://` with your user's ID on every authenticated app load. OneSignal stores the mapping. When you want to send a notification, your backend calls OneSignal's REST API with `include_external_user_ids` targeting that user ID.
+
+```javascript
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+// Call on every authenticated load
+if (isDespia) {
+    despia(`setonesignalplayerid://?user_id=${userId}`)
+}
+```
+
+You can check whether the user has push notifications enabled and prompt them to turn it on if not:
+
+```javascript
+const result = await despia('checkNativePushPermissions://', ['nativePushEnabled'])
+
+if (!result.nativePushEnabled) {
+    // User has denied or not yet granted permission
+    // Link them to their device settings to enable it
+    despia('settingsapp://')
+}
+```
+
+```javascript
+// Backend: send a notification to a specific user
+const response = await fetch('https://onesignal.com/api/v1/notifications', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic YOUR_REST_API_KEY',
+    },
+    body: JSON.stringify({
+        app_id:                     'YOUR_ONESIGNAL_APP_ID',
+        include_external_user_ids:  [userId],
+        headings:                   { en: 'Title' },
+        contents:                   { en: 'Message body' },
+    }),
+})
+```
+
+<CardGroup cols={2}>
+  <Card title="Setup Guide" icon="gear" href="/native-features/onesignal/reference">
+    OneSignal dashboard setup, Apple Push Key, Firebase config, and full API reference
+  </Card>
+
+  <Card title="Offline Push" icon="bell-slash" href="/native-features/offline-push">
+    Send local notifications without a server using sendlocalpushmsg://
+  </Card>
+</CardGroup>
+
+---
+
+## OneSignal dashboard setup
+
+Before calling `setonesignalplayerid://`, configure OneSignal with your iOS and Android credentials.
+
+<Steps>
+  <Step title="Create a OneSignal account">
+    Go to [onesignal.com](https://onesignal.com) and create an app. When selecting platforms, choose **Native iOS** and **Native Android**, Despia apps are native applications, not web apps.
+  </Step>
+  <Step title="Configure iOS (Apple Push Key)">
+    In OneSignal, go to **Settings \> Push & In-App \> Apple iOS**. Upload your `.p8` Auth Key from Apple Developer Console under **Certificates, Identifiers & Profiles \> Keys**. You will need your Key ID and Team ID.
+  </Step>
+  <Step title="Configure Android (Firebase)">
+    In OneSignal, go to **Settings \> Push & In-App \> Google Android**. Enter your Firebase Server Key and Sender ID from your Firebase project settings under **Cloud Messaging**.
+  </Step>
+  <Step title="Add your OneSignal App ID to Despia">
+    Copy your OneSignal App ID and add it in **Despia \> App \> Settings \> Integrations \> OneSignal**.
+  </Step>
+</Steps>
+
+---
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card title="NPM Package" icon="npm" href="https://www.npmjs.com/package/despia-native">
+    despia-native
+  </Card>
+
+  <Card title="OneSignal Dashboard" icon="bell" href="https://onesignal.com">
+    Configure your push notification app
+  </Card>
+
+  <Card title="REST API Reference" icon="book" href="https://documentation.onesignal.com/reference/create-notification">
+    OneSignal Create Notification API
+  </Card>
+
+  <Card title="Support" icon="envelope" href="mailto:support@despia.com">
+    [support@despia.com](mailto:support@despia.com)
+  </Card>
+</CardGroup>

@@ -1,23 +1,27 @@
 ---
 title: "How it Works"
-icon: "lightbulb"
+icon: "circle-info"
 description: "Add real native device features to your Lovable-generated app and deploy to App Stores - no native code required."
 mode: "default"
 ---
 
 <iframe src="https://www.youtube.com/embed/n5C5EvdJ584" title="YouTube video player" frameborder="0" className="w-full aspect-video rounded-xl" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen />
 
+<Warning>
+  **Lovable now supports importing and using any npm package directly. The standard Despia npm installation works without any special Lovable-specific setup - just follow the regular documentation here [https://setup.despia.com/introduction](https://setup.despia.com/introduction)**
+</Warning>
+
 ## **Overview**
 
 Despia bridges the gap between web and native mobile development. Build your React web app using Lovable's AI-powered platform, then deploy it as a truly native application to the App Store and Google Play - complete with hardware acceleration, offline support, and deep OS integration.
 
-Lovable generates the React codebase through natural language prompts, while Despia provides 25+ native device APIs and automated app store deployment. You get the best of both worlds: rapid AI-driven development and full native capabilities.
+Lovable generates the React codebase through natural language prompts, while Despia provides 25\+ native device APIs and automated app store deployment. You get the best of both worlds: rapid AI-driven development and full native capabilities.
 
 ## **Installation**
 
 Simply ask Lovable to add native features to your app, or install manually:
 
-```
+```text
 npm install despia-native
 ```
 
@@ -41,7 +45,7 @@ Despia manages the complete app store deployment process:
 - One-click deployment with built-in CI/CD pipelines
 - Over-the-air updates without app store review
 
-### **25+ Native Device Features**
+### **25\+ Native Device Features**
 
 Access comprehensive native functionality through simple JavaScript commands:
 
@@ -104,7 +108,7 @@ despia('shareapp://message?=Check out this app&url=https://myapp.com');
 
 Automatic CSS variables for device-specific layouts:
 
-```
+```text
 .my-element {
   padding-top: var(--safe-area-top);
   padding-bottom: var(--safe-area-bottom);
