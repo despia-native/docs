@@ -47,8 +47,16 @@
         "group": "Local CDN",
         "icon": "box-open",
         "pages": [
-          "how-it-works",
-          "reference"
+          "local-cdn/introduction",
+          "local-cdn/reference"
+        ]
+      },
+      {
+        "group": "Local Database",
+        "icon": "database",
+        "pages": [
+          "local-database/introduction",
+          "local-database/reference"
         ]
       },
       {

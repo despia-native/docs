@@ -37,16 +37,16 @@ Query a local SQLite database and sync it with your backend in real time.
   <Tab title="CDN">
     <CodeGroup>
 
-    ```html ESM
-    <script type="module">
-        import { db } from 'https://cdn.jsdelivr.net/npm/@despia/powersync/+esm'
-    </script>
-    ```
-
     ```html UMD
     <script src="https://cdn.jsdelivr.net/npm/@despia/powersync/dist/umd/despia-powersync.min.js"></script>
     <script>
         const { db } = window.DespiaPowerSync
+    </script>
+    ```
+
+    ```html ESM
+    <script type="module">
+        import { db } from 'https://cdn.jsdelivr.net/npm/@despia/powersync/+esm'
     </script>
     ```
 
