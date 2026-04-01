@@ -5,7 +5,7 @@ icon: "code"
 ---
 
 <Info>
-  This feature requires Despia V4, currently in beta. Most Despia apps are currently running on Despia V3. To join the V4 beta, email [beta@despia.com](mailto:beta@despia.com).
+  This feature requires Despia V4, currently in beta. Most Despia apps are running on Despia V3. To join the V4 beta, email [beta@despia.com](mailto:beta@despia.com).
 </Info>
 
 Query a local SQLite database and sync it with your backend in real time.
@@ -70,7 +70,6 @@ await db.connect({
         return token
     },
     url: 'https://YOUR_POWERSYNC_INSTANCE',
-    appId: 'YOUR_APP_ID',
 })
 ```
 
@@ -82,9 +81,6 @@ await db.connect({
   Your PowerSync instance URL.
 </ParamField>
 
-<ParamField path="appId" type="string">
-  Your PowerSync app ID.
-</ParamField>
 
 ---
 
@@ -317,7 +313,7 @@ unsub()
 
 ```mermaid
 flowchart TD
-    A["db.connect({ fetchToken, url, appId })"] --> B["JWT fetched from your backend"]
+    A["db.connect({ fetchToken, url })"] --> B["JWT fetched from your backend"]
     B --> C["Sync engine connects to PowerSync instance"]
     C --> D{"App State?"}
     D -->|"Online"| E["Data syncs in background"]
@@ -391,7 +387,6 @@ export type SyncStatus = {
 export type ConnectOptions = {
     fetchToken: () => Promise<string>
     url?:       string
-    appId?:     string
 }
 ```
 
@@ -414,19 +409,16 @@ if (navigator.userAgent.includes('despia')) {
 ## Resources
 
 <CardGroup cols={2}>
-  <Card title="NPM Package" icon="npm" href="https://www.npmjs.com/package/@despia/powersync">
+  <Card icon="npm" href="https://www.npmjs.com/package/@despia/powersync" title="NPM Package">
     @despia/powersync
   </Card>
-
-  <Card title="GitHub" icon="github" href="https://github.com/despia-native/despia-powersync">
+  <Card icon="github" href="https://github.com/despia-native/despia-powersync" title="GitHub">
     despia-native/despia-powersync
   </Card>
-
-  <Card title="PowerSync" icon="link" href="https://powersync.com">
+  <Card icon="link" href="https://powersync.com" title="PowerSync">
     Backend setup, schema config, and sync rules
   </Card>
-
-  <Card title="Support" icon="envelope" href="mailto:support@despia.com">
-    [support@despia.com](mailto:support@despia.com)
+  <Card icon="envelope" href="mailto:support@despia.com" title="Support">
+    support@despia.com
   </Card>
 </CardGroup>

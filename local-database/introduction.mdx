@@ -5,7 +5,7 @@ icon: "circle-info"
 ---
 
 <Info>
-  This feature requires Despia V4, currently in beta. Most Despia apps are currently running on Despia V3. To join the V4 beta, email [beta@despia.com](mailto:beta@despia.com).
+  This feature requires Despia V4, currently in beta. Most Despia apps are running on Despia V3. To join the V4 beta, email [beta@despia.com](mailto:beta@despia.com).
 </Info>
 
 PowerSync brings a native local SQLite database to your Despia app and keeps it in real-time sync with your backend. Queries hit local storage, there is no network round-trip. The app stays fully usable offline and syncs automatically when connectivity returns.
@@ -119,7 +119,6 @@ await db.connect({
         return token
     },
     url: 'https://YOUR_POWERSYNC_INSTANCE',
-    appId: 'YOUR_APP_ID',
 })
 ```
 
@@ -195,19 +194,16 @@ await db.sync()
 ## Use cases
 
 <CardGroup cols={2}>
-  <Card title="Offline-first apps" icon="wifi-slash">
+  <Card icon="wifi-slash" title="Offline-first apps">
     Field service, logistics, and inspection apps that must work without connectivity. Data syncs when the device comes back online.
   </Card>
-
-  <Card title="Instant UI" icon="bolt">
+  <Card icon="bolt" title="Instant UI">
     No loading spinners waiting for API responses. Every read hits local SQLite in milliseconds regardless of network conditions.
   </Card>
-
-  <Card title="Real-time collaboration" icon="arrows-rotate">
+  <Card icon="arrows-rotate" title="Real-time collaboration">
     Subscribe to live queries and reflect changes from other users the moment they arrive via sync.
   </Card>
-
-  <Card title="Data-heavy apps" icon="database">
+  <Card icon="database" title="Data-heavy apps">
     Store large datasets locally without hitting browser storage quotas. SQLite handles millions of rows efficiently.
   </Card>
 </CardGroup>
@@ -217,22 +213,18 @@ await db.sync()
 ## Frequently asked questions
 
 <AccordionGroup>
-  <Accordion title="Does this work offline?" defaultOpen>
+  <Accordion defaultOpen title="Does this work offline?">
     Yes. Queries and writes hit local SQLite. Once initial sync completes, the app works fully offline. Pending writes are queued and uploaded when connectivity returns.
   </Accordion>
-
-  <Accordion title="What backends does PowerSync support?" defaultOpen>
+  <Accordion defaultOpen title="What backends does PowerSync support?">
     PowerSync syncs with Postgres, MongoDB, and MySQL via sync rules you configure in the PowerSync dashboard. Despia handles the native bridge, the backend connection is between PowerSync and your database.
   </Accordion>
-
   <Accordion title="Does this work with Despia Local Server?">
     Yes. PowerSync is compatible with both Remote Hydration (default) and Local Server (`http://localhost`). The database runs in the native layer regardless of how the web app is served.
   </Accordion>
-
   <Accordion title="Is this App Store compliant?">
     Yes. The database is compiled into the app binary. No executables are downloaded post-install. SQLite is a standard system framework on both iOS and Android.
   </Accordion>
-
   <Accordion title="Is this available on Despia V3?">
     No. PowerSync requires Despia V4. Email [beta@despia.com](mailto:beta@despia.com) to join the V4 beta.
   </Accordion>
@@ -243,19 +235,16 @@ await db.sync()
 ## Resources
 
 <CardGroup cols={2}>
-  <Card title="NPM Package" icon="npm" href="https://www.npmjs.com/package/@despia/powersync">
+  <Card icon="npm" href="https://www.npmjs.com/package/@despia/powersync" title="NPM Package">
     @despia/powersync
   </Card>
-
-  <Card title="Reference" icon="code" href="/local-database/reference">
+  <Card icon="code" href="/local-database/reference" title="Reference">
     Full API, query, execute, batch, watch, migrate, sync
   </Card>
-
-  <Card title="PowerSync" icon="link" href="https://powersync.com">
+  <Card icon="link" href="https://powersync.com" title="PowerSync">
     Backend setup, schema config, and sync rules
   </Card>
-
-  <Card title="Support" icon="envelope" href="mailto:support@despia.com">
-    [support@despia.com](mailto:support@despia.com)
+  <Card icon="envelope" href="mailto:support@despia.com" title="Support">
+    support@despia.com
   </Card>
 </CardGroup>
