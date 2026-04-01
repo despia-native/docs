@@ -36,30 +36,6 @@
         ]
       },
       {
-        "group": "Local Server",
-        "icon": "globe",
-        "pages": [
-          "local-server/introduction",
-          "local-server/reference"
-        ]
-      },
-      {
-        "group": "Local CDN",
-        "icon": "box-open",
-        "pages": [
-          "local-cdn/introduction",
-          "local-cdn/reference"
-        ]
-      },
-      {
-        "group": "Local Database",
-        "icon": "database",
-        "pages": [
-          "local-database/introduction",
-          "local-database/reference"
-        ]
-      },
-      {
         "group": "Best Practices",
         "icon": "thumbs-up",
         "expanded": true,
@@ -109,39 +85,31 @@
         ]
       },
       {
-        "group": "Roadblocks",
-        "icon": "bug",
+        "group": "Local Ecosystem",
+        "icon": "wifi-slash",
         "pages": [
           {
-            "group": "Deployment",
-            "icon": "alt",
+            "group": "Local Server",
+            "icon": "globe",
             "pages": [
-              {
-                "group": "Apple iOS",
-                "icon": "apple-whole",
-                "pages": [
-                  "roadblocks/deployment/apple-i-os/health-kit"
-                ]
-              }
+              "local-server/introduction",
+              "local-server/reference"
             ]
           },
           {
-            "group": "RevenueCat",
-            "icon": "cat",
+            "group": "Local Database",
+            "icon": "database",
             "pages": [
-              "roadblocks/revenue-cat/missing-item"
+              "local-database/introduction",
+              "local-database/reference"
             ]
           },
           {
-            "group": "Runtime",
-            "icon": "lightbulb-gear",
+            "group": "Local CDN",
+            "icon": "box-open",
             "pages": [
-              "roadblocks/runtime/no-ota-updates",
-              "roadblocks/runtime/lost-auth-tokens",
-              "roadblocks/runtime/o-auth-failures",
-              "roadblocks/runtime/slow-apps",
-              "roadblocks/runtime/empty-pages",
-              "roadblocks/runtime/wrong-framework"
+              "local-cdn/introduction",
+              "local-cdn/reference"
             ]
           }
         ]
@@ -235,6 +203,44 @@
           "native-features/print-documents",
           "native-features/screenshot",
           "native-features/notification-sounds"
+        ]
+      },
+      {
+        "group": "Roadblocks",
+        "icon": "bug",
+        "pages": [
+          {
+            "group": "Deployment",
+            "icon": "alt",
+            "pages": [
+              {
+                "group": "Apple iOS",
+                "icon": "apple-whole",
+                "pages": [
+                  "roadblocks/deployment/apple-i-os/health-kit"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "RevenueCat",
+            "icon": "cat",
+            "pages": [
+              "roadblocks/revenue-cat/missing-item"
+            ]
+          },
+          {
+            "group": "Runtime",
+            "icon": "lightbulb-gear",
+            "pages": [
+              "roadblocks/runtime/no-ota-updates",
+              "roadblocks/runtime/lost-auth-tokens",
+              "roadblocks/runtime/o-auth-failures",
+              "roadblocks/runtime/slow-apps",
+              "roadblocks/runtime/empty-pages",
+              "roadblocks/runtime/wrong-framework"
+            ]
+          }
         ]
       },
       {
