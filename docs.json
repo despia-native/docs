@@ -123,6 +123,7 @@
             "icon": "chart-pie-simple",
             "pages": [
               "analytics/appsflyer/introduction",
+              "analytics/appsflyer/testing",
               "analytics/appsflyer/attribution",
               "analytics/appsflyer/deeplinking",
               "analytics/appsflyer/campaigns",
