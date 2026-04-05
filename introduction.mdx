@@ -7,15 +7,15 @@ description: "Despia is a mobile capability runtime. Deploy web apps to iOS and 
 
 Despia is a mobile capability runtime that lets web apps access native device features and publish to the App Store and Google Play without writing Swift or Java.
 
+<Note>
+  **Despia is built for builders who want the flexibility of the web with the power of native development - and ship to iOS and Android without a CLI, terminal, or complex build setup. App Store and Google Play submission is handled entirely from a browser.**
+</Note>
+
 The runtime runs on WKWebView (iOS) and the Chromium-based WebView (Android) - the same rendering engines that power Safari and Chrome - with hardware acceleration and JIT compilation enabled. Native capabilities including secure storage, biometrics, background GPS, push notifications, in-app purchases, attribution, and offline media caching are implemented in Swift and Java and exposed to JavaScript through a typed SDK. The underlying native projects can be exported and modified at any time.
 
 <Card title="Built on a decade of production use" icon="clock">
-  Despia's runtime has been in production since 2011, when co-founder John built Advanced WebView for his agency's client apps. Over the following decade, it was hardened across hundreds of real projects before becoming Despia in 2023 - a ground-up reimagining with a native-first infrastructure, a modern configuration editor, and a full CI/CD pipeline. The same battle-tested core now powers over 7,500 apps.
+  Despia's runtime has been in production since 2011, when co-founder John built Advanced WebView for his agency's client apps. Over the following decade it was adopted by over 7,500 apps before becoming Despia in 2023 - a native-first runtime with a modern configuration editor and a full CI/CD pipeline built on top of that proven foundation.
 </Card>
-
-<Note>
-  Despia is built for developers who want to build in web technologies and ship to iOS and Android without a CLI, terminal, or complex build setup. App Store and Google Play submission is handled entirely from a browser.
-</Note>
 
 <CardGroup cols={3}>
   <Card title="50+ Native Capabilities" icon="bolt">
@@ -35,80 +35,94 @@ The runtime runs on WKWebView (iOS) and the Chromium-based WebView (Android) - t
 
 ## How it works
 
-The `despia-native` npm package exposes a single async function. Calling it sets `window.despia` to the scheme string, which the runtime maps to `window.location.href`. On iOS, the navigation is intercepted in `WebViewController.swift` via `decidePolicyFor navigationAction`. On Android, it is intercepted in `MainActivity.java` via `shouldOverrideUrlLoading`. Results are written back to the WebView context as named window variables.
-
-```javascript
-// despia('get-uuid://', ['uuid'])
-// 1. window.despia = 'get-uuid://'        set by despia-native npm
-// 2. window.location.href = 'get-uuid://' intercepted by native layer
-// 3. window.uuid = '<device-uuid>'        written back to WebView
-const device = await despia('get-uuid://', ['uuid']);
-console.log(device.uuid);
-```
-
-The SDK handles TypeScript definitions, command queuing, promise-based variable watching with a 30-second timeout, and error handling. The `scheme://` transport is an implementation detail the SDK abstracts.
-
-<AccordionGroup>
-  <Accordion title="Why scheme://">
-    `scheme://` interception was the standard pattern for hybrid app native bridges over a decade ago, when Despia's runtime was first built. It remains in use intentionally, because it provides a set of properties that are difficult to replicate with more complex messaging systems.
-
-    - **Simple.** A command in, a result out.
-    - **Predictable.** Consistent behavior across iOS and Android.
-    - **Readable.** Commands are understandable and debuggable without tooling.
-    - **Searchable.** Trivial to locate across large codebases, including by AI coding tools.
-
-    The runtime itself is fully modernized. Native capabilities are implemented in current Swift and Java. The SDK provides typed async APIs with command queuing and error handling. Data-heavy operations are routed through the on-device HTTP server at `http://localhost` where appropriate.
-  </Accordion>
-
-  <Accordion title="Why not JSON-based bridges">
-    Structured JSON messaging was evaluated. In practice, `scheme://` performed better in real-world usage - particularly with AI-assisted development. AI generates flat command strings more reliably than nested JSON payloads, with less risk of malformed structures or schema mismatches. Commands are also easier to trace and reason about across a codebase. The practical result is faster iteration, fewer errors, and more predictable code generation.
-  </Accordion>
-
-  <Accordion title="localhost as a secure origin">
-    For operations that do not fit the scheme pattern - file uploads, streaming, anything that benefits from standard HTTP - Despia routes through an on-device HTTP server at `http://localhost`. Because `http://localhost` is a real secure origin in both WKWebView and Chromium, Service Workers, IndexedDB, Web Crypto, and standard URL routing work without modification. No Blob URL workarounds, no Base64 encoding, no arbitrary storage quotas.
-  </Accordion>
-</AccordionGroup>
-
----
-
-## Installation
-
 <Tabs>
-  <Tab title="Bundle">
-    <CodeGroup>
-
-    ```bash npm
-    npm install despia-native
-    ```
-
-    ```bash pnpm
-    pnpm add despia-native
-    ```
-
-    ```bash yarn
-    yarn add despia-native
-    ```
-
-    </CodeGroup>
+  <Tab title="Developer experience">
+    The `despia-native` npm package exposes a single async function. Import it and call native capabilities directly - no initialization, no configuration, no setup.
 
     ```javascript
     import despia from 'despia-native';
+    
+    // Fire and forget
+    despia('successhaptic://');
+    
+    // With a response
+    const device = await despia('get-uuid://', ['uuid']);
+    console.log(device.uuid);
     ```
+
+    The SDK handles TypeScript definitions, command queuing, promise-based variable watching with a 30-second timeout, and error handling.
+
+    <Tabs>
+      <Tab title="Bundle">
+        <CodeGroup>
+
+        ```bash npm
+        npm install despia-native
+        ```
+
+        ```bash pnpm
+        pnpm add despia-native
+        ```
+
+        ```bash yarn
+        yarn add despia-native
+        ```
+
+        </CodeGroup>
+
+        ```javascript
+        import despia from 'despia-native';
+        ```
+      </Tab>
+      <Tab title="CDN">
+        <CodeGroup>
+
+        ```html UMD
+        <script src="https://cdn.jsdelivr.net/npm/despia-native/index.min.js"></script>
+        ```
+
+        ```html ESM
+        <script type="module">
+            import despia from 'https://cdn.jsdelivr.net/npm/despia-native/+esm'
+        </script>
+        ```
+
+        </CodeGroup>
+      </Tab>
+    </Tabs>
   </Tab>
-  <Tab title="CDN">
-    <CodeGroup>
+  <Tab title="Internals">
+    Calling `despia()` sets `window.despia` to the scheme string, which the runtime maps to `window.location.href`. On iOS, the navigation is intercepted in `WebViewController.swift` via `decidePolicyFor navigationAction`. On Android, it is intercepted in `MainActivity.java` via `shouldOverrideUrlLoading`. Results are written back to the WebView context as named window variables.
 
-    ```html UMD
-    <script src="https://cdn.jsdelivr.net/npm/despia-native/index.min.js"></script>
+    ```javascript
+    // despia('get-uuid://', ['uuid'])
+    // 1. window.despia = 'get-uuid://'        set by despia-native npm
+    // 2. window.location.href = 'get-uuid://' intercepted by native layer
+    // 3. window.uuid = '<device-uuid>'        written back to WebView
+    const device = await despia('get-uuid://', ['uuid']);
+    console.log(device.uuid);
     ```
 
-    ```html ESM
-    <script type="module">
-        import despia from 'https://cdn.jsdelivr.net/npm/despia-native/+esm'
-    </script>
-    ```
+    <AccordionGroup>
+      <Accordion title="Why scheme://">
+        `scheme://` interception was the standard pattern for hybrid app native bridges over a decade ago, when Despia's runtime was first built. It remains in use intentionally, because it provides a set of properties that are difficult to replicate with more complex messaging systems.
 
-    </CodeGroup>
+        - **Simple.** A command in, a result out.
+        - **Predictable.** Consistent behavior across iOS and Android.
+        - **Readable.** Commands are understandable and debuggable without tooling.
+        - **Searchable.** Trivial to locate across large codebases, including by AI coding tools.
+
+        The runtime itself is fully modernized. Native capabilities are implemented in current Swift and Java. The SDK provides typed async APIs with command queuing and error handling. Data-heavy operations are routed through the on-device HTTP server at `http://localhost` where appropriate.
+      </Accordion>
+
+      <Accordion title="Why not JSON-based bridges">
+        Structured JSON messaging was evaluated. In practice, `scheme://` performed better in real-world usage - particularly with AI-assisted development. AI generates flat command strings more reliably than nested JSON payloads, with less risk of malformed structures or schema mismatches. Commands are also easier to trace and reason about across a codebase. The practical result is faster iteration, fewer errors, and more predictable code generation.
+      </Accordion>
+
+      <Accordion title="localhost as a secure origin">
+        For operations that do not fit the scheme pattern - file uploads, streaming, anything that benefits from standard HTTP - Despia routes through an on-device HTTP server at `http://localhost`. Because `http://localhost` is a real secure origin in both WKWebView and Chromium, Service Workers, IndexedDB, Web Crypto, and standard URL routing work without modification. No Blob URL workarounds, no Base64 encoding, no arbitrary storage quotas.
+      </Accordion>
+    </AccordionGroup>
   </Tab>
 </Tabs>
 
@@ -294,7 +308,11 @@ despia("appsflyer://set_phone?phone=" + encodeURIComponent(phone))
   Local CDN is currently in final beta. To request access, email [offlinemode@despia.com](mailto:offlinemode@despia.com)
 </Info>
 
-Local CDN downloads remote files directly to the native file system via NSURLSession (iOS) and WorkManager (Android), bypassing the JavaScript layer entirely. Files are served back through the on-device HTTP server at `http://localhost`. Memory usage during playback is O(1) regardless of file size. Downloads continue when the app is backgrounded or closed.
+Since PhoneGap launched in 2009, every hybrid framework has struggled with offline media. The problem is structural: files have to pass through JavaScript, which means Base64 encoding, Blob URL conversions, and memory usage that scales with file size. A 500MB video in Capacitor peaks at approximately 1.6GB of JS heap. Large files crash apps.
+
+After 7,500 apps built on Despia's predecessor runtime, this pattern was consistent enough to justify solving properly. Local CDN bypasses JavaScript entirely for file operations. Downloads go directly to the native file system via NSURLSession (iOS) and WorkManager (Android). Files stream back through the on-device HTTP server at `http://localhost` to the hardware decoder. Memory usage is O(1) regardless of file size.
+
+Downloads continue when the app is backgrounded or closed. On iOS, the native download progress appears in the standard system download activity. On Android, it shows in the native download manager. Both platforms handle retry on network failure automatically. When a download completes, an optional push notification fires. When the app reopens, `window.contentServerChange(item)` is called for each download that completed while the app was not running.
 
 ```javascript
 window.contentServerChange = (item) => {
@@ -436,7 +454,7 @@ The bridge pattern is consistent across both platforms. To add a custom native c
 </Steps>
 
 <Tip>
-  A low-code plugin editor for defining custom capabilities from the Despia editor without a native project export is planned for mid/late 2026.
+  **An AI plugin builder and a GitHub integration for defining custom capabilities from the Despia editor without a native project export is planned for mid/late 2026.**
 </Tip>
 
 ---
@@ -596,7 +614,7 @@ Native capability implementations are written in Swift and Java and included in 
     despia-native
   </Card>
 
-  <Card title="MCP Server" icon="book-sparkles" href="https://setup.despia.com/mcp-server">
+  <Card title="MCP Server" icon="sparkles" href="https://setup.despia.com/mcp-server">
     AI coding assistant integration
   </Card>
 
