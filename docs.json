@@ -97,6 +97,14 @@
             ]
           },
           {
+            "group": "Local Intelligence",
+            "icon": "sparkle",
+            "pages": [
+              "local-intelligence/Introduction",
+              "local-intelligence/reference"
+            ]
+          },
+          {
             "group": "Local Database",
             "icon": "database",
             "pages": [

@@ -1,0 +1,342 @@
+---
+title: "Reference"
+description: "Complete API reference for Despia Local Intelligence schemes, streaming callbacks, error codes, and available models."
+icon: "code"
+---
+
+<Warning>
+  **Despia Local Intelligence is in beta. The API spec will likely change before the official launch. A dedicated NPM package for Local Intelligence will be released before launch to make setup more convenient - the current **`despia-native`** integration is temporary.**
+</Warning>
+
+<Info>
+  Despia Local Intelligence requires Despia V4, which is currently in beta. To request access, email [beta@despia.com](mailto:beta@despia.com).
+</Info>
+
+On-device inference via HuggingFace models. Downloaded once and cached locally. All inference runs without a network connection.
+
+<Info>
+  HuggingFace model inference runs on both iOS and Android. The `appleintelligence://` one-shot scheme is iOS only.
+</Info>
+
+---
+
+## Installation
+
+<Tabs>
+  <Tab title="Bundle">
+    <CodeGroup>
+
+    ```bash npm
+    npm install despia-native
+    ```
+
+    ```bash pnpm
+    pnpm add despia-native
+    ```
+
+    ```bash yarn
+    yarn add despia-native
+    ```
+
+    </CodeGroup>
+
+    ```javascript
+    import despia from 'despia-native';
+    ```
+  </Tab>
+  <Tab title="CDN">
+    <CodeGroup>
+
+    ```html UMD
+    <script src="https://cdn.jsdelivr.net/npm/despia-native/index.min.js"></script>
+    ```
+
+    ```html ESM
+    <script type="module">
+        import despia from 'https://cdn.jsdelivr.net/npm/despia-native/+esm'
+    </script>
+    ```
+
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+---
+
+## One-shot inference
+
+<Info>
+  iOS only. Runs via `appleintelligence://`.
+</Info>
+
+Runs a prompt to completion and calls a named function on `window` with the full response string.
+
+```javascript
+// Note: This API is not final and subject to change.
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+if (isDespia) {
+    despia(
+        `appleintelligence://?prompt=${encodeURIComponent('What is the capital of France?')}`
+    )
+}
+
+function handleAIResponse(response) {
+    console.log(response)
+}
+```
+
+With system instructions:
+
+```javascript
+// Note: This API is not final and subject to change.
+const system = 'You are a concise assistant. Reply in one sentence.'
+const prompt  = 'Explain what a transformer model is.'
+
+despia(
+    `appleintelligence://?instructions=${encodeURIComponent(system)}&prompt=${encodeURIComponent(prompt)}`
+)
+```
+
+**Parameters**
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `prompt` | string | Yes | The user prompt |
+| `instructions` | string | No | System-level instruction context for the session |
+| `callback` | string | No | Name of the global JS function to receive the response. Defaults to `handleAIResponse` |
+
+**Callback**
+
+The native layer calls `window[callback](response)` on success, or `window[callback](errorMessage)` on failure.
+
+```javascript
+// Note: This API is not final and subject to change.
+function handleAIResponse(response) {
+    document.getElementById('output').textContent = response
+}
+```
+
+---
+
+## Streaming inference
+
+<Info>
+  iOS and Android. Runs via `intelligence://`.
+</Info>
+
+Streams tokens as they are generated. Set up callbacks before firing the scheme call.
+
+```javascript
+// Note: This API is not final and subject to change.
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+if (isDespia) {
+    const jobId = crypto.randomUUID()
+
+    window.onMLToken = (id, chunk) => {
+        if (id === jobId) {
+            // chunk is the full accumulated response so far - replace, do not append
+            document.getElementById('output').textContent = chunk
+        }
+    }
+
+    window.onMLComplete = (id, fullText) => {
+        if (id === jobId) {
+            console.log('Complete:', fullText)
+        }
+    }
+
+    window.onMLError = ({ errorCode, errorMessage }) => {
+        console.error(`Error ${errorCode}: ${errorMessage}`)
+    }
+
+    despia(
+        `intelligence://?id=${encodeURIComponent(jobId)}&prompt=${encodeURIComponent('What is the capital of France?')}`
+    )
+}
+```
+
+With system instructions:
+
+```javascript
+// Note: This API is not final and subject to change.
+const system = 'You are a concise assistant. Reply in three sentences or fewer.'
+const prompt  = 'What is the difference between TCP and UDP?'
+
+despia(
+    `intelligence://?id=${encodeURIComponent(jobId)}&system=${encodeURIComponent(system)}&prompt=${encodeURIComponent(prompt)}`
+)
+```
+
+**Parameters**
+
+| Parameter | Type | Required | Description |
+| --- | --- | --- | --- |
+| `prompt` | string | Yes | The user prompt |
+| `id` | string | Yes | Unique job ID used to correlate token and completion events |
+| `system` | string | No | System-level instruction context for the session |
+| `webhook` | string | No | Reserved. Parsed by the native layer but not yet active |
+
+**Callbacks**
+
+<AccordionGroup>
+  <Accordion title="window.onMLToken(id, chunk)">
+    Called for each snapshot as it is generated. `chunk` is the **full accumulated response so far**, not just the new token. Replace the output element's content rather than appending.
+
+    ```javascript
+    // Note: This API is not final and subject to change.
+    window.onMLToken = (id, chunk) => {
+        if (id === jobId) {
+            document.getElementById('output').textContent = chunk
+        }
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="window.onMLComplete(id, fullText)">
+    Called once when inference finishes. `fullText` is the complete response.
+
+    ```javascript
+    // Note: This API is not final and subject to change.
+    window.onMLComplete = (id, fullText) => {
+        if (id === jobId) {
+            saveToHistory(fullText)
+        }
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="window.onMLError({ errorCode, errorMessage })">
+    Called on any failure. See error codes below.
+
+    ```javascript
+    // Note: This API is not final and subject to change.
+    window.onMLError = ({ errorCode, errorMessage }) => {
+        console.error(`Error ${errorCode}: ${errorMessage}`)
+    }
+    ```
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Multiple concurrent jobs
+
+Use unique `id` values per job to handle concurrent streams without collision.
+
+```javascript
+// Note: This API is not final and subject to change.
+const jobs = new Map()
+
+window.onMLToken = (id, chunk) => {
+    const el = jobs.get(id)
+    if (el) el.textContent = chunk
+}
+
+window.onMLComplete = (id) => {
+    jobs.delete(id)
+}
+
+function runJob(prompt, outputElement) {
+    const jobId = crypto.randomUUID()
+    jobs.set(jobId, outputElement)
+    despia(`intelligence://?id=${encodeURIComponent(jobId)}&prompt=${encodeURIComponent(prompt)}`)
+}
+```
+
+---
+
+## Error codes
+
+| Code | Scheme | Description |
+| --- | --- | --- |
+| `1` | `appleintelligence://` | Missing `prompt` parameter |
+| `2` | `intelligence://` | Missing `id` parameter |
+| `3` | `intelligence://` | Runtime inference error - see `errorMessage` for detail |
+
+---
+
+## Available models
+
+All models are available in `int4` (smaller, faster) and `int8` (higher quality) quantizations.
+
+<Tabs>
+  <Tab title="Text">
+    | Weight name | Display name |
+    | --- | --- |
+    | `lfm2-8b-a1b` | LFM2 8B A1B |
+    | `lfm2-2.6b` | LFM2 2.6B |
+    | `youtu-llm-2b` | Youtu LLM 2B |
+    | `qwen3-1.7b` | Qwen3 1.7B |
+    | `lfm2.5-1.2b-instruct` | LFM2.5 1.2B Instruct |
+    | `lfm2.5-1.2b-thinking` | LFM2.5 1.2B Thinking |
+    | `gemma-3n-e4b-it` | Gemma 3n E4B IT |
+    | `gemma-3-1b-it` | Gemma 3 1B IT |
+    | `qwen3-0.6b` | Qwen3 0.6B |
+    | `lfm2-700m` | LFM2 700M |
+    | `lfm2.5-350m` | LFM2.5 350M |
+  </Tab>
+  <Tab title="Vision">
+    | Weight name | Display name |
+    | --- | --- |
+    | `lfm2.5-vl-1.6b` | LFM2.5 VL 1.6B |
+    | `lfm2-vl-450m` | LFM2 VL 450M |
+    | `qwen3.5-2b` | Qwen3.5 2B |
+    | `qwen3.5-0.8b` | Qwen3.5 0.8B |
+    | `gemma-4-e2b-it` | Gemma 4 E2B IT |
+    | `gemma-3n-e2b-it` | Gemma 3n E2B IT |
+  </Tab>
+  <Tab title="ASR">
+    | Weight name | Display name |
+    | --- | --- |
+    | `parakeet-tdt-0.6b-v3` | Parakeet TDT 0.6B v3 |
+    | `parakeet-ctc-1.1b` | Parakeet CTC 1.1B |
+    | `parakeet-ctc-0.6b` | Parakeet CTC 0.6B |
+    | `whisper-medium` | Whisper Medium |
+    | `whisper-small` | Whisper Small |
+    | `whisper-base` | Whisper Base |
+    | `whisper-tiny` | Whisper Tiny |
+    | `moonshine-base` | Moonshine Base |
+  </Tab>
+  <Tab title="Embedding / VAD / Speaker">
+    | Weight name | Category | Display name |
+    | --- | --- | --- |
+    | `qwen3-embedding-0.6b` | Embedding | Qwen3 Embedding 0.6B |
+    | `nomic-embed-text-v2-moe` | Embedding | Nomic Embed Text v2 MoE |
+    | `silero-vad` | VAD | Silero VAD |
+    | `segmentation-3.0` | VAD | Segmentation 3.0 |
+    | `wespeaker-voxceleb-resnet34-lm` | Speaker Verification | WeSpeaker VoxCeleb ResNet34 |
+  </Tab>
+</Tabs>
+
+---
+
+## Environment check
+
+Gate all Despia Local Intelligence calls behind a user agent check so the feature degrades gracefully in a standard browser.
+
+```javascript
+// Note: This API is not final and subject to change.
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+if (isDespia) {
+    // Despia Local Intelligence calls here
+} else {
+    // Fallback - cloud API or disabled state
+}
+```
+
+---
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card title="NPM Package" icon="npm" href="https://www.npmjs.com/package/despia-native">
+    despia-native
+  </Card>
+
+  <Card title="Support" icon="envelope" href="mailto:support@despia.com">
+    [support@despia.com](mailto:support@despia.com)
+  </Card>
+</CardGroup>

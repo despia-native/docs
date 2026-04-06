@@ -1,0 +1,277 @@
+---
+title: "Introduction"
+description: "Run language models, transcription, embeddings, VAD, and vector search entirely on-device with no data leaving the device."
+icon: "circle-info"
+---
+
+<Warning>
+  **Despia Local Intelligence is in beta. The API spec will likely change before the official launch. A dedicated NPM package for Local Intelligence will be released before launch to make setup more convenient - the current **`despia-native`** integration is temporary.**
+</Warning>
+
+<Info>
+  Despia Local Intelligence requires Despia V4, which is currently in beta. To request access, email [beta@despia.com](mailto:beta@despia.com).
+</Info>
+
+Despia Local Intelligence brings on-device machine learning to Despia apps. Models are downloaded once from HuggingFace and cached locally. All inference runs on-device - no cloud calls, no round-trip latency, no data leaving the device.
+
+<Info>
+  HuggingFace model inference runs on both iOS and Android. The `appleintelligence://` one-shot scheme is iOS only. The device must have sufficient free storage for the selected model before inference can run.
+</Info>
+
+---
+
+## What Despia Local Intelligence can do
+
+Depending on which model you load, the on-device runtime handles six distinct capability categories.
+
+<CardGroup cols={2}>
+  <Card title="Text generation" icon="message-bot">
+    Load a text model, pass a prompt, and receive a response as a full string or streamed token by token. System instructions are supported.
+  </Card>
+
+  <Card title="Transcription" icon="microphone">
+    Convert audio to text. Batch mode processes a complete file. Streaming mode processes live microphone input in real time with partial results as they arrive.
+  </Card>
+
+  <Card title="Embeddings" icon="vector-square">
+    Produce float vector representations of text, images, or audio for semantic search, similarity ranking, and clustering.
+  </Card>
+
+  <Card title="Voice activity detection" icon="waveform">
+    Segment audio into speech and non-speech regions. Use it to filter microphone input before passing to a transcription model.
+  </Card>
+
+  <Card title="RAG query" icon="book-open-reader">
+    Retrieve relevant passages from a corpus attached to a text model. The runtime builds and queries an index over your documents.
+  </Card>
+
+  <Card title="Vector index" icon="database">
+    A standalone on-device vector store. Add documents and embeddings, query by similarity, retrieve by ID. No language model required.
+  </Card>
+</CardGroup>
+
+---
+
+## Why on-device
+
+Cloud AI APIs work well for most cases. Despia Local Intelligence is for the cases where they do not.
+
+<CardGroup cols={2}>
+  <Card title="Privacy" icon="shield-check">
+    With a cloud API, the user's input goes to a remote server. For apps handling sensitive input - medical notes, personal journals, legal documents - on-device inference means the input never leaves the device.
+  </Card>
+
+  <Card title="Offline operation" icon="wifi-slash">
+    Cloud APIs require a network connection. Once a HuggingFace model is downloaded, inference runs without any connectivity. Travel apps, field tools, and low-signal environments all benefit.
+  </Card>
+
+  <Card title="Latency" icon="bolt">
+    A cloud API round-trip adds network overhead on every request. On-device inference starts processing immediately with no round-trip.
+  </Card>
+
+  <Card title="Cost" icon="circle-dollar-to-slot">
+    Cloud inference is billed per token. On-device inference has no per-call cost after the model is downloaded.
+  </Card>
+</CardGroup>
+
+<Note>
+  The tradeoff is real: on-device models are smaller than frontier cloud models. A 600M parameter model running on a phone is not GPT-4. Despia Local Intelligence is the right choice when privacy, offline support, latency, or cost matter more than raw capability.
+</Note>
+
+---
+
+## How it works
+
+Your web code fires a URL scheme call. The native WebView intercepts it, runs inference on-device, and delivers results back through global JavaScript callbacks. Your web code never calls the model directly - the native layer owns the full inference lifecycle.
+
+<Tabs>
+  <Tab title="One-shot (iOS only)">
+    `appleintelligence://` runs a prompt to completion and calls a named function on `window` with the full response. The callback defaults to `handleAIResponse` but can be customized via the `callback` parameter. On failure, the same callback receives the error message.
+
+    ```mermaid
+    flowchart TD
+    A["appleintelligence://?prompt=...&callback=handleAIResponse"] --> B["Native intercepts scheme"]
+    B --> C["LanguageModelSession.respond(to: prompt)"]
+    C --> D{Result}
+    D -->|success| E["window.handleAIResponse(response)"]
+    D -->|failure| F["window.handleAIResponse(errorMessage)"]
+    ```
+  </Tab>
+  <Tab title="Streaming (iOS + Android)">
+    `intelligence://` opens a streaming session. Each snapshot is delivered to `window.onMLToken` as it arrives. The chunk is the full accumulated text so far - replace the output, do not append. `window.onMLComplete` fires when the stream ends. `window.onMLError` fires on failure.
+
+    ```mermaid
+    flowchart TD
+    A["intelligence://?id=abc&prompt=..."] --> B["Native intercepts scheme"]
+    B --> C["Session.streamResponse(to: prompt)"]
+    C --> D["window.onMLToken('abc', accumulatedText)"]
+    D -->|next snapshot| D
+    D -->|stream ends| E["window.onMLComplete('abc', fullText)"]
+    C -->|any failure| F["window.onMLError({ errorCode: 3, errorMessage: '...' })"]
+    ```
+
+    The `id` you pass is echoed back on every callback. Generate a unique ID per request to correlate events when running concurrent streams.
+  </Tab>
+</Tabs>
+
+---
+
+## Model download and storage
+
+Models are hosted on HuggingFace and downloaded to the device's Application Support directory. Downloads use `NSURLSession` background transfer on iOS and `WorkManager` on Android - they continue even if the app is closed. A downloaded model persists across launches with no re-download.
+
+Each model is available in two quantizations:
+
+<CardGroup cols={2}>
+  <Card title="int4" icon="compress">
+    Smaller file size, faster inference. The right starting point for most use cases.
+  </Card>
+
+  <Card title="int8" icon="expand">
+    Higher output quality, larger download. Use when response quality matters more than speed.
+  </Card>
+</CardGroup>
+
+---
+
+## Available models
+
+<Tabs>
+  <Tab title="Text">
+    | Model | Notes |
+    | --- | --- |
+    | `lfm2-8b-a1b` | Largest text model |
+    | `lfm2-2.6b` |  |
+    | `youtu-llm-2b` |  |
+    | `qwen3-1.7b` |  |
+    | `lfm2.5-1.2b-instruct` | Strong instruction following |
+    | `lfm2.5-1.2b-thinking` | Chain-of-thought reasoning |
+    | `gemma-3n-e4b-it` |  |
+    | `gemma-3-1b-it` |  |
+    | `qwen3-0.6b` | Good starting point |
+    | `lfm2-700m` |  |
+    | `lfm2.5-350m` | Smallest text model |
+  </Tab>
+  <Tab title="Vision">
+    | Model | Notes |
+    | --- | --- |
+    | `lfm2.5-vl-1.6b` |  |
+    | `lfm2-vl-450m` |  |
+    | `qwen3.5-2b` |  |
+    | `qwen3.5-0.8b` |  |
+    | `gemma-4-e2b-it` |  |
+    | `gemma-3n-e2b-it` |  |
+  </Tab>
+  <Tab title="ASR">
+    | Model | Notes |
+    | --- | --- |
+    | `parakeet-tdt-0.6b-v3` | High accuracy |
+    | `parakeet-ctc-1.1b` |  |
+    | `parakeet-ctc-0.6b` |  |
+    | `whisper-medium` |  |
+    | `whisper-small` |  |
+    | `whisper-base` |  |
+    | `whisper-tiny` | Fast, real-time suitable |
+    | `moonshine-base` | Fast, real-time suitable |
+  </Tab>
+  <Tab title="Embedding / VAD / Speaker">
+    | Model | Category |
+    | --- | --- |
+    | `qwen3-embedding-0.6b` | Embedding |
+    | `nomic-embed-text-v2-moe` | Embedding |
+    | `silero-vad` | VAD |
+    | `segmentation-3.0` | VAD |
+    | `wespeaker-voxceleb-resnet34-lm` | Speaker verification |
+  </Tab>
+</Tabs>
+
+---
+
+## Choosing a model
+
+<AccordionGroup>
+  <Accordion title="General text tasks">
+    Start with `qwen3-0.6b` int4. It is the smallest general-purpose text model and gives you a fast feedback loop while building. Move up if output quality is insufficient.
+  </Accordion>
+
+  <Accordion title="Instruction following">
+    `lfm2.5-1.2b-instruct` is a reliable middle ground. It follows instructions well and runs in a few seconds on recent devices.
+  </Accordion>
+
+  <Accordion title="Reasoning and math">
+    `lfm2.5-1.2b-thinking` is the right choice for tasks that benefit from chain-of-thought reasoning - math, logic, and multi-step problems.
+  </Accordion>
+
+  <Accordion title="Transcription">
+    `whisper-tiny` and `moonshine-base` are fast and suitable for real-time use. `parakeet-tdt-0.6b-v3` produces higher accuracy at the cost of a larger download.
+  </Accordion>
+
+  <Accordion title="Embeddings and semantic search">
+    `nomic-embed-text-v2-moe` is a strong general-purpose choice. `qwen3-embedding-0.6b` is smaller and faster.
+  </Accordion>
+
+  <Accordion title="VAD">
+    `silero-vad` is lightweight and suited for live audio segmentation. `segmentation-3.0` provides higher accuracy.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Does this replace Apple Intelligence?
+
+No. Apple Intelligence and Despia Local Intelligence serve different purposes and can coexist in the same app.
+
+|  | Apple Intelligence | Despia Local Intelligence |
+| --- | --- | --- |
+| Platform | iOS only | iOS and Android |
+| Requires iOS 26\+ | Yes | No |
+| Apple Intelligence enabled | Required | Not required |
+| Text generation | Yes | Yes |
+| Transcription | No | Yes |
+| Embeddings | No | Yes |
+| VAD | No | Yes |
+| Vector search | No | Yes |
+
+---
+
+## Frequently asked questions
+
+<AccordionGroup>
+  <Accordion title="How large are the models?">
+    Small models (350M-700M parameters, int4) are typically 200-400MB. Medium models (1-2B parameters, int4) are 600MB to 1.2GB. Prompt users to download on WiFi.
+  </Accordion>
+
+  <Accordion title="Do I need to handle the download myself?">
+    No. The native layer manages downloads, caching, retry, and storage. You do not write download logic.
+  </Accordion>
+
+  <Accordion title="What happens if inference fails?">
+    `window.onMLError` receives an object with an `errorCode` and `errorMessage`. See the Reference for the full error code table.
+  </Accordion>
+
+  <Accordion title="Can I run multiple models at the same time?">
+    Each inference session uses one model. Concurrent sessions across different models are possible but memory-intensive. Prefer sequential inference on devices with limited RAM.
+  </Accordion>
+
+  <Accordion title="Is this App Store compliant?">
+    Yes. Downloading model weights follows the same pattern as navigation apps downloading map tiles or audio apps downloading content. No native code is downloaded post-install.
+  </Accordion>
+
+  <Accordion title="Can I use the vector index without a language model?">
+    Yes. The vector index is a standalone component and operates independently of any model.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card title="NPM Package" icon="npm" href="https://www.npmjs.com/package/despia-native">
+    despia-native
+  </Card>
+
+  <Card title="Support" icon="envelope" href="mailto:support@despia.com">
+    [support@despia.com](mailto:support@despia.com)
+  </Card>
+</CardGroup>
