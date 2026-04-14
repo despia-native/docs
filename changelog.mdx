@@ -4,6 +4,65 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="April 10, 2026" description="Apple Health - realtime observer and webhook delivery">
+  ## Apple Health realtime observer
+
+  HealthKit now supports live data observation. Subscribe to any health or workout identifier and receive a webhook POST to your server whenever the data changes, with background delivery that persists across app restarts.
+
+  **What ships today:**
+
+  - **Observer registration.** Call `healthkit://observe` with a comma-separated list of identifiers, a delivery frequency, and a server URL. Despia registers a native `HKObserverQuery` for each type and enables background delivery via iOS background task APIs.
+  - **Webhook delivery.** On every HealthKit update, Despia fetches the latest day of data for the changed type and POSTs it to your server as JSON with `event`, `userId`, `timestamp`, and `data` fields.
+  - **Configurable frequency.** Set `frequency` to `immediate`, `hourly`, `daily`, or `weekly` to control how aggressively the OS wakes the app to deliver updates.
+  - **Observer persistence.** Active observers are saved to device storage and restored automatically when the app restarts - no re-registration required.
+  - **Observer state.** `despia.observingHealthKit` reflects the current array of active identifier strings. It updates after every `observe` or `unobserve` call.
+  - **Selective stop.** Call `healthkit://unobserve?types=all` to stop all observers, or pass specific identifiers to stop individual types.
+  - **User identification.** Append your own user ID as a query parameter on the `server` URL (e.g. `?user=abc123`) to route webhook events directly to the right user record on your server without device ID mapping.
+
+  See the [Apple Health documentation](/native-features/apple-health) for the full API reference, webhook payload shape, and code examples.
+
+  No dashboard configuration changes or rebuild steps are required. Update `despia-native` to the latest version to access the new scheme.
+
+  **Packages:**
+
+  - [despia-native](https://www.npmjs.com/package/despia-native)
+</Update>
+
+<Update label="April 07, 2026" description="GPS Location - movement-based high-accuracy tracking">
+  ## Movement-based location tracking
+
+  The `location://` scheme now accepts a `movement` parameter that fires an additional GPS update whenever the device moves a set distance, independent of the time-based `buffer` interval.
+
+  **What changes:**
+
+  - **Distance-triggered updates.** Set `movement` to a distance in centimetres to receive a GPS point every time the device crosses that threshold. Use `movement=100` for 1-metre precision, suited to running, cycling, and navigation use cases.
+  - **Combined buffer and movement.** `buffer` and `movement` run simultaneously. `movement` drives updates as the user moves, and `buffer` acts as a heartbeat fallback when the device is stationary or movement updates are sparse.
+  - **Same location object shape.** Movement-triggered points are delivered to `window.onLocationChange`, stored in the local session, and POSTed to the `server` endpoint using the same object shape as time-based points. No handling changes are required.
+
+  To enable high-accuracy tracking, pass both parameters:
+
+  ```js
+  despia("location://?buffer=60&movement=100")
+  ```
+
+  Filter for precise fixes using `horizontalAccuracy` before calculating distances - discard any point where the value exceeds `10`.
+
+  No dashboard configuration changes are required for foreground use. Background tracking requires the Background Location addon to be enabled in your Despia dashboard.
+</Update>
+
+<Update label="April 05, 2026" description="HealthKit - workout identifiers that provide quantities">
+  ## HealthKit workout quantity identifiers
+
+  Despia HealthKit now supports workout identifiers that provide quantity data, allowing apps to read and write typed quantity samples associated with workout activity types.
+
+  **What ships today:**
+
+  - **Workout quantity identifiers.** Apps can now reference quantity-type identifiers tied to specific workout activities, such as active energy burned, distance, step count, and other measurable outputs produced during a workout session.
+  - **Quantity type resolution.** The SDK resolves each workout identifier to its underlying `HKQuantityType` automatically, so apps receive correctly typed samples without manual type mapping.
+
+  No dashboard configuration changes or integration code changes are required to enable this. Rebuild your app to pick up the updated HealthKit identifier support.
+</Update>
+
 <Update label="March 30, 2026" description="Auth - Apple Sign In via Apple JS SDK">
   ## Apple Sign In
 
@@ -73,31 +132,6 @@ icon: "clock-rotate-left"
   Full reference documentation is available on the [Local CDN reference page](/local-cdn/reference).
 
   No dashboard configuration changes or rebuild steps are required. Update `despia-native` to the latest version to access the new method.
-</Update>
-
-<Update label="March 30, 2026" description="Auth - Apple Sign In via Apple JS SDK">
-  ## Apple Auth
-
-  Despia now supports Sign In with Apple using the Apple JS SDK across iOS, Android, and web, with platform-aware behaviour and full documentation.
-
-  **What ships today:**
-
-  - **iOS native - native Face ID sheet.** On iOS, the Apple JS SDK with `usePopup: true` opens the native Face ID / Apple ID sheet directly inside WKWebView. No `oauth://` bridge is needed on iOS. The `id_token` is returned to your JavaScript callback with no page redirect, which avoids the blank white screen that causes App Store rejection when using a redirect-based flow.
-  - **Android native - oauth:// bridge.** On Android, the `oauth://` bridge opens Chrome Custom Tabs for the Apple OAuth flow. `public/native-callback.html` receives the `id_token` and `code` in the URL hash and fires the deeplink to close the tab. The `oauth/` prefix in the deeplink is required.
-  - **Web - Apple JS SDK popup.** On web, the Apple JS SDK popup returns the `id_token` directly to your JavaScript callback. No redirect flow is used.
-  - **Two response mode options for Android.** The `fragment` mode redirects the browser directly to `native-callback.html` with `#id_token` in the hash - no backend POST handler needed. The `form_post` mode sends `code`, `id_token`, `state`, and `user` (name and email JSON, first login only) to your backend, which validates and redirects to `native-callback.html` with a session token.
-  - **Plain HTML callback file.** `public/native-callback.html` is recommended over a React component for the callback page. React Router can strip the `#id_token` hash fragment on route change, causing tokens to disappear. The plain HTML file bypasses React Router entirely and reads the hash directly from the browser. Chrome Custom Tabs hides the URL bar, so the `.html` extension is never visible to users.
-  - **React, Vue, Vanilla JS, and HTML auth page examples.** All auth page examples include the `searchParams` dependency array fix to handle the already-mounted page problem, where the deeplink updates the URL without remounting the component and the token handler never re-runs.
-
-  Apple Sign In requires a Services ID configured in the Apple Developer Console with your domain and return URL registered. The client secret JWT generated from your `.p8` private key expires after 6 months - set a reminder to regenerate it before expiry or Apple Sign In will silently stop working.
-
-  Full documentation is available at [Apple Sign In](/native-features/oauth/apple).
-
-  **Packages:**
-
-  - [despia-native](https://www.npmjs.com/package/despia-native)
-
-  A rebuild is required. No dashboard configuration changes are required beyond enabling the Apple JS SDK script tag and configuring your Apple Services ID credentials in your backend auth provider.
 </Update>
 
 <Update label="March 28, 2026" description="Analytics - AppsFlyer attribution and event tracking">

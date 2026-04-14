@@ -193,6 +193,14 @@
           "native-features/haptic-feedback",
           "native-features/contact-access",
           "native-features/healthkit",
+          {
+            "group": "Health Data",
+            "icon": "leaf-heart",
+            "pages": [
+              "health-data/apple-health",
+              "health-data/google-health"
+            ]
+          },
           "native-features/siri-shortcuts",
           "native-features/biometrics",
           "native-features/app-privacy",
