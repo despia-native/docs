@@ -3,6 +3,67 @@ title: "Changelog"
 description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
+<Update label="April 18, 2026" description="Notifications - critical alerts support">
+  ## Critical alerts
+
+  Despia now supports critical alerts, allowing notifications to break through Do Not Disturb and silent mode on both Android and iOS.
+
+  **What ships today:**
+
+  - **Android.** Critical alerts work out of the box with no additional configuration required.
+  - **iOS.** Critical alerts require the Critical Alerts entitlement from Apple. Once granted, enable them in the Despia dashboard under App - Integrations - OneSignal - Critical Alerts, then rebuild a new version in Despia to activate the capability.
+
+  Android apps require no additional steps. iOS apps require the Apple entitlement and a dashboard configuration change followed by a rebuild.
+</Update>
+<Update label="April 18, 2026" description="PowerSync - schema configuration in db.connect()">
+  ## PowerSync schema configuration
+
+  `db.connect()` now accepts a `schema` parameter that tells the sync engine which tables and columns to map from your backend. Previously, schema configuration had to be inferred or handled separately outside the connect call.
+
+  **What ships today:**
+
+  - **Schema definition in connect.** Pass a `schema` object directly to `db.connect()` alongside `fetchToken` and `url`. Each key is a table name, each value declares the columns and optional indexes for that table.
+  - **Column type mapping.** Columns are typed as `'text'`, `'integer'`, or `'real'`, mapping directly to SQLite affinity types.
+  - **Optional indexes.** Each table accepts an optional `indexes` map of index name to an array of column names, allowing the sync engine to optimise queries at the schema level.
+  - **Updated TypeScript types.** `ConnectOptions` now includes `schema: PowerSyncSchema` as a required field. The `PowerSyncSchema` type is exported directly from `@despia/powersync`.
+
+  ```typescript
+  await db.connect({
+      fetchToken: async () => {
+          const res = await fetch('/api/powersync-token')
+          const { token } = await res.json()
+          return token
+      },
+      url: 'https://YOUR_POWERSYNC_INSTANCE',
+      schema: {
+          users: {
+              columns: {
+                  id: 'integer',
+                  email: 'text',
+              },
+          },
+          todos: {
+              columns: {
+                  id: 'integer',
+                  title: 'text',
+                  done: 'integer',
+              },
+              indexes: {
+                  byDone: ['done'],
+              },
+          },
+      },
+  })
+  ```
+
+  Full documentation is available in the [PowerSync introduction](/local-database/introduction) and [API reference](/local-database/reference).
+
+  **Packages:**
+
+  - [`@despia/powersync@1.1.0`](https://www.npmjs.com/package/@despia/powersync)
+
+  Update the package to `1.1.0` and add a `schema` object to any existing `db.connect()` calls. No dashboard or backend changes are required.
+</Update>
 
 <Update label="April 10, 2026" description="Apple Health - realtime observer and webhook delivery">
   ## Apple Health realtime observer

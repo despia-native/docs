@@ -106,12 +106,11 @@ PowerSync runs entirely through the native runtime. Your data lives on the devic
 
 ## How it works
 
-Install the package and connect to your PowerSync instance with a JWT from your backend. After that, every query hits local SQLite.
+Install the package and connect to your PowerSync instance with a JWT from your backend. Pass a `schema` object describing your tables so the sync engine knows which columns to map.
 
 ```typescript
 import { db } from '@despia/powersync'
 
-// Connect sync engine with a JWT from your backend
 await db.connect({
     fetchToken: async () => {
         const res = await fetch('/api/powersync-token')
@@ -119,10 +118,25 @@ await db.connect({
         return token
     },
     url: 'https://YOUR_POWERSYNC_INSTANCE',
+    schema: {
+        users: {
+            columns: {
+                id: 'integer',
+                email: 'text',
+            },
+        },
+        todos: {
+            columns: {
+                id: 'integer',
+                title: 'text',
+                done: 'integer',
+            },
+        },
+    },
 })
 ```
 
-Run migrations on startup to set up your schema:
+Run migrations on startup to set up your local tables:
 
 ```typescript
 await db.migrate(1, [

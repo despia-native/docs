@@ -60,7 +60,7 @@ Query a local SQLite database and sync it with your backend in real time.
 
 ### Connect
 
-Establish a connection to your PowerSync instance. `fetchToken` is called whenever a new JWT is needed.
+Establish a connection to your PowerSync instance. `fetchToken` is called whenever a new JWT is needed. Pass a `schema` object so the sync engine knows which tables and columns to map from your backend.
 
 ```typescript
 await db.connect({
@@ -70,6 +70,24 @@ await db.connect({
         return token
     },
     url: 'https://YOUR_POWERSYNC_INSTANCE',
+    schema: {
+        users: {
+            columns: {
+                id: 'integer',
+                email: 'text',
+            },
+        },
+        todos: {
+            columns: {
+                id: 'integer',
+                title: 'text',
+                done: 'integer',
+            },
+            indexes: {
+                byDone: ['done'],
+            },
+        },
+    },
 })
 ```
 
@@ -81,6 +99,21 @@ await db.connect({
   Your PowerSync instance URL.
 </ParamField>
 
+<ParamField path="schema" type="PowerSyncSchema">
+  Describes the tables the sync engine should map. Each key is a table name. Each value declares the columns and optional indexes for that table.
+
+  ```typescript
+  type PowerSyncSchema = Record<
+      string,
+      {
+          columns: Record<string, 'text' | 'integer' | 'real'>
+          indexes?: Record<string, string[]>
+      }
+  >
+  ```
+
+  Column types map directly to SQLite affinity types: `'text'`, `'integer'`, or `'real'`. Indexes are optional and declared as a map of index name to an array of column names.
+</ParamField>
 
 ---
 
@@ -313,7 +346,7 @@ unsub()
 
 ```mermaid
 flowchart TD
-    A["db.connect({ fetchToken, url })"] --> B["JWT fetched from your backend"]
+    A["db.connect({ fetchToken, url, schema })"] --> B["JWT fetched from your backend"]
     B --> C["Sync engine connects to PowerSync instance"]
     C --> D{"App State?"}
     D -->|"Online"| E["Data syncs in background"]
@@ -329,7 +362,7 @@ flowchart TD
 ## React Hook
 
 ```typescript
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect } from 'react'
 import { db } from '@despia/powersync'
 
 function useLiveQuery<T extends Record<string, unknown>>(
@@ -384,9 +417,18 @@ export type SyncStatus = {
     downloading: boolean
 }
 
+export type PowerSyncSchema = Record<
+    string,
+    {
+        columns: Record<string, 'text' | 'integer' | 'real'>
+        indexes?: Record<string, string[]>
+    }
+>
+
 export type ConnectOptions = {
     fetchToken: () => Promise<string>
     url?:       string
+    schema:     PowerSyncSchema
 }
 ```
 

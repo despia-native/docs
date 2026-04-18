@@ -130,6 +130,90 @@ Before calling `setonesignalplayerid://`, configure OneSignal with your iOS and 
 
 ---
 
+## Critical alerts
+
+Critical alerts bypass Do Not Disturb and silent mode, delivering the notification with sound regardless of the user's device settings. They are intended for urgent, time-sensitive messages such as security alerts or medical notifications.
+
+### iOS
+
+iOS requires the Critical Alerts entitlement from Apple. Request it at [developer.apple.com/contact/request/notifications-critical-alerts-entitlement](https://developer.apple.com/contact/request/notifications-critical-alerts-entitlement). Apple reviews requests manually and approval can take several weeks.
+
+When submitting the request, you need to enable the entitlement on two bundle IDs , your core app bundle ID and your OneSignal Service Extension bundle ID. For example, if your app bundle ID is `com.despia.myapp`, add both:
+
+- `com.despia.myapp`
+- `com.despia.myapp.OneSignalNotificationServiceExtension`
+
+Once Apple approves the request, enable critical alerts in **Despia \> App \> Integrations \> OneSignal \> Critical Alerts** and rebuild a new version in Despia. After the rebuild, set `ios_critical_alert` to `1` in your payload.
+
+```javascript
+// Backend: send a critical alert on iOS
+const response = await fetch('https://onesignal.com/api/v1/notifications', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic YOUR_REST_API_KEY',
+    },
+    body: JSON.stringify({
+        app_id:                     'YOUR_ONESIGNAL_APP_ID',
+        include_external_user_ids:  [userId],
+        headings:                   { en: 'Urgent alert' },
+        contents:                   { en: 'Message body' },
+        ios_critical_alert:         1,
+    }),
+})
+```
+
+### Android
+
+No dashboard configuration or rebuild is required. Set `priority` to `10` and `android_channel_id` to a high-importance channel in your OneSignal payload.
+
+To get your channel ID, go to **OneSignal \> Settings \> Messaging \> Android Categories** and create a new category with importance set to **Urgent**. OneSignal will generate a channel ID for that category , copy it and use it as `android_channel_id` in your payload.
+
+```javascript
+// Backend: send a critical alert on Android
+const response = await fetch('https://onesignal.com/api/v1/notifications', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic YOUR_REST_API_KEY',
+    },
+    body: JSON.stringify({
+        app_id:                     'YOUR_ONESIGNAL_APP_ID',
+        include_external_user_ids:  [userId],
+        headings:                   { en: 'Urgent alert' },
+        contents:                   { en: 'Message body' },
+        priority:                   10,
+        android_channel_id:         'YOUR_CHANNEL_ID', // from OneSignal > Settings > Messaging > Android Categories
+    }),
+})
+```
+
+### Both platforms
+
+To send a single critical alert that works on both Android and iOS, combine the fields in one payload.
+
+```javascript
+// Backend: send a critical alert on Android and iOS
+const response = await fetch('https://onesignal.com/api/v1/notifications', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Basic YOUR_REST_API_KEY',
+    },
+    body: JSON.stringify({
+        app_id:                     'YOUR_ONESIGNAL_APP_ID',
+        include_external_user_ids:  [userId],
+        headings:                   { en: 'Urgent alert' },
+        contents:                   { en: 'Message body' },
+        priority:                   10,
+        android_channel_id:         'YOUR_CHANNEL_ID',
+        ios_critical_alert:         1,
+    }),
+})
+```
+
+---
+
 ## Resources
 
 <CardGroup cols={2}>
