@@ -67,7 +67,7 @@ Download and cache a remote file. Fire-and-forget - do not await.
     const subfolder = "movies";
     const filename = "bigbuckbunny.mp4";
     const uniqueId = "movie_bigbuckbunny";
-
+    
     despia(
       `localcdn://write?url=${remoteUrl}&filename=${folder}/${subfolder}/${filename}&index=${uniqueId}`
     );
@@ -359,7 +359,9 @@ Upload user files via HTTP POST:
 const fd = new FormData();
 fd.append("file", fileInput.files[0]);
 
-const res = await fetch("http://localhost:7777/api/upload", {
+const host = window.location.host; // e.g. "localhost:7777"
+
+const res = await fetch(`http://${host}/api/upload`, {
   method: "POST",
   body: fd
 });
@@ -368,10 +370,10 @@ const result = await res.json();
 // { success: true, fileName: "video.mp4", url: "http://localhost:7777/files/video.mp4" }
 ```
 
-| Method             | Storage Path | URL Pattern                            |
-| ------------------ | ------------ | -------------------------------------- |
+| Method | Storage Path | URL Pattern |
+| --- | --- | --- |
 | `localcdn://write` | `/localcdn/` | `localhost:{PORT}/localcdn/{filepath}` |
-| `/api/upload`      | `/files/`    | `localhost:{PORT}/files/{filename}`    |
+| `/api/upload` | `/files/` | `localhost:{PORT}/files/{filename}` |
 
 ---
 
@@ -434,17 +436,17 @@ if (isDespia) {
 Free sample videos for testing Local CDN (CC licensed):
 
 <Accordion title="Available test videos">
-  | Title                | URL                                                                                       | Size   |
-  | -------------------- | ----------------------------------------------------------------------------------------- | ------ |
-  | Big Buck Bunny       | `http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4`       | ~158MB |
-  | Elephant Dream       | `http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4`     | ~115MB |
-  | Sintel               | `http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4`             | ~129MB |
-  | Tears of Steel       | `http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4`       | ~185MB |
-  | For Bigger Blazes    | `http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4`    | ~2MB   |
-  | For Bigger Escapes   | `http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4`   | ~2MB   |
-  | For Bigger Fun       | `http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4`       | ~2MB   |
-  | For Bigger Joyrides  | `http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4`  | ~2MB   |
-  | For Bigger Meltdowns | `http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4` | ~2MB   |
+  | Title | URL | Size |
+  | --- | --- | --- |
+  | Big Buck Bunny | `http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4` | ~158MB |
+  | Elephant Dream | `http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4` | ~115MB |
+  | Sintel | `http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4` | ~129MB |
+  | Tears of Steel | `http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4` | ~185MB |
+  | For Bigger Blazes | `http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4` | ~2MB |
+  | For Bigger Escapes | `http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4` | ~2MB |
+  | For Bigger Fun | `http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4` | ~2MB |
+  | For Bigger Joyrides | `http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerJoyrides.mp4` | ~2MB |
+  | For Bigger Meltdowns | `http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4` | ~2MB |
 </Accordion>
 
 <Accordion title="Quick test script">
@@ -454,11 +456,11 @@ Free sample videos for testing Local CDN (CC licensed):
     { url: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4", id: "test_bunny" },
     { url: "http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4", id: "test_sintel" }
   ];
-
+  
   window.contentServerChange = (item) => {
     console.log(`Downloaded: ${item.index} (${(item.size / 1024 / 1024).toFixed(1)}MB)`);
   };
-
+  
   const { url, id } = testVideos[0];
   despia(`localcdn://write?url=${url}&filename=test/${id}.mp4&index=${id}`);
   ```
@@ -469,10 +471,11 @@ Free sample videos for testing Local CDN (CC licensed):
 ## Resources
 
 <CardGroup cols={2}>
-  <Card icon="npm" href="https://www.npmjs.com/package/despia-native" title="NPM Package">
+  <Card title="NPM Package" icon="npm" href="https://www.npmjs.com/package/despia-native">
     despia-native
   </Card>
-  <Card icon="envelope" href="mailto:support@despia.com" title="Support">
-    support@despia.com
+
+  <Card title="Support" icon="envelope" href="mailto:support@despia.com">
+    [support@despia.com](mailto:support@despia.com)
   </Card>
 </CardGroup>
