@@ -5,7 +5,7 @@ icon: "circle-info"
 ---
 
 <Info>
-  This feature requires Despia V4, currently in beta. Most Despia apps are running on Despia V3. To join the V4 beta, email [beta@despia.com](mailto:beta@despia.com).
+  The PowerSync integration is fully built and production-ready. It will become publicly available when the Despia V4 editor launches shortly. To enable it for your app in the meantime, contact Despia customer support at [support@despia.com](mailto:support@despia.com).
 </Info>
 
 PowerSync brings a native local SQLite database to your Despia app and keeps it in real-time sync with your backend. Queries hit local storage, there is no network round-trip. The app stays fully usable offline and syncs automatically when connectivity returns.
@@ -62,6 +62,26 @@ PowerSync brings a native local SQLite database to your Despia app and keeps it 
 
 ---
 
+## Dashboard setup
+
+Before calling `db.connect()`, configure your PowerSync App ID in the Despia dashboard. This tells the native runtime which PowerSync instance to connect to, so you never need to hardcode the URL in your web code.
+
+<Steps>
+  <Step title="Open your app in the Despia dashboard">
+    Navigate to your app.
+  </Step>
+  <Step title="Go to Integrations">
+    Open the **Integrations** tab for your app.
+  </Step>
+  <Step title="Add your PowerSync App ID">
+    Under **PowerSync**, paste your App ID from the PowerSync dashboard into the **App ID** field and save.
+  </Step>
+</Steps>
+
+Once the App ID is saved, the native bridge handles the connection routing automatically on the next build.
+
+---
+
 ## Why we built this
 
 Despia apps run your existing web app inside a native Swift and Kotlin runtime. Most apps rely on fetching data from a remote API on every load. That works fine on a fast connection. It breaks on slow networks, fails completely offline, and adds latency to every interaction.
@@ -106,7 +126,7 @@ PowerSync runs entirely through the native runtime. Your data lives on the devic
 
 ## How it works
 
-Install the package and connect to your PowerSync instance with a JWT from your backend. Pass a `schema` object describing your tables so the sync engine knows which columns to map.
+With your PowerSync App ID already configured in the Despia dashboard, you only need to provide a `fetchToken` function and a `schema` describing your tables. The native bridge uses the dashboard-configured App ID to route the connection.
 
 ```typescript
 import { db } from '@despia/powersync'
@@ -117,7 +137,6 @@ await db.connect({
         const { token } = await res.json()
         return token
     },
-    url: 'https://YOUR_POWERSYNC_INSTANCE',
     schema: {
         users: {
             columns: {
@@ -230,7 +249,10 @@ await db.sync()
   <Accordion defaultOpen title="Does this work offline?">
     Yes. Queries and writes hit local SQLite. Once initial sync completes, the app works fully offline. Pending writes are queued and uploaded when connectivity returns.
   </Accordion>
-  <Accordion defaultOpen title="What backends does PowerSync support?">
+  <Accordion defaultOpen title="Where do I configure my PowerSync App ID?">
+    In the Despia dashboard, under your app's **Integrations** tab, there is a **PowerSync** section with an **App ID** field. Paste your PowerSync App ID there and save. The native bridge picks it up automatically on the next build.
+  </Accordion>
+  <Accordion title="What backends does PowerSync support?">
     PowerSync syncs with Postgres, MongoDB, and MySQL via sync rules you configure in the PowerSync dashboard. Despia handles the native bridge, the backend connection is between PowerSync and your database.
   </Accordion>
   <Accordion title="Does this work with Despia Local Server?">
@@ -239,8 +261,8 @@ await db.sync()
   <Accordion title="Is this App Store compliant?">
     Yes. The database is compiled into the app binary. No executables are downloaded post-install. SQLite is a standard system framework on both iOS and Android.
   </Accordion>
-  <Accordion title="Is this available on Despia V3?">
-    No. PowerSync requires Despia V4. Email [beta@despia.com](mailto:beta@despia.com) to join the V4 beta.
+  <Accordion title="How do I get access before the public release?">
+    The integration is fully built and ready. It will become publicly available when the V4 editor launches. In the meantime, contact [support@despia.com](mailto:support@despia.com) to enable it on your app.
   </Accordion>
 </AccordionGroup>
 

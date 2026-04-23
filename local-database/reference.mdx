@@ -5,7 +5,7 @@ icon: "code"
 ---
 
 <Info>
-  This feature requires Despia V4, currently in beta. Most Despia apps are running on Despia V3. To join the V4 beta, email [beta@despia.com](mailto:beta@despia.com).
+  The PowerSync integration is fully built and production-ready. It will become publicly available when the Despia V4 editor launches shortly. To enable it for your app in the meantime, contact Despia customer support at [support@despia.com](mailto:support@despia.com).
 </Info>
 
 Query a local SQLite database and sync it with your backend in real time.
@@ -56,11 +56,30 @@ Query a local SQLite database and sync it with your backend in real time.
 
 ---
 
+## Dashboard configuration
+
+Your PowerSync App ID is configured in the Despia dashboard, not in code. This keeps credentials out of your JavaScript bundle and lets you change instances without shipping a new build.
+
+<Steps>
+  <Step title="Open the Integrations tab">
+    Go to **Despia** → **App** → **Integrations**.
+  </Step>
+  <Step title="Paste your PowerSync App ID">
+    Under the **PowerSync** section, paste your App ID into the **App ID** field and save.
+  </Step>
+</Steps>
+
+Once saved, the native bridge routes `db.connect()` calls to the configured PowerSync instance automatically.
+
+---
+
 ## API Reference
 
 ### Connect
 
 Establish a connection to your PowerSync instance. `fetchToken` is called whenever a new JWT is needed. Pass a `schema` object so the sync engine knows which tables and columns to map from your backend.
+
+The PowerSync App ID is read from the Despia dashboard configuration, so you do not pass a URL in code.
 
 ```typescript
 await db.connect({
@@ -69,7 +88,6 @@ await db.connect({
         const { token } = await res.json()
         return token
     },
-    url: 'https://YOUR_POWERSYNC_INSTANCE',
     schema: {
         users: {
             columns: {
@@ -95,11 +113,7 @@ await db.connect({
   Returns a short-lived JWT from your backend. Called automatically when the token expires.
 </ParamField>
 
-<ParamField path="url" type="string">
-  Your PowerSync instance URL.
-</ParamField>
-
-<ParamField path="schema" type="PowerSyncSchema">
+<ParamField path="schema" type="PowerSyncSchema" required>
   Describes the tables the sync engine should map. Each key is a table name. Each value declares the columns and optional indexes for that table.
 
   ```typescript
@@ -346,15 +360,16 @@ unsub()
 
 ```mermaid
 flowchart TD
-    A["db.connect({ fetchToken, url, schema })"] --> B["JWT fetched from your backend"]
-    B --> C["Sync engine connects to PowerSync instance"]
-    C --> D{"App State?"}
-    D -->|"Online"| E["Data syncs in background"]
-    D -->|"Offline"| F["Reads and writes hit local SQLite"]
-    F --> G["Pending writes queued"]
-    G --> H["Device comes online"]
-    H --> E
-    E --> I["watch() callbacks fire with updated rows"]
+    A["App ID saved in Despia dashboard"] --> B["db.connect({ fetchToken, schema })"]
+    B --> C["JWT fetched from your backend"]
+    C --> D["Native bridge connects to PowerSync using dashboard App ID"]
+    D --> E{"App State?"}
+    E -->|"Online"| F["Data syncs in background"]
+    E -->|"Offline"| G["Reads and writes hit local SQLite"]
+    G --> H["Pending writes queued"]
+    H --> I["Device comes online"]
+    I --> F
+    F --> J["watch() callbacks fire with updated rows"]
 ```
 
 ---
@@ -427,7 +442,6 @@ export type PowerSyncSchema = Record<
 
 export type ConnectOptions = {
     fetchToken: () => Promise<string>
-    url?:       string
     schema:     PowerSyncSchema
 }
 ```
@@ -437,7 +451,7 @@ export type ConnectOptions = {
 ## Environment check
 
 ```typescript
-if (navigator.userAgent.includes('despia')) {
+if (navigator.userAgent.toLowerCase().includes('despia')) {
     // Use PowerSync
 } else {
     // Fallback for non-Despia environment (standard browser)
