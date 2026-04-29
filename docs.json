@@ -123,6 +123,14 @@
         ]
       },
       {
+        "group": "Custom Code",
+        "icon": "code",
+        "hidden": true,
+        "pages": [
+          "custom-code/extensions"
+        ]
+      },
+      {
         "group": "Analytics",
         "icon": "chart-mixed",
         "pages": [
@@ -210,6 +218,7 @@
           "native-features/app-settings",
           "native-features/home-widgets",
           "native-features/file-sharing",
+          "native-features/focus-events",
           "native-features/screen-brightness",
           "native-features/share-dialog",
           "native-features/clipboard",

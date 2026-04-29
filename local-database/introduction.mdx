@@ -1,6 +1,6 @@
 ---
 title: "Introduction"
-description: "Native local SQLite database with real-time backend sync for Despia apps."
+description: "Native local SQLite database with optional real-time backend sync for Despia apps."
 icon: "circle-info"
 ---
 
@@ -8,11 +8,24 @@ icon: "circle-info"
   The PowerSync integration is fully built and production-ready. It will become publicly available when the Despia V4 editor launches shortly. To enable it for your app in the meantime, contact Despia customer support at [support@despia.com](mailto:support@despia.com).
 </Info>
 
-PowerSync brings a native local SQLite database to your Despia app and keeps it in real-time sync with your backend. Queries hit local storage, there is no network round-trip. The app stays fully usable offline and syncs automatically when connectivity returns.
+PowerSync brings a native local SQLite database to your Despia app, with optional cloud sync to your backend. Queries hit local storage, there is no network round-trip. The app stays fully usable offline, and sync is opt-in when you have credentials.
 
 <Info>
-  PowerSync uses native SQLite on both iOS and Android with a production-proven sync engine. Write locally, sync in the background, read instantly, even on a plane.
+  Local SQLite operations work without any cloud setup. Sync is a separate layer you turn on with `db.powersync.connect({ token })` once you have an authenticated user.
 </Info>
+
+---
+
+## Two layers, one API
+
+`@despia/powersync` exposes two layers under the same `db` object:
+
+| Layer | Works offline | Requires PowerSync cloud setup | APIs |
+| --- | --- | --- | --- |
+| Local SQLite | Yes | No | `init`, `query`, `get`, `execute`, `batch`, `transaction`, `watch`, `migrate`, `schema` |
+| Cloud sync | Yes, sync resumes later | Yes | `db.powersync.connect`, `db.powersync.sync`, `db.powersync.status`, `db.powersync.events.status` |
+
+Local database operations do not require a token. Sync starts only after native has an active schema, applied migrations, and credentials from `db.powersync.connect({ token })`.
 
 ---
 
@@ -37,7 +50,7 @@ PowerSync brings a native local SQLite database to your Despia app and keeps it 
     </CodeGroup>
 
     ```typescript
-    import { db } from '@despia/powersync';
+    import { active, db } from '@despia/powersync';
     ```
   </Tab>
   <Tab title="CDN">
@@ -46,13 +59,13 @@ PowerSync brings a native local SQLite database to your Despia app and keeps it 
     ```html UMD
     <script src="https://cdn.jsdelivr.net/npm/@despia/powersync/dist/umd/despia-powersync.min.js"></script>
     <script>
-        const { db } = window.DespiaPowerSync
+        const { db, active } = window.powersync
     </script>
     ```
 
     ```html ESM
     <script type="module">
-        import { db } from 'https://cdn.jsdelivr.net/npm/@despia/powersync/+esm'
+        import { active, db } from 'https://cdn.jsdelivr.net/npm/@despia/powersync/+esm'
     </script>
     ```
 
@@ -62,23 +75,19 @@ PowerSync brings a native local SQLite database to your Despia app and keeps it 
 
 ---
 
-## Dashboard setup
+## Environment check
 
-Before calling `db.connect()`, configure your PowerSync App ID in the Despia dashboard. This tells the native runtime which PowerSync instance to connect to, so you never need to hardcode the URL in your web code.
+`@despia/powersync` requires the native bridge. Use `active()` to check whether the bridge is available before calling any database methods.
 
-<Steps>
-  <Step title="Open your app in the Despia dashboard">
-    Navigate to your app.
-  </Step>
-  <Step title="Go to Integrations">
-    Open the **Integrations** tab for your app.
-  </Step>
-  <Step title="Add your PowerSync App ID">
-    Under **PowerSync**, paste your App ID from the PowerSync dashboard into the **App ID** field and save.
-  </Step>
-</Steps>
+```typescript
+import { active } from '@despia/powersync'
 
-Once the App ID is saved, the native bridge handles the connection routing automatically on the next build.
+if (!active()) {
+    console.warn('Native PowerSync bridge is not available.')
+}
+```
+
+`active()` only checks bridge presence. It does not mean SQLite is initialized or sync is connected.
 
 ---
 
@@ -88,7 +97,7 @@ Despia apps run your existing web app inside a native Swift and Kotlin runtime. 
 
 We wanted local-first data that works the way web developers expect: query with SQL, write normally, get results instantly. No custom sync protocols. No manual conflict resolution. No arbitrary storage limits.
 
-So we integrated [PowerSync](https://powersync.com/), a production-proven sync engine, directly into the Despia runtime. The result: a native SQLite database on-device, a simple JavaScript API, and automatic two-way sync with your backend.
+So we integrated [PowerSync](https://powersync.com/), a production-proven sync engine, directly into the Despia runtime. The result: a native SQLite database on-device, a simple JavaScript API, and optional two-way sync with your backend.
 
 ---
 
@@ -102,7 +111,7 @@ Write your code once. It works identically on both platforms. No iOS-specific wo
 import { db } from '@despia/powersync'
 
 // Same code. Both platforms.
-type User = { id: number; email: string }
+type User = { id: string; email: string }
 const users = await db.query<User>('SELECT id, email FROM users WHERE active = ?', [1])
 ```
 
@@ -110,57 +119,79 @@ Under the hood, Despia handles the platform-specific SQLite implementations so y
 
 ---
 
-## Fully on-device. No cloud dependencies.
+## Fully on-device. No cloud dependencies for local data.
 
-PowerSync runs entirely through the native runtime. Your data lives on the device.
+Local SQLite runs entirely through the native runtime. Your data lives on the device.
 
 **Built on native SQLite.** Both iOS and Android have SQLite built into the OS. PowerSync uses these native engines directly, no third-party database, no in-memory fallback, no storage quotas.
 
-**Use any backend.** PowerSync syncs with your existing Postgres, MongoDB, or MySQL database through its sync rules. Despia does not sit between you and your data.
+**Use any backend.** When you turn on sync, PowerSync connects to your existing Postgres, MongoDB, or MySQL database through sync rules. Despia does not sit between you and your data.
 
-**No per-user fees.** Unlike cloud-based solutions that charge per monthly active user, the database is on the device. Storage scales with the device, not with your user count.
+**No per-user fees for local storage.** The database is on the device. Storage scales with the device, not with your user count.
 
-**Works offline completely.** Once data is synced, the app operates without any network connectivity. Reads and writes work locally. Pending writes are uploaded when connectivity returns.
+**Works offline completely.** Once initial sync completes, the app operates without any network connectivity. Reads and writes work locally. Pending writes are uploaded when connectivity returns.
 
 ---
 
 ## How it works
 
-With your PowerSync App ID already configured in the Despia dashboard, you only need to provide a `fetchToken` function and a `schema` describing your tables. The native bridge uses the dashboard-configured App ID to route the connection.
+You initialize the database with a schema and a schema version, then run migrations to set up the actual SQLite tables. Sync is a separate step that you only call when you have a token for the signed-in user.
 
 ```typescript
-import { db } from '@despia/powersync'
+import { db, type PowerSyncSchema } from '@despia/powersync'
 
-await db.connect({
-    fetchToken: async () => {
-        const res = await fetch('/api/powersync-token')
-        const { token } = await res.json()
-        return token
-    },
-    schema: {
-        users: {
-            columns: {
-                id: 'integer',
-                email: 'text',
-            },
+const SCHEMA_VERSION = 1
+
+const SCHEMA: PowerSyncSchema = {
+    users: {
+        columns: {
+            id:        'text',
+            email:     'text',
+            createdAt: 'text',
         },
-        todos: {
-            columns: {
-                id: 'integer',
-                title: 'text',
-                done: 'integer',
-            },
+        indexes: {
+            users_by_email: ['email'],
         },
     },
+    todos: {
+        columns: {
+            id:        'text',
+            userId:    'text',
+            title:     'text',
+            done:      'integer',
+            createdAt: 'text',
+        },
+        indexes: {
+            todos_by_user: ['userId'],
+        },
+    },
+}
+
+await db.init({
+    schema:        SCHEMA,
+    schemaVersion: SCHEMA_VERSION,
+    databaseName:  'mydb',
 })
 ```
 
-Run migrations on startup to set up your local tables:
+Run migrations on startup to create the actual tables. Schema describes the expected shape, migrations change the SQLite file:
 
 ```typescript
 await db.migrate(1, [
-    { sql: 'CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY, email TEXT)' },
-    { sql: 'CREATE TABLE IF NOT EXISTS todos(id INTEGER PRIMARY KEY, title TEXT, done INTEGER DEFAULT 0)' },
+    `CREATE TABLE IF NOT EXISTS users (
+        id TEXT PRIMARY KEY,
+        email TEXT NOT NULL,
+        createdAt TEXT NOT NULL
+    )`,
+    'CREATE INDEX IF NOT EXISTS users_by_email ON users(email)',
+    `CREATE TABLE IF NOT EXISTS todos (
+        id TEXT PRIMARY KEY,
+        userId TEXT NOT NULL,
+        title TEXT NOT NULL,
+        done INTEGER DEFAULT 0,
+        createdAt TEXT NOT NULL
+    )`,
+    'CREATE INDEX IF NOT EXISTS todos_by_user ON todos(userId)',
 ])
 ```
 
@@ -168,16 +199,26 @@ Query and write immediately, all local, all instant:
 
 ```typescript
 // Query
-type Todo = { id: number; title: string; done: 0 | 1 }
+type Todo = { id: string; title: string; done: 0 | 1 }
 const todos = await db.query<Todo>('SELECT * FROM todos WHERE done = ?', [0])
 
 // Write
-await db.execute('INSERT INTO todos(title, done) VALUES(?, ?)', ['Buy milk', 0])
+await db.execute(
+    'INSERT INTO todos(id, userId, title, done, createdAt) VALUES(?, ?, ?, ?, ?)',
+    ['todo_1', 'user_1', 'Buy milk', 0, new Date().toISOString()]
+)
 
 // Transaction
 await db.transaction(async (tx) => {
     await tx.execute('UPDATE todos SET done = 1 WHERE id = ?', [todoId])
 })
+```
+
+Add sync only when you have a token for the signed-in user:
+
+```typescript
+const token = await getPowerSyncToken()
+await db.powersync.connect({ token })
 ```
 
 ---
@@ -187,7 +228,7 @@ await db.transaction(async (tx) => {
 Subscribe to a query and receive updates whenever the underlying data changes, including changes arriving from sync.
 
 ```typescript
-type Todo = { id: number; title: string; done: 0 | 1 }
+type Todo = { id: string; title: string; done: 0 | 1 }
 
 const unwatch = db.watch<Todo>(
     'SELECT * FROM todos WHERE done = ?',
@@ -208,10 +249,10 @@ The callback fires immediately with the current result set, then again whenever 
 Check the current sync state and subscribe to changes:
 
 ```typescript
-const status = await db.syncStatus()
+const status = await db.powersync.status()
 // { connected: true, lastSynced: "2026-04-01T09:00:00Z", uploading: false, downloading: false }
 
-const unsub = db.onSyncChange((status) => {
+const unsubscribe = db.powersync.events.status((status) => {
     updateSyncIndicator(status.connected)
 })
 ```
@@ -219,24 +260,69 @@ const unsub = db.onSyncChange((status) => {
 Trigger a manual sync at any point:
 
 ```typescript
-await db.sync()
+await db.powersync.sync()
 ```
+
+`db.powersync.sync()` is a trigger. Sync usually completes asynchronously, so read the result with `db.powersync.status()` or subscribe with `db.powersync.events.status()`.
+
+---
+
+## Startup lifecycle
+
+Use this order on every app start. It guarantees that sync only begins after the schema is active and migrations are applied.
+
+```typescript
+import { db } from '@despia/powersync'
+import { CURRENT_SCHEMA, SCHEMA_VERSION, DATABASE_NAME, MIGRATIONS } from './schema'
+
+await db.init({
+    schema:        CURRENT_SCHEMA,
+    schemaVersion: SCHEMA_VERSION,
+    databaseName:  DATABASE_NAME,
+})
+
+const activeSchema    = await db.schema().catch(() => null)
+const appliedVersion  = activeSchema?.appliedMigrationVersion ?? 0
+const pendingMigrations = MIGRATIONS.filter((m) => m.version > appliedVersion)
+
+if (pendingMigrations.length > 0) {
+    await db.migrate(
+        SCHEMA_VERSION,
+        pendingMigrations.flatMap((m) => m.statements)
+    )
+}
+
+if (token) {
+    await db.powersync.connect({ token })
+}
+```
+
+Why this order matters:
+
+- `init()` gives native the latest schema and target schema version as pending state.
+- `schema()` returns the last active schema, if native already has one cached.
+- `migrate()` applies all pending SQL in one transaction.
+- Native promotes pending schema to active only after the migration reaches `schemaVersion`.
+- `db.powersync.connect()` starts sync only after active schema and credentials exist.
 
 ---
 
 ## Use cases
 
 <CardGroup cols={2}>
-  <Card icon="wifi-slash" title="Offline-first apps">
+  <Card title="Offline-first apps" icon="wifi-slash">
     Field service, logistics, and inspection apps that must work without connectivity. Data syncs when the device comes back online.
   </Card>
-  <Card icon="bolt" title="Instant UI">
+
+  <Card title="Instant UI" icon="bolt">
     No loading spinners waiting for API responses. Every read hits local SQLite in milliseconds regardless of network conditions.
   </Card>
-  <Card icon="arrows-rotate" title="Real-time collaboration">
+
+  <Card title="Real-time collaboration" icon="arrows-rotate">
     Subscribe to live queries and reflect changes from other users the moment they arrive via sync.
   </Card>
-  <Card icon="database" title="Data-heavy apps">
+
+  <Card title="Data-heavy apps" icon="database">
     Store large datasets locally without hitting browser storage quotas. SQLite handles millions of rows efficiently.
   </Card>
 </CardGroup>
@@ -246,21 +332,30 @@ await db.sync()
 ## Frequently asked questions
 
 <AccordionGroup>
-  <Accordion defaultOpen title="Does this work offline?">
+  <Accordion title="Does this work offline?" defaultOpen>
     Yes. Queries and writes hit local SQLite. Once initial sync completes, the app works fully offline. Pending writes are queued and uploaded when connectivity returns.
   </Accordion>
-  <Accordion defaultOpen title="Where do I configure my PowerSync App ID?">
-    In the Despia dashboard, under your app's **Integrations** tab, there is a **PowerSync** section with an **App ID** field. Paste your PowerSync App ID there and save. The native bridge picks it up automatically on the next build.
+
+  <Accordion title="Do I need a token to use the local database?" defaultOpen>
+    No. Local SQLite operations (`init`, `query`, `get`, `execute`, `batch`, `transaction`, `watch`, `migrate`) work without any token. You only need a token when you call `db.powersync.connect({ token })` to start cloud sync.
   </Accordion>
+
+  <Accordion title="Where does the PowerSync App ID come from?">
+    Native reads the static PowerSync app ID and instance URL from native config. You only pass a user-scoped JWT token to `db.powersync.connect({ token })`. The token identifies the signed-in user, native owns the rest of the connection setup.
+  </Accordion>
+
   <Accordion title="What backends does PowerSync support?">
     PowerSync syncs with Postgres, MongoDB, and MySQL via sync rules you configure in the PowerSync dashboard. Despia handles the native bridge, the backend connection is between PowerSync and your database.
   </Accordion>
+
   <Accordion title="Does this work with Despia Local Server?">
     Yes. PowerSync is compatible with both Remote Hydration (default) and Local Server (`http://localhost`). The database runs in the native layer regardless of how the web app is served.
   </Accordion>
+
   <Accordion title="Is this App Store compliant?">
     Yes. The database is compiled into the app binary. No executables are downloaded post-install. SQLite is a standard system framework on both iOS and Android.
   </Accordion>
+
   <Accordion title="How do I get access before the public release?">
     The integration is fully built and ready. It will become publicly available when the V4 editor launches. In the meantime, contact [support@despia.com](mailto:support@despia.com) to enable it on your app.
   </Accordion>
@@ -271,16 +366,19 @@ await db.sync()
 ## Resources
 
 <CardGroup cols={2}>
-  <Card icon="npm" href="https://www.npmjs.com/package/@despia/powersync" title="NPM Package">
+  <Card title="NPM Package" icon="npm" href="https://www.npmjs.com/package/@despia/powersync">
     @despia/powersync
   </Card>
-  <Card icon="code" href="/local-database/reference" title="Reference">
-    Full API, query, execute, batch, watch, migrate, sync
+
+  <Card title="Reference" icon="code" href="/local-database/reference">
+    Full API, init, query, execute, batch, watch, migrate, sync
   </Card>
-  <Card icon="link" href="https://powersync.com" title="PowerSync">
+
+  <Card title="PowerSync" icon="link" href="https://powersync.com">
     Backend setup, schema config, and sync rules
   </Card>
-  <Card icon="envelope" href="mailto:support@despia.com" title="Support">
-    support@despia.com
+
+  <Card title="Support" icon="envelope" href="mailto:support@despia.com">
+    [support@despia.com](mailto:support@despia.com)
   </Card>
 </CardGroup>
