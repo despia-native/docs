@@ -199,6 +199,7 @@
           "native-features/external-links",
           "native-features/device-indexing",
           "native-features/haptic-feedback",
+          "native-features/prevent-autoscroll",
           "native-features/contact-access",
           "native-features/healthkit",
           {
