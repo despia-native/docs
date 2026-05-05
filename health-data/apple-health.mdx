@@ -55,17 +55,42 @@ Access Apple HealthKit from your web app through the Despia native bridge. Despi
 
 ---
 
+## Apple Developer and Despia setup
+
+HealthKit requires the HealthKit capability on your core app bundle ID before any read or write call works. Configure Apple Developer first, then enable Health Data in the Despia Editor and rebuild.
+
+<Steps>
+  <Step title="Sign in to Apple Developer">
+    Go to [developer.apple.com](https://developer.apple.com) and sign in with the Apple Developer account that owns your app's primary bundle ID. Navigate to **Certificates, Identifiers & Profiles \> Identifiers**.
+  </Step>
+  <Step title="Add HealthKit to your core app bundle ID">
+    Find your core app (e.g. `com.despia.myapp`), click into it, and check **HealthKit** under Capabilities. Click **Save**. Without this, HealthKit reads will return empty arrays and writes will fail silently, since iOS rejects HealthKit access for any app whose bundle ID does not declare the capability.
+  </Step>
+  <Step title="Enable Health Data in the Despia Editor">
+    Open the Despia Editor and go to **App \> Addons \> Health Data**. Toggle the addon on. This signals Despia to compile the HealthKit framework and the matching usage descriptions into your next build.
+  </Step>
+  <Step title="Rebuild your app">
+    Trigger a fresh build from the Despia Editor. HealthKit linking happens at the binary level, so this cannot be applied over-the-air. After the rebuild, calls to `readhealthkit://`, `writehealthkit://`, and `healthkit://observe` will function in production.
+  </Step>
+</Steps>
+
+<Warning>
+  Skipping the HealthKit capability on the core bundle ID, or skipping the rebuild after enabling the Despia addon, leaves the integration inactive even when both toggles read enabled. `readhealthkit://` returns empty arrays, `writehealthkit://` resolves silently without saving, and `healthkit://observe` never fires a webhook. If health data stops working after editing settings, verify the capability is on in Apple Developer and rebuild before opening a support ticket.
+</Warning>
+
+---
+
 ## Choosing the right approach
 
 HealthKit data can be accessed in three ways. Which one to use depends on whether you need data right now, want to save data, or need to react to changes continuously.
 
 | Approach | Use when | How it works |
-| --- | --- | --- |
-| **Read** | You need historical data at a specific moment - on page load, on a button tap, or when building a report | Call `readhealthkit://` and await the result. Returns records for the last N days. |
-| **Write** | You want to save a value back to HealthKit - for example, logging a weight entry or a step count from your own sensor | Call `writehealthkit://` with a value. Adds a new sample without replacing existing data. |
-| **Observer** | You need your server to stay in sync with the user's health data automatically, without requiring the user to open the app | Register a webhook with `healthkit://observe`. Despia posts new data to your server whenever HealthKit updates, even in the background. |
+| :-- | :-- | :-- |
+| **Read** | You need historical data at a specific moment, on page load, on a button tap, or when building a report | Call `readhealthkit://` and await the result. Returns records for the last N days |
+| **Write** | You want to save a value back to HealthKit, for example logging a weight entry or a step count from your own sensor | Call `writehealthkit://` with a value. Adds a new sample without replacing existing data |
+| **Observer** | You need your server to stay in sync with the user's health data automatically, without requiring the user to open the app | Register a webhook with `healthkit://observe`. Despia posts new data to your server whenever HealthKit updates, even in the background |
 
-A fitness app that shows a weekly steps chart uses **read** - it fetches data when the user opens the dashboard. A coaching platform that tracks whether a user hit their daily goal uses **observer** - the server receives updates automatically and can send a push notification without any user action. An app that lets users log body weight from a form uses **write** to save the entry back to Apple Health.
+A fitness app that shows a weekly steps chart uses **read**, fetching data when the user opens the dashboard. A coaching platform that tracks whether a user hit their daily goal uses **observer**, the server receives updates automatically and can send a push notification without any user action. An app that lets users log body weight from a form uses **write** to save the entry back to Apple Health.
 
 You can combine all three. Most apps that use observer also use read to populate the initial UI before the first webhook fires.
 
@@ -92,7 +117,7 @@ if (isDespiaIOS) {
 
 ## Read
 
-Use `readhealthkit://` to fetch historical data on demand. This is the right approach when your UI needs to display health data at a point in time - on load, after a user action, or when generating a report. You control exactly when the fetch happens and how many days of history to retrieve.
+Use `readhealthkit://` to fetch historical data on demand. This is the right approach when your UI needs to display health data at a point in time, on load, after a user action, or when generating a report. You control exactly when the fetch happens and how many days of history to retrieve.
 
 Pass any valid `HKQuantityTypeIdentifier`, `HKCategoryTypeIdentifier`, `HKWorkoutTypeIdentifier`, or `HKCharacteristicTypeIdentifier` as the URL host, plus an optional `days` parameter. See [Identifier reference](#identifier-reference) for the full list.
 
@@ -131,7 +156,7 @@ if (isDespiaIOS) {
 
 ### Sleep data
 
-Sleep analysis uses `HKCategoryTypeIdentifierSleepAnalysis`. Unlike quantity types, sleep returns individual stage intervals rather than daily aggregates - each record covers a contiguous block of one sleep stage with its own start and end time.
+Sleep analysis uses `HKCategoryTypeIdentifierSleepAnalysis`. Unlike quantity types, sleep returns individual stage intervals rather than daily aggregates, each record covers a contiguous block of one sleep stage with its own start and end time.
 
 ```javascript
 if (isDespiaIOS) {
@@ -242,7 +267,7 @@ if (isDespiaIOS) {
 
 <Accordion title="Supported activityType values">
   | Value | Value | Value |
-  | --- | --- | --- |
+  | :-- | :-- | :-- |
   | `americanFootball` | `archery` | `australianFootball` |
   | `badminton` | `baseball` | `basketball` |
   | `barre` | `bowling` | `boxing` |
@@ -288,7 +313,7 @@ if (isDespiaIOS) {
 ```
 
 | Identifier | Returns |
-| --- | --- |
+| :-- | :-- |
 | `HKCharacteristicTypeIdentifierDateOfBirth` | ISO 8601 date string |
 | `HKCharacteristicTypeIdentifierBiologicalSex` | Raw integer from `HKBiologicalSex` |
 | `HKCharacteristicTypeIdentifierBloodType` | Raw integer from `HKBloodType` |
@@ -298,7 +323,7 @@ if (isDespiaIOS) {
 
 ## Write
 
-Use `writehealthkit://` to save a value back to HealthKit. This is useful when your app collects health data that should also live in Apple Health - for example, a weight logging form, a manual step entry, or a calorie tracker. Writing adds a new sample to HealthKit without removing or replacing any existing records.
+Use `writehealthkit://` to save a value back to HealthKit. This is useful when your app collects health data that should also live in Apple Health, for example a weight logging form, a manual step entry, or a calorie tracker. Writing adds a new sample to HealthKit without removing or replacing any existing records.
 
 The URL format is `writehealthkit://IdentifierString//Value`. The unit is resolved automatically from the identifier.
 
@@ -314,18 +339,18 @@ if (isDespiaIOS) {
 </ParamField>
 
 <ParamField path="value" type="number" required>
-  Numeric value to write. The unit is determined automatically from the identifier - see the [Identifier reference](#identifier-reference).
+  Numeric value to write. The unit is determined automatically from the identifier, see the [Identifier reference](#identifier-reference).
 </ParamField>
 
 <Info>
-  Write is one-directional. It adds samples to HealthKit but does not delete or modify existing ones. If you need to correct a previously written value, write a new sample - HealthKit stores the history and surfaces the most recent reading.
+  Write is one-directional. It adds samples to HealthKit but does not delete or modify existing ones. If you need to correct a previously written value, write a new sample, HealthKit stores the history and surfaces the most recent reading.
 </Info>
 
 ---
 
 ## Observer
 
-Use observers when you need your server to stay current with a user's health data automatically, without requiring the user to open your app. Observers register a background listener on the device that watches one or more HealthKit types. When new data arrives - from Apple Watch, a connected sensor, or another app - Despia posts a webhook to your server with the latest records.
+Use observers when you need your server to stay current with a user's health data automatically, without requiring the user to open your app. Observers register a background listener on the device that watches one or more HealthKit types. When new data arrives, from Apple Watch, a connected sensor, or another app, Despia posts a webhook to your server with the latest records.
 
 This is fundamentally different from read. Read is a point-in-time fetch that your code initiates. An observer is a persistent subscription that fires on Despia's side whenever HealthKit tells it something changed. The user does not need to be in the app for a webhook to fire.
 
@@ -339,7 +364,7 @@ if (isDespiaIOS) {
 }
 ```
 
-Observers persist across app restarts automatically. You only need to register them once - typically on app load or after the user enables health tracking in your app.
+Observers persist across app restarts automatically. You only need to register them once, typically on app load or after the user enables health tracking in your app.
 
 <ParamField path="types" type="string" required>
   Comma-separated list of HealthKit identifiers to observe
@@ -358,7 +383,7 @@ Observers persist across app restarts automatically. You only need to register t
 Webhooks include a `userId` field containing the Despia device ID. If you need to map webhook events to your own user records, append your user identifier as a query parameter on the `server` URL when registering the observer. Your server receives it as part of the request URL.
 
 ```javascript
-const myUserId = "user_abc123"
+const myUserId = 'user_abc123'
 
 if (isDespiaIOS) {
     despia(`healthkit://observe?types=HKQuantityTypeIdentifierStepCount&frequency=hourly&server=https://your-server.com/webhook?user=${myUserId}`)
@@ -431,20 +456,20 @@ if (isDespiaIOS) {
 
 ## Identifier reference
 
-Despia supports all four HealthKit identifier categories. Pass any valid identifier string directly to `readhealthkit://` or `writehealthkit://` - Despia resolves the type and unit automatically.
+Despia supports all four HealthKit identifier categories. Pass any valid identifier string directly to `readhealthkit://` or `writehealthkit://`, Despia resolves the type and unit automatically.
 
 ### Constructing identifiers
 
 Every identifier follows a predictable pattern based on its category:
 
 | Type | Prefix | Example |
-| --- | --- | --- |
+| :-- | :-- | :-- |
 | Quantity | `HKQuantityTypeIdentifier` | `HKQuantityTypeIdentifierStepCount` |
 | Category | `HKCategoryTypeIdentifier` | `HKCategoryTypeIdentifierSleepAnalysis` |
 | Workout | `HKWorkoutTypeIdentifier` | `HKWorkoutTypeIdentifier` |
 | Characteristic | `HKCharacteristicTypeIdentifier` | `HKCharacteristicTypeIdentifierDateOfBirth` |
 
-Take the type name from Apple's documentation and prepend the matching prefix. For example, Apple lists `StepCount` under `HKQuantityTypeIdentifier` - the full identifier string is `HKQuantityTypeIdentifierStepCount`.
+Take the type name from Apple's documentation and prepend the matching prefix. For example, Apple lists `StepCount` under `HKQuantityTypeIdentifier`, the full identifier string is `HKQuantityTypeIdentifierStepCount`.
 
 ### Apple Documentation
 
@@ -476,6 +501,6 @@ Take the type name from Apple's documentation and prepend the matching prefix. F
   </Card>
 
   <Card title="Support" icon="envelope" href="mailto:support@despia.com">
-    support@despia.com
+    [support@despia.com](mailto:support@despia.com)
   </Card>
 </CardGroup>

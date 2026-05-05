@@ -71,13 +71,13 @@ Configure these values in the Despia Editor before writing CSS. The order matter
   <Step title="Set Dark Mode status bar text color">
     Set **Dark Mode Status Bar Text Color** to **White**. Light text is readable over the dark backgrounds your dark theme uses.
   </Step>
-  <Step title="Save the configuration">
-    Save your changes. Status bar settings apply on the next app launch, with no rebuild required for these specific toggles. The CSS-side work below picks up the configuration automatically.
+  <Step title="Save and rebuild">
+    Save your changes, then trigger a fresh build from the Despia Editor. Status bar settings are written into native Info.plist entries and signed into the app binary, so they cannot be applied over-the-air. After the rebuild, the CSS-side work below picks up the configuration automatically.
   </Step>
 </Steps>
 
 <Warning>
-  Always disable Auto-Inject Safe Area when using Fullscreen Mode. Leaving it on while applying safe area insets in CSS produces double padding on every fixed or sticky element, which makes headers and footers visibly oversized on every page.
+  Always disable Auto-Inject Safe Area when using Fullscreen Mode. Leaving it on while applying safe area insets in CSS produces double padding on every fixed or sticky element, which makes headers and footers visibly oversized on every page. Skipping the rebuild after toggling these settings leaves the previous configuration active in the binary, so the changes simply do not apply until you ship a fresh build.
 </Warning>
 
 ---
