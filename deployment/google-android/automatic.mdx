@@ -4,19 +4,23 @@ icon: "code-branch"
 description: "Complete guide for building and publishing Android applications using Despia."
 ---
 
+<Warning>
+  **Google Play has changed how apps are created.** You must now register your package name **before** creating your app listing. Once set, the package name cannot be changed. Get your Bundle ID from **Despia \> Project \> Android \> Bundle ID** and enter it when registering your package name in the Play Console.
+</Warning>
+
 <iframe src="https://www.youtube.com/embed/5Y78EpiKtKI" title="YouTube video player" frameborder="0" className="w-full aspect-video rounded-xl" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen />
 
 ## **Table of Contents**
 
- 1. [Prerequisites](#prerequisites)
- 2. [Initial Setup in Despia](#initial-setup-in-despia)
- 3. [Creating App Icons](#creating-app-icons)
- 4. [Creating Splash Screens](#creating-splash-screens)
- 5. [Google Play Console Setup](#google-play-console-setup)
- 6. [Understanding APK vs AAB](#understanding-apk-vs-aab)
- 7. [Building Your App](#building-your-app)
- 8. [Testing Your App](#testing-your-app)
- 9. [Store Listing Requirements](#store-listing-requirements)
+1. [Prerequisites](#prerequisites)
+2. [Initial Setup in Despia](#initial-setup-in-despia)
+3. [Creating App Icons](#creating-app-icons)
+4. [Creating Splash Screens](#creating-splash-screens)
+5. [Google Play Console Setup](#google-play-console-setup)
+6. [Understanding APK vs AAB](#understanding-apk-vs-aab)
+7. [Building Your App](#building-your-app)
+8. [Testing Your App](#testing-your-app)
+9. [Store Listing Requirements](#store-listing-requirements)
 10. [Publishing to Production](#publishing-to-production)
 11. [Over-the-Air Updates](#over-the-air-updates)
 12. [Troubleshooting](#troubleshooting)
@@ -63,10 +67,10 @@ Navigate to your Despia project dashboard and locate the **Dynamic App Store Sou
 
 Android requires **two different icons**:
 
-| **Icon Type** | **Purpose**            | **Dimensions** | **Format** | **Background**  |
-| :------------ | :--------------------- | :------------- | :--------- | :-------------- |
-| iOS Icon      | Internal use           | 1024 x 1024 px | PNG        | No transparency |
-| Android Icon  | Launcher & home screen | 1024 x 1024 px | PNG        | No transparency |
+| **Icon Type** | **Purpose** | **Dimensions** | **Format** | **Background** |
+| :-- | :-- | :-- | :-- | :-- |
+| iOS Icon | Internal use | 1024 x 1024 px | PNG | No transparency |
+| Android Icon | Launcher & home screen | 1024 x 1024 px | PNG | No transparency |
 
 > **Important:** Even if you're only building an Android app, you must upload both iOS and Android icons.
 
@@ -130,13 +134,13 @@ Android requires **two different icons**:
 
 ### **Common Icon Mistakes**
 
-| **Issue**                         | **Result**               |
-| :-------------------------------- | :----------------------- |
-| Wrong dimensions (not 1024x1024)  | Build failure            |
-| Transparent background            | Build failure            |
-| JPEG format                       | Build failure            |
-| Logo too close to edges (Android) | Elements cut off         |
-| Missing iOS icon                  | Cannot build Android app |
+| **Issue** | **Result** |
+| :-- | :-- |
+| Wrong dimensions (not 1024x1024) | Build failure |
+| Transparent background | Build failure |
+| JPEG format | Build failure |
+| Logo too close to edges (Android) | Elements cut off |
+| Missing iOS icon | Cannot build Android app |
 
 ---
 
@@ -194,27 +198,39 @@ Android requires **two different icons**:
 ### **Account Types**
 
 | **Account Type** | **Open Testing Requirement** | **Production Access** |
-| :--------------- | :--------------------------- | :-------------------- |
-| Individual       | 14 days with 20+ testers     | After testing period  |
-| Business (LLC)   | None                         | Immediate access      |
+| :-- | :-- | :-- |
+| Individual | 14 days with 20\+ testers | After testing period |
+| Business (LLC) | None | Immediate access |
 
 > **Note:** Individual accounts must complete 14 days of open testing with at least 20 testers before publishing to production. Business accounts can publish directly.
 
 ### **Creating Your App**
 
-1. **Create Application**
-   - Click "Create app" button
+Google Play now requires you to **register your package name before creating your app listing**. Follow these steps in order:
+
+1. **Get Your Bundle ID from Despia**
+   - In Despia, go to **Project → Android → Bundle ID**
+   - Copy the Bundle ID shown — this is your package name
+2. **Register Your Package Name in Play Console**
+   - In Google Play Console, click **"Register package name"**
+   - Enter the Bundle ID you copied from Despia
+   - Confirm and save
+3. **Create Your App Listing**
+   - Click "Create app"
    - Fill in app details:
      - App name
      - Default language
      - App or game category
      - Free or paid
-2. **App Privacy Settings**
+   - The package name is already set from the previous step
+4. **App Privacy Settings**
    - Declare if app is primarily for children
    - Set up privacy policy URL (required)
-3. **Save and Continue**
+5. **Save and Continue**
    - Google Play Console creates your app listing
    - You'll see a dashboard with to-do items
+
+> **Critical:** The package name cannot be changed once registered. Always copy it directly from Despia to avoid typos.
 
 ---
 
@@ -222,10 +238,10 @@ Android requires **two different icons**:
 
 ### **File Formats**
 
-| **Format** | **Name**           | **Purpose**             | **Size** | **Recommended** |
-| :--------- | :----------------- | :---------------------- | :------- | :-------------- |
-| APK        | Android Package    | Direct installation     | Larger   | Testing only    |
-| AAB        | Android App Bundle | Play Store distribution | Smaller  | Production      |
+| **Format** | **Name** | **Purpose** | **Size** | **Recommended** |
+| :-- | :-- | :-- | :-- | :-- |
+| APK | Android Package | Direct installation | Larger | Testing only |
+| AAB | Android App Bundle | Play Store distribution | Smaller | Production |
 
 ### **APK (Android Package)**
 
@@ -308,11 +324,11 @@ Android requires **two different icons**:
 
 After successful build, you'll receive:
 
-| **Output** | **Use Case**                  |
-| :--------- | :---------------------------- |
-| APK file   | Manual device installation    |
-| AAB file   | Upload to Google Play Console |
-| Build logs | Troubleshooting if needed     |
+| **Output** | **Use Case** |
+| :-- | :-- |
+| APK file | Manual device installation |
+| AAB file | Upload to Google Play Console |
+| Build logs | Troubleshooting if needed |
 
 ---
 
@@ -388,12 +404,12 @@ Google Play Console uses a comprehensive to-do list system to guide you through 
 
 #### **App Details**
 
-| **Field**         | **Description**         | **Character Limit** |
-| :---------------- | :---------------------- | :------------------ |
-| App name          | Your app's display name | 50 characters       |
-| Short description | Brief app overview      | 80 characters       |
-| Full description  | Detailed description    | 4000 characters     |
-| App category      | Primary category        | Select from list    |
+| **Field** | **Description** | **Character Limit** |
+| :-- | :-- | :-- |
+| App name | Your app's display name | 50 characters |
+| Short description | Brief app overview | 80 characters |
+| Full description | Detailed description | 4000 characters |
+| App category | Primary category | Select from list |
 
 #### **Graphics Requirements**
 
@@ -554,12 +570,12 @@ Specify:
 
 Check review status in Play Console:
 
-| **Status**     | **Meaning**                  |
-| :------------- | :--------------------------- |
-| Pending review | Waiting for Google review    |
-| Under review   | Currently being reviewed     |
-| Approved       | App is live in store         |
-| Rejected       | Issues found, check feedback |
+| **Status** | **Meaning** |
+| :-- | :-- |
+| Pending review | Waiting for Google review |
+| Under review | Currently being reviewed |
+| Approved | App is live in store |
+| Rejected | Issues found, check feedback |
 
 ### **Common Rejection Reasons**
 
@@ -761,34 +777,34 @@ You only need to rebuild when changing:
 
 ### **Essential Dimensions**
 
-| **Asset**       | **Dimensions** | **Format** | **Background**          |
-| :-------------- | :------------- | :--------- | :---------------------- |
-| iOS Icon        | 1024 x 1024    | PNG        | Solid (no transparency) |
-| Android Icon    | 1024 x 1024    | PNG        | Solid (no transparency) |
-| Splash Screen   | 1024 x 1024    | GIF        | Transparent             |
-| Feature Graphic | 1024 x 500     | PNG/JPEG   | Any                     |
-| Screenshots     | Min 320px      | PNG/JPEG   | Any                     |
+| **Asset** | **Dimensions** | **Format** | **Background** |
+| :-- | :-- | :-- | :-- |
+| iOS Icon | 1024 x 1024 | PNG | Solid (no transparency) |
+| Android Icon | 1024 x 1024 | PNG | Solid (no transparency) |
+| Splash Screen | 1024 x 1024 | GIF | Transparent |
+| Feature Graphic | 1024 x 500 | PNG/JPEG | Any |
+| Screenshots | Min 320px | PNG/JPEG | Any |
 
 ### **Build Timeline**
 
-| **Stage**                   | **Duration**       |
-| :-------------------------- | :----------------- |
-| Despia Build                | 15-30 minutes      |
-| Google Play Processing      | 5-10 minutes       |
-| Internal Testing Setup      | Immediate          |
-| Open Testing (Individual)   | 14 days minimum    |
-| Google Play Review          | 1-7 days (avg 1-3) |
-| **Total Time (Business)**   | **2-8 days**       |
-| **Total Time (Individual)** | **16-22 days**     |
+| **Stage** | **Duration** |
+| :-- | :-- |
+| Despia Build | 15-30 minutes |
+| Google Play Processing | 5-10 minutes |
+| Internal Testing Setup | Immediate |
+| Open Testing (Individual) | 14 days minimum |
+| Google Play Review | 1-7 days (avg 1-3) |
+| **Total Time (Business)** | **2-8 days** |
+| **Total Time (Individual)** | **16-22 days** |
 
 ### **Cost Breakdown**
 
-| **Item**                    | **Cost** | **Frequency** |
-| :-------------------------- | :------- | :------------ |
-| Google Play Developer       | \$25     | One-time      |
-| Despia Build Credits        | Varies   | Per build     |
-| OTA Updates                 | \$0      | Unlimited     |
-| Testing Services (optional) | ~\$20    | If needed     |
+| **Item** | **Cost** | **Frequency** |
+| :-- | :-- | :-- |
+| Google Play Developer | \$25 | One-time |
+| Despia Build Credits | Varies | Per build |
+| OTA Updates | \$0 | Unlimited |
+| Testing Services (optional) | ~\$20 | If needed |
 
 ---
 
@@ -815,12 +831,12 @@ You now have a complete guide to publishing your Despia Android application to t
 
 **Account Comparison:**
 
-| **Feature**       | **Individual**     | **Business** |
-| :---------------- | :----------------- | :----------- |
-| Cost              | \$25               | \$25         |
-| Open Testing      | Required (14 days) | Not required |
-| Production Access | After testing      | Immediate    |
-| Recommended For   | Hobby projects     | Serious apps |
+| **Feature** | **Individual** | **Business** |
+| :-- | :-- | :-- |
+| Cost | \$25 | \$25 |
+| Open Testing | Required (14 days) | Not required |
+| Production Access | After testing | Immediate |
+| Recommended For | Hobby projects | Serious apps |
 
 **Need Help?**
 

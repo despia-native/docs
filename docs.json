@@ -36,22 +36,6 @@
         ]
       },
       {
-        "group": "Local Server",
-        "icon": "globe",
-        "pages": [
-          "local-server/introduction",
-          "local-server/reference"
-        ]
-      },
-      {
-        "group": "Local CDN",
-        "icon": "box-open",
-        "pages": [
-          "how-it-works",
-          "reference"
-        ]
-      },
-      {
         "group": "Best Practices",
         "icon": "thumbs-up",
         "expanded": true,
@@ -101,41 +85,49 @@
         ]
       },
       {
-        "group": "Roadblocks",
-        "icon": "bug",
+        "group": "Local Ecosystem",
+        "icon": "wifi-slash",
         "pages": [
           {
-            "group": "Deployment",
-            "icon": "alt",
+            "group": "Local Server",
+            "icon": "globe",
             "pages": [
-              {
-                "group": "Apple iOS",
-                "icon": "apple-whole",
-                "pages": [
-                  "roadblocks/deployment/apple-i-os/health-kit"
-                ]
-              }
+              "local-server/introduction",
+              "local-server/reference"
             ]
           },
           {
-            "group": "RevenueCat",
-            "icon": "cat",
+            "group": "Local Intelligence",
+            "icon": "sparkle",
             "pages": [
-              "roadblocks/revenue-cat/missing-item"
+              "local-intelligence/Introduction",
+              "local-intelligence/reference"
             ]
           },
           {
-            "group": "Runtime",
-            "icon": "lightbulb-gear",
+            "group": "Local Database",
+            "icon": "database",
             "pages": [
-              "roadblocks/runtime/no-ota-updates",
-              "roadblocks/runtime/lost-auth-tokens",
-              "roadblocks/runtime/o-auth-failures",
-              "roadblocks/runtime/slow-apps",
-              "roadblocks/runtime/empty-pages",
-              "roadblocks/runtime/wrong-framework"
+              "local-database/introduction",
+              "local-database/reference"
+            ]
+          },
+          {
+            "group": "Local CDN",
+            "icon": "box-open",
+            "pages": [
+              "local-cdn/introduction",
+              "local-cdn/reference"
             ]
           }
+        ]
+      },
+      {
+        "group": "Custom Code",
+        "icon": "code",
+        "hidden": true,
+        "pages": [
+          "custom-code/extensions"
         ]
       },
       {
@@ -147,6 +139,7 @@
             "icon": "chart-pie-simple",
             "pages": [
               "analytics/appsflyer/introduction",
+              "analytics/appsflyer/testing",
               "analytics/appsflyer/attribution",
               "analytics/appsflyer/deeplinking",
               "analytics/appsflyer/campaigns",
@@ -206,8 +199,17 @@
           "native-features/external-links",
           "native-features/device-indexing",
           "native-features/haptic-feedback",
+          "native-features/prevent-autoscroll",
           "native-features/contact-access",
           "native-features/healthkit",
+          {
+            "group": "Health Data",
+            "icon": "leaf-heart",
+            "pages": [
+              "health-data/apple-health",
+              "health-data/google-health"
+            ]
+          },
           "native-features/siri-shortcuts",
           "native-features/biometrics",
           "native-features/app-privacy",
@@ -217,6 +219,7 @@
           "native-features/app-settings",
           "native-features/home-widgets",
           "native-features/file-sharing",
+          "native-features/focus-events",
           "native-features/screen-brightness",
           "native-features/share-dialog",
           "native-features/clipboard",
@@ -227,6 +230,44 @@
           "native-features/print-documents",
           "native-features/screenshot",
           "native-features/notification-sounds"
+        ]
+      },
+      {
+        "group": "Roadblocks",
+        "icon": "bug",
+        "pages": [
+          {
+            "group": "Deployment",
+            "icon": "alt",
+            "pages": [
+              {
+                "group": "Apple iOS",
+                "icon": "apple-whole",
+                "pages": [
+                  "roadblocks/deployment/apple-i-os/health-kit"
+                ]
+              }
+            ]
+          },
+          {
+            "group": "RevenueCat",
+            "icon": "cat",
+            "pages": [
+              "roadblocks/revenue-cat/missing-item"
+            ]
+          },
+          {
+            "group": "Runtime",
+            "icon": "lightbulb-gear",
+            "pages": [
+              "roadblocks/runtime/no-ota-updates",
+              "roadblocks/runtime/lost-auth-tokens",
+              "roadblocks/runtime/o-auth-failures",
+              "roadblocks/runtime/slow-apps",
+              "roadblocks/runtime/empty-pages",
+              "roadblocks/runtime/wrong-framework"
+            ]
+          }
         ]
       },
       {

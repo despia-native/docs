@@ -1,18 +1,14 @@
 ---
 title: "Introduction"
-description: "Technical deep dive into offline media caching with background downloads"
+description: "Cache gigabytes of media on-device with O(1) memory usage and background downloads that continue after the app is closed."
 icon: "circle-info"
 ---
 
 <Info>
-  This feature is still in our final beta round. If you’d like to get access to it as a beta tester, please send us an email at [offlinemode@despia.com](mailto:offlinemode@despia.com)
+  This feature is still in the final beta round. To request access as a beta tester, send an email to [offlinemode@despia.com](mailto:offlinemode@despia.com)
 </Info>
 
-Local CDN solves offline media caching for hybrid apps - a problem that has challenged web developers for over 15 years. Downloads continue in the background even when users close the app.
-
-<Info>
-  Local CDN uses native background task APIs (NSURLSession on iOS, WorkManager on Android) with built-in retry mechanisms. Start a download, close the app, get notified when it's ready. When users reopen your app, `window.contentServerChange(item)` is called for each item that completed in the background.
-</Info>
+Local CDN solves offline media caching for hybrid apps - a problem that has challenged web developers for over 15 years. Downloads continue in the background even when users close the app, powered by native background task APIs (NSURLSession on iOS, WorkManager on Android) with built-in retry mechanisms.
 
 ---
 
@@ -20,7 +16,7 @@ Local CDN solves offline media caching for hybrid apps - a problem that has chal
 
 Local CDN was built by web developers who love the web platform.
 
-We wanted offline media that works the way web developers expect: set a `src` attribute, use `fetch()`, work with standard URLs. No Base64 encoding. No Blob URL workarounds. No arbitrary storage limits. And critically: **downloads that continue when users close the app** - just like Netflix and Spotify.
+We wanted offline media that works the way web developers expect: set a `src` attribute, use `fetch()`, work with standard URLs. No Base64 encoding. No Blob URL workarounds. No arbitrary storage limits. And critically: downloads that continue when users close the app, just like Netflix and Spotify.
 
 So we collaborated with native iOS and Android engineers. We studied how Spotify, Netflix, and YouTube handle offline downloads in their native apps. Then we brought that same architecture to hybrid web apps while keeping everything familiar to web developers.
 
@@ -73,27 +69,30 @@ Local CDN runs entirely on the device. There is no cloud component, no proprieta
 Local CDN is one part of the Despia Local Server ecosystem. The full Local Server provides:
 
 <CardGroup cols={2}>
-  <Card icon="rocket" title="Instant Boot">
+  <Card title="Instant Boot" icon="rocket">
     Zero network latency. Your entire web app loads in milliseconds from localhost.
   </Card>
-  <Card icon="wifi-slash" title="Complete Offline Support">
+
+  <Card title="Complete Offline Support" icon="wifi-slash">
     Not "works offline sometimes" but actually works without any connectivity, forever.
   </Card>
-  <Card icon="cloud-arrow-down" title="OTA Updates">
+
+  <Card title="OTA Updates" icon="cloud-arrow-down">
     Push web app changes live without app store approval. Updates download in the background and apply on next launch.
   </Card>
-  <Card icon="server" title="Your Hosting, Your Rules">
+
+  <Card title="Your Hosting, Your Rules" icon="server">
     Keep using Netlify, Vercel, AWS, whatever you already have. No migration, no cloud lock-in, no MAU fees.
   </Card>
 </CardGroup>
 
 <Info>
-  **100% store compliant.** Fully approved architecture for both Apple App Store and Google Play Store.
+  100% store compliant. Fully approved architecture for both Apple App Store and Google Play Store.
 </Info>
 
 Local CDN handles media and file caching. Despia Local Server handles your entire web application. Together, they give you native-quality performance with web development workflows.
 
-<Card icon="book" href="/local-server" title="Learn More">
+<Card title="Learn More" icon="book" href="/local-server">
   Complete documentation on Despia Local Server including setup, OTA updates, and architecture details
 </Card>
 
@@ -102,7 +101,7 @@ Local CDN handles media and file caching. Despia Local Server handles your entir
 ## Who this is for
 
 <Note>
-  Local CDN solves a specific problem for a specific type of app. It's not for everyone.
+  Local CDN solves a specific problem for a specific type of app. It is not for everyone.
 </Note>
 
 <Tabs>
@@ -110,16 +109,19 @@ Local CDN handles media and file caching. Despia Local Server handles your entir
     - Your app caches large media files (videos, podcasts, audio courses, image libraries)
     - You need true offline playback, not just "works offline sometimes"
     - Memory constraints are a real problem - your app crashes or lags with current caching approaches
-    - You're building for both iOS and Android and want one solution
-    - You're comfortable with a runtime dependency in exchange for solving a hard problem
+    - You are building for both iOS and Android and want one solution
+    - You are comfortable with a runtime dependency in exchange for solving a hard problem
   </Tab>
   <Tab title="Probably not for you if">
-    
+    - Your app only caches small assets or text content
+    - Standard browser caching and service workers cover your offline needs
+    - You have no requirement for background downloads
+    - File sizes are consistently under a few megabytes
   </Tab>
 </Tabs>
 
 <Info>
-  **The tradeoff is clear:** You get O(1) memory usage, unlimited storage, and cross-platform consistency. In exchange, you take a runtime dependency on Despia Local Server.
+  The tradeoff is clear: you get O(1) memory usage, unlimited storage, and cross-platform consistency. In exchange, you take a runtime dependency on Despia Local Server.
 </Info>
 
 For apps in the top 5% - podcast players, video learning platforms, music apps, offline-first enterprise tools - that tradeoff makes sense. For simpler apps, standard web caching is probably fine.
@@ -182,13 +184,13 @@ This approach has several limitations:
 
 ### Framework comparison
 
-| Framework            | File System     | Direct Playback | Memory Efficient | Background Downloads | Offline Media    |
-| -------------------- | --------------- | --------------- | ---------------- | -------------------- | ---------------- |
-| Cordova              | Plugin required | No              | No               | No                   | Limited          |
-| Capacitor            | Yes             | No              | No               | No                   | Limited          |
-| React Native         | Yes             | Partial         | Partial          | Plugin required      | Complex          |
-| Flutter              | Yes             | Yes             | Yes              | Plugin required      | Not web-based    |
-| **Despia Local CDN** | **Yes**         | **Yes**         | **Yes**          | **Yes (native)**     | **Full support** |
+| Framework | File System | Direct Playback | Memory Efficient | Background Downloads | Offline Media |
+| --- | --- | --- | --- | --- | --- |
+| Cordova | Plugin required | No | No | No | Limited |
+| Capacitor | Yes | No | No | No | Limited |
+| React Native | Yes | Partial | Partial | Plugin required | Complex |
+| Flutter | Yes | Yes | Yes | Plugin required | Not web-based |
+| **Despia Local CDN** | **Yes** | **Yes** | **Yes** | **Yes (native)** | **Full support** |
 
 ---
 
@@ -202,7 +204,7 @@ When you cache a file, Despia's native layer (Swift on iOS, Kotlin on Android) d
 
 When you play it back, Local CDN serves the file through Despia Local Server via `http://localhost`. Your web app uses a standard URL - the same way you would load any media from a remote CDN.
 
-When you delete a file, it's removed from device storage immediately, freeing up space.
+When you delete a file, it is removed from device storage immediately, freeing up space.
 
 ```javascript
 import despia from 'despia-native';
@@ -389,7 +391,7 @@ sequenceDiagram
     participant Native as Native Layer
     participant FS as File System
     participant OS as OS Services
-    
+
     JS->>Native: localcdn://write?url=...&index=video_001
     Note over JS: Returns immediately
     Native->>FS: Download file to device storage
@@ -411,7 +413,7 @@ sequenceDiagram
     participant Native as Native Layer
     participant FS as File System
     participant HW as Hardware Decoder
-    
+
     JS->>Native: localcdn://read?index=["video_001"]
     Native->>Native: Look up files in metadata index
     Native->>JS: Return file info with local_cdn URL
@@ -438,7 +440,7 @@ sequenceDiagram
     participant JS as JavaScript
     participant Native as Native Layer
     participant FS as File System
-    
+
     JS->>Native: localcdn://delete?index=["tutorial_001"]
     Native->>Native: Parse JSONArray of index IDs
     Native->>Native: Look up files in metadata store
@@ -456,15 +458,15 @@ Use delete to manage cache size and remove content users no longer need.
   This is a native capability that web apps cannot replicate. Service workers and the Fetch API do not support true background downloads that survive app termination.
 </Info>
 
-Downloads continue **even when users close the app**. This is powered by native background task APIs with built-in retry mechanisms:
+Downloads continue even when users close the app. This is powered by native background task APIs with built-in retry mechanisms:
 
 - **iOS:** NSURLSession background transfer service
 - **Android:** WorkManager with automatic retry on failure
 - **Both:** Resume interrupted downloads, battery-aware scheduling, network-aware execution
 
-#### The Lifecycle
+#### The lifecycle
 
-When you call `localcdn://write`, here's exactly what happens:
+When you call `localcdn://write`, here is exactly what happens:
 
 ```mermaid
 flowchart TD
@@ -473,7 +475,7 @@ flowchart TD
         B --> C["OS takes ownership<br/>of download"]
         C --> D["JavaScript continues<br/>executing (non-blocking)"]
     end
-    
+
     subgraph Phase2["Phase 2: Download in Progress"]
         D --> E{"App State?"}
         E -->|"App open"| F["Download completes<br/>contentServerChange(item)<br/>called immediately"]
@@ -481,17 +483,17 @@ flowchart TD
         E -->|"Network drops"| H["OS retries when<br/>connection returns"]
         E -->|"Device restarts"| I["OS resumes<br/>download after boot"]
     end
-    
+
     G --> J["Phase 3: Background Complete"]
     H --> J
     I --> J
-    
+
     subgraph Phase3["Phase 3: Download Completes (Background)"]
         J --> K["File saved"]
         K --> L["Push notification shown<br/>(if push=true)"]
         L --> M["File ready and waiting"]
     end
-    
+
     subgraph Phase4["Phase 4: User Returns"]
         M --> N["User reopens app"]
         N --> O["Native finds pending<br/>downloads"]
@@ -502,16 +504,13 @@ flowchart TD
 
 ```javascript
 // contentServerChange receives ONE item at a time
-// It's called once per download - both foreground completions AND background replays
+// It is called once per download - both foreground completions AND background replays
 window.contentServerChange = (item) => {
   console.log("Content ready:", item.index);
   console.log("Local URL:", item.local_cdn);
-  
-  // Add to your downloads list
+
   addToDownloadsList(item);
-  
-  // Show notification
-  showToast(`${item.index} is ready for offline use!`);
+  showToast(`${item.index} is ready for offline use`);
 };
 ```
 
@@ -531,7 +530,7 @@ window.contentServerChange = (item) => {
 }
 ```
 
-#### How Background Replay Works
+#### How background replay works
 
 The native layer handles everything automatically:
 
@@ -545,16 +544,13 @@ flowchart TD
     F --> G["Your handler runs for each item"]
 ```
 
-Just implement `contentServerChange` and it will be called for both:
-
-- Downloads that complete while the app is open
-- Downloads that completed in the background (replayed on next launch)
+Just implement `contentServerChange` and it will be called for both downloads that complete while the app is open, and downloads that completed in the background and are replayed on next launch.
 
 <Tip>
   If you need more control, you can poll via `localcdn://read` to check download status.
 </Tip>
 
-#### Example: Building a Download List
+#### Example: building a download list
 
 ```javascript
 import despia from 'despia-native';
@@ -568,15 +564,14 @@ window.contentServerChange = (item) => {
     downloadedItems[existingIndex] = item;
   } else {
     downloadedItems.push(item);
-    // This is a new download - show notification
-    showToast(`${item.index} ready for offline!`);
+    showToast(`${item.index} ready for offline`);
   }
-  
+
   renderDownloadsList(downloadedItems);
 };
 ```
 
-This is the Netflix/Spotify experience: start downloads, forget about them, get notified when ready.
+This is the Netflix/Spotify experience: start downloads, close the app, get notified when ready.
 
 ### Content Server HTTP API
 
@@ -588,9 +583,9 @@ When your app is served from Despia Local Server, you also get an HTTP API for u
 
 **Two approaches for different use cases:**
 
-| Approach                   | Best for                           |
-| -------------------------- | ---------------------------------- |
-| `localcdn://write`         | Remote URLs, background downloads  |
+| Approach | Best for |
+| --- | --- |
+| `localcdn://write` | Remote URLs, background downloads |
 | HTTP POST to `/api/upload` | User file uploads from file picker |
 
 ```javascript
@@ -609,8 +604,8 @@ fetch("http://localhost:7777/api/upload", {
 
 Files are stored in different directories:
 
-- `localcdn://write` \> `/localcdn/` directory
-- `/api/upload` \> `/files/` directory
+- `localcdn://write` stores to `/localcdn/` directory
+- `/api/upload` stores to `/files/` directory
 
 Both are served via localhost URLs.
 
@@ -632,13 +627,13 @@ Despia Local Server provides the HTTP infrastructure. Local CDN stores files and
 
 ### What O(1) means
 
-O(1) means "constant" - the memory usage stays the same regardless of input size. Whether you play a 10MB file or a 10GB file, Local CDN uses the same amount of memory.
+O(1) means constant - the memory usage stays the same regardless of input size. Whether you play a 10MB file or a 10GB file, Local CDN uses the same amount of memory.
 
-This is the opposite of traditional approaches where memory scales with file size (O(n)). Double the file size, double the memory usage. That's why large files crash apps.
+This is the opposite of traditional approaches where memory scales with file size (O(n)). Double the file size, double the memory usage. That is why large files crash apps.
 
 ### 500MB video: Capacitor vs Despia
 
-Let's trace what happens when you play a 500MB video file.
+Let us trace what happens when you play a 500MB video file.
 
 **Capacitor (traditional approach):**
 
@@ -660,7 +655,7 @@ flowchart LR
         A["Step 1: Set video.src<br/>URL string: ~100 bytes"] --> B["Step 2: HTTP request<br/>Handled by Local CDN<br/>JS heap unchanged"]
         B --> C["Step 3: Stream from disk<br/>Native buffers only<br/>JS heap unchanged"]
     end
-    
+
     subgraph "Native Memory: ~5-8MB (fixed)"
         D["Kernel buffer<br/>~1-2MB"]
         E["Media pipeline<br/>~2-4MB"]
@@ -668,16 +663,16 @@ flowchart LR
     end
 ```
 
-| Metric                | Capacitor | Despia Local CDN |
-| --------------------- | --------- | ---------------- |
-| Peak JS heap          | ~1,666MB  | ~100 bytes       |
-| System memory         | ~1,666MB  | ~5-8MB           |
-| Scales with file size | Yes       | No               |
-| 2GB video             | Crash     | Works            |
+| Metric | Capacitor | Despia Local CDN |
+| --- | --- | --- |
+| Peak JS heap | ~1,666MB | ~100 bytes |
+| System memory | ~1,666MB | ~5-8MB |
+| Scales with file size | Yes | No |
+| 2GB video | Crash | Works |
 
-### Where the ~2-8MB comes from
+### Where the ~5-8MB comes from
 
-Local CDN doesn't use zero memory - that would be physically impossible. Here's what actually uses memory during playback:
+Local CDN does not use zero memory - that would be physically impossible. Here is what actually uses memory during playback:
 
 **Kernel read buffer (~1-2MB):** The operating system reads files in chunks, not byte-by-byte. This buffer exists for any file read operation on any platform.
 
@@ -687,28 +682,31 @@ Local CDN doesn't use zero memory - that would be physically impossible. Here's 
 
 These buffers exist in native apps too - Spotify, Netflix, and YouTube all have them. The key difference: none of this memory is in your JavaScript heap, and none of it scales with file size.
 
-A 100MB video and a 2GB video use the same ~5-8MB of buffer memory. That's what O(1) means in practice.
+A 100MB video and a 2GB video use the same ~5-8MB of buffer memory. That is what O(1) means in practice.
 
 ---
 
 ## Use cases
 
 <CardGroup cols={2}>
-  <Card icon="video" title="Media-heavy Applications">
+  <Card title="Media-heavy Applications" icon="video">
     Podcast apps can cache entire libraries. Video learning platforms can download courses for offline viewing. Music apps can store playlists locally. All without memory constraints. Users start downloads on WiFi, close the app, and get notified when content is ready.
   </Card>
-  <Card icon="wifi-slash" title="Offline-first Experiences">
+
+  <Card title="Offline-first Experiences" icon="wifi-slash">
     Field service apps, travel apps, and educational tools that must work without connectivity can cache all required media assets during initial sync. Background downloads with retry mechanisms ensure reliable delivery even on unstable connections.
   </Card>
-  <Card icon="upload" title="User-generated Content">
+
+  <Card title="User-generated Content" icon="upload">
     Apps that let users upload photos, videos, or documents can store them locally via the Content Server HTTP API. Upload from file pickers, camera roll, or any File/Blob source. Files are security-scanned and stored with the same O(1) memory efficiency.
   </Card>
-  <Card icon="bolt" title="Performance-critical Applications">
+
+  <Card title="Performance-critical Applications" icon="bolt">
     Localhost serving eliminates network latency entirely. Media plays instantly. Seeking is immediate. The experience matches native apps.
   </Card>
 </CardGroup>
 
-### "Download before you go" workflows
+### Download before you go
 
 Users queue downloads while on WiFi at home. They close the app. Downloads continue in the background with native retry mechanisms. Push notification when complete. When they open the app later - on a plane, in a subway, in the wilderness - everything is cached and ready. `window.contentServerChange` updates the UI immediately.
 
@@ -717,21 +715,26 @@ Users queue downloads while on WiFi at home. They close the app. Downloads conti
 ## Frequently asked questions
 
 <AccordionGroup>
-  <Accordion defaultOpen icon="sparkles" title="How much storage can I use?">
+  <Accordion title="How much storage can I use?">
     The device's available storage. No artificial quotas like IndexedDB. Cache gigabytes of content.
   </Accordion>
-  <Accordion defaultOpen icon="sparkles" title="Does this work offline?">
+
+  <Accordion title="Does this work offline?">
     Yes. Files are stored on the device file system and served from an on-device HTTP server. No network required after initial download.
   </Accordion>
-  <Accordion defaultOpen title="What file types are supported?">
+
+  <Accordion title="What file types are supported?">
     Any file type: video (mp4, webm, mov), audio (mp3, wav, aac), images (jpg, png, webp), documents (pdf, json), and more.
   </Accordion>
-  <Accordion defaultOpen title="Is this App Store compliant?">
+
+  <Accordion title="Is this App Store compliant?">
     Yes. Downloading and caching media content is standard app behavior, identical to how Spotify, Netflix, and YouTube handle offline downloads.
   </Accordion>
+
   <Accordion title="What happens if storage is full?">
     The download will fail. Implement cache management logic to remove old files before downloading new ones using `localcdn://delete`.
   </Accordion>
+
   <Accordion title="How do I know if a download succeeded?">
     Use the `contentServerChange` callback. When a download completes, the native runtime calls your callback with the file data:
 
@@ -746,22 +749,25 @@ Users queue downloads while on WiFi at home. They close the app. Downloads conti
     despia(`localcdn://write?url=${url}&filename=${path}&index=${id}`);
     ```
 
-    **Note:** Do not await the write call with a key - the JS bridge has a ~30s timeout that will resolve with `null` for large files, even though the download continues.
+    Do not await the write call with a key - the JS bridge has a ~30s timeout that will resolve with `null` for large files, even though the download continues. If you need more control, poll via `localcdn://read` to check status.
+  </Accordion>
 
-    **Optional:** If you need more control, poll via `localcdn://read` to check status.
-  </Accordion>
   <Accordion title="Do downloads continue if the user closes the app?">
-    Yes. Downloads continue in the background even when the app is closed or backgrounded. This uses native OS background transfer APIs (NSURLSession on iOS, WorkManager on Android). Add `push=true` and `pushmessage` to notify users when the download completes - especially useful for large files.
+    Yes. Downloads continue in the background even when the app is closed or backgrounded. This uses native OS background transfer APIs (NSURLSession on iOS, WorkManager on Android). Add `push=true` and `pushmessage` to notify users when the download completes, especially useful for large files.
   </Accordion>
+
   <Accordion title="Can I upload files from a file picker?">
-    Yes, but only when your app is served via Despia Local Server (not from origin). POST to `http://localhost:7777/api/upload` with FormData. Works with any File/Blob source - file inputs, camera, clipboard, etc. Uploaded files are stored in `/files/` directory.
+    Yes, but only when your app is served via Despia Local Server (not from origin). POST to `http://localhost:7777/api/upload` with FormData. Works with any File/Blob source - file inputs, camera, clipboard, etc. Uploaded files are stored in the `/files/` directory.
   </Accordion>
+
   <Accordion title="Are uploaded files secure?">
     Yes. All uploaded files are security-scanned before storage. Malicious or corrupted files are rejected. Only safe files are kept on the device.
   </Accordion>
+
   <Accordion title="How do I track which downloads completed in the background?">
-    You don't need to track this manually. When the app reopens after background downloads, the native layer automatically calls `contentServerChange(item)` for each item that completed while backgrounded. Just implement `contentServerChange` and it handles both foreground completions and background replays.
+    You do not need to track this manually. When the app reopens after background downloads, the native layer automatically calls `contentServerChange(item)` for each item that completed while backgrounded. Just implement `contentServerChange` and it handles both foreground completions and background replays.
   </Accordion>
+
   <Accordion title="How do I delete cached files?">
     Call `localcdn://delete` with a JSON array of index IDs:
 
@@ -769,6 +775,7 @@ Users queue downloads while on WiFi at home. They close the app. Downloads conti
     despia(`localcdn://delete?index=${encodeURIComponent(JSON.stringify(["my_video_123"]))}`);
     ```
   </Accordion>
+
   <Accordion title="Does it work the same on iOS and Android?">
     Yes. The JavaScript API is identical on both platforms. Despia handles platform-specific implementation details internally.
   </Accordion>
@@ -779,35 +786,40 @@ Users queue downloads while on WiFi at home. They close the app. Downloads conti
 ## Summary
 
 <CardGroup cols={3}>
-  <Card icon="memory" title="O(1) Memory">
+  <Card title="O(1) Memory" icon="memory">
     Fixed memory usage regardless of file size
   </Card>
-  <Card icon="hard-drive" title="Device Storage">
+
+  <Card title="Device Storage" icon="hard-drive">
     Use full device capacity, no artificial quotas
   </Card>
-  <Card icon="wifi-slash" title="Complete Offline">
+
+  <Card title="Complete Offline" icon="wifi-slash">
     Works without any network connectivity
   </Card>
-  <Card icon="microchip" title="Hardware Accelerated">
+
+  <Card title="Hardware Accelerated" icon="microchip">
     Native playback performance
   </Card>
-  <Card icon="code" title="Unified SDK">
+
+  <Card title="Unified SDK" icon="code">
     Same API for iOS and Android
   </Card>
-  <Card icon="cloud" title="No Cloud Lock-in">
+
+  <Card title="No Cloud Lock-in" icon="cloud">
     Runs entirely on-device
   </Card>
 </CardGroup>
 
-| Capability           | Traditional Web       | Local CDN            |
-| -------------------- | --------------------- | -------------------- |
-| Memory usage         | Scales with file size | O(1) fixed           |
-| Storage limit        | 50-100MB              | Device capacity      |
-| Offline support      | Unreliable            | Complete             |
-| Playback performance | Software decoded      | Hardware accelerated |
-| Cross-platform       | Platform quirks       | Unified SDK          |
-| Cloud dependency     | Often required        | None                 |
-| Large file support   | Crashes               | Works                |
+| Capability | Traditional Web | Local CDN |
+| --- | --- | --- |
+| Memory usage | Scales with file size | O(1) fixed |
+| Storage limit | 50-100MB | Device capacity |
+| Offline support | Unreliable | Complete |
+| Playback performance | Software decoded | Hardware accelerated |
+| Cross-platform | Platform quirks | Unified SDK |
+| Cloud dependency | Often required | None |
+| Large file support | Crashes | Works |
 
 Local CDN brings native-quality offline media to hybrid web apps. Files live on the file system. Playback uses hardware acceleration. Memory usage is O(1) independent of file size. One SDK works across iOS and Android.
 
@@ -817,23 +829,24 @@ Local CDN brings native-quality offline media to hybrid web apps. Files live on 
 
 Combined with Despia Local Server for web app hosting and OTA updates, you get a complete offline-first infrastructure that runs entirely on-device.
 
-After 15 years of workarounds, web developers can finally build media-rich offline experiences without abandoning the web platform.
-
 ---
 
 ## Resources
 
 <CardGroup cols={2}>
-  <Card icon="npm" href="https://www.npmjs.com/package/despia-native" title="NPM Package">
+  <Card title="NPM Package" icon="npm" href="https://www.npmjs.com/package/despia-native">
     Install the Despia SDK
   </Card>
-  <Card icon="code" href="/local-cdn/reference" title="Local CDN API Reference">
+
+  <Card title="Local CDN API Reference" icon="code" href="/local-cdn/reference">
     Quick start guide
   </Card>
-  <Card icon="server" href="/local-server" title="Despia Local Server">
+
+  <Card title="Despia Local Server" icon="server" href="/local-server">
     Complete web app offline hosting with OTA updates
   </Card>
-  <Card icon="envelope" href="mailto:support@despia.com" title="Support">
+
+  <Card title="Support" icon="envelope" href="mailto:support@despia.com">
     Contact our support team
   </Card>
 </CardGroup>

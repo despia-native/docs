@@ -1,90 +1,227 @@
 ---
 title: "Simple Storage"
-description: "Persist data directly on the user's device using simple read/write commands with the Despia SDK."
+description: "Single-slot key-value storage on the device through the Despia SDK. Legacy feature, kept for apps already shipping with it."
 icon: "database"
 ---
 
-<Card title="AI Prompt" icon="sparkles">
-  Add local storage functionality to my app using the Despia SDK from: [**https://www.npmjs.com/package/despia-native**](https://www.npmjs.com/package/despia-native)
+<Danger>
+  **Simple Storage is a legacy feature!** New apps should use one of the modern alternatives instead:
 
-  First, install the package: `npm install despia-native`
+  - [**Storage Vault**](/native-features/storage-vault) for small encrypted values that need to survive uninstall and sync across devices on the same Apple ID or Google account. Backed by iCloud Key Value Store on iOS and Android Key/Value Backup on Android, with optional biometric gating.
+  - [**IndexedDB**](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) (built into the WebView, no Despia SDK needed) for general-purpose structured local storage with multiple object stores, indexes, and transactions. Works in any browser and inside the Despia runtime.
+  - [**PowerSync**](/local-database/reference) for a full SQLite database that stays in sync with your backend in real time. Best for apps with non-trivial offline state, multi-device sync, or relational data.
 
-  Then import it: `import despia from 'despia-native'`
+  Simple Storage only stores a single string slot per app and has no encryption, no sync, and no structure. The schemes below remain supported for apps already using them, but anything new is better served by one of the alternatives above.
+</Danger>
 
-  <Danger>
-    **This SDK is compatible only with the Native Despia Runtime. Ensure that the User Agent string includes “despia” before running this code. If the User Agent string doesn’t include “despia” you can use Local Storage as a web fallback.**
-  </Danger>
-  Create a local storage system that uses Despia URLs like: `despia("writevalue://{YOUR-JSON-STRING-DATA}")` to save data and `const data = await despia("readvalue://", ["storedValues"])` to retrieve data. The data is stored as a single string on the device and returned in the response object.
+The legacy `writevalue://` and `readvalue://` schemes write and read a single URL-encoded string slot on the device. The data persists between app sessions and is keyed to your app's bundle, with no sub-keys and no structured access. Pass JSON-stringified data in, parse JSON-stringified data out.
 
-  You can access the data like this:
-
-  ```javascript
-  const userData = { refresh_token: "SSBMT1ZFIERFU1BJQSBOQVRJVkUgU08gTVVDSCBJIFdBTk5BIEtJU1MgSVQh" };
-  const encoded = encodeURIComponent(JSON.stringify(userData));
-  await despia(`writevalue://${encoded}`);
-  
-  const data = await despia("readvalue://", ["storedValues"]);
-  const userData = JSON.parse(decodeURIComponent(data.storedValues));
-  console.log(userData.refresh_token);
-  ```
-
-  <Note>
-    **Refrain from blocking any UI elements or adding loading screens before data is loaded. This is because most sessions will not have initial data yet if no data has been stored.**
-  </Note>
-  <Danger>
-    **This feature requires native capabilities which will be fully provided by the "despia-native" npm package, no additional native libraries are needed!**
-  </Danger>
-  Please follow the installation instructions for the "despia-native" npm package closely, and do not modify my instructions. Implementation as mentioned is critical.
-</Card>
-
-**How it works:** Despia acts as a bridge between your Lovable app and native device storage. Store user preferences, tokens, or settings directly on the device. Data persists between app sessions and is accessed through simple URL commands that trigger native storage operations.
+---
 
 ## Installation
 
-Install the Despia package from NPM:
+<Tabs>
+  <Tab title="Bundle">
+    <CodeGroup>
 
-```
-npm install despia-native
-```
+    ```bash npm
+    npm install despia-native
+    ```
 
-## Usage
+    ```bash pnpm
+    pnpm add despia-native
+    ```
 
-### 1. Import the SDK
+    ```bash yarn
+    yarn add despia-native
+    ```
+
+    </CodeGroup>
+
+    ```javascript
+    import despia from 'despia-native';
+    ```
+  </Tab>
+  <Tab title="CDN">
+    <CodeGroup>
+
+    ```html UMD
+    <script src="https://cdn.jsdelivr.net/npm/despia-native/index.min.js"></script>
+    ```
+
+    ```html ESM
+    <script type="module">
+        import despia from 'https://cdn.jsdelivr.net/npm/despia-native/+esm'
+    </script>
+    ```
+
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+---
+
+## How it works
+
+There is one storage slot per app. `writevalue://` overwrites it, `readvalue://` returns it. To store anything richer than a single string, JSON-encode an object before writing and JSON-decode it after reading.
 
 ```javascript
-import despia from 'despia-native';
+import despia from 'despia-native'
+
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+async function save(data) {
+    if (!isDespia) return
+    const encoded = encodeURIComponent(JSON.stringify(data))
+    await despia(`writevalue://${encoded}`)
+}
+
+async function load() {
+    if (!isDespia) return null
+    const result = await despia('readvalue://', ['storedValues'])
+    if (!result.storedValues) return null
+    return JSON.parse(decodeURIComponent(result.storedValues))
+}
 ```
 
-### 2. Write Data
+The `encodeURIComponent` and `decodeURIComponent` calls matter. The scheme parser treats `&`, `=`, and `#` as URL syntax, so any of those characters in your JSON will corrupt the stored value without encoding.
 
-Save data to device storage:
+---
+
+## Write data
+
+Stringify, encode, write. The whole operation is one round trip with no return value to handle on the write side.
 
 ```javascript
-const userData = { refresh_token: "SSBMT1ZFIERFU1BJQSBOQVRJVkUgU08gTVVDSCBJIFdBTk5BIEtJU1MgSVQh" };
-const encoded = encodeURIComponent(JSON.stringify(userData));
-await despia(`writevalue://${encoded}`);
+const userData = {
+    refreshToken: 'abc123',
+    lastSeen:     Date.now(),
+}
+
+const encoded = encodeURIComponent(JSON.stringify(userData))
+if (isDespia) {
+    await despia(`writevalue://${encoded}`)
+}
 ```
 
-### 3. Read Data
-
-Retrieve stored data:
+Writing replaces whatever was previously stored. There is no append, no merge, and no per-key write. If you need to update one field of a larger object, read the full slot, mutate the field in memory, and write the updated object back.
 
 ```javascript
-const data = await despia("readvalue://", ["storedValues"]);
-const userData = JSON.parse(decodeURIComponent(data.storedValues));
-console.log(userData);
+async function updateLastSeen() {
+    if (!isDespia) return
+
+    const current = await load()
+    const next    = { ...(current || {}), lastSeen: Date.now() }
+
+    const encoded = encodeURIComponent(JSON.stringify(next))
+    await despia(`writevalue://${encoded}`)
+}
 ```
 
-## Storage Details
+---
 
-- **Single key-value pair**: One storage slot per app
-- **String format**: Data must be URL-encoded strings (use JSON for objects)
-- **Promise-based**: Use `await` to retrieve data asynchronously
-- **Property access**: Request `["storedValues"]` to get stored data
+## Read data
+
+Wait for the read to resolve, then parse. The result object is keyed on whatever key name you passed in the second argument, so `['storedValues']` returns `{ storedValues: '...' }`.
+
+```javascript
+async function readData() {
+    if (!isDespia) return null
+
+    const result = await despia('readvalue://', ['storedValues'])
+    if (!result.storedValues) return null
+
+    try {
+        return JSON.parse(decodeURIComponent(result.storedValues))
+    } catch {
+        return null
+    }
+}
+```
+
+The `try/catch` around `JSON.parse` is worth doing reflexively. Stored data can become corrupt if the URL encoding was skipped on write, or if you change the schema without migrating old values, and a parse error should not crash your app.
+
+---
+
+## Do not block UI on the initial read
+
+The first time a user opens your app, there is nothing stored yet. Treat the empty case as the default state, not as a loading state. Render your UI immediately, then upgrade it once data arrives.
+
+```jsx
+import { useEffect, useState } from 'react'
+
+function App() {
+    const [user, setUser] = useState(null)
+
+    useEffect(() => {
+        readData().then(setUser)
+    }, [])
+
+    // render the UI now, with or without user data
+    return (
+        <div>
+            {user ? <p>Welcome back, {user.name}</p> : <p>Welcome</p>}
+        </div>
+    )
+}
+```
+
+Showing a blocking loading spinner before the first read finishes makes new users wait for nothing, since there is no data to retrieve on a fresh install.
+
+---
+
+## Browser fallback
+
+In a regular browser the SDK call is a no-op behind the `isDespia` guard. Fall back to `localStorage` for web users so the same `save` and `load` functions work everywhere.
+
+```javascript
+async function save(data) {
+    const json = JSON.stringify(data)
+
+    if (isDespia) {
+        await despia(`writevalue://${encodeURIComponent(json)}`)
+        return
+    }
+
+    localStorage.setItem('appData', json)
+}
+
+async function load() {
+    if (isDespia) {
+        const result = await despia('readvalue://', ['storedValues'])
+        if (!result.storedValues) return null
+        try {
+            return JSON.parse(decodeURIComponent(result.storedValues))
+        } catch {
+            return null
+        }
+    }
+
+    const json = localStorage.getItem('appData')
+    return json ? JSON.parse(json) : null
+}
+```
+
+Both paths return the same shape, so the rest of your app does not need to know which storage backend handled the call.
+
+---
 
 ## Resources
 
-- [**NPM Package**](https://www.npmjs.com/package/despia-native)
-- View full NPM documentation for additional configuration options
+<CardGroup cols={2}>
+  <Card title="NPM Package" icon="npm" href="https://www.npmjs.com/package/despia-native">
+    despia-native
+  </Card>
 
-For additional support or questions, please contact our support team at [**support@despia.com**](mailto:support@despia.com)
+  <Card title="Support" icon="envelope" href="mailto:support@despia.com">
+    [support@despia.com](mailto:support@despia.com)
+  </Card>
+
+  <Card title="Storage Vault" icon="vault" href="/native-features/storage-vault">
+    Encrypted, synced, biometric-gated alternative
+  </Card>
+
+  <Card title="PowerSync" icon="database" href="/local-database/reference">
+    Full SQLite local database with backend sync
+  </Card>
+</CardGroup>

@@ -3,6 +3,164 @@ title: "Changelog"
 description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
+<Update label="April 26, 2026" description="HealthKit - extended sleep identifier support">
+  ## Extended HealthKit sleep identifier support
+
+  HealthKit sleep reads now cover the full set of sleep analysis categories, so apps can ingest data from any HealthKit-compatible device and not just Apple Watch or iPhone sleep tracking.
+
+  Previously, sleep reads were limited to the basic in-bed and asleep categories produced by first-party Apple sleep tracking. Third-party rings, bands, and mattress sensors that sync richer stage data into the Health app had their detailed values dropped at the read layer.
+
+  **What ships today:**
+
+  - **Full stage breakdown.** Reads now return REM, core, deep, awake, and unspecified asleep values when the source device provides them, in addition to in-bed and asleep totals.
+  - **Third-party device coverage.** Any HealthKit-authorised device that writes sleep samples to the Health app is now readable through the same `despia()` sleep call, including Oura, Whoop, Withings, Eight Sleep, Fitbit, and Garmin where the user has enabled Health app sync.
+  - **Per-sample source metadata.** Each returned sample includes the originating source name and bundle identifier so the app can distinguish between devices when the user has more than one sleep tracker connected.
+  - **Backwards compatibility.** Existing integrations that only consume in-bed and asleep totals continue to work without changes. New stage fields are additive.
+
+  HealthKit permission prompts and Info.plist usage strings remain unchanged. Users who previously granted sleep read permission do not need to re-authorise.
+
+  **Example lookup:**
+
+  ```js
+  if (isDespiaIOS) {
+      const data  = await despia('readhealthkit://HKCategoryTypeIdentifierSleepAnalysis?days=7', ['healthkitResponse'])
+      const sleep = data.healthkitResponse.HKCategoryTypeIdentifierSleepAnalysis
+  }
+  ```
+
+  Each record returns `startDate`, `endDate`, `value`, and `label`, where `label` is one of `inBed`, `awake`, `asleep`, `core`, `deep`, or `rem`. See [Apple Health - Sleep data](/health-data/apple-health#sleep-data) for the full response schema.
+
+  No dashboard configuration changes, rebuild steps, or integration code changes are required. The expanded data is returned automatically on the next read.
+</Update>
+<Update label="April 21, 2025" description="NPM package - updated docs">
+  ## Updated NPM package documentation
+
+  The [despia-native](https://www.npmjs.com/package/despia-native) npm package page now links to the new documentation at [setup.despia.com](https://setup.despia.com), replacing the legacy npm.despia.com content.
+
+  No integration changes are required. The SDK API is unchanged.
+</Update>
+
+<Update label="April 18, 2026" description="Notifications - critical alerts support">
+  ## Critical alerts
+
+  Despia now supports critical alerts, allowing notifications to break through Do Not Disturb and silent mode on both Android and iOS.
+
+  **What ships today:**
+
+  - **Android.** Critical alerts work out of the box with no additional configuration required.
+  - **iOS.** Critical alerts require the Critical Alerts entitlement from Apple. Once granted, enable them in the Despia dashboard under App - Integrations - OneSignal - Critical Alerts, then rebuild a new version in Despia to activate the capability.
+
+  Android apps require no additional steps. iOS apps require the Apple entitlement and a dashboard configuration change followed by a rebuild.
+</Update>
+
+<Update label="April 18, 2026" description="PowerSync - schema configuration in db.connect()">
+  ## PowerSync schema configuration
+
+  `db.connect()` now accepts a `schema` parameter that tells the sync engine which tables and columns to map from your backend. Previously, schema configuration had to be inferred or handled separately outside the connect call.
+
+  **What ships today:**
+
+  - **Schema definition in connect.** Pass a `schema` object directly to `db.connect()` alongside `fetchToken` and `url`. Each key is a table name, each value declares the columns and optional indexes for that table.
+  - **Column type mapping.** Columns are typed as `'text'`, `'integer'`, or `'real'`, mapping directly to SQLite affinity types.
+  - **Optional indexes.** Each table accepts an optional `indexes` map of index name to an array of column names, allowing the sync engine to optimise queries at the schema level.
+  - **Updated TypeScript types.** `ConnectOptions` now includes `schema: PowerSyncSchema` as a required field. The `PowerSyncSchema` type is exported directly from `@despia/powersync`.
+
+  ```typescript
+  await db.connect({
+      fetchToken: async () => {
+          const res = await fetch('/api/powersync-token')
+          const { token } = await res.json()
+          return token
+      },
+      url: 'https://YOUR_POWERSYNC_INSTANCE',
+      schema: {
+          users: {
+              columns: {
+                  id: 'integer',
+                  email: 'text',
+              },
+          },
+          todos: {
+              columns: {
+                  id: 'integer',
+                  title: 'text',
+                  done: 'integer',
+              },
+              indexes: {
+                  byDone: ['done'],
+              },
+          },
+      },
+  })
+  ```
+
+  Full documentation is available in the [PowerSync introduction](/local-database/introduction) and [API reference](/local-database/reference).
+
+  **Packages:**
+
+  - [`@despia/powersync@1.1.0`](https://www.npmjs.com/package/@despia/powersync)
+
+  Update the package to `1.1.0` and add a `schema` object to any existing `db.connect()` calls. No dashboard or backend changes are required.
+</Update>
+
+<Update label="April 10, 2026" description="Apple Health - realtime observer and webhook delivery">
+  ## Apple Health realtime observer
+
+  HealthKit now supports live data observation. Subscribe to any health or workout identifier and receive a webhook POST to your server whenever the data changes, with background delivery that persists across app restarts.
+
+  **What ships today:**
+
+  - **Observer registration.** Call `healthkit://observe` with a comma-separated list of identifiers, a delivery frequency, and a server URL. Despia registers a native `HKObserverQuery` for each type and enables background delivery via iOS background task APIs.
+  - **Webhook delivery.** On every HealthKit update, Despia fetches the latest day of data for the changed type and POSTs it to your server as JSON with `event`, `userId`, `timestamp`, and `data` fields.
+  - **Configurable frequency.** Set `frequency` to `immediate`, `hourly`, `daily`, or `weekly` to control how aggressively the OS wakes the app to deliver updates.
+  - **Observer persistence.** Active observers are saved to device storage and restored automatically when the app restarts - no re-registration required.
+  - **Observer state.** `despia.observingHealthKit` reflects the current array of active identifier strings. It updates after every `observe` or `unobserve` call.
+  - **Selective stop.** Call `healthkit://unobserve?types=all` to stop all observers, or pass specific identifiers to stop individual types.
+  - **User identification.** Append your own user ID as a query parameter on the `server` URL (e.g. `?user=abc123`) to route webhook events directly to the right user record on your server without device ID mapping.
+
+  See the [Apple Health documentation](/health-data/apple-health) for the full API reference, webhook payload shape, and code examples.
+
+  No dashboard configuration changes or rebuild steps are required. Update `despia-native` to the latest version to access the new scheme.
+
+  **Packages:**
+
+  - [despia-native](https://www.npmjs.com/package/despia-native)
+</Update>
+
+<Update label="April 07, 2026" description="GPS Location - movement-based high-accuracy tracking">
+  ## Movement-based location tracking
+
+  The `location://` scheme now accepts a `movement` parameter that fires an additional GPS update whenever the device moves a set distance, independent of the time-based `buffer` interval.
+
+  **What changes:**
+
+  - **Distance-triggered updates.** Set `movement` to a distance in centimetres to receive a GPS point every time the device crosses that threshold. Use `movement=100` for 1-metre precision, suited to running, cycling, and navigation use cases.
+  - **Combined buffer and movement.** `buffer` and `movement` run simultaneously. `movement` drives updates as the user moves, and `buffer` acts as a heartbeat fallback when the device is stationary or movement updates are sparse.
+  - **Same location object shape.** Movement-triggered points are delivered to `window.onLocationChange`, stored in the local session, and POSTed to the `server` endpoint using the same object shape as time-based points. No handling changes are required.
+
+  To enable high-accuracy tracking, pass both parameters:
+
+  ```js
+  despia("location://?buffer=60&movement=100")
+  ```
+
+  Filter for precise fixes using `horizontalAccuracy` before calculating distances - discard any point where the value exceeds `10`.
+
+  No dashboard configuration changes are required for foreground use. Background tracking requires the Background Location addon to be enabled in your Despia dashboard.
+</Update>
+
+<Update label="April 05, 2026" description="HealthKit - workout identifiers that provide quantities">
+  ## HealthKit workout quantity identifiers
+
+  Despia HealthKit now supports workout identifiers that provide quantity data, allowing apps to read and write typed quantity samples associated with workout activity types.
+
+  **What ships today:**
+
+  - **Workout quantity identifiers.** Apps can now reference quantity-type identifiers tied to specific workout activities, such as active energy burned, distance, step count, and other measurable outputs produced during a workout session.
+  - **Quantity type resolution.** The SDK resolves each workout identifier to its underlying `HKQuantityType` automatically, so apps receive correctly typed samples without manual type mapping.
+
+  No dashboard configuration changes or integration code changes are required to enable this. Rebuild your app to pick up the updated HealthKit identifier support.
+</Update>
 
 <Update label="March 30, 2026" description="Auth - Apple Sign In via Apple JS SDK">
   ## Apple Sign In
@@ -21,77 +179,6 @@ icon: "clock-rotate-left"
   Apple Sign In requires a Services ID configured in the Apple Developer Console with your domain and return URL registered. The client secret JWT generated from your `.p8` private key expires after 6 months - set a reminder to regenerate it before expiry or Apple Sign In will silently stop working.
 
   Full documentation is available at [Apple Sign In](/native-features/oauth/apple)
-
-  **Packages:**
-
-  - [despia-native](https://www.npmjs.com/package/despia-native)
-
-  A rebuild is required. No dashboard configuration changes are required beyond enabling the Apple JS SDK script tag and configuring your Apple Services ID credentials in your backend auth provider.
-</Update>
-
-<Update label="March 28, 2026" description="Analytics - AppsFlyer attribution and event tracking">
-  ## AppsFlyer integration
-
-  Despia now includes a full AppsFlyer integration for install attribution, deep linking, in-app event tracking, and creator affiliate link support on both iOS and Android.
-
-  **What ships today:**
-
-  - **Install attribution.** The native AppsFlyer SDK is initialised automatically at launch on both iOS and Android. Attribution data is captured at install time, cached on-device, and injected into your web layer on every page load via `despia.appsFlyerAttribution`, `despia.appsFlyerReferrer`, and `despia.appsFlyerUID`. No setup code required.
-  - **Normalised referrer string.** `despia.appsFlyerReferrer` provides a clean source string on every load - values like `tiktok_ad`, `facebook_organic`, `google_ad`, and `organic` - ready to use for onboarding personalisation and funnel branching without any parsing.
-  - **Deep linking.** When a user opens the app via a campaign or creator OneLink URL, Despia resolves the deep link natively and navigates the WebView to the correct path automatically. `deep_link_value` maps directly to a route in your web app. No navigation code required from the web layer for fresh launches.
-  - **Re-engagement callback.** For users who already have the app installed and tap a campaign link while the app is open, Despia calls `window.onAppsFlyerDeepLink(data)` with the full click event payload so your app can respond without a full page reload.
-  - **Creator and affiliate links.** Deep link params support `deep_link_sub1` through `deep_link_sub5` for creator codes and affiliate IDs. Each creator can receive a unique OneLink URL. Attribution, commission tracking, and welcome personalisation are available from the same payload.
-  - **Event bridge.** In-app events are forwarded from your web layer to the native AppsFlyer SDK via `despia("appsflyer://log_event?...")`. Standard `af_` prefixed events map automatically to Meta and TikTok conversion events in their dashboards. Custom events appear in the AppsFlyer dashboard for funnel and retention analysis.
-  - **User identification.** `set_user_id`, `set_email`, and `set_phone` are all supported. Emails and phone numbers are hashed with SHA256 automatically before transmission.
-  - **GDPR consent.** `set_consent` accepts `is_gdpr` and `has_consent` params and passes them directly to the AppsFlyer SDK consent API.
-  - **On-demand data retrieval.** Both `get_uid` and `get_attribution` support an await pattern - `await despia("appsflyer://get_uid", ["appsFlyerUID"])` - for cases where you need the value immediately in the same execution flow.
-  - **Ad revenue tracking.** Coming soon - `despia("appsflyer://log_ad_revenue?...")` will allow impression-level revenue reporting back to AppsFlyer from Meta, TikTok, and AdMob to enable LTV and ROAS reporting per acquisition channel.
-
-  Configuration is handled entirely in the Despia dashboard with no native code changes required. Go to **Despia \> App \> Settings \> Integrations \> AppsFlyer** to enter your dev key, Apple App ID, OneLink URLs, and ad platform credentials. Despia configures Universal Links on iOS and App Links on Android automatically from the values you enter.
-
-  Full documentation is available at [AppsFlyer](/analytics/appsflyer).
-
-  **Packages:**
-
-  - [despia-native](https://www.npmjs.com/package/despia-native)
-
-  A rebuild is required after enabling the integration in the dashboard. No other integration code changes are required beyond calling the bridge methods documented above.
-</Update>
-
-<Update label="March 26, 2026" description="Local CDN - new query method to fetch all cached items">
-  ## Local CDN - query all cached files
-
-  A new `localcdn://query` method is available on the Local CDN API, returning every cached file in a single call without requiring individual IDs.
-
-  Previously, retrieving cached file metadata required passing a known list of index IDs to `localcdn://read`. There was no way to get a full inventory of the cache without tracking IDs separately in application state.
-
-  **What ships today:**
-
-  - **localcdn://query.** Calling `await despia('localcdn://query', ['cdnItems'])` returns the full `cdnItems` array containing every file currently in the local cache, across all folders.
-  - **Same response schema.** Each item in the returned array follows the existing response schema - `index`, `index_full`, `local_cdn`, `local_path`, `cdn`, `size`, `status`, and `created_at` - identical to `localcdn://read` output.
-
-  Full reference documentation is available on the [Local CDN reference page](/local-cdn/reference).
-
-  No dashboard configuration changes or rebuild steps are required. Update `despia-native` to the latest version to access the new method.
-</Update>
-
-<Update label="March 30, 2026" description="Auth - Apple Sign In via Apple JS SDK">
-  ## Apple Auth
-
-  Despia now supports Sign In with Apple using the Apple JS SDK across iOS, Android, and web, with platform-aware behaviour and full documentation.
-
-  **What ships today:**
-
-  - **iOS native - native Face ID sheet.** On iOS, the Apple JS SDK with `usePopup: true` opens the native Face ID / Apple ID sheet directly inside WKWebView. No `oauth://` bridge is needed on iOS. The `id_token` is returned to your JavaScript callback with no page redirect, which avoids the blank white screen that causes App Store rejection when using a redirect-based flow.
-  - **Android native - oauth:// bridge.** On Android, the `oauth://` bridge opens Chrome Custom Tabs for the Apple OAuth flow. `public/native-callback.html` receives the `id_token` and `code` in the URL hash and fires the deeplink to close the tab. The `oauth/` prefix in the deeplink is required.
-  - **Web - Apple JS SDK popup.** On web, the Apple JS SDK popup returns the `id_token` directly to your JavaScript callback. No redirect flow is used.
-  - **Two response mode options for Android.** The `fragment` mode redirects the browser directly to `native-callback.html` with `#id_token` in the hash - no backend POST handler needed. The `form_post` mode sends `code`, `id_token`, `state`, and `user` (name and email JSON, first login only) to your backend, which validates and redirects to `native-callback.html` with a session token.
-  - **Plain HTML callback file.** `public/native-callback.html` is recommended over a React component for the callback page. React Router can strip the `#id_token` hash fragment on route change, causing tokens to disappear. The plain HTML file bypasses React Router entirely and reads the hash directly from the browser. Chrome Custom Tabs hides the URL bar, so the `.html` extension is never visible to users.
-  - **React, Vue, Vanilla JS, and HTML auth page examples.** All auth page examples include the `searchParams` dependency array fix to handle the already-mounted page problem, where the deeplink updates the URL without remounting the component and the token handler never re-runs.
-
-  Apple Sign In requires a Services ID configured in the Apple Developer Console with your domain and return URL registered. The client secret JWT generated from your `.p8` private key expires after 6 months - set a reminder to regenerate it before expiry or Apple Sign In will silently stop working.
-
-  Full documentation is available at [Apple Sign In](/native-features/oauth/apple).
 
   **Packages:**
 

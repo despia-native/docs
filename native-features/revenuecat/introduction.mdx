@@ -1,14 +1,10 @@
 ---
+title: "Introduction"
 description: "Native App Store and Google Play billing in your web app via the Despia SDK and RevenueCat."
 icon: "circle-info"
-title: "Introduction"
 ---
 
 Native iOS and Android billing fully bridged to your web layer. Trigger purchases, display native paywalls, and check entitlements from your web app using `despia()`, with no native code and no native billing SDK to configure.
-
-<Info>
-  RevenueCat must be enabled in **Despia \> App \> Settings \> Integrations \> RevenueCat** and your RevenueCat API key configured before any purchases will work.
-</Info>
 
 ---
 
@@ -52,6 +48,45 @@ Native iOS and Android billing fully bridged to your web layer. Trigger purchase
     </CodeGroup>
   </Tab>
 </Tabs>
+
+---
+
+## RevenueCat and Despia setup
+
+Configure RevenueCat, then connect it to Despia. The steps go in order, each one feeds the next.
+
+<Steps>
+  <Step title="Create a RevenueCat account">
+    Go to [app.revenuecat.com](https://app.revenuecat.com) and sign up, or sign in with an existing account. RevenueCat is free up to a monthly tracked revenue threshold, after which a percentage fee applies, so account creation does not block early development.
+  </Step>
+  <Step title="Create an iOS app in RevenueCat">
+    In RevenueCat, go to **Project settings \> Apps \> \+ New** and choose **App Store**. Enter your iOS bundle ID (e.g. `com.despia.myapp`), upload a new App Store Connect API key (App Manager), and an in-app purchase key. RevenueCat needs both to validate iOS receipts on your behalf.
+  </Step>
+  <Step title="Create an Android app in RevenueCat">
+    Repeat **Project settings \> Apps \> \+ New** and choose **Play Store**. Enter your Android package name (the same value as your iOS bundle ID for Despia apps) and upload your Google Play Service Account credentials JSON. This lets RevenueCat verify Play Store purchases.
+  </Step>
+  <Step title="Configure entitlements and offerings">
+    In RevenueCat, go to **Entitlements \> \+ New** and create entitlements that represent the things users unlock, like `premium` or `no_ads`. Then go to **Products** and import your App Store Connect and Play Console products, attaching each to the matching entitlement. Finally, go to **Offerings** and group products into offerings that drive your paywalls (e.g. a `default` offering with monthly and annual packages).
+  </Step>
+  <Step title="Get your RevenueCat API keys">
+    Go to **Project settings \> API keys**. Copy the iOS Public SDK Key and the Android Public SDK Key. You will paste both into Despia in the next step.
+  </Step>
+  <Step title="Enable RevenueCat in the Despia Editor">
+    Open the Despia Editor and go to **App \> Settings \> Integrations \> RevenueCat**. Toggle the integration on, then paste in:
+
+    - **iOS Public SDK Key**
+    - **Android Public SDK Key**
+
+    Both values must match exactly what RevenueCat issued.
+  </Step>
+  <Step title="Rebuild your app">
+    Trigger a fresh build from the Despia Editor. The RevenueCat SDK has to be compiled into the app binary, so this cannot be applied over-the-air. After the build finishes, calls to `revenuecat://`, `getpurchasehistory://`, and the rest of the schemes will function in production.
+  </Step>
+</Steps>
+
+<Warning>
+  Skipping the rebuild leaves RevenueCat inactive even if the toggle reads enabled. Purchases will fail silently and entitlement checks will return empty arrays. If purchases stop working after editing settings, rebuild before opening a support ticket.
+</Warning>
 
 ---
 
