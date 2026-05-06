@@ -98,7 +98,7 @@ You can combine all three. Most apps that use observer also use read to populate
 
 ## How it works
 
-Define the `isDespiaIOS` check once at the top of your app and reuse it throughout. Despia requests HealthKit permission on the first call for each identifier, then fetches and returns the data.
+Define the `isDespiaIOS` check once at the top of your app and reuse it throughout. Pass one or more identifiers as a comma-separated list on the URL host, Despia routes the request through the native bridge in a single dispatch and returns one response keyed by identifier.
 
 ```javascript
 const isDespiaIOS = navigator.userAgent.toLowerCase().includes('despia') && (
@@ -107,11 +107,17 @@ const isDespiaIOS = navigator.userAgent.toLowerCase().includes('despia') && (
 )
 
 if (isDespiaIOS) {
-    const data  = await despia('readhealthkit://HKQuantityTypeIdentifierStepCount?days=7', ['healthkitResponse'])
+    const data  = await despia(
+        'readhealthkit://HKQuantityTypeIdentifierStepCount,HKQuantityTypeIdentifierHeartRate?days=7',
+        ['healthkitResponse']
+    )
+
     const steps = data.healthkitResponse.HKQuantityTypeIdentifierStepCount
-    // [{ "date": "2025-11-17", "value": 9820, "unit": "count" }, ...]
+    const hr    = data.healthkitResponse.HKQuantityTypeIdentifierHeartRate
 }
 ```
+
+Despia requests HealthKit permission on the first call for each identifier, then fetches and returns the data. A single multi-identifier call prompts the user once for the whole set rather than once per type.
 
 ---
 
@@ -120,6 +126,42 @@ if (isDespiaIOS) {
 Use `readhealthkit://` to fetch historical data on demand. This is the right approach when your UI needs to display health data at a point in time, on load, after a user action, or when generating a report. You control exactly when the fetch happens and how many days of history to retrieve.
 
 Pass any valid `HKQuantityTypeIdentifier`, `HKCategoryTypeIdentifier`, `HKWorkoutTypeIdentifier`, or `HKCharacteristicTypeIdentifier` as the URL host, plus an optional `days` parameter. See [Identifier reference](#identifier-reference) for the full list.
+
+### Reading multiple identifiers
+
+Most real apps need more than one metric at a time, a dashboard typically wants steps, heart rate, calories, and sleep all at once. Comma-separate the identifiers on the URL host and Despia returns them in a single response, keyed by identifier name.
+
+```javascript
+if (isDespiaIOS) {
+    const data = await despia(
+        'readhealthkit://HKQuantityTypeIdentifierStepCount,HKQuantityTypeIdentifierActiveEnergyBurned,HKCategoryTypeIdentifierSleepAnalysis?days=7',
+        ['healthkitResponse']
+    )
+
+    const steps  = data.healthkitResponse.HKQuantityTypeIdentifierStepCount
+    const energy = data.healthkitResponse.HKQuantityTypeIdentifierActiveEnergyBurned
+    const sleep  = data.healthkitResponse.HKCategoryTypeIdentifierSleepAnalysis
+}
+```
+
+Each key on `healthkitResponse` holds the same array shape that a single-identifier read would return for that type. Quantity types return daily values, sleep returns stage intervals, workouts return session records. The single `days` parameter applies to every identifier in the call.
+
+You can mix categories freely in one call as long as they all accept a `days` window:
+
+```javascript
+if (isDespiaIOS) {
+    const data = await despia(
+        'readhealthkit://HKQuantityTypeIdentifierStepCount,HKQuantityTypeIdentifierHeartRate,HKWorkoutTypeIdentifier?days=14',
+        ['healthkitResponse']
+    )
+}
+```
+
+Characteristics (`HKCharacteristicTypeIdentifierDateOfBirth`, biological sex, blood type, skin type) are static values and do not accept `days`, so fetch them with their own dedicated call.
+
+<Warning>
+  Always batch related reads into one comma-separated call. Firing several `despia()` reads in parallel with `Promise.all` queues multiple independent requests against the native bridge, which can race during permission prompts and on slower devices, causing one or more reads to return stale or empty arrays without throwing. A single multi-identifier call goes through one native dispatch, hits HealthKit's authorization layer once, and resolves all identifiers atomically.
+</Warning>
 
 ### Quantity types
 
@@ -299,7 +341,7 @@ if (isDespiaIOS) {
 
 ### Characteristics
 
-Characteristics such as date of birth, biological sex, and blood type are static values that do not change over time. They return a plain string or raw integer and do not accept a `days` parameter.
+Characteristics such as date of birth, biological sex, and blood type are static values that do not change over time. They return a plain string or raw integer and do not accept a `days` parameter, so they cannot be batched into the same call as quantity, category, or workout reads.
 
 ```javascript
 if (isDespiaIOS) {
