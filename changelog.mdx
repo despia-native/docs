@@ -3,6 +3,29 @@ title: "Changelog"
 description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
+
+<Update label="May 07, 2026" description="In-app purchases - RevenueCat Customer Center scheme">
+  ## RevenueCat Customer Center
+
+  A new `revenuecat://center` scheme opens the native RevenueCat Customer Center sheet, giving users a single in-app surface to restore purchases, manage their subscription, request refunds, and complete feedback surveys without leaving the app.
+
+  **What ships today:**
+
+  - **Customer Center scheme.** Call the new `revenuecat://center` scheme with an `external_id` parameter to present the native sheet. Layout, copy, and available actions are configured from the RevenueCat dashboard, so no client-side UI work is required.
+  - **Event callback.** Every interaction inside the sheet streams back through `window.onRevenueCatCenter(event)`. Switch on `event.event` to handle `restoreStarted`, `restoreCompleted`, `restoreFailed`, `manageSubscriptionsOpened`, `refundRequested`, `refundCompleted`, `feedbackSurveyCompleted`, `managementOptionSelected`, and `dismissed`.
+  - **iOS in-app refunds.** iOS users can now initiate refund requests directly from the sheet. The runtime emits `refundRequested` and `refundCompleted` events with `productId` and a `status` field of `success`, `userCancelled`, or `error`.
+  - **Android refund fallback.** Google Play does not allow in-app refund requests, so configure a `customUrl` management option in the RevenueCat dashboard and route Android users to a `mailto:` link or your support page from the `managementOptionSelected` event. iOS continues to use the native flow.
+  - **Fully safe restore pattern.** On `restoreCompleted`, `refundCompleted`, and `dismissed`, re-query the native store with the existing `getpurchasehistory://` scheme and re-run your entitlement check. The event payload's `activeEntitlements` array is informational, the native store query is authoritative.
+
+  Full implementation details, event field reference, and Android refund routing examples are documented in the [in-app purchases reference](/docs/in-app-purchases/reference).
+
+  **Packages:**
+
+  - [despia-native](https://www.npmjs.com/package/despia-native) on npm
+
+  No new rebuild is required for apps already on a recent Despia runtime. Configure the Customer Center appearance and any custom management URLs in your RevenueCat dashboard, then call the scheme from your web layer.
+</Update>
+
 <Update label="April 26, 2026" description="HealthKit - extended sleep identifier support">
   ## Extended HealthKit sleep identifier support
 
@@ -32,6 +55,7 @@ icon: "clock-rotate-left"
 
   No dashboard configuration changes, rebuild steps, or integration code changes are required. The expanded data is returned automatically on the next read.
 </Update>
+
 <Update label="April 21, 2025" description="NPM package - updated docs">
   ## Updated NPM package documentation
 
