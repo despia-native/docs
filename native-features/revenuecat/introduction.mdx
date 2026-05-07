@@ -148,7 +148,7 @@ window.onRevenueCatPurchase = checkEntitlements
 
 ## Customer Center
 
-The RevenueCat Customer Center is a native UI where users can restore purchases, manage their subscription, request refunds, and submit feedback surveys without leaving your app. Trigger it from your web layer with a single scheme.
+The RevenueCat Customer Center is a native UI where users can restore purchases, manage their subscription, request refunds (iOS only), and submit feedback surveys without leaving your app. Trigger it from your web layer with a single scheme.
 
 ```javascript
 despia(`revenuecat://center?external_id=${userId}`)
@@ -168,6 +168,10 @@ window.onRevenueCatCenter = (event) => {
     }
 }
 ```
+
+<Info>
+  Google Play does not allow in-app refund requests, so the Customer Center on Android has no refund button and the `refundRequested` / `refundCompleted` events never fire on Android. Configure a **custom URL** management option in your RevenueCat dashboard to route Android users to your support email or Google Play subscriptions page. See the [Reference](/native-features/revenuecat/reference) for the full Android refund fallback pattern.
+</Info>
 
 See the [Reference](/native-features/revenuecat/reference) for the full event list and payload fields.
 

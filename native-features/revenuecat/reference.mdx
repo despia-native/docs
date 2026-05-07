@@ -95,7 +95,7 @@ The prefix before `:` is the subscription group name as configured in Google Pla
 
 ### Customer Center
 
-Opens the RevenueCat Customer Center, the native UI that lets users restore purchases, manage their subscription, request refunds, and complete feedback surveys. All actions inside the sheet stream back to your web layer through `window.onRevenueCatCenter`.
+Opens the RevenueCat Customer Center, the native UI that lets users restore purchases, manage their subscription, request refunds (iOS only), and complete feedback surveys. All actions inside the sheet stream back to your web layer through `window.onRevenueCatCenter`.
 
 ```javascript
 despia(`revenuecat://center?external_id=${userId}`)
@@ -175,16 +175,16 @@ window.onRevenueCatCenter = (event) => {
             fullyRestoreAndCheck()
             break
         case 'refundCompleted':
-            // event.productId, event.status: "success" | "userCancelled" | "error"
-            // Re-query in case the refund affected an active subscription
+            // iOS only. event.productId, event.status: "success" | "userCancelled" | "error"
+            // Re-query in case the refund affected an active subscription.
             fullyRestoreAndCheck()
             break
         case 'managementOptionSelected':
-            // event.option is a string. Standard values: "cancel", "changePlans",
-            // "missingPurchase", "refundRequest". Custom URLs come through as
-            // "customUrl(https://...)" with the URL embedded in the string.
-            if (event.option.startsWith('customUrl')) {
-                const url = event.option.match(/customUrl\((.+)\)/)?.[1]
+            // event.option is a string. Standard values: "cancel", "changePlans"
+            // (iOS only), "missingPurchase", "refundRequest" (iOS only),
+            // "customUrl". For "customUrl", the destination URL is in event.uri.
+            if (event.option === 'customUrl') {
+                window.location.href = event.uri
             }
             break
         case 'dismissed':
@@ -209,15 +209,59 @@ window.onRevenueCatCenter = (event) => {
 | `restoreCompleted` | `activeEntitlements`, `activeSubscriptions`, `originalAppUserId` | Restore succeeded. The arrays reflect post-restore state, but treat them as informational. Re-run your own Despia restore and entitlement check for the fully safe path. |
 | `restoreFailed` | `errorMessage`, `errorCode`, `errorDomain` | Restore failed. Use `errorCode` and `errorDomain` to branch on specific failure types. |
 | `manageSubscriptionsOpened` | none | User opened the native manage-subscriptions sheet. Does not mean they cancelled, only that they navigated to where they could. |
-| `refundRequested` | `productId` | User initiated a refund request. |
-| `refundCompleted` | `productId`, `status` | Refund request returned. `status` is `success`, `userCancelled`, or `error`. `success` means the request was submitted, not approved. Approval is server-side only. |
+| `refundRequested` | `productId` | iOS only. User initiated a refund request. Google Play has no equivalent in-app refund flow. |
+| `refundCompleted` | `productId`, `status` | iOS only. Refund request returned. `status` is `success`, `userCancelled`, or `error`. `success` means the request was submitted, not approved. Approval is server-side only. |
 | `feedbackSurveyCompleted` | `optionId` | User completed a feedback survey configured in your RevenueCat dashboard. `optionId` matches the option identifier set up there. |
-| `managementOptionSelected` | `option` | User selected a management path. `option` is a string. Standard values: `cancel`, `changePlans`, `missingPurchase`, `refundRequest`. For custom URLs configured in your RevenueCat dashboard, the value is `customUrl(<url>)` with the URL embedded in the string. |
+| `managementOptionSelected` | `option`, `uri` | User selected a management path. `option` is a string with one of: `cancel`, `changePlans` (iOS only), `missingPurchase`, `refundRequest` (iOS only), `customUrl`. For `customUrl`, the destination URL is in the `uri` field. |
 | `dismissed` | none | User closed the Customer Center sheet. The runtime also auto-refreshes RevenueCat state at this point, so any change made inside the sheet flows through `window.onRevenueCatPurchase` shortly after. |
 
 <Info>
   All Customer Center events are client-side. They fire while the user is interacting with the sheet. Server-side outcomes such as Apple actually approving a refund, renewals, expirations while the app is closed, and billing failures require RevenueCat webhooks.
 </Info>
+
+---
+
+## Android refund fallback
+
+Google Play does not allow apps to trigger refund requests in-app. The Customer Center on Android has no refund button for this reason, and the `refundRequested` / `refundCompleted` events never fire on Android.
+
+To give Android users a path to refunds, configure a **custom URL** management option in your RevenueCat Customer Center dashboard, then route it client-side using a User-Agent check.
+
+```javascript
+const ua = navigator.userAgent.toLowerCase()
+const isDespia = ua.includes('despia')
+const isDespiaAndroid = isDespia && ua.includes('android')
+const isDespiaIOS = isDespia && (ua.includes('iphone') || ua.includes('ipad'))
+
+window.onRevenueCatCenter = (event) => {
+    // Android: user tapped your configured "Request a refund" custom URL action
+    if (event.event === 'managementOptionSelected' && event.option === 'customUrl') {
+        if (isDespiaAndroid) {
+            // Send Android users to your support email or Play subscriptions page.
+            // Recommended: mailto so you can handle the refund manually.
+            window.location.href =
+                `mailto:support@yourapp.com?subject=Refund%20request&body=User%20ID%3A%20${userId}`
+        } else {
+            // iOS or web: just open whatever URL was configured in the dashboard
+            window.location.href = event.uri
+        }
+    }
+}
+```
+
+Recommended `customUrl` destinations for the Android refund path:
+
+| Destination | Use when |
+| --- | --- |
+| `mailto:support@yourapp.com?subject=Refund%20request` | Default fallback. Works for any refund window. Most users default to email. Lets you handle the refund manually through RevenueCat's dashboard. |
+| `https://play.google.com/store/account/subscriptions` | Only useful within 48 hours of purchase, the window during which Google Play self-service refunds are allowed. |
+| Your own support page | If you have a help center or refund form. |
+
+<Info>
+  iOS users never hit the `customUrl` branch for refunds because the native refund flow is built into the Customer Center. The User-Agent check above is purely to give Android users a path that doesn't dead-end.
+</Info>
+
+To process the refund manually once you receive the email, go to **RevenueCat Dashboard \> Customers**, look up the user, and use the **Grant** or **Refund** actions. RevenueCat will fire a `REFUND` webhook event back to your endpoint so your backend stays in sync.
 
 ---
 
