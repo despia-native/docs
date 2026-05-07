@@ -214,6 +214,7 @@
           "native-features/biometrics",
           "native-features/app-privacy",
           "native-features/safe-areas",
+          "native-features/screen-radius",
           "native-features/camera-roll",
           "native-features/offline-push",
           "native-features/app-settings",
