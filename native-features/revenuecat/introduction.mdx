@@ -146,6 +146,33 @@ window.onRevenueCatPurchase = checkEntitlements
 
 ---
 
+## Customer Center
+
+The RevenueCat Customer Center is a native UI where users can restore purchases, manage their subscription, request refunds, and submit feedback surveys without leaving your app. Trigger it from your web layer with a single scheme.
+
+```javascript
+despia(`revenuecat://center?external_id=${userId}`)
+```
+
+When the user runs Restore Purchases from inside the sheet, the recommended fully-safe pattern is to also fire your existing Despia restore flow on `restoreCompleted`. The Customer Center's restore and the Despia `getpurchasehistory://` query both hit the native store, but running both back-to-back guarantees your web layer reflects whatever the device thinks is true, regardless of timing or edge cases.
+
+```javascript
+window.onRevenueCatCenter = (event) => {
+    if (event.event === 'restoreCompleted') {
+        // Fully safe: run the Despia restore + entitlement check ourselves
+        checkEntitlements()
+    }
+    if (event.event === 'dismissed') {
+        // Catch-all on close, in case any other state changed inside the sheet
+        checkEntitlements()
+    }
+}
+```
+
+See the [Reference](/native-features/revenuecat/reference) for the full event list and payload fields.
+
+---
+
 ## Resources
 
 <CardGroup cols={2}>

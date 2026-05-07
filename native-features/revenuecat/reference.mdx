@@ -93,6 +93,20 @@ The prefix before `:` is the subscription group name as configured in Google Pla
 
 ---
 
+### Customer Center
+
+Opens the RevenueCat Customer Center, the native UI that lets users restore purchases, manage their subscription, request refunds, and complete feedback surveys. All actions inside the sheet stream back to your web layer through `window.onRevenueCatCenter`.
+
+```javascript
+despia(`revenuecat://center?external_id=${userId}`)
+```
+
+| Parameter | Required | Description |
+| --- | --- | --- |
+| `external_id` | No | Your user's ID in RevenueCat. If omitted, the Customer Center opens for the currently logged-in RevenueCat user. |
+
+---
+
 ### Check entitlements
 
 Queries the native store for all purchases on the current device/account. Returns active subscriptions, expired subscriptions, and one-time purchases. Instant and offline-capable.
@@ -132,6 +146,78 @@ window.onRevenueCatPurchase = async () => {
     if (active.some(p => p.entitlementId === 'no_ads'))  removeAds()
 }
 ```
+
+---
+
+## Customer Center callback
+
+The Despia runtime calls `window.onRevenueCatCenter(event)` for every action a user takes inside the Customer Center sheet, plus when the sheet itself is dismissed. Set up a single handler and switch on `event.event`.
+
+### Recommended pattern: fully safe restore
+
+When the user runs Restore Purchases from inside the Customer Center, run your existing Despia restore flow on top of the Customer Center's own restore. Both paths hit the native store, but firing your `getpurchasehistory://` query plus entitlement check on `restoreCompleted` guarantees your web app reflects whatever the device actually thinks is true. The Customer Center event tells you the user finished a restore. The Despia call confirms what they restored.
+
+```javascript
+async function fullyRestoreAndCheck() {
+    const data   = await despia('getpurchasehistory://', ['restoredData'])
+    const active = (data.restoredData ?? []).filter(p => p.isActive)
+
+    if (active.some(p => p.entitlementId === 'premium')) unlockPremium()
+    if (active.some(p => p.entitlementId === 'no_ads'))  removeAds()
+}
+
+window.onRevenueCatCenter = (event) => {
+    switch (event.event) {
+        case 'restoreCompleted':
+            // Fully safe: re-run our own Despia restore + entitlement check.
+            // Don't trust the event payload alone, even though it includes
+            // activeEntitlements. Querying the store ourselves is authoritative.
+            fullyRestoreAndCheck()
+            break
+        case 'refundCompleted':
+            // event.productId, event.status: "success" | "userCancelled" | "error"
+            // Re-query in case the refund affected an active subscription
+            fullyRestoreAndCheck()
+            break
+        case 'managementOptionSelected':
+            // event.option is a string. Standard values: "cancel", "changePlans",
+            // "missingPurchase", "refundRequest". Custom URLs come through as
+            // "customUrl(https://...)" with the URL embedded in the string.
+            if (event.option.startsWith('customUrl')) {
+                const url = event.option.match(/customUrl\((.+)\)/)?.[1]
+            }
+            break
+        case 'dismissed':
+            // Catch-all safety net on close. Even if no specific event fired
+            // (network blip, edge case in the SDK, user backed out mid-action),
+            // running the full restore + check here keeps state in sync.
+            fullyRestoreAndCheck()
+            break
+    }
+}
+```
+
+<Info>
+  The event payload's `activeEntitlements` array is convenient but not authoritative. Always run `getpurchasehistory://` yourself after a state-changing event. The native store is the source of truth, the events are just signals that something might have changed.
+</Info>
+
+### Events
+
+| Event | Fields | Description |
+| --- | --- | --- |
+| `restoreStarted` | none | User tapped Restore Purchases. |
+| `restoreCompleted` | `activeEntitlements`, `activeSubscriptions`, `originalAppUserId` | Restore succeeded. The arrays reflect post-restore state, but treat them as informational. Re-run your own Despia restore and entitlement check for the fully safe path. |
+| `restoreFailed` | `errorMessage`, `errorCode`, `errorDomain` | Restore failed. Use `errorCode` and `errorDomain` to branch on specific failure types. |
+| `manageSubscriptionsOpened` | none | User opened the native manage-subscriptions sheet. Does not mean they cancelled, only that they navigated to where they could. |
+| `refundRequested` | `productId` | User initiated a refund request. |
+| `refundCompleted` | `productId`, `status` | Refund request returned. `status` is `success`, `userCancelled`, or `error`. `success` means the request was submitted, not approved. Approval is server-side only. |
+| `feedbackSurveyCompleted` | `optionId` | User completed a feedback survey configured in your RevenueCat dashboard. `optionId` matches the option identifier set up there. |
+| `managementOptionSelected` | `option` | User selected a management path. `option` is a string. Standard values: `cancel`, `changePlans`, `missingPurchase`, `refundRequest`. For custom URLs configured in your RevenueCat dashboard, the value is `customUrl(<url>)` with the URL embedded in the string. |
+| `dismissed` | none | User closed the Customer Center sheet. The runtime also auto-refreshes RevenueCat state at this point, so any change made inside the sheet flows through `window.onRevenueCatPurchase` shortly after. |
+
+<Info>
+  All Customer Center events are client-side. They fire while the user is interacting with the sheet. Server-side outcomes such as Apple actually approving a refund, renewals, expirations while the app is closed, and billing failures require RevenueCat webhooks.
+</Info>
 
 ---
 
@@ -216,6 +302,16 @@ if (isDespiaIOS) {
     despia(`revenuecat://purchase?external_id=${userId}&product=premium:monthly_premium_android`)
 } else {
     window.location.href = `https://pay.rev.cat/<your_token>/${encodeURIComponent(userId)}`
+}
+```
+
+```javascript
+// Customer Center approach
+if (isDespia) {
+    despia(`revenuecat://center?external_id=${userId}`)
+} else {
+    // Direct the user to your own account/billing page on web
+    window.location.href = '/account/billing'
 }
 ```
 
@@ -365,6 +461,18 @@ async function handleRestore() {
 
     if (active.some(p => p.entitlementId === 'premium')) unlockPremium()
     if (active.some(p => p.entitlementId === 'no_ads'))  removeAds()
+}
+```
+
+You can also surface the Customer Center scheme as the entire restore-and-manage UI, since users can run a restore from inside the sheet themselves. For the fully safe path, hook `restoreCompleted` and run your own Despia restore plus entitlement check rather than trusting the event payload alone. The native store is the source of truth, the events are just triggers.
+
+```javascript
+despia(`revenuecat://center?external_id=${userId}`)
+
+window.onRevenueCatCenter = (event) => {
+    if (event.event === 'restoreCompleted') {
+        handleRestore()
+    }
 }
 ```
 
