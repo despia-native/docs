@@ -223,12 +223,12 @@ despia(`audio://seek?seconds=${seconds}`)
 despia(`audio://skipforward?seconds=15`)
 despia(`audio://skipback?seconds=15`)
 despia(`audio://speed?rate=1.5`)
-despia('audio://stop')
+despia('audio://terminate')
 ```
 
 `audio://play` handles both starting and resuming. If the player is paused it resumes, if it's already playing the call is a no-op, if no player exists it starts at the current index. There is no separate `resume` command.
 
-Speed is clamped to 0.5 through 3.0. Skip seconds default to the `skip_interval` set when the queue was created, override per-call if needed. `stop` tears down the player, clears the queue, and deactivates the audio session, allowing other apps (Spotify, Apple Music) to auto-resume.
+Speed is clamped to 0.5 through 3.0. Skip seconds default to the `skip_interval` set when the queue was created, override per-call if needed. `terminate` tears down the player, clears the queue, and deactivates the audio session, allowing other apps (Spotify, Apple Music) to auto-resume.
 
 To force a state event (useful when remounting the player UI):
 
@@ -335,11 +335,11 @@ export function usePlayer() {
 
 ## Clear playback on logout
 
-`stop` halts playback, clears the queue, deactivates the audio session, and wipes the disk cache. For paid-tier audio where you want immediate cache eviction without stopping playback, call `clearcache` on its own.
+`terminate` halts playback, clears the queue, deactivates the audio session, and wipes the disk cache. For paid-tier audio where you want immediate cache eviction without stopping playback, call `clearcache` on its own.
 
 ```javascript
 function logout() {
-    despia('audio://stop')
+    despia('audio://terminate')
     // ... rest of logout flow
 }
 ```
