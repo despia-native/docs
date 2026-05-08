@@ -4,6 +4,28 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="May 08, 2026" description="Apple Health - dedicated workouts scheme with per-workout stats">
+  ## Apple Health workouts with per-session statistics
+
+  A new `healthkit://workouts` scheme fetches workout sessions as a flat array and can attach aggregated quantity statistics computed across each individual workout's time range. The result lands on `window.healthkitWorkouts`, separate from the existing multi-type `healthkitResponse` object, so the new and legacy paths coexist in the same app.
+
+  **What ships today:**
+
+  - **Dedicated workouts endpoint.** Call `healthkit://workouts?days=N` to retrieve every workout in the last N days as a flat array, with `date`, `activityType`, `duration`, `calories`, `distance`, `value`, and `unit` on each record. Authorization for `HKWorkoutTypeIdentifier` is requested automatically on the first call.
+  - **Per-workout statistics.** Pass an `included=` parameter with a comma-separated list of `HKQuantityTypeIdentifier` values, each suffixed with `Average`, `Max`, `Min`, or `Sum`, to compute aggregates scoped to the workout's `startDate` to `endDate` window rather than the whole day. Results land on a `samples[]` array on each workout, with each entry exposing `key`, `value`, and `unit`.
+  - **Suffix-driven aggregation.** `Average` maps to discrete average, `Max` to discrete max, `Min` to discrete min, and `Sum` to cumulative sum. An identifier with no suffix defaults to discrete average. Authorization for every base quantity type referenced is requested in a single prompt, with the suffix stripped before the auth call. Invalid identifiers are silently skipped without affecting valid ones in the same call.
+  - **PascalCase activity types.** The new scheme returns Apple's `HKWorkoutActivityType` enum names directly, for example `Running`, `Cycling`, and `FunctionalStrengthTraining`. The legacy `readhealthkit://HKWorkoutTypeIdentifier` path continues to return lowercase values like `running`, so existing UIs reading from `healthkitResponse` are unaffected.
+  - **Fully backwards compatible.** Every existing `readhealthkit://` and `healthkit://read?types=...` call keeps working unchanged. Use `healthkit://workouts` for any workouts-only read or any read that needs per-workout statistics, and the legacy path when batching workouts with other unrelated identifiers in a single call.
+
+  Common combinations such as average and peak heart rate, summed active energy, and pace or power ranges are documented in the [Apple Health](/health-data/apple-health) page along with the new parameters and full response shape.
+
+  **Packages:**
+
+  - [despia-native](https://www.npmjs.com/package/despia-native)
+
+  Existing integrations require no code changes. To use the new scheme, call `healthkit://workouts` and read from `window.healthkitWorkouts`. If your app has not been rebuilt since the new endpoint shipped, trigger a fresh build from the Despia Editor to pick it up.
+</Update>
+
 <Update label="May 08, 2026" description="Gyroscope - live angular velocity and compass heading on one channel">
   ## Gyroscope sensor
 
