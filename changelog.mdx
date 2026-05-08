@@ -4,26 +4,28 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
-<Update label="May 08, 2026" description="Gyroscope - live angular velocity readings">
-  ## Gyroscope sensor access
+<Update label="May 08, 2026" description="Gyroscope - live angular velocity and compass heading on one channel">
+  ## Gyroscope sensor
 
-  Apps can now read live angular velocity from the device's gyroscope through `gyroscope://start` and `gyroscope://stop`, with a configurable magnitude threshold to filter low-motion noise before readings reach JavaScript.
+  The gyroscope feature ships today, exposing live angular velocity readings alongside magnetic compass heading on a single channel through `gyroscope://start` and `gyroscope://stop`. Every gyro sample carries the latest cached heading, so one callback drives motion-based UI, shake gestures, AR overlays, fitness apps, and compass or Qibla needles.
 
   **What ships today:**
 
-  - **Start and stop control.** Call `gyroscope://start?threshold=N` to begin emitting readings and `gyroscope://stop` to release the sensor. The threshold is in degrees per second and applies to the combined magnitude across all three axes. Pass `0` to receive every sample, or a higher value for shake-style gestures.
-  - **Live callback.** Each reading above the threshold is delivered to `window.onGyroscopeChange` as an object containing `x`, `y`, `z` angular velocities in radians per second, plus a `timestamp` in milliseconds. Define the handler before calling `start` so the first reading is not missed.
-  - **Tracking state flag.** `despia.gyroscopeActive` reflects whether tracking is running and survives soft close and reopen, so boot code can decide whether to resume the live readout or show a start button without guessing. The flag can also be read explicitly by passing `['gyroscopeActive']` as the second argument to a control call.
-  - **Automatic resume.** When the user backgrounds the app and reopens it, the runtime restores the session with the last threshold and continues firing the callback as soon as the handler is reattached. Call `gyroscope://stop` explicitly to opt out.
-  - **Unavailable device handling.** On devices without a gyroscope, the callback receives `{ status: "error", error: "unavailable" }` and `despia.gyroscopeActive` stays `false`, so fallback UI can render cleanly.
+  - **Single-channel gyro and compass.** `window.onGyroscopeChange` receives `x`, `y`, `z` angular velocity in radians per second plus `heading`, `headingAccuracy`, and `timestamp` on every emitted reading. Heading is `-1` until the magnetometer produces its first fix.
+  - **Magnitude threshold.** `gyroscope://start?threshold=` filters readings natively against `√(x² + y² + z²)`. Pass `0` to receive every sample for tilt or parallax UI, higher values for shake-style gestures so the JavaScript layer only sees deliberate motion.
+  - **Tracking state flag.** `despia.gyroscopeActive` reflects whether the sensor is running and survives soft close and reopen. Boot code can branch on the flag to resume the live readout or show the start button without guessing.
+  - **Resume after soft close.** When the user backgrounds and reopens the app, the runtime restores the session using the last threshold and continues invoking `window.onGyroscopeChange` as soon as the handler is reattached.
+  - **Calibration prompts.** Readings carry a `calibration_required` status when iOS reports the magnetometer needs recalibrating. Heading continues to stream during this state so the page can surface a figure-8 hint and dismiss it when `headingAccuracy` returns to a good range.
+  - **Error handling.** Devices without a gyroscope or magnetometer emit a `status: "error"` payload with `error: "unavailable"`, and `despia.gyroscopeActive` stays `false` so fallback UI can take over.
+  - **No permission prompt.** Heading is delivered without requesting location access. True-north and Qibla conversions can be done in JavaScript using the page's own coordinates and a local declination value.
 
-  Full API reference is available in the [Gyroscope documentation](/native-features/gyroscope).
+  Full documentation is available at [Gyroscope](/native-features/gyroscope).
 
   **Packages:**
 
   - [despia-native](https://www.npmjs.com/package/despia-native)
 
-  No dashboard configuration changes or rebuild steps are required. To use the feature, install or update `despia-native` and wire up `window.onGyroscopeChange` before calling `gyroscope://start`.
+  No dashboard configuration changes are required. Install or update `despia-native`, define `window.onGyroscopeChange`, and call `gyroscope://start` to begin receiving readings.
 </Update>
 
 <Update label="May 07, 2026" description="Layout - device screen corner radius now exposed">
