@@ -4,6 +4,50 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="May 08, 2026" description="Gyroscope - live angular velocity readings">
+  ## Gyroscope sensor access
+
+  Apps can now read live angular velocity from the device's gyroscope through `gyroscope://start` and `gyroscope://stop`, with a configurable magnitude threshold to filter low-motion noise before readings reach JavaScript.
+
+  **What ships today:**
+
+  - **Start and stop control.** Call `gyroscope://start?threshold=N` to begin emitting readings and `gyroscope://stop` to release the sensor. The threshold is in degrees per second and applies to the combined magnitude across all three axes. Pass `0` to receive every sample, or a higher value for shake-style gestures.
+  - **Live callback.** Each reading above the threshold is delivered to `window.onGyroscopeChange` as an object containing `x`, `y`, `z` angular velocities in radians per second, plus a `timestamp` in milliseconds. Define the handler before calling `start` so the first reading is not missed.
+  - **Tracking state flag.** `despia.gyroscopeActive` reflects whether tracking is running and survives soft close and reopen, so boot code can decide whether to resume the live readout or show a start button without guessing. The flag can also be read explicitly by passing `['gyroscopeActive']` as the second argument to a control call.
+  - **Automatic resume.** When the user backgrounds the app and reopens it, the runtime restores the session with the last threshold and continues firing the callback as soon as the handler is reattached. Call `gyroscope://stop` explicitly to opt out.
+  - **Unavailable device handling.** On devices without a gyroscope, the callback receives `{ status: "error", error: "unavailable" }` and `despia.gyroscopeActive` stays `false`, so fallback UI can render cleanly.
+
+  Full API reference is available in the [Gyroscope documentation](/native-features/gyroscope).
+
+  **Packages:**
+
+  - [despia-native](https://www.npmjs.com/package/despia-native)
+
+  No dashboard configuration changes or rebuild steps are required. To use the feature, install or update `despia-native` and wire up `window.onGyroscopeChange` before calling `gyroscope://start`.
+</Update>
+
+<Update label="May 07, 2026" description="Layout - device screen corner radius now exposed">
+  ## Screen Radius
+
+  The runtime now measures the device's hardware screen corner radius at page load and exposes it to the web layer, so modals, sheets, cards, and overlays can curve in lockstep with the physical bezel.
+
+  **What ships today:**
+
+  - **Automatic injection.** No scheme call is required. The runtime reads the top-left corner radius on every supported device and writes it to the page before stylesheets and scripts run.
+  - **JavaScript value.** `despia.screenRadius` returns the radius as a number in CSS pixels, for example `47.33` on iPhone 14 Pro. Use it for any sizing logic that needs the raw measurement.
+  - **CSS variable.** `--screen-radius` is scoped to the document root with a `px` unit, ready to drop into `border-radius` rules or `calc()` expressions for concentric inner corners.
+  - **Graceful fallback.** The value resolves to `0` on devices without rounded screens, on older OS versions, and in non-Despia environments. Pair every `var(--screen-radius)` with a `0px` default so `calc()` expressions stay valid in desktop previews and clamp to square corners.
+  - **Cross-platform parity.** iOS and Android expose identical values in CSS pixels, so feature code does not need to branch by platform.
+
+  Full layout patterns for inset modals, edge-pinned sheets, and combinations with safe area insets are documented in the [screen radius reference](/native-features/screen-radius).
+
+  **Packages:**
+
+  - [despia-native](https://www.npmjs.com/package/despia-native) on npm
+
+  No rebuild is required for apps already on a recent Despia runtime. The variable and JavaScript value are available immediately. Existing rules continue to render unchanged until you adopt them.
+</Update>
+
 <Update label="May 07, 2026" description="Layout - device screen corner radius now exposed">
   ## Screen Radius
 

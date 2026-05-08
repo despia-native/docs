@@ -231,7 +231,8 @@
           "native-features/simple-storage",
           "native-features/print-documents",
           "native-features/screenshot",
-          "native-features/notification-sounds"
+          "native-features/notification-sounds",
+          "native-features/audio-player"
         ]
       },
       {
