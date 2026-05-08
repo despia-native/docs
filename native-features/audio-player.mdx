@@ -240,20 +240,33 @@ despia('audio://sync')
 
 ## Customize the lock screen controls
 
-By default the lock screen, Control Center, and Dynamic Island show play, pause, next, prev, ±15s skip, and a scrubber. For podcasts you usually want skip-only, for music you want next/prev, for radio-style streams you want play/pause only. Pass a `controls=` parameter on `setqueue` or `setfeed` to specify which optional controls render. Play and pause are always on.
+By default the lock screen, Control Center, and Dynamic Island show play, pause, next, prev, ±15s skip, and a scrubber. For podcasts you usually want skip-only, for music you want next/prev, for radio-style streams you want play/pause only. The `controls=` parameter on `setqueue` and `setfeed` is optional, and has three valid forms. Play and pause are always on.
+
+| Form | Effect |
+| --- | --- |
+| `controls` omitted entirely | All five optional buttons (`next`, `prev`, `skipforward`, `skipback`, `seek`). The default. |
+| `controls=` (empty value) | Only play and pause. |
+| `controls=next,prev,seek` (explicit list) | Exactly the buttons listed, plus play and pause. |
+
+<Warning>
+  `&controls=` with nothing after the equals sign is **not** the same as omitting the param. An empty value is a real value and tells the bridge to hide every optional button. If you want the default control set, leave `controls` off the URL entirely.
+</Warning>
 
 ```javascript
+// Default, all five optional buttons (omit controls entirely)
+despia(`audio://setfeed?url=${encodeURIComponent(feedUrl)}`)
+
 // Music app, skip tracks and scrub
 despia(`audio://setfeed?url=${encodeURIComponent(feedUrl)}&controls=next,prev,seek`)
 
 // Podcast app, ±15s and scrub, no track skipping
 despia(`audio://setfeed?url=${encodeURIComponent(feedUrl)}&controls=skipforward,skipback,seek`)
 
-// Live stream, play/pause only
+// Live stream, play and pause only
 despia(`audio://setfeed?url=${encodeURIComponent(feedUrl)}&controls=`)
 ```
 
-Accepted values are any combination of `next`, `prev`, `skipforward`, `skipback`, `seek`. Omit the param entirely for the full default control set. Update mid-session by re-calling `setfeed` with the same URL plus a different `controls=` value, the lock screen updates immediately and playback is uninterrupted.
+Accepted values inside the list are any combination of `next`, `prev`, `skipforward`, `skipback`, `seek`. Update mid-session by re-calling `setfeed` with the same URL plus a different `controls=` value, the lock screen updates immediately and playback is uninterrupted. Omitting `controls` on a re-call leaves whatever was previously configured in place.
 
 ---
 
