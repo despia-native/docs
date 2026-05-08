@@ -70,12 +70,12 @@ HealthKit requires the HealthKit capability on your core app bundle ID before an
     Open the Despia Editor and go to **App \> Addons \> Health Data**. Toggle the addon on. This signals Despia to compile the HealthKit framework and the matching usage descriptions into your next build.
   </Step>
   <Step title="Rebuild your app">
-    Trigger a fresh build from the Despia Editor. HealthKit linking happens at the binary level, so this cannot be applied over-the-air. After the rebuild, calls to `readhealthkit://`, `writehealthkit://`, and `healthkit://observe` will function in production.
+    Trigger a fresh build from the Despia Editor. HealthKit linking happens at the binary level, so this cannot be applied over-the-air. After the rebuild, calls to `readhealthkit://`, `writehealthkit://`, `healthkit://workouts`, and `healthkit://observe` will function in production.
   </Step>
 </Steps>
 
 <Warning>
-  Skipping the HealthKit capability on the core bundle ID, or skipping the rebuild after enabling the Despia addon, leaves the integration inactive even when both toggles read enabled. `readhealthkit://` returns empty arrays, `writehealthkit://` resolves silently without saving, and `healthkit://observe` never fires a webhook. If health data stops working after editing settings, verify the capability is on in Apple Developer and rebuild before opening a support ticket.
+  Skipping the HealthKit capability on the core bundle ID, or skipping the rebuild after enabling the Despia addon, leaves the integration inactive even when both toggles read enabled. `readhealthkit://` returns empty arrays, `healthkit://workouts` resolves to `[]`, `writehealthkit://` resolves silently without saving, and `healthkit://observe` never fires a webhook. If health data stops working after editing settings, verify the capability is on in Apple Developer and rebuild before opening a support ticket.
 </Warning>
 
 ---
@@ -86,7 +86,7 @@ HealthKit data can be accessed in three ways. Which one to use depends on whethe
 
 | Approach | Use when | How it works |
 | :-- | :-- | :-- |
-| **Read** | You need historical data at a specific moment, on page load, on a button tap, or when building a report | Call `readhealthkit://` and await the result. Returns records for the last N days |
+| **Read** | You need historical data at a specific moment, on page load, on a button tap, or when building a report | Call `readhealthkit://` or `healthkit://workouts` and await the result. Returns records for the last N days |
 | **Write** | You want to save a value back to HealthKit, for example logging a weight entry or a step count from your own sensor | Call `writehealthkit://` with a value. Adds a new sample without replacing existing data |
 | **Observer** | You need your server to stay in sync with the user's health data automatically, without requiring the user to open the app | Register a webhook with `healthkit://observe`. Despia posts new data to your server whenever HealthKit updates, even in the background |
 
@@ -238,53 +238,52 @@ if (isDespiaIOS) {
 
 ### Workouts
 
-Use `HKWorkoutTypeIdentifier` to fetch workout sessions. Each record includes the activity type, duration, calories burned, and distance where applicable.
+Use the dedicated `healthkit://workouts` scheme to fetch workout sessions, optionally enriched with per-workout statistics like average heart rate or summed active energy. The response lands on `window.healthkitWorkouts` as a flat array, distinct from the multi-type `healthkitResponse` object used by `readhealthkit://`.
 
 ```javascript
 if (isDespiaIOS) {
-    const data     = await despia('readhealthkit://HKWorkoutTypeIdentifier?days=14', ['healthkitResponse'])
-    const workouts = data.healthkitResponse.HKWorkoutTypeIdentifier
+    const data     = await despia('healthkit://workouts?days=14', ['healthkitWorkouts'])
+    const workouts = data.healthkitWorkouts
 }
 ```
 
 ```json
 [
   {
-    "date": "2025-11-16T07:12:00Z",
-    "activityType": "running",
-    "duration": 1820,
-    "calories": 310,
-    "distance": 5200,
-    "value": 5200,
+    "date": "2026-05-07T07:32:11Z",
+    "activityType": "Running",
+    "duration": 1820.4,
+    "calories": 312.7,
+    "distance": 4521.3,
+    "value": 4521.3,
     "unit": "m"
   },
   {
-    "date": "2025-11-17T08:30:00Z",
-    "activityType": "hiit",
-    "duration": 2400,
-    "calories": 420,
+    "date": "2026-05-05T18:02:00Z",
+    "activityType": "FunctionalStrengthTraining",
+    "duration": 2700,
+    "calories": 220.5,
     "distance": 0,
-    "value": 2400,
-    "unit": "s"
-  },
-  {
-    "date": "2025-11-18T06:45:00Z",
-    "activityType": "yoga",
-    "duration": 3600,
-    "calories": 180,
-    "distance": 0,
-    "value": 3600,
-    "unit": "s"
+    "value": 220.5,
+    "unit": "kcal"
   }
 ]
 ```
+
+<ParamField path="days" type="number">
+  Number of days back to look. Defaults to `1`.
+</ParamField>
+
+<ParamField path="included" type="string">
+  Comma-separated list of per-workout quantity statistics. Each entry is a real `HKQuantityTypeIdentifier` followed by an aggregation suffix. Omit to skip per-workout stats. See [Per-workout statistics](#per-workout-statistics).
+</ParamField>
 
 <ResponseField name="date" type="string">
   ISO 8601 start time of the workout
 </ResponseField>
 
 <ResponseField name="activityType" type="string">
-  Activity name such as `running`, `hiit`, or `yoga`
+  Apple's activity enum name in PascalCase, for example `Running`, `Cycling`, `FunctionalStrengthTraining`. See [HKWorkoutActivityType](https://developer.apple.com/documentation/healthkit/hkworkoutactivitytype) for the complete list.
 </ResponseField>
 
 <ResponseField name="duration" type="number">
@@ -292,50 +291,123 @@ if (isDespiaIOS) {
 </ResponseField>
 
 <ResponseField name="calories" type="number">
-  Kilocalories burned
+  Kilocalories burned. `0` if the source did not record this.
 </ResponseField>
 
 <ResponseField name="distance" type="number">
-  Distance in meters. `0` if not applicable for the activity type
+  Distance in meters. `0` if not applicable, for example strength training.
 </ResponseField>
 
 <ResponseField name="value" type="number">
-  Primary metric: distance if available, calories if not, otherwise duration
+  Primary metric, picked dynamically: distance if greater than `0`, otherwise calories, otherwise duration in seconds
 </ResponseField>
 
 <ResponseField name="unit" type="string">
   Unit of `value`: `m`, `kcal`, or `s`
 </ResponseField>
 
-<Accordion title="Supported activityType values">
-  | Value | Value | Value |
-  | :-- | :-- | :-- |
-  | `americanFootball` | `archery` | `australianFootball` |
-  | `badminton` | `baseball` | `basketball` |
-  | `barre` | `bowling` | `boxing` |
-  | `climbing` | `coreTraining` | `cricket` |
-  | `crossCountrySkiing` | `crossTraining` | `curling` |
-  | `cycling` | `dance` | `downhillSkiing` |
-  | `elliptical` | `equestrianSports` | `fencing` |
-  | `fishing` | `flexibility` | `fitnessGaming` |
-  | `functionalStrengthTraining` | `golf` | `gymnastics` |
-  | `handball` | `hiit` | `hiking` |
-  | `hockey` | `hunting` | `jumpRope` |
-  | `kickboxing` | `lacrosse` | `martialArts` |
-  | `mindAndBody` | `mixedCardio` | `paddleSports` |
-  | `pilates` | `play` | `preparationAndRecovery` |
-  | `racquetball` | `rowing` | `rugby` |
-  | `running` | `sailing` | `skatingSports` |
-  | `snowSports` | `snowboarding` | `soccer` |
-  | `softball` | `squash` | `stairClimbing` |
-  | `stairs` | `stepTraining` | `surfingSports` |
-  | `swimming` | `tableTennis` | `taiChi` |
-  | `tennis` | `trackAndField` | `traditionalStrengthTraining` |
-  | `volleyball` | `walking` | `waterFitness` |
-  | `waterPolo` | `waterSports` | `wheelchairWalkPace` |
-  | `wheelchairRunPace` | `wrestling` | `yoga` |
-  | `other` |  |  |
-</Accordion>
+<ResponseField name="samples" type="array">
+  Per-workout quantity statistics, present only when `included=` is non-empty. Each entry has `key`, `value`, and `unit`.
+</ResponseField>
+
+#### Per-workout statistics
+
+Pass `included=` to compute aggregated quantity values scoped to each workout's time range. Each entry is an `HKQuantityTypeIdentifier` plus an aggregation suffix. The native side strips the suffix to request authorization for the underlying type, then runs the aggregation across that workout's `startDate` to `endDate` window. The result is the avg, max, min, or sum of that signal during the workout, not over the whole day.
+
+| Suffix | Aggregation | Example |
+| :-- | :-- | :-- |
+| `Average` | Discrete average | `HKQuantityTypeIdentifierHeartRateAverage` |
+| `Max` | Discrete maximum | `HKQuantityTypeIdentifierHeartRateMax` |
+| `Min` | Discrete minimum | `HKQuantityTypeIdentifierHeartRateMin` |
+| `Sum` | Cumulative sum | `HKQuantityTypeIdentifierActiveEnergyBurnedSum` |
+| _(none)_ | Discrete average | `HKQuantityTypeIdentifierHeartRate` |
+
+Stack multiple stats for the same identifier by repeating it with different suffixes. The example below pulls average, max, and min heart rate for every workout in the last 14 days.
+
+```javascript
+if (isDespiaIOS) {
+    const data     = await despia(
+        'healthkit://workouts?days=14&included=HKQuantityTypeIdentifierHeartRateAverage,HKQuantityTypeIdentifierHeartRateMax,HKQuantityTypeIdentifierHeartRateMin',
+        ['healthkitWorkouts']
+    )
+    const workouts = data.healthkitWorkouts
+}
+```
+
+```json
+[
+  {
+    "date": "2026-05-07T07:32:11Z",
+    "activityType": "Running",
+    "duration": 1820.4,
+    "calories": 312.7,
+    "distance": 4521.3,
+    "value": 4521.3,
+    "unit": "m",
+    "samples": [
+      { "key": "HKQuantityTypeIdentifierHeartRateAverage", "value": "148.2", "unit": "count/min" },
+      { "key": "HKQuantityTypeIdentifierHeartRateMax",     "value": "176.0", "unit": "count/min" },
+      { "key": "HKQuantityTypeIdentifierHeartRateMin",     "value": "62.0",  "unit": "count/min" }
+    ]
+  }
+]
+```
+
+Mix multiple identifiers and aggregations in a single call. Heart rate stats and summed active energy together:
+
+```javascript
+if (isDespiaIOS) {
+    const data     = await despia(
+        'healthkit://workouts?days=7&included=HKQuantityTypeIdentifierHeartRateAverage,HKQuantityTypeIdentifierHeartRateMax,HKQuantityTypeIdentifierActiveEnergyBurnedSum',
+        ['healthkitWorkouts']
+    )
+    const workouts = data.healthkitWorkouts
+}
+```
+
+```json
+{
+  "date": "2026-05-04T06:10:00Z",
+  "activityType": "Cycling",
+  "duration": 3600,
+  "calories": 540.2,
+  "distance": 18234.0,
+  "value": 18234.0,
+  "unit": "m",
+  "samples": [
+    { "key": "HKQuantityTypeIdentifierHeartRateAverage",      "value": "138.4", "unit": "count/min" },
+    { "key": "HKQuantityTypeIdentifierHeartRateMax",          "value": "171.0", "unit": "count/min" },
+    { "key": "HKQuantityTypeIdentifierActiveEnergyBurnedSum", "value": "540.2", "unit": "kcal" }
+  ]
+}
+```
+
+Common combinations that work well:
+
+| Goal | `included=` value |
+| :-- | :-- |
+| Heart rate range per workout | `HKQuantityTypeIdentifierHeartRateAverage,HKQuantityTypeIdentifierHeartRateMax,HKQuantityTypeIdentifierHeartRateMin` |
+| Total energy per workout | `HKQuantityTypeIdentifierActiveEnergyBurnedSum` |
+| Pace and top speed for runs | `HKQuantityTypeIdentifierRunningSpeedAverage,HKQuantityTypeIdentifierRunningSpeedMax` |
+| Average and peak power for rides | `HKQuantityTypeIdentifierCyclingPowerAverage,HKQuantityTypeIdentifierCyclingPowerMax` |
+
+<ResponseField name="samples[].key" type="string">
+  Exact identifier you passed in `included=`, including the aggregation suffix
+</ResponseField>
+
+<ResponseField name="samples[].value" type="string">
+  Stringified numeric result. Wrap with `Number()` before doing math. A value of `"0"` means the source did not record that signal during the workout, treat as missing rather than literal zero.
+</ResponseField>
+
+<ResponseField name="samples[].unit" type="string">
+  HealthKit unit string, for example `count/min`, `kcal`, `m`
+</ResponseField>
+
+<Info>
+  Authorization for every base quantity type referenced in `included=` is requested automatically on the first call, the suffix is stripped before the auth request. Invalid identifiers in `included=` are silently skipped, valid ones in the same call still come through. If the user denies access or the build does not have HealthKit linked, `window.healthkitWorkouts` resolves to `[]`, so always check `Array.isArray()` before reading.
+</Info>
+
+The legacy `readhealthkit://HKWorkoutTypeIdentifier` endpoint continues to work and is the right choice when you need workouts in the same call as other unrelated identifiers, for example pulling steps, heart rate, and workouts together. Its response shape is slightly different: it lands on `healthkitResponse.HKWorkoutTypeIdentifier` rather than `healthkitWorkouts`, returns lowercase `activityType` values, and does not support `included=`. Use `healthkit://workouts` for any workouts-only read or any read that needs per-workout statistics.
 
 ---
 
@@ -498,7 +570,7 @@ if (isDespiaIOS) {
 
 ## Identifier reference
 
-Despia supports all four HealthKit identifier categories. Pass any valid identifier string directly to `readhealthkit://` or `writehealthkit://`, Despia resolves the type and unit automatically.
+Despia supports all four HealthKit identifier categories. Pass any valid identifier string directly to `readhealthkit://` or `writehealthkit://`, or as part of `included=` on `healthkit://workouts`. Despia resolves the type and unit automatically.
 
 ### Constructing identifiers
 
@@ -512,6 +584,8 @@ Every identifier follows a predictable pattern based on its category:
 | Characteristic | `HKCharacteristicTypeIdentifier` | `HKCharacteristicTypeIdentifierDateOfBirth` |
 
 Take the type name from Apple's documentation and prepend the matching prefix. For example, Apple lists `StepCount` under `HKQuantityTypeIdentifier`, the full identifier string is `HKQuantityTypeIdentifierStepCount`.
+
+When using a quantity identifier inside `included=` on `healthkit://workouts`, append one of the aggregation suffixes (`Average`, `Max`, `Min`, `Sum`) to control how the value is computed across the workout window. Identifiers used as the URL host on `readhealthkit://` never take a suffix.
 
 ### Apple Documentation
 
