@@ -186,6 +186,7 @@
           "native-features/restore-purchase",
           "native-features/storage-vault",
           "native-features/gps-location",
+          "native-features/gyroscope",
           "native-features/light-and-dark-mode",
           {
             "group": "AdMob",

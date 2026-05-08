@@ -1,0 +1,288 @@
+---
+title: "Gyroscope"
+icon: "compass"
+description: "Read live angular velocity from the device's gyroscope, with a magnitude threshold for filtering low-motion noise."
+---
+
+Read the device's gyroscope, the sensor that measures how fast the device is rotating around its own axes. Useful for motion-driven UI, shake-to-action gestures, AR overlays, fitness apps, and anything that needs to react to physical rotation without polling. Pass a magnitude threshold to filter out low-motion noise, or pass `0` to receive every sample.
+
+---
+
+## Installation
+
+<Tabs>
+  <Tab title="Bundle">
+    <CodeGroup>
+
+    ```bash npm
+    npm install despia-native
+    ```
+
+    ```bash pnpm
+    pnpm add despia-native
+    ```
+
+    ```bash yarn
+    yarn add despia-native
+    ```
+
+    </CodeGroup>
+
+    ```javascript
+    import despia from 'despia-native';
+    ```
+  </Tab>
+  <Tab title="CDN">
+    <CodeGroup>
+
+    ```html UMD
+    <script src="https://cdn.jsdelivr.net/npm/despia-native/index.min.js"></script>
+    ```
+
+    ```html ESM
+    <script type="module">
+        import despia from 'https://cdn.jsdelivr.net/npm/despia-native/+esm'
+    </script>
+    ```
+
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+---
+
+## How it works
+
+Call `gyroscope://start` to begin emitting readings and `gyroscope://stop` to end the session. While tracking is active, every reading above the magnitude threshold is delivered to `window.onGyroscopeChange` in real time. State persists across soft close and reopen, so if the user backgrounds the app and relaunches, tracking resumes with the same threshold and the callback keeps firing.
+
+```javascript
+import despia from 'despia-native'
+
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+window.onGyroscopeChange = function (data) {
+    if (data.status === 'error') {
+        console.warn('Gyroscope unavailable on this device')
+        return
+    }
+    rotateThing(data.x, data.y, data.z)
+}
+
+if (isDespia && !despia.gyroscopeActive) {
+    despia('gyroscope://start?threshold=90')
+}
+```
+
+To stop:
+
+```javascript
+despia('gyroscope://stop')
+```
+
+---
+
+## Parameters
+
+`gyroscope://start` accepts the following query parameter.
+
+| Parameter | Required | Description |
+| :-- | :-- | :-- |
+| `threshold` | Yes | Magnitude threshold in degrees per second. A reading fires only when `√(x² + y² + z²)` is at or above this value. Use `0` to receive every sample, `90` for roughly a quarter-rotation per second, higher values for shake-style gestures. |
+
+`gyroscope://stop` takes no parameters.
+
+---
+
+## Live updates with window.onGyroscopeChange
+
+Define `window.onGyroscopeChange` before calling `gyroscope://start` so the first reading is not missed. Every reading above the threshold arrives as a single object with x, y, z angular velocities and a timestamp.
+
+```javascript
+import despia from 'despia-native'
+
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+window.onGyroscopeChange = function (data) {
+    if (data.status === 'error') {
+        showFallbackUI()
+        return
+    }
+
+    // Angular velocity in radians per second
+    const { x, y, z, timestamp } = data
+
+    // Magnitude across all three axes
+    const mag = Math.sqrt(x * x + y * y + z * z)
+
+    if (mag > 8) {
+        triggerShakeAction()
+    } else {
+        applyTilt(x, y)
+    }
+}
+
+if (isDespia && !despia.gyroscopeActive) {
+    despia('gyroscope://start?threshold=0')
+}
+```
+
+When the app reopens during an active session, the runtime keeps invoking `window.onGyroscopeChange` with fresh readings as soon as your handler is reattached. No extra wiring needed.
+
+---
+
+## Reading object
+
+Every reading delivered to `window.onGyroscopeChange` has the following shape on success.
+
+```json
+{
+    "status": "success",
+    "x": 0.012,
+    "y": -0.004,
+    "z": 0.231,
+    "timestamp": 1712000000000
+}
+```
+
+| Field | Description | Usage |
+| :-- | :-- | :-- |
+| `status` | `"success"` for valid readings, `"error"` if the sensor is unavailable | Branch on this before reading other fields |
+| `x` | Angular velocity around the X axis in radians per second. Pitch | Tilt detection, AR overlays |
+| `y` | Angular velocity around the Y axis in radians per second. Roll | Side-tilt detection |
+| `z` | Angular velocity around the Z axis in radians per second. Yaw | Spin and turn detection |
+| `timestamp` | Unix epoch in milliseconds when the reading was sampled | Debouncing, rate limiting downstream calls |
+
+The error payload has only `status` and `error`. The current error code is `"unavailable"`, returned on devices that do not expose a gyroscope sensor.
+
+```json
+{
+    "status": "error",
+    "error": "unavailable"
+}
+```
+
+---
+
+## Tracking state
+
+Use `despia.gyroscopeActive` to reflect the current tracking state in your UI. It is set to `true` when `gyroscope://start` is called and `false` when `gyroscope://stop` is called. The flag survives soft close and reopen, so your boot code can decide whether to resume or skip without guessing.
+
+```javascript
+if (despia.gyroscopeActive) {
+    // sensor is running, show the live readout and stop button
+} else {
+    // sensor is idle, show the start button
+}
+```
+
+You can also read the flag explicitly after a control call by passing `['gyroscopeActive']` as the second argument.
+
+```javascript
+const data = await despia('gyroscope://start?threshold=90', ['gyroscopeActive'])
+const isOn = data.gyroscopeActive  // true once tracking has started
+```
+
+The same pattern works after `stop` to confirm the sensor was released.
+
+```javascript
+const data = await despia('gyroscope://stop', ['gyroscopeActive'])
+const isOn = data.gyroscopeActive  // false
+```
+
+`despia.gyroscopeActive` does not flip to `true` if the device returns the `unavailable` error, since tracking never actually started. The flag stays `false` and your UI can fall back accordingly.
+
+---
+
+## Resume after soft close
+
+When the user backgrounds the app and reopens it, the runtime restores the gyroscope session automatically using the last threshold. The pattern below boots straight into the live readout if a session was already running, otherwise shows the start button.
+
+```javascript
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+window.onGyroscopeChange = function (data) {
+    if (data.status === 'error') return
+    updateReadout(data)
+}
+
+if (isDespia && despia.gyroscopeActive) {
+    showLiveReadoutUI()
+} else {
+    showStartButton()
+}
+```
+
+To opt out of resume, call `gyroscope://stop` explicitly when the user finishes their session, not just when they navigate away from the screen.
+
+---
+
+## Shake-to-action gesture
+
+A common pattern is detecting a sharp shake and firing a one-shot action. Set a high threshold so the native layer filters out everyday motion and you only see real shakes in JavaScript.
+
+```javascript
+let lastShake = 0
+
+window.onGyroscopeChange = function (data) {
+    if (data.status === 'error') return
+    if (data.timestamp - lastShake < 1000) return
+
+    lastShake = data.timestamp
+    refreshFeed()
+}
+
+if (isDespia && !despia.gyroscopeActive) {
+    despia('gyroscope://start?threshold=600')
+}
+```
+
+`threshold=600` filters out everything but deliberate shakes, and the JavaScript-side debounce prevents a single shake from triggering the action twice.
+
+---
+
+## Tilt-controlled UI
+
+For continuous control like a tilt-to-pan or parallax effect, use `threshold=0` so every sample reaches your callback, and clamp the values yourself.
+
+```javascript
+window.onGyroscopeChange = function (data) {
+    if (data.status === 'error') return
+
+    // Convert rad/s to a clamped tilt value
+    const tiltX = Math.max(-1, Math.min(1, data.x / 3))
+    const tiltY = Math.max(-1, Math.min(1, data.y / 3))
+
+    parallaxLayer.style.transform = `translate(${tiltX * 20}px, ${tiltY * 20}px)`
+}
+
+if (isDespia && !despia.gyroscopeActive) {
+    despia('gyroscope://start?threshold=0')
+}
+```
+
+Stop the sensor as soon as the screen unmounts to avoid keeping the gyroscope active for the rest of the session.
+
+```javascript
+useEffect(() => {
+    if (!isDespia) return
+    despia('gyroscope://start?threshold=0')
+
+    return () => {
+        if (isDespia) despia('gyroscope://stop')
+    }
+}, [])
+```
+
+---
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card title="NPM Package" icon="npm" href="https://www.npmjs.com/package/despia-native">
+    despia-native
+  </Card>
+
+  <Card title="Support" icon="envelope" href="mailto:support@despia.com">
+    [support@despia.com](mailto:support@despia.com)
+  </Card>
+</CardGroup>
