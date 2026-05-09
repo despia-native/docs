@@ -4,6 +4,28 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="May 09, 2026" description="Action Sheet - native iOS and Android sheet runtime">
+  ## Action Sheet
+
+  A new `actionsheet://` scheme triggers a real platform action sheet over your web view, with a single global callback that fires when the user picks a row or dismisses the sheet.
+
+  **What ships today:**
+
+  - **Native iOS and Android sheets.** Pass a title and a JSON-encoded items array as URL params. The native side handles presentation, the Cancel row, and iPad anchoring to the centre of the WebView automatically.
+  - **Per-platform icons.** Each item accepts `iconIos` (any SF Symbol name) and `iconAndroid` (any Material drawable resource name). Missing or unknown icon names render the row without an icon, no crash.
+  - **Destructive styling.** Setting `destructive: true` on an item renders it in red, matching the platform cue users expect for irreversible actions like delete, remove, and leave.
+  - **Theme override.** Pass `theme: 'light'`, `'dark'`, or `'system'` to control sheet appearance independently of the operating system. Defaults to `system`.
+  - **Single global callback.** The native side calls `window.onSheetEvent(value)` once per sheet with the tapped item's value, or `null` if the user tapped Cancel, tapped outside, or tapped back.
+
+  Documentation: [Action Sheet](/native-features/action-sheet).
+
+  **Packages:**
+
+  - [despia-native](https://www.npmjs.com/package/despia-native)
+
+  This feature requires a native rebuild. Add the handlers in your web code, then rebuild your app from the dashboard for the feature to work.
+</Update>
+
 <Update label="May 09, 2026" description="Focus events - foreground and background lifecycle callbacks">
   ## Focus events
 
