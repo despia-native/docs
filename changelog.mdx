@@ -4,6 +4,33 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="May 10, 2026" description="Plugin bridge - window.despia switches to window.virtual.href after 15 years">
+  ## window.virtual.href - 15 years later, a new plugin bridge
+
+  After 15 years of routing every plugin call through `window.location.href` URL redirects, the bridge finally has a successor: `window.virtual.href`. This is a transparent internal architecture change on both iOS and Android, scoped to the `window.despia` and `despia()` paths. No code changes, no rebuilds, no NPM updates, no dashboard configuration - nothing on the developer side moves. The `window.despia` proxy now forwards to `window.virtual.href` instead of `window.location.href`, which removes the platform webview's URL character limit and eliminates the dropped-call risk caused by the navigation queue collapsing back-to-back navigations.
+
+  **Direct `window.location.href` plugin calls are unaffected and stay fully supported.** Over 7,500 apps - including most projects built with Despia before 2023 - call `window.location.href = "myscheme://..."` directly rather than going through the `window.despia` abstraction. That path is now the legacy bridge, but legacy here only means "the older path" - it remains active, fully maintained, and will continue to receive new feature support and improvements over time. Nothing about it is deprecated, and no app on the direct path needs to migrate, now or later.
+
+  For 15 years, the `window.location.href` redirect was the only way native code got triggered from the webview. It worked, but it inherited the platform webview's URL character cap - roughly 2KB on iOS WKWebView and a similar practical ceiling on Android WebView. Large payloads such as base64-encoded images, long AI prompts, or JSON blobs were silently truncated or rejected before native code ever saw them. Firing multiple plugin calls back-to-back was also unreliable, because the navigation queue on both WebKit and Android WebView could collapse them and silently drop the second call. `window.virtual.href` removes both constraints.
+
+  **Why nothing needs to change in your code.** Every Despia NPM package and the `despia()` helper have always called `window.despia`, never `window.location.href` directly. `window.despia` is a proxy: it used to forward to `window.location.href`, and it now forwards to `window.virtual.href`. This migration was planned from day one. `window.despia` was built as a proxy specifically so this kind of switch could happen invisibly - and today it has. The `despia()` calls already in your code keep working unchanged on both iOS and Android.
+
+  **What ships today for `window.despia` and `despia()` users:**
+
+  - **No character limit.** Pass multi-megabyte payloads directly on iOS and Android. Full base64 images, long prompts, JSON dumps, and config blobs all go through intact.
+  - **No dropped calls.** Fire as many plugin calls in a row as you want, in any order. Every call runs on both platforms.
+  - **Free-form strings.** Spaces, special characters, and newlines pass through as-is with no manual encoding required.
+  - **Same syntax as before.** `window.virtual.href = "myscheme://..."` uses the same scheme and parameter shape as the redirect path it replaces. The string is delivered straight to native code via a message channel instead of going through the URL redirect machinery.
+
+  **Why the URL scheme syntax stays.** Despia plugin calls keep the `myscheme://method?param=value` shape on both bridges, and that is a deliberate choice rather than a legacy quirk. JSON-based bridges have their place, but URL schemes have real advantages worth keeping: one-line calls compose cleanly, they grep and search trivially across a codebase, and they read well to AI coding tools, which handle flat scannable text far better than nested object payloads. The single meaningful argument against the URL approach was always the 2KB cap. With `window.virtual.href`, that cap is gone - so the syntax keeps every advantage and loses its only real drawback.
+
+  **Who this affects:** developers using the `despia()` NPM helper or assigning to `window.despia` directly. They get the upgrade automatically on their next deployment.
+
+  **Who this does not affect:** developers calling `window.location.href = "myscheme://..."` directly. That bridge stays exactly as it was, with full support and continued investment in new features and improvements.
+
+  No dashboard configuration changes, rebuild steps, code changes, or NPM package updates are required. Existing iOS and Android apps both inherit the appropriate behaviour automatically on their next deployment.
+</Update>
+
 <Update label="May 09, 2026" description="Action Sheet - native iOS and Android sheet runtime">
   ## Action Sheet
 
