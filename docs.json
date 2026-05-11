@@ -213,6 +213,7 @@
           },
           "native-features/siri-shortcuts",
           "native-features/biometrics",
+          "native-features/nfc",
           "native-features/app-privacy",
           "native-features/safe-areas",
           "native-features/screen-radius",

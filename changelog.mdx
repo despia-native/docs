@@ -4,6 +4,27 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="May 11, 2026" description="NFC - read and write physical tags from the web app">
+  ## NFC read and write
+
+  Despia apps can now read from and write to physical NFC tags directly from the web app, using the `readnfc://` and `writenfc://` scheme calls.
+
+  **What ships today:**
+
+  - **Write to a tag.** Call `writenfc://?value=...` to enter write mode. The next tag the user taps against the device receives the encoded payload, then write mode closes automatically.
+  - **Read from a tag.** Call `readnfc://` to enter read mode. The runtime invokes a global `window.readNFCResult(data, id, tag)` callback with the stored value, tag identifier, and tag type, all as strings.
+  - **vCard support.** Write structured contact cards by prefixing the value with `VCARD_` and separating properties with underscores. Receiving phones recognise the format and offer to save the contact natively.
+  - **Hardware gating.** Calls resolve silently on devices without NFC hardware. No crashes, no error surface, the web app can detect the no-op via the absence of a callback.
+
+  See the [NFC documentation](/native-features/nfc) for the full read and write contract, the vCard payload format, and the canonical user-agent gating pattern.
+
+  **Packages:**
+
+  - [`despia-native`](https://www.npmjs.com/package/despia-native)
+
+  This feature requires a fresh native build to take effect, since NFC is a native capability bundled into the signed app binary. Rebuild from the Despia Editor, then the SDK calls work immediately for end users on the new version.
+</Update>
+
 <Update label="May 10, 2026" description="Plugin bridge - window.despia switches to window.virtual.href after 15 years">
   ## window.virtual.href - 15 years later, a new plugin bridge
 

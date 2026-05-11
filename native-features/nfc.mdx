@@ -1,0 +1,179 @@
+---
+title: "NFC"
+icon: "nfc-symbol"
+description: "Read from and write to NFC tags directly from your web app."
+---
+
+Communicate with physical NFC tags from your web app. The runtime activates the device's NFC chip in either read or write mode, and the next tag the user taps against the phone is processed.
+
+<Info>
+  The device must have NFC hardware. All modern iPhones from XS onwards and most Android phones support NFC, but some budget Android models do not. On devices without NFC, the call resolves silently.
+</Info>
+
+---
+
+## Installation
+
+<Tabs>
+  <Tab title="Bundle">
+    <CodeGroup>
+
+    ```bash npm
+    npm install despia-native
+    ```
+
+    ```bash pnpm
+    pnpm add despia-native
+    ```
+
+    ```bash yarn
+    yarn add despia-native
+    ```
+
+    </CodeGroup>
+
+    ```javascript
+    import despia from 'despia-native';
+    ```
+  </Tab>
+  <Tab title="CDN">
+    <CodeGroup>
+
+    ```html UMD
+    <script src="https://cdn.jsdelivr.net/npm/despia-native/index.min.js"></script>
+    ```
+
+    ```html ESM
+    <script type="module">
+        import despia from 'https://cdn.jsdelivr.net/npm/despia-native/+esm'
+    </script>
+    ```
+
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+---
+
+## How it works
+
+NFC has two modes, read and write. Both are triggered by a scheme call. Reading returns its result through a global callback the runtime invokes on your `window`, writing is fire-and-forget.
+
+```javascript
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+if (isDespia) {
+    despia('readnfc://')              // enter read mode
+    despia('writenfc://?value=hello') // enter write mode
+}
+```
+
+Each call is one-shot. The runtime processes a single tag, then exits the mode.
+
+---
+
+## Reading NFC tags
+
+Reading is a two-part contract. You must define a global function called `readNFCResult` on `window`, and you must call `readnfc://` to enter read mode. The runtime drives the rest.
+
+When the user taps a tag against the device, the runtime calls `readNFCResult(data, id, tag)` on your `window` with three string arguments:
+
+<ParamField path="data" type="string">
+  The value stored on the NFC tag.
+</ParamField>
+
+<ParamField path="id" type="string">
+  The NFC tag's unique identifier.
+</ParamField>
+
+<ParamField path="tag" type="string">
+  The NFC tag's type.
+</ParamField>
+
+If the function is not defined, the scan completes natively but the result has nowhere to land and is silently lost.
+
+```javascript
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+window.readNFCResult = function (data, id, tag) {
+    console.log('stored data:', data)
+    console.log('tag id:', id)
+    console.log('tag type:', tag)
+}
+
+function readNFC() {
+    if (!isDespia) return
+    despia('readnfc://')
+}
+```
+
+Define the callback once at app startup. The runtime invokes the same reference for every subsequent read, you do not need to re-attach it before each call.
+
+Trigger the read from any UI element:
+
+```html
+<button onclick="readNFC()">Scan a tag</button>
+```
+
+---
+
+## Writing to NFC tags
+
+Pass the value to write as the `value` query parameter. The runtime enters write mode, the next tag the user taps receives the payload, then write mode closes.
+
+```javascript
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+function writeNFC(value) {
+    if (!isDespia) return
+    despia(`writenfc://?value=${value}`)
+}
+
+writeNFC('https://example.com')
+```
+
+Always wrap the value in `encodeURIComponent`. Without it, URLs with `?`, `&`, or `=` inside the payload will break the scheme parse on the native side.
+
+Trigger the write from any UI element:
+
+```html
+<button onclick="writeNFC('https://example.com')">Write URL to tag</button>
+```
+
+---
+
+## Writing a vCard
+
+To write a contact card that a phone can save directly from a tap, format the payload as a vCard string prefixed with `VCARD_` and join the properties with underscores.
+
+```javascript
+function writeVCard(contact) {
+    if (!isDespia) return
+
+    const vcard = `VCARD_FN:${contact.name}_Title:${contact.title}_TEL;TYPE=CELL:${contact.phone}`
+
+    despia(`writenfc://?value=${vcard}`)
+}
+
+writeVCard({
+    name: 'John Doe',
+    title: 'Developer',
+    phone: '0452641211'
+})
+```
+
+Any standard vCard property works (`FN`, `ORG`, `EMAIL`, `URL`, `ADR`, `TEL`, and the rest). When another phone reads the tag, the OS recognises the vCard and offers to save the contact natively.
+
+---
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card title="NPM Package" icon="npm" href="https://www.npmjs.com/package/despia-native">
+    despia-native
+  </Card>
+
+  <Card title="Support" icon="envelope" href="mailto:support@despia.com">
+    [support@despia.com](mailto:support@despia.com)
+  </Card>
+</CardGroup>
