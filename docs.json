@@ -270,7 +270,8 @@
               "roadblocks/runtime/o-auth-failures",
               "roadblocks/runtime/slow-apps",
               "roadblocks/runtime/empty-pages",
-              "roadblocks/runtime/wrong-framework"
+              "roadblocks/runtime/wrong-framework",
+              "roadblocks/runtime/watermark"
             ]
           }
         ]
