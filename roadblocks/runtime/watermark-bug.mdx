@@ -1,5 +1,5 @@
 ---
-title: "Watermark"
+title: "Watermark Bug"
 description: "You upgraded to a commercial license but the Despia watermark is still visible in your app. Here is why and how to fix it."
 icon: "stamp"
 ---
@@ -38,7 +38,7 @@ Publish a fresh build after the license is active. The new binary will be genera
 </Steps>
 
 <Warning>
-  **The watermark is not OTA-removable.** OTA updates only refresh the web layer. Anything compiled into the native binary, including the watermark, requires a fresh native build to change.
+  The watermark is not OTA-removable. OTA updates only refresh the web layer. Anything compiled into the native binary, including the watermark, requires a fresh native build to change.
 </Warning>
 
 ---
@@ -73,7 +73,7 @@ Most often one of these:
 
 - The OS you rebuilt is not the one with the watermark. iOS and Android are licensed and built independently. Verify that you rebuilt the correct OS, and that the license for that OS is active.
 - Your testing device is still running the old build. Uninstall the app completely, then install the freshly published version.
-- A service worker is caching the old web layer in a way that masks the new build. See [No OTA Updates](/roadblocks/runtime/no-ota-updates) for the full service worker cleanup procedure.
+- A service worker is caching the old web layer in a way that masks the new build. See [No OTA Updates](/troubleshooting/no-ota-updates) for the full service worker cleanup procedure.
 
 ### "It works in the editor preview but not in the installed app"
 
