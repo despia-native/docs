@@ -373,7 +373,8 @@
               "lovable/native-features/gps-location"
             ]
           }
-        ]
+        ],
+        "hidden": true
       }
     ]
   },
