@@ -55,6 +55,34 @@ Communicate with physical NFC tags from your web app. The runtime activates the 
 
 ---
 
+## Setup
+
+NFC on iOS is a capability that has to be enabled on the App ID itself before the runtime can access the NFC chip. Enable it in Apple Developer, toggle the addon in the Despia Editor, then rebuild.
+
+<Steps>
+  <Step title="Open Apple Developer">
+    Sign in at [developer.apple.com](https://developer.apple.com) and go to **Certificates, Identifiers & Profiles \> Identifiers**.
+  </Step>
+  <Step title="Open your core bundle ID">
+    Select the App ID that matches your app's core bundle ID (the one Despia builds against).
+  </Step>
+  <Step title="Enable NFC Tag Reading">
+    Under **Capabilities**, tick **NFC Tag Reading** and save. Apple regenerates the provisioning profile with the new entitlement.
+  </Step>
+  <Step title="Enable NFC in the Despia Editor">
+    Go to **App \> Addons** and toggle **NFC** on.
+  </Step>
+  <Step title="Rebuild a fresh native binary">
+    Trigger a new build from the Despia Editor. The new binary picks up the updated provisioning profile and the addon flag.
+  </Step>
+</Steps>
+
+<Warning>
+  If you skip the rebuild, `nfc://read` and `nfc://write` resolve silently. No system NFC sheet appears, `window.onNFCEvent` never fires, and the call looks identical to running on a device without NFC hardware. Any change to the App ID capabilities or the Despia Editor addon list requires a fresh build to take effect.
+</Warning>
+
+---
+
 ## How it works
 
 NFC has two modes, read and write. Each mode is triggered by its own scheme call, and results flow back through a global event callback on `window`.

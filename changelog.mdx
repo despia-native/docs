@@ -4,25 +4,27 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
-<Update label="May 11, 2026" description="NFC - read and write physical tags from the web app">
-  ## NFC read and write
+<Update label="May 14, 2026" description="NFC - read and write tags from your web app">
+  ## NFC tag reading and writing
 
-  Despia apps can now read from and write to physical NFC tags directly from the web app, using the `readnfc://` and `writenfc://` scheme calls.
+  Despia now exposes the device's NFC chip to your web app. Trigger a single-tap read or write through the `despia()` scheme, and handle the result through a global `window.onNFCEvent` callback.
 
   **What ships today:**
 
-  - **Write to a tag.** Call `writenfc://?value=...` to enter write mode. The next tag the user taps against the device receives the encoded payload, then write mode closes automatically.
-  - **Read from a tag.** Call `readnfc://` to enter read mode. The runtime invokes a global `window.readNFCResult(data, id, tag)` callback with the stored value, tag identifier, and tag type, all as strings.
-  - **vCard support.** Write structured contact cards by prefixing the value with `VCARD_` and separating properties with underscores. Receiving phones recognise the format and offer to save the contact natively.
-  - **Hardware gating.** Calls resolve silently on devices without NFC hardware. No crashes, no error surface, the web app can detect the no-op via the absence of a callback.
+  - **Read mode.** `despia('nfc://read')` activates the system NFC sheet, scans one tag, and fires `window.onNFCEvent({ type: 'read', id, data })` with the tag's lowercase hex identifier and NDEF payload.
+  - **Write mode.** `despia('nfc://write?value=...')` writes an arbitrary payload to the next tapped tag and fires `window.onNFCEvent({ type: 'write' })` on success.
+  - **Cancellation and error handling.** The runtime distinguishes user-dismissed sessions (`type: 'dismissed'`) from platform failures (`type: 'error'`), so silent resets and retry prompts stay separate.
+  - **vCard payloads.** Write a contact card by prefixing the value with `VCARD_` and joining properties with underscores. The receiving phone recognises the vCard and offers to save the contact natively.
 
-  See the [NFC documentation](/native-features/nfc) for the full read and write contract, the vCard payload format, and the canonical user-agent gating pattern.
+  Available on all modern iPhones from XS onwards and most Android phones with NFC hardware. On devices without an NFC chip, scheme calls resolve silently.
+
+  Documentation: [NFC](/native-features/nfc).
 
   **Packages:**
 
-  - [`despia-native`](https://www.npmjs.com/package/despia-native)
+  - [despia-native](https://www.npmjs.com/package/despia-native)
 
-  This feature requires a fresh native build to take effect, since NFC is a native capability bundled into the signed app binary. Rebuild from the Despia Editor, then the SDK calls work immediately for end users on the new version.
+  Setup is required. In Apple Developer, enable the **NFC Tag Reading** capability on your app's core bundle ID. In the Despia Editor, toggle **NFC** under **App \> Addons**. Trigger a fresh native build to apply both changes. Without the rebuild, `nfc://read` and `nfc://write` resolve silently and `window.onNFCEvent` never fires.
 </Update>
 
 <Update label="May 10, 2026" description="Plugin bridge - window.despia switches to window.virtual.href after 15 years">
