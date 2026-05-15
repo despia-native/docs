@@ -131,8 +131,11 @@
             "icon": "arrow-right-from-arc",
             "pages": [
               "authentication/clerk/introduction",
+              "authentication/clerk/reference",
               "authentication/clerk/auth-methods",
-              "authentication/clerk/sessions"
+              "authentication/clerk/sessions",
+              "authentication/clerk/backend",
+              "authentication/clerk/account"
             ]
           }
         ]

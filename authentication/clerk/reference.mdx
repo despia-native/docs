@@ -1,0 +1,169 @@
+---
+title: "Reference"
+description: "Payload envelope, event names, status values, error codes, and quirks."
+icon: "code"
+---
+
+Flat reference for everything the bridge emits.
+
+---
+
+## Payload envelope
+
+```typescript
+{
+    ok: boolean,                                // false means error present
+    event: string,                              // see event names below
+    status?: string,                            // success detail
+    error?: { code: string, message: string },  // when ok === false
+    // plus route-specific fields documented per page
+}
+```
+
+Always branch on `ok` first.
+
+```javascript
+window.onClerkEvent = (r) => {
+    if (!r.ok) {
+        console.error(r.event, r.error.code, r.error.message)
+        return
+    }
+    // success path
+}
+```
+
+---
+
+## Events
+
+| Event | Emitted by | See |
+| --- | --- | --- |
+| `ready` | `clerk://configure` | [Configure](/authentication/clerk/introduction#configure) |
+| `state` | `clerk://state` | [Session State](/authentication/clerk/sessions#session-state) |
+| `token` | `clerk://token` | [Force a refresh](/authentication/clerk/sessions#force-a-refresh) |
+| `signIn` | Any sign-in reaching a session | [Sign-in Methods](/authentication/clerk/methods) |
+| `signUp` | Any sign-up reaching a session | [Sign-in Methods](/authentication/clerk/methods) |
+| `emailCode` | `method=email_code` | [Email Code](/authentication/clerk/methods#email-code) |
+| `phoneCode` | `method=phone_code` | [Phone Code](/authentication/clerk/methods#phone-code) |
+| `passkey` | `method=passkey&action=register` | [Passkeys](/authentication/clerk/methods#passkeys) |
+| `signOut` | `clerk://signout` | [Sign Out](/authentication/clerk/account#sign-out) |
+| `attribution` | `clerk://attribution` | [Attribution Sync](/authentication/clerk/account#attribution-sync) |
+| `ssr` | `clerk://ssr` | [Server-Side Auth](/authentication/clerk/backend) |
+| `configure`, `authview`, `userprofile`, `manual`, `oauth`, `apple` | Error envelopes only |  |
+| `unknown` | Unrecognized `clerk://` host |  |
+
+---
+
+## Status values
+
+`status` on `signIn`, `signUp`, and `emailCode` is the raw Clerk SDK status, passed through verbatim. Match `complete` and treat anything else as "needs another step."
+
+| Status | Meaning |
+| --- | --- |
+| `configured` | First-time `configure` success |
+| `already_configured` | Same key re-passed |
+| `reconfigured` | Different key, tenant switched |
+| `complete` | Sign-in or sign-up fully done |
+| `needs_identifier` | Sign-in missing the identifier |
+| `needs_first_factor` | Password or other first factor required |
+| `needs_second_factor` | MFA required |
+| `needs_new_password` | Password reset required |
+| `needs_client_trust` | Trusted-device challenge required |
+| `missing_requirements` | Sign-up missing email/phone verification |
+| `abandoned` | Sign-up timed out |
+| `code_sent` | Email OTP dispatched |
+| `registered` | Passkey added |
+| `enabled` / `disabled` | `attribution` or `ssr` toggle |
+
+---
+
+## Error codes
+
+| Code | Triggered by | Meaning |
+| --- | --- | --- |
+| `invalid_key` | `configure` | Key missing or does not start with `pk_` |
+| `reconfigure_in_progress` | `configure` | Previous tenant switch still running |
+| `reconfigure_failed` | `configure` | SDK reconfigure threw |
+| `not_configured` | Any non-configure route | `clerk://configure` not called yet |
+| `unsupported_os` | All routes | Below the Clerk SDK runtime minimum (iOS 17\+, current Android API levels) |
+| `sdk_not_linked` | All routes | Clerk SDK or prebuilt UI not in the build |
+| `unknown_command` | Unknown host | For example, `clerk://foo` |
+| `unknown_method` | `manual` | `method=` not recognized |
+| `unknown_action` | `email_code`, `phone_code`, `passkey` | `action=` not recognized |
+| `missing_params` | manual flows | Required field absent |
+| `missing_state` | `email_code` or `phone_code` verify | Verify called before start (shares state, one OTP flow at a time) |
+| `auth_failed` | `password` | Wrong credentials, account locked, etc. Clerk's own message in `error.message`. |
+| `oauth_failed` | `oauth` | User cancelled, network error, or provider denied |
+| `apple_failed` | `apple` | User cancelled Sign in with Apple |
+| `email_code_failed` | `email_code` | Code wrong or expired |
+| `phone_code_failed` | `phone_code` | Code wrong, expired, or SMS send failed |
+| `passkey_failed` | `passkey` | User cancelled or no credential |
+| `not_signed_in` | `passkey&action=register` | Cannot register a passkey without a signed-in user |
+| `signout_failed` | `signout` | Network error during server-side revoke |
+| `token_fetch_failed` | `token` | Refresh failed, `window.clerkJWT` keeps last value |
+| `use_native_apple` | `oauth&provider=apple` | Use [`method=apple`](/authentication/clerk/methods#apple-sign-in) instead |
+
+---
+
+## Quirks
+
+`despia()` calls for `clerk://` routes are fire-and-forget. Results arrive through `window.onClerkEvent`.
+
+Events are not buffered. A handler attached after a command was issued misses the result.
+
+`fetch()` and `XMLHttpRequest` cannot trigger `clerk://` URLs. The bridge hooks the WebView's navigation policy decision, so a real navigation is required.
+
+Auth Sheet and User Profile sheet emit no event on close. Poll [`clerk://state`](/authentication/clerk/sessions#session-state) after dismiss.
+
+`window.clerkJWT` lags `configure` by roughly a millisecond. Treat the first 100ms as "may be null."
+
+Apple sign-in uses `method=apple`, never `method=oauth&provider=apple`. The latter is rejected with `use_native_apple`.
+
+Query parsing is lenient. The bridge splits the query string at known-key boundaries (`method`, `type`, `identifier`, `password`, `email`, `emailAddress`, `firstName`, `lastName`, `username`, `phoneNumber`, `code`, `action`, `provider`, `ephemeral`, `mode`, `dismissable`, `key`, `enabled`, `header`, `domains`), so an unencoded `&`, `#`, or `=` inside a password survives intact. Values are percent-decoded once. Unrecognized parameter names are folded into the previous value and silently ignored.
+
+Boolean parameters accept `true`, `false`, `1`, `0`, `yes`, `no`. Mode parameters are lowercase: `signin`, `signup`, `signinorup` (aliases `signin_or_up`, `default`).
+
+Status values pass through verbatim. Match `complete` explicitly, treat anything else as "needs more steps."
+
+On the server, trust only the verified `sub` claim. Never accept a client-reported `userId`.
+
+---
+
+## Platform support
+
+Same `clerk://` URLs, event names, status strings, error codes, and payload shapes work identically on iOS and Android. Implementation differences happen under the hood, the JS contract is the same.
+
+| Concern | iOS | Android |
+| --- | --- | --- |
+| Secure session storage | Keychain | Android Keystore |
+| Apple Sign In | Native `ASAuthorizationController` | Apple OAuth via Chrome Custom Tabs |
+| OAuth provider flow | `ASWebAuthenticationSession` | Chrome Custom Tabs |
+| Sheet container | View controller | Activity |
+| Passkey provider | iCloud Keychain | Google Password Manager |
+| Runtime minimum | iOS 17\+ | Current Android API levels supported by Clerk's Android SDK |
+
+`apple_failed` exists on Android too, even though the underlying flow is OAuth rather than the native sheet.
+
+---
+
+## OAuth providers
+
+Recognized values for [`method=oauth`](/authentication/clerk/methods#oauth). Anything else routes to Clerk's custom provider handler.
+
+`google`, `github`, `microsoft`, `gitlab`, `discord`, `twitter` (alias `x`), `twitch`, `linkedin`, `linkedin_oidc`, `facebook`, `tiktok`, `dropbox`, `atlassian`, `bitbucket`, `notion`, `line`, `instagram`, `coinbase`, `spotify`, `xero`, `box`, `slack`, `linear`, `hubspot`, `huggingface`, `vercel`.
+
+`apple` is rejected with `use_native_apple`. Use [`method=apple`](/authentication/clerk/methods#apple-sign-in).
+
+---
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card title="NPM Package" icon="npm" href="https://www.npmjs.com/package/despia-native">
+    despia-native
+  </Card>
+
+  <Card title="Support" icon="envelope" href="mailto:support@despia.com">
+    [support@despia.com](mailto:support@despia.com)
+  </Card>
+</CardGroup>
