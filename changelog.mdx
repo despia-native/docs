@@ -16,6 +16,7 @@ icon: "clock-rotate-left"
   - **Cross-platform parity.** Identical event shapes, error vocabulary, and parameter names on iOS and Android. The same JavaScript runs on both platforms with no branching. Android network failures are folded into the `audio-capture` error code so a single handler covers both runtimes.
   - **Continuous and interim modes.** Long-form dictation with live partial transcripts, plus single-utterance push-to-talk, configurable per session via the `continuous` and `interim` query parameters.
   - **BCP-47 language selection.** Pass any BCP-47 tag like `en-US`, `de-DE`, or `ja-JP`, or omit the language parameter to use the device system locale.
+  - **Custom vocabulary biasing.** Pass `known_words` as a comma-separated query parameter, or set `recognition.knownWords` on the polyfill, to nudge the recognizer toward product names, jargon, or proper nouns. Backed by `SFSpeechAudioBufferRecognitionRequest.contextualStrings` on iOS 10 and later and `EXTRA_BIASING_STRINGS` on Android 13 and later, with a graceful no-op on older Android.
 
   Full documentation, including event ordering, the complete error code table, and end-to-end examples for push-to-talk and continuous dictation, is at [Speech recognition](/native-features/speech-recognition).
 

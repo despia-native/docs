@@ -128,13 +128,11 @@
         "pages": [
           {
             "group": "Clerk",
-            "icon": {
-              "name": "album-circle-user",
-              "style": "brands"
-            },
+            "icon": "arrow-right-from-arc",
             "pages": [
               "authentication/clerk/introduction",
-              "authentication/clerk/reference"
+              "authentication/clerk/auth-methods",
+              "authentication/clerk/sessions"
             ]
           }
         ]

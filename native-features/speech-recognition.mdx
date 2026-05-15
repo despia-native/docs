@@ -87,12 +87,65 @@ All parameters are optional and passed as query string values on `speechrecognit
 | `continuous` | `false` | Keep listening across utterances until `stop` or `abort`. |
 | `interim` | `false` | Stream non-final partial results. |
 | `max` | `1` | Cap on alternatives. iOS decides how many to actually return. |
+| `known_words` | none | Comma-separated list of custom words or phrases to bias the recognizer toward. Accepts the alias `knownWords`. See [Biasing toward custom vocabulary](#biasing-toward-custom-vocabulary). |
 
 ```javascript
 despia('speechrecognition://start?language=en-US&continuous=true&interim=true&max=3')
 ```
 
 The device system locale (`Locale.current`) is used when `language` is omitted, which may differ from the page's `<html lang>` value.
+
+---
+
+## Biasing toward custom vocabulary
+
+Product names, technical jargon, proper nouns, and other words outside the system dictionary often get transcribed phonetically (`Despia` becomes `desk pier`, `SwiftUI` becomes `swift you why`). Passing a `known_words` list nudges the recognizer to prefer your terms when the audio is ambiguous, without affecting recognition of anything else.
+
+### URL-scheme bridge
+
+Pass `known_words` as a comma-separated query parameter. The parameter also accepts the alias `knownWords`.
+
+```javascript
+despia('speechrecognition://start?language=en-US&known_words=Despia,API,SwiftUI')
+```
+
+For multi-word phrases or non-ASCII characters, percent-encode the value. Spaces become `%20`, accented characters use UTF-8 percent encoding. Values are trimmed, de-duplicated, and empty entries are dropped.
+
+```javascript
+const phrases = ['New York', 'São Paulo', 'Café Müller']
+const encoded = phrases.map(encodeURIComponent).join(',')
+
+despia(`speechrecognition://start?language=en-US&known_words=${encoded}`)
+```
+
+### Polyfill
+
+Set the `knownWords` property as an array of strings before calling `start()`. This is a Despia extension to the Web Speech API, not part of the standard, so it is ignored cleanly outside the app.
+
+```javascript
+const recognition = new window.SpeechRecognition()
+recognition.lang = 'en-US'
+recognition.knownWords = ['Despia', 'API', 'SwiftUI']
+recognition.continuous = true
+recognition.start()
+```
+
+### Platform support
+
+| Platform | Backing API | Behavior |
+| :-- | :-- | :-- |
+| iOS 10 and later | `SFSpeechAudioBufferRecognitionRequest.contextualStrings` | Re-applied to every recognition request, so biasing persists across utterance rotation in `continuous` mode. |
+| Android 13 and later | `RecognizerIntent.EXTRA_BIASING_STRINGS` | Forwarded to the system recognizer. |
+| Older Android | none | Silently ignored. Recognition still works without biasing. |
+
+### Guidance
+
+This is a bias, not a whitelist. Words outside the list are still recognized normally, the list just shifts the recognizer's preference when audio is ambiguous. A few practical notes:
+
+- Keep the list reasonably small. Apple's guidance for `contextualStrings` is roughly 100 short phrases or fewer for best effect. Very long lists dilute the signal.
+- Prefer specific terms over common words. Adding `the` to the list does nothing useful, adding your product name does.
+- An empty or omitted list adds zero overhead, no biasing is applied at all rather than an empty bias.
+- Update the list per session if context changes, for example a navigation app might pass the user's current city's neighborhood names.
 
 ---
 

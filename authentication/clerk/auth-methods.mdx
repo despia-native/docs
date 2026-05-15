@@ -1,0 +1,181 @@
+---
+title: "Auth Methods"
+description: "Auth Sheet, email & password, OAuth, Apple Sign In, email code OTP, and passkeys."
+icon: "right-to-bracket"
+---
+
+Present Clerk's prebuilt sheet, or drive each flow from your own UI. Both produce the same session and emit through `window.onClerkEvent`. [Configure](/authentication/clerk/introduction#configure) first.
+
+Successful sign-in flows emit:
+
+```json
+{
+   "ok":true,
+   "event":"signIn",
+   "status":"complete",
+   "userId":"user_2abcDEF",
+   "emailAddress":"jane@example.com"
+}
+```
+
+`status` is `complete` when the session is established, otherwise a raw Clerk status (`needs_first_factor`, `needs_second_factor`, `needs_new_password`, `missing_requirements`, `abandoned`) meaning the flow needs another step.
+
+---
+
+## Auth Sheet
+
+`clerk://authview` opens Clerk's prebuilt sheet covering email/password, OAuth, magic links, MFA, password reset, and passkeys.
+
+| Param | Values | Default |
+| --- | --- | --- |
+| `mode` | `signinorup`, `signin`, `signup` | `signinorup` |
+| `dismissable` | `true`, `false`, `1`, `0`, `yes`, `no` | `true` |
+
+```javascript
+despia('clerk://authview?mode=signinorup&dismissable=true')
+```
+
+No event fires when the sheet closes. Poll [`clerk://state`](/authentication/clerk/sessions#session-state) after dismiss.
+
+Errors: `not_configured`, `unsupported_os`, `sdk_not_linked`.
+
+---
+
+## Email & Password
+
+Manual email/password sign-in or sign-up.
+
+| Param | Required | Notes |
+| --- | --- | --- |
+| `method=password` | yes |  |
+| `type` | no | `signin` (default) or `signup` |
+| `identifier` | sign-in | Email, username, or phone. Aliases: `emailAddress`, `email` |
+| `emailAddress` | sign-up | Or alias `email` |
+| `password` | yes |  |
+| `firstName`, `lastName`, `username`, `phoneNumber` | no | Sign-up only |
+
+```javascript
+// Sign in
+despia('clerk://manual?method=password&type=signin&identifier=jane@example.com&password=hunter2')
+
+// Sign up
+despia('clerk://manual?method=password&type=signup&emailAddress=new@example.com&password=hunter2&firstName=Sam')
+```
+
+Emits `signIn` or `signUp`. Errors: `missing_params`, `auth_failed`.
+
+---
+
+## OAuth
+
+System-browser OAuth via `ASWebAuthenticationSession` (iOS) or Chrome Custom Tabs (Android).
+
+| Param | Required | Notes |
+| --- | --- | --- |
+| `method=oauth` | yes |  |
+| `provider` | yes | See providers below |
+| `type` | no | `signin` (default) or `signup` |
+| `ephemeral` | no | `true` skips shared browser cookies. Default `false` |
+
+```javascript
+despia('clerk://manual?method=oauth&provider=google')
+```
+
+Emits `signIn` or `signUp` depending on whether the external account is new.
+
+**Providers:** `google`, `github`, `microsoft`, `gitlab`, `discord`, `twitter` (alias `x`), `twitch`, `linkedin`, `linkedin_oidc`, `facebook`, `tiktok`, `dropbox`, `atlassian`, `bitbucket`, `notion`, `line`, `instagram`, `coinbase`, `spotify`, `xero`, `box`, `slack`, `linear`, `hubspot`, `huggingface`, `vercel`. Anything else routes to Clerk's custom provider handler.
+
+Errors: `missing_params`, `use_native_apple`, `oauth_failed`.
+
+<Warning>
+  `provider=apple` is rejected with `use_native_apple`. App Review requires the native Apple sheet, use Apple Sign In below.
+</Warning>
+
+---
+
+## Apple Sign In
+
+Native `ASAuthorizationController` sheet on iOS, Apple OAuth via Chrome Custom Tabs on Android. JS contract is identical.
+
+| Param | Required | Notes |
+| --- | --- | --- |
+| `method=apple` | yes |  |
+| `type` | no | `signin` (default) or `signup` |
+
+```javascript
+despia('clerk://manual?method=apple')
+```
+
+Emits `signIn` or `signUp`. Errors: `apple_failed`.
+
+---
+
+## Email Code
+
+Two-step email OTP. Verify must follow start in the same app session.
+
+| Param | Required | Notes |
+| --- | --- | --- |
+| `method=email_code` | yes |  |
+| `action` | no | `start` (default) or `verify` |
+| `emailAddress` | start | Or alias `email` |
+| `code` | verify | The OTP the user received |
+
+```javascript
+// 1. Send the code
+despia('clerk://manual?method=email_code&action=start&emailAddress=jane@example.com')
+
+// 2. Verify (after user enters code)
+despia('clerk://manual?method=email_code&action=verify&code=123456')
+```
+
+Emits `emailCode` with `status: "code_sent"` after start, then `complete` (or a `needs_*` status) after verify.
+
+Errors: `missing_params`, `missing_state` (verify before start), `unknown_action`, `email_code_failed`.
+
+---
+
+## Passkeys
+
+Native passkey UI. `signin` uses an existing passkey, `register` adds one to the current signed-in user.
+
+| Param | Required | Notes |
+| --- | --- | --- |
+| `method=passkey` | yes |  |
+| `action` | no | `signin` (default) or `register` |
+
+```javascript
+// Sign in with an existing passkey
+despia('clerk://manual?method=passkey&action=signin')
+
+// Register a new passkey on the signed-in account
+despia('clerk://manual?method=passkey&action=register')
+```
+
+`signin` emits a normal `signIn` event. `register` emits:
+
+```json
+{
+   "ok":true,
+   "event":"passkey",
+   "status":"registered",
+   "passkeyId":"psk_2abc",
+   "name":"iPhone 15"
+}
+```
+
+Saved to iCloud Keychain (iOS) or Google Password Manager (Android). Errors: `not_signed_in`, `unknown_action`, `passkey_failed`.
+
+---
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card title="NPM Package" icon="npm" href="https://www.npmjs.com/package/despia-native">
+    despia-native
+  </Card>
+
+  <Card title="Support" icon="envelope" href="mailto:support@despia.com">
+    [support@despia.com](mailto:support@despia.com)
+  </Card>
+</CardGroup>
