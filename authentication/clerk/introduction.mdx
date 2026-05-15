@@ -1,8 +1,8 @@
 ---
 title: "Introduction"
 description: "Drop-in authentication for your Despia app with email, OAuth, passkeys, and MFA handled by Clerk's native iOS SDK."
-icon: "shield-halved"
-sidebarTitle: "Clerk Auth"
+icon: "circle-info"
+sidebarTitle: "Introduction"
 ---
 
 Native Clerk authentication for iOS and Android, driven entirely from JavaScript over a `clerk://` URL scheme. Optional, for apps that need Keychain or Keystore backed sessions, native Sign in with Apple, offline cold-launch, or zero-config server-side auth. Web auth providers like Supabase, Firebase, NextAuth, Auth0, or Clerk's own web SDK work in Despia out of the box without this.
@@ -63,7 +63,7 @@ The bridge exposes two globals on `window`. You define `window.onClerkEvent` to 
 | Global | Type | Lifecycle |
 | --- | --- | --- |
 | `window.onClerkEvent` | `(payload) => void` | You define. Receives every event. |
-| `window.clerkJWT` | `string | null` | Bridge writes. Auto-refreshed every 50s. `null` when signed out. |
+| `window.clerkJWT` | \`string | null\` | Bridge writes. Auto-refreshed every 50s. `null` when signed out. |
 
 Wire the listener first, then call `clerk://configure`. Events are not buffered, a handler attached after a command was issued will miss the result.
 
