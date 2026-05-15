@@ -4,6 +4,41 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="May 15, 2026" description="Clerk Auth - native iOS and Android authentication bridge">
+  ## Clerk Auth for Despia
+
+  Despia now ships an optional native Clerk authentication bridge for iOS and Android, driven entirely from JavaScript over a `clerk://` URL scheme. Apps that need Keychain or Keystore backed sessions, native Sign in with Apple, offline cold-launch, or zero-config server-side auth can opt in. Apps using web auth providers like Supabase, Firebase, NextAuth, Auth0, or Clerk's own web SDK are unaffected and continue to work out of the box.
+
+  The same `clerk://` URLs, event payloads, status strings, and error codes work identically on iOS and Android. Implementation differences (Apple Sign In sheet vs Custom Tab, Keychain vs Keystore) happen under the hood and never reach the JS layer.
+
+  **What ships today:**
+
+  - **Configure and the two globals.** `clerk://configure` wires up the bridge. The native side writes `window.clerkJWT` (auto-refreshed every 50 seconds, under Clerk's 60-second TTL) and fires every result through `window.onClerkEvent`. Same-key configure is a no-op, different keys switch tenant and clear the secure session store.
+  - **Prebuilt Auth Sheet.** `clerk://authview` opens Clerk's native sign-in sheet covering email/password, OAuth, magic links, MFA, password reset, and passkeys in one prebuilt UI.
+  - **Email and password.** `clerk://manual?method=password` drives manual sign-in and sign-up flows with your own forms while keeping the native session and JWT refresh.
+  - **OAuth providers.** `method=oauth` runs system-browser OAuth via `ASWebAuthenticationSession` on iOS and Chrome Custom Tabs on Android. Over 25 providers supported (Google, GitHub, Microsoft, Discord, LinkedIn, Facebook, Slack, Notion, Vercel, and more), with unknown values passed through as Clerk custom providers.
+  - **Native Sign in with Apple.** `method=apple` uses Apple's native `ASAuthorizationController` sheet on iOS and Apple OAuth via Chrome Custom Tabs on Android. Required by App Review for any iOS app offering third-party social login.
+  - **Email one-time code.** `method=email_code` drives the two-step OTP flow with `action=start` and `action=verify`.
+  - **SMS one-time code.** `method=phone_code` (alias `sms`) ships the same two-step OTP flow over SMS. Phone numbers are normalized to E.164, both code flows share pending state so only one runs at a time.
+  - **Passkeys.** `method=passkey` signs in with an existing credential or registers a new one to the signed-in account. Saved to iCloud Keychain on iOS or Google Password Manager on Android.
+  - **User Profile sheet.** `clerk://userprofile` opens Clerk's prebuilt account-management sheet for editing profile, managing emails, phones, external accounts, passkeys, sessions, MFA, and account deletion.
+  - **Offline session snapshot.** `clerk://state` reads the full user and session object from the in-memory cache hydrated from secure storage. No network round-trip, works with the device fully offline.
+  - **Zero-config server-side auth.** `clerk://ssr` writes the session into the WebView cookie store scoped to your app host plus `localhost` and `127.0.0.1`. Next.js `clerkMiddleware()`, TanStack, and any framework reading standard Clerk cookies sees an authenticated user on the very first request, no Clerk web SDK on the page required. A TTL ladder (50s refresher, 55s cookie, 60s JWT) guarantees the cookie pair is always in a state Clerk middleware accepts without a handshake redirect. An optional `header=` param also injects the JWT on main-frame navigations.
+  - **Attribution sync.** `clerk://attribution` auto-mirrors the Clerk userId into OneSignal and AppsFlyer on every sign-in or sign-up and clears it on sign-out. Enabled by default, overridable via the existing `setonesignalplayerid://` and `appsflyer://set_user_id` routes.
+  - **Sign out and multi-tenant switching.** `clerk://signout` revokes the session, stops the JWT refresher, clears attribution IDs, and writes the signed-out cookie state. Calling `configure` again with a different publishable key switches tenant and resets everything atomically.
+
+  Full documentation:
+
+  - [Introduction](/authentication/clerk/introduction)
+  - [Auth Methods](/authentication/clerk/auth-methods)
+  - [Sessions](/authentication/clerk/sessions)
+  - [Backend](/authentication/clerk/backend)
+  - [Account](/authentication/clerk/account)
+  - [API Reference](/authentication/clerk/reference)
+
+  Clerk Auth is opt-in. The bridge stays inert until your web app fires `clerk://configure`, so apps not using it see no change. Apps that want it need a publishable key from the [Clerk Dashboard](https://dashboard.clerk.com) and a call to `clerk://configure` on boot. Dashboard configuration required to enable Clerk to access the bridge.
+</Update>
+
 <Update label="May 15, 2026" description="Native features - speech recognition on iOS and Android">
   ## Speech recognition
 
