@@ -1,0 +1,199 @@
+---
+title: "Clerk API Reference"
+description: "Complete reference for every clerk:// route, event payload, parameter, and error code."
+icon: "book-open"
+sidebarTitle: "Clerk API Reference"
+---
+
+Complete reference for every `clerk://` route, event payload, parameter, and error code supported by the Despia Clerk bridge.
+
+---
+
+## Installation
+
+<Tabs>
+  <Tab title="Bundle">
+    <CodeGroup>
+
+    ```bash npm
+    npm install despia-native
+    ```
+
+    ```bash pnpm
+    pnpm add despia-native
+    ```
+
+    ```bash yarn
+    yarn add despia-native
+    ```
+
+    </CodeGroup>
+
+    ```javascript
+    import despia from 'despia-native';
+    ```
+  </Tab>
+  <Tab title="CDN">
+    <CodeGroup>
+
+    ```html UMD
+    <script src="https://cdn.jsdelivr.net/npm/despia-native/index.min.js"></script>
+    ```
+
+    ```html ESM
+    <script type="module">
+        import despia from 'https://cdn.jsdelivr.net/npm/despia-native/+esm'
+    </script>
+    ```
+
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+---
+
+## Routes
+
+### Sign in
+
+Opens the Clerk native sign-in sheet.
+
+```javascript
+const result = await despia('clerk://signin', ['clerkSessionToken', 'clerkUserId'])
+```
+
+| Parameter | Required | Description |
+| --- | --- | --- |
+| `strategy` | No | Authentication strategy. Omit for default (email/password). See strategies below. |
+
+**Return values**
+
+| Key | Type | Description |
+| --- | --- | --- |
+| `clerkSessionToken` | string | Active session JWT |
+| `clerkUserId` | string | Clerk user ID |
+| `clerkSessionActive` | boolean | `true` if session was successfully created |
+
+---
+
+### Sign up
+
+Opens the Clerk native sign-up sheet.
+
+```javascript
+const result = await despia('clerk://signup', ['clerkSessionToken', 'clerkUserId'])
+```
+
+Accepts the same parameters and returns the same values as `clerk://signin`.
+
+---
+
+### Session
+
+Restores an existing Clerk session without user interaction.
+
+```javascript
+const result = await despia('clerk://session', ['clerkSessionToken', 'clerkUserId', 'clerkSessionActive'])
+```
+
+Call this on every authenticated app load. Returns immediately if no active session exists.
+
+| Return key | Type | Description |
+| --- | --- | --- |
+| `clerkSessionToken` | string | Active session JWT, or empty if no session |
+| `clerkUserId` | string | Clerk user ID, or empty if no session |
+| `clerkSessionActive` | boolean | `true` if a valid session was restored |
+
+---
+
+### Sign out
+
+Signs the user out and clears all native session state.
+
+```javascript
+await despia('clerk://signout')
+```
+
+No return values. Redirect the user to your sign-in page after this call.
+
+---
+
+## Strategies
+
+| Strategy value | Description |
+| --- | --- |
+| _(omit)_ | Default: email and password |
+| `oauth_google` | Sign in with Google |
+| `oauth_apple` | Sign in with Apple |
+| `oauth_github` | Sign in with GitHub |
+| `passkey` | WebAuthn passkey via Face ID or Touch ID |
+| `email_link` | Magic link via email |
+| `email_code` | One-time code via email |
+| `phone_code` | One-time code via SMS |
+
+```javascript
+// Sign in with Google
+await despia('clerk://signin?strategy=oauth_google', ['clerkSessionToken', 'clerkUserId'])
+
+// Sign in with passkey
+await despia('clerk://signin?strategy=passkey', ['clerkSessionToken', 'clerkUserId'])
+```
+
+---
+
+## Event callbacks
+
+### `window.onClerkSessionChange`
+
+Fires whenever the Clerk session state changes (sign in, sign out, token refresh).
+
+```javascript
+window.onClerkSessionChange = function(data) {
+    if (data.active) {
+        // User signed in or session refreshed
+        console.log(data.userId, data.sessionToken)
+    } else {
+        // User signed out
+    }
+}
+```
+
+| Property | Type | Description |
+| --- | --- | --- |
+| `active` | boolean | Whether a session is currently active |
+| `userId` | string | Clerk user ID |
+| `sessionToken` | string | Current session JWT |
+
+---
+
+## Error codes
+
+| Code | Description |
+| --- | --- |
+| `clerk_cancelled` | User dismissed the sign-in or sign-up sheet |
+| `clerk_network_error` | Network request to Clerk failed |
+| `clerk_invalid_credentials` | Email or password incorrect |
+| `clerk_session_expired` | Session expired and could not be refreshed |
+| `clerk_not_configured` | Clerk publishable key not set in the Despia dashboard |
+
+---
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card title="Clerk Auth Introduction" icon="shield-halved" href="/authentication/clerk/introduction">
+    Setup guide and authentication methods
+  </Card>
+
+  <Card title="Clerk Dashboard" icon="clerk" href="https://dashboard.clerk.com">
+    Configure your Clerk application
+  </Card>
+
+  <Card title="NPM Package" icon="npm" href="https://www.npmjs.com/package/despia-native">
+    despia-native
+  </Card>
+
+  <Card title="Support" icon="envelope" href="mailto:support@despia.com">
+    [support@despia.com](mailto:support@despia.com)
+  </Card>
+</CardGroup>

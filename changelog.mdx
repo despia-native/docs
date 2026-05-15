@@ -4,6 +4,24 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="May 15, 2026" description="Native features - speech recognition on iOS and Android">
+  ## Speech recognition
+
+  Despia now exposes the platform's native speech recognizer through two interoperable JavaScript surfaces, so your web app can transcribe audio on-device without a third-party STT service or paid API.
+
+  **What ships today:**
+
+  - **URL-scheme bridge.** A flat four-event control flow via `speechrecognition://start`, `stop`, and `abort`, with results delivered to a single `window.onSpeechRecognitionEvent` callback. Suited to push-to-talk UIs and explicit control flows.
+  - **Web Speech API polyfill.** A drop-in `window.SpeechRecognition` and `webkitSpeechRecognition` implementation that matches the standard browser surface. Existing Web Speech code and libraries like `react-speech-recognition` run unmodified inside your app.
+  - **Cross-platform parity.** Identical event shapes, error vocabulary, and parameter names on iOS and Android. The same JavaScript runs on both platforms with no branching. Android network failures are folded into the `audio-capture` error code so a single handler covers both runtimes.
+  - **Continuous and interim modes.** Long-form dictation with live partial transcripts, plus single-utterance push-to-talk, configurable per session via the `continuous` and `interim` query parameters.
+  - **BCP-47 language selection.** Pass any BCP-47 tag like `en-US`, `de-DE`, or `ja-JP`, or omit the language parameter to use the device system locale.
+
+  Full documentation, including event ordering, the complete error code table, and end-to-end examples for push-to-talk and continuous dictation, is at [Speech recognition](/native-features/speech-recognition).
+
+  Rebuild your app from the Despia Editor to get the new bridge. Without a rebuild, `speechrecognition://` calls resolve silently and `window.SpeechRecognition` reads as undefined, since the native handler and the polyfill injection are both compiled into the signed binary.
+</Update>
+
 <Update label="May 14, 2026" description="NFC - read and write tags from your web app">
   ## NFC tag reading and writing
 

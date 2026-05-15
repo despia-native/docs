@@ -123,6 +123,23 @@
         ]
       },
       {
+        "group": "Authentication",
+        "icon": "shield",
+        "pages": [
+          {
+            "group": "Clerk",
+            "icon": {
+              "name": "album-circle-user",
+              "style": "brands"
+            },
+            "pages": [
+              "authentication/clerk/introduction",
+              "authentication/clerk/reference"
+            ]
+          }
+        ]
+      },
+      {
         "group": "Custom Code",
         "icon": "code",
         "hidden": true,
@@ -214,6 +231,7 @@
           "native-features/siri-shortcuts",
           "native-features/biometrics",
           "native-features/nfc",
+          "native-features/speech-recognition",
           "native-features/app-privacy",
           "native-features/safe-areas",
           "native-features/screen-radius",
