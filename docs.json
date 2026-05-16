@@ -275,7 +275,8 @@
           "native-features/print-documents",
           "native-features/screenshot",
           "native-features/notification-sounds",
-          "native-features/audio-player"
+          "native-features/audio-player",
+          "native-features/bluetooth"
         ]
       },
       {

@@ -4,29 +4,62 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
-<Update label="May 16, 2026" description="Stripe Payment - native Payment Sheet integration">
-  ## Stripe Payment Sheet
+<Update label="May 16, 2026" description="Clerk Auth - username login, SSO, MFA, password reset, magic links, SMS, sheet events">
+  ## Expanded Clerk Auth: SSO, MFA, password reset, SMS, magic links, and more
 
-  Native Stripe Payment Sheet integration is now available through the `stripe://payment` URL scheme. Apps can charge cards, Apple Pay, Google Pay, Link, and any other payment method enabled on the Payment Intent without leaving the web app or building a native wrapper.
+  The native Clerk Auth bridge gains a wave of new sign-in methods and a handful of upgrades to existing flows. Everything works identically on iOS and Android.
 
-  The integration is a single fire-and-listen call. Your backend creates the Payment Intent with your Stripe secret key, your page passes the resulting client secret and publishable key into `despia('stripe://payment?...')`, and the Despia runtime fires `window.stripeEvent` once with the outcome.
+  **New sign-in methods:**
+
+  - **Enterprise SSO.** Route the user to their organization's SAML or OIDC identity provider based on email domain. Returns a normal sign-in or sign-up event depending on whether the user is new to the organization.
+  - **MFA continuation.** Continue a sign-in whose first-factor result came back needing a second factor. Supports TOTP and backup codes via single-call verify, plus a prepare step for SMS or email second factors.
+  - **Password reset.** Three-step reset flow: send a code, verify the code, set a new password. Works with both email and phone identifiers, the bridge picks the right delivery channel.
+  - **SMS one-time code.** Passwordless sign-in via a one-time code sent over SMS. Phone numbers are normalized to E.164, so human-formatted numbers like `+1 (555) 123-4567` are accepted directly.
+  - **Magic link tickets.** Native equivalent of an email magic link. Your backend mints a one-time ticket through Clerk's API and includes it in an email or push that deep-links into the app, the app forwards the ticket to the bridge to complete sign-in.
+
+  **Existing methods, more flexible:**
+
+  - **Username and phone sign-in.** Password sign-in now accepts any identifier: email, username, or phone. Pass `jane`, `jane@example.com`, or `+15551234567` and the bridge resolves it.
+  - **Sign-up without email.** Password sign-up no longer requires an email address. At least one of email, username, or phone is enough, alongside the password. Username-only or phone-only accounts are valid.
+  - **Email code sign-up.** The email code flow now supports new-account creation, not just sign-in. Optional first name, last name, and username can be passed when sending the code.
+
+  **Behavior upgrades to existing flows:**
+
+  - **Auth Sheet and User Profile emit close events.** The prebuilt sign-in sheet now fires a completion event when it closes, carrying `userId` and `emailAddress` if the user signed in, or a dismissed event if the sheet closed without sign-in. The User Profile sheet fires a closed event on dismiss. Apps no longer need to poll the session state after the sheet closes.
+  - **Shared pending-flow state.** Email code, phone code, password reset, and MFA continuation all hold one in-memory pending sign-in at a time. Starting a new flow cancels any other in flight, and calling a later step before its prerequisite returns a missing-state error.
+  - **Unified completion semantics.** Every flow that reaches a successful completion now follows the same pattern: the result payload carries `userId` (plus `emailAddress` if a primary email exists), the JWT refresher starts, attribution fires, and `window.clerkJWT` populates a tick later.
+
+  Full reference at [Auth Methods](/authentication/clerk/auth-methods) and the [API Reference](/authentication/clerk/reference).
+
+  Clerk Auth remains opt-in. Apps already using the bridge get everything in this drop automatically as soon as the runtime updates. No dashboard configuration changes, native build settings, or rebuild steps are required.
+</Update>
+
+<Update label="May 16, 2026" description="Stripe Payment - PaymentSheet and CustomerSheet integration">
+  ## Stripe Payment
+
+  Native Stripe PaymentSheet and CustomerSheet integration is now available through the `stripe://payment` and `stripe://manage` actions. Apps can charge cards, Apple Pay, Google Pay, and Link through the native payment sheet, and let signed-in customers add, remove, and select among their saved cards through Stripe's native CustomerSheet, all without leaving the web app or building a native wrapper.
+
+  Both actions share a single fire-and-listen pattern. Your backend creates the Stripe objects, your page forwards the secrets into `despia('stripe://...')`, and the Despia runtime fires `window.stripeEvent` once with the outcome. Route on `event.method`: `paymentSheet` for charges, `customerSheet` for card management.
 
   **What ships today:**
 
-  - **Native Payment Sheet.** Calling `despia('stripe://payment?publishable_key=...&payment_intent_client_secret=...')` opens the native Stripe sheet on top of the WebView. The sheet handles card entry, 3DS, Apple Pay, Google Pay, Link, and any other method enabled on the Payment Intent.
-  - **Server-driven flow.** Amount, currency, customer, allowed payment methods, Stripe Connect routing, and metadata are all decided server-side when your backend creates the Payment Intent. The web app only forwards the publishable key and the resulting client secret to the native action.
-  - **Single result callback.** Define `window.stripeEvent` once at page load. The Despia runtime fires it exactly once per call with `{ method: 'paymentSheet', status: 'completed' | 'canceled' | 'failed', error? }`. There are no intermediate progress events, so branch on `status` and reconcile `completed` through your backend webhook before fulfilling the order.
-  - **Theme and accent color styling.** Optional `theme=light|dark|automatic` and `accent_color=<hex>` query params control the sheet's color scheme and the primary Pay button color. Both are independent, both safe to omit, and invalid color values fall back to default styling silently.
-  - **Stable error contract.** A missing `publishable_key` or `payment_intent_client_secret` returns the literal error string `missing param`, which is safe to match on. All other failures return Stripe's localized SDK message, which should be logged or displayed but never branched on, since it is locale-dependent.
-  - **iOS and Android parity.** The same `stripe://payment` URL works identically on both platforms with no fork in your web code.
+  - **Native PaymentSheet.** Call `despia('stripe://payment?publishable_key=...&payment_intent_client_secret=...')` to open Stripe's native payment sheet on top of the WebView. The sheet handles card entry, 3DS, Apple Pay, Google Pay, Link, and any other method enabled on the Payment Intent.
+  - **Native CustomerSheet for saved cards.** Call `despia('stripe://manage?publishable_key=...&customer_id=...&ephemeral_key_secret=...&setup_intent_client_secret=...')` to let the customer manage their saved payment methods. The ephemeral key must be created server-side with the Stripe API version the mobile SDK expects and is short-lived. The optional SetupIntent client secret enables the "add a new card" flow.
+  - **Theme.** `theme=light`, `theme=dark`, or `theme=automatic` controls the sheet's color scheme on both actions. Case-insensitive, unknown values fall back to `automatic` which follows the device's system setting.
+  - **Accent color.** `accent_color=<hex>` sets the primary Pay button color and the sheet's primary accent. Accepts 6-digit hex, 3-digit shorthand, 8-digit hex with alpha, with or without a leading `#`, and the URL-encoded `%23` form. The native parser tolerates raw `#` characters in any query position. Invalid values are silently ignored.
+  - **Corner radius.** `corner_radius=<pt>` sets the general corner radius applied to input fields and buttons together, including the secondary back button. Non-negative numbers only. Invalid, negative, or non-finite values are silently ignored.
+  - **Action corner radius.** `action_corner_radius=<pt>` overrides the primary Pay button corner radius independently of the general radius. When omitted, the Pay button inherits from `corner_radius`. When set without `corner_radius`, only the Pay button is rounded and the rest of the sheet stays at Stripe's default.
+  - **Single shared callback.** `window.stripeEvent` receives results from both actions. Branch on `event.method` to route between `paymentSheet` and `customerSheet`, then branch on `event.status` within each. PaymentSheet statuses are `completed`, `canceled`, or `failed`. CustomerSheet statuses are `selected`, `canceled`, or `failed`, with no `completed` since managing cards is not a payment.
+  - **Stable error contract.** A missing or empty required param returns the literal error string `missing param` on either action, which is safe to match on. All other failures return Stripe's localized SDK message, which should be logged or displayed but never branched on since it is locale-dependent.
+  - **iOS and Android parity.** The same actions work identically on both platforms with no fork in your web code.
 
-  Stripe Payment is for physical goods and real-world services such as marketplaces, delivery, ride-hailing, and bookings. Digital goods (credits, coins, subscriptions, memberships, premium tiers, ad removal) must continue to use [RevenueCat](/native-features/revenuecat/introduction), the store-compliant native in-app purchase path backed by Apple StoreKit and Google Play Billing. Apple and Google reject apps that accept payment for digital goods through Stripe or any other external payment system.
+  Stripe Payment is for physical goods and real-world services. Digital goods (credits, coins, subscriptions, memberships, premium tiers, ad removal, level unlocks) must continue to use [RevenueCat](/payments/revenuecat), the store-compliant in-app purchase path backed by Apple StoreKit and Google Play Billing. The `stripe://manage` action governs only Stripe-stored cards used for direct Stripe charges, not App Store or Play Store subscriptions managed through RevenueCat. Surface "Manage cards" only on screens where Stripe is the payment rail.
 
-  Documentation: [Stripe Payment](/payments/stripe/payment).
+  Documentation: [Stripe Payment](/payments/stripe/payment), [Manage saved cards](/payments/stripe/payment#manage-saved-cards).
 
   **Packages:** [despia-native](https://www.npmjs.com/package/despia-native).
 
-  Rebuild your app from the Despia dashboard to receive the new native bridge. No dashboard toggle is required to enable the feature. To integrate on the web side, create a Payment Intent endpoint on your backend that returns the client secret and publishable key, define `window.stripeEvent` on your page before firing the action, and call `despia('stripe://payment?...')` with the values your endpoint returns.
+  Rebuild your app from the Despia dashboard to receive the new native bridge. No dashboard toggle is required to enable the feature. To integrate on the web side, define `window.stripeEvent` on your page before firing either action, route on `event.method`, and call `despia('stripe://payment?...')` or `despia('stripe://manage?...')` with the secrets your backend returned.
 </Update>
 
 <Update label="May 15, 2026" description="Clerk Auth - native iOS and Android authentication bridge">
