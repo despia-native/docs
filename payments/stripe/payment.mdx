@@ -8,11 +8,11 @@ Call `despia('stripe://payment?...')` to show the native Stripe Payment Sheet wi
 
 A second action, `despia('stripe://manage?...')`, opens Stripe's native CustomerSheet so signed-in customers can add, remove, and pick a default among their saved payment methods. Both actions share the same `window.stripeEvent` callback. See [Manage saved cards](#manage-saved-cards).
 
-<Warning>
-  **Do not use this for digital goods inside mobile apps.** Credits, coins, in-app currency, memberships, subscriptions, premium tiers, ad removal, unlocking levels, and any virtual content consumed inside the app must use [RevenueCat](/payments/revenuecat), the store-compliant native in-app purchase path backed by Apple StoreKit and Google Play Billing. Apple and Google will reject your app on submission if you accept payment for digital goods through Stripe or any other external payment system. See [in-app purchase rejections](/store-rejections/common-rejection/in-app-purchases) for the full policy and rejection language.
+<Danger>
+  **Do not use this for digital goods inside mobile apps.** Credits, coins, in-app currency, memberships, subscriptions, premium tiers, ad removal, unlocking levels, and any virtual content consumed inside the app must use [RevenueCat](/native-features/revenuecat/introduction), the store-compliant native in-app purchase path backed by Apple StoreKit and Google Play Billing. Apple and Google will reject your app on submission if you accept payment for digital goods through Stripe or any other external payment system. See [in-app purchase rejections](/store-rejections/common-rejection/in-app-purchases) for the full policy and rejection language.
 
   Stripe Payment is for physical goods and real-world services that are delivered or consumed outside the app. This is the same category Apple permits in section 3.1.3 of the App Review Guidelines and Google permits in the Play Store payments policy. Apps like Amazon (physical products), Uber (rides), DoorDash (food delivery), and Angie's List (service marketplace) all fall under this allowance. The rule of thumb: if what the user buys arrives at a doorstep, is performed by a human, or is fulfilled outside the app, Stripe is allowed. If it unlocks anything inside the app, use RevenueCat instead.
-</Warning>
+</Danger>
 
 <Info>
   Your backend creates the Payment Intent with your Stripe secret key and returns the client secret to the page. Amount, currency, customer, allowed payment methods, Stripe Connect routing, and metadata are all decided server-side. The web app only passes the publishable key and the client secret into the native action.
@@ -132,7 +132,7 @@ async function pay() {
 }
 ```
 
-The action is `stripe://payment`. The two required params are `publishable_key` (`pk_live_xxx` or `pk_test_xxx`) and `payment_intent_client_secret` (the full `pi_..._secret_...` string from the Payment Intent, not the bare `pi_...` id). Four optional styling params (`theme`, `accent_color`, `corner_radius`, `action_corner_radius`) control the sheet's appearance and are covered in the next section. Do not fire a second `stripe://payment` while one sheet is open.
+The action is `stripe://payment`. The two required params are `publishable_key` (`pk_live_xxx` or `pk_test_xxx`) and `payment_intent_client_secret` (the full `pi_..._secret_...` string from the Payment Intent, not the bare `pi_...` id). Four optional styling params (`theme`, `accent_color`, `corner_radius`, `action_corner_radius`) control the sheet's appearance and are covered in the Styling section. An optional saved-card pair (`customer_id`, `ephemeral_key_secret`) attaches the Stripe customer so the sheet lists their saved cards and saves the new one, covered in [Saved cards on payment](#saved-cards-on-payment). Do not fire a second `stripe://payment` while one sheet is open.
 
 ---
 
@@ -142,7 +142,7 @@ The Payment Sheet accepts two optional query params that control its appearance:
 
 ### Theme
 
-The `theme` param controls the sheet's color scheme. Accepted values are `light`, `dark`, and `automatic`. Case is ignored, so `Dark` and `DARK` resolve the same way. Anything else (a typo, an empty value, or omitting the param) falls back to `automatic`, which follows the device's system light/dark setting.
+The `theme` param controls the sheet's color scheme. Accepted values are `light`, `dark`, and `automatic`. Anything else (a typo, an empty value, or omitting the param) falls back to `automatic`, which follows the device's system light/dark setting.
 
 ```javascript
 if (isDespia) {
@@ -242,7 +242,7 @@ The Despia runtime fires `window.stripeEvent` exactly once per `despia('stripe:/
 { "method": "paymentSheet", "status": "failed", "error": "The payment intent client secret is invalid." }
 ```
 
-The literal string `"missing param"` is the only stable matchable error value, returned when `publishable_key` or `payment_intent_client_secret` is missing or empty. Every other failure (bad client secret, test and live mode mismatch, network failure, terminal decline) returns Stripe's localized SDK message. Log or display these messages, but never branch on their contents since they are locale-dependent.
+The literal string `"missing param"` is the only stable matchable error value. It fires in two cases: when `publishable_key` or `payment_intent_client_secret` is missing or empty, and when the optional saved-card pair (`customer_id`, `ephemeral_key_secret`) is half-supplied with exactly one of the two values rather than both or neither. Every other failure (bad client secret, test and live mode mismatch, expired ephemeral key, API version mismatch, network failure, terminal decline) returns Stripe's localized SDK message. Log or display these messages, but never branch on their contents since they are locale-dependent.
 
 ```javascript
 window.stripeEvent = function (event) {
@@ -250,7 +250,7 @@ window.stripeEvent = function (event) {
 
     if (event.status === 'failed') {
         if (event.error === 'missing param') {
-            console.error('Called stripe://payment without publishable_key or client_secret')
+            console.error('Called stripe://payment with missing or half-supplied required params')
             return
         }
         console.warn('Stripe error:', event.error)
@@ -307,6 +307,75 @@ app.post('/api/create-payment-intent', async (req, res) => {
 ```
 
 Set `STRIPE_SECRET_KEY` and `STRIPE_PUBLISHABLE_KEY` to the test pair in your dev environment and the live pair in production. The web app never needs to know which is which, it just forwards whatever the server returned into the `despia('stripe://payment?...')` call.
+
+---
+
+## Saved cards on payment
+
+By default, `stripe://payment` is a guest checkout. The Payment Sheet shows a blank card form, and the card the customer enters is not saved to any Stripe customer. To let a returning customer pick a previously saved card, and to save the new one for next time, pass the optional saved-card pair on the same `stripe://payment` command: `customer_id` and `ephemeral_key_secret`. This is a different flow from `stripe://manage`, which opens a dedicated management UI without taking a payment.
+
+| Param | Description |
+| --- | --- |
+| `customer_id` | The Stripe customer (`cus_...`) the saved cards belong to. |
+| `ephemeral_key_secret` | Server-created customer ephemeral key (`ek_...`) for that customer. API-version-pinned and short-lived, about one hour. |
+
+Both values are created server-side and forwarded as parameters on the command. The native runtime makes no Stripe network call of its own.
+
+<Warning>
+  **All or nothing.** Pass both parameters to enable saved cards, or neither for guest checkout, which is the default and the original behavior. Passing exactly one is treated as a missing required param and returns `{ method: 'paymentSheet', status: 'failed', error: 'missing param' }` with no sheet shown. Existing integrations without these params continue to work unchanged as guest checkouts.
+</Warning>
+
+Add the pair to your existing Payment Intent endpoint so a single request returns everything the page needs. Pin the ephemeral key's API version to whatever your mobile SDK expects, and attach the Payment Intent to the same customer so the charge is recorded against them.
+
+```javascript
+// Your server endpoint, e.g. /api/create-payment-intent
+app.post('/api/create-payment-intent', async (req, res) => {
+    const customerId = req.user.stripeCustomerId   // however you store it
+
+    const ephemeralKey = await stripe.ephemeralKeys.create(
+        { customer: customerId },
+        { apiVersion: '2024-06-20' }               // pin to the mobile SDK version
+    )
+
+    const intent = await stripe.paymentIntents.create({
+        amount: 1999,
+        currency: 'usd',
+        customer: customerId,                       // attach to the same customer
+        automatic_payment_methods: { enabled: true }
+    })
+
+    res.json({
+        publishable_key:      process.env.STRIPE_PUBLISHABLE_KEY,
+        client_secret:        intent.client_secret,
+        customer_id:          customerId,
+        ephemeral_key_secret: ephemeralKey.secret
+    })
+})
+```
+
+On the page, destructure all four fields and forward them into the command. The existing guest-checkout call site only needs two lines added.
+
+```javascript
+async function pay() {
+    const res = await fetch('/api/create-payment-intent', { method: 'POST' })
+    const {
+        publishable_key,
+        client_secret,
+        customer_id,
+        ephemeral_key_secret
+    } = await res.json()
+
+    if (isDespia) {
+        despia(`stripe://payment?publishable_key=${publishable_key}&payment_intent_client_secret=${client_secret}&customer_id=${customer_id}&ephemeral_key_secret=${ephemeral_key_secret}`)
+    }
+}
+```
+
+<Info>
+  The Payment Intent must be created with the same `customer` id on the server, not just the ephemeral key. Without it, the saved card is reusable but the payment will not be attached to that customer for receipts, invoicing, dispute records, or revenue analytics. The customer attachment is what makes the saved card actually saveable in the first place.
+</Info>
+
+The same `Stripe-Version` pinning gotcha applies here as on `stripe://manage`. A mismatch between the ephemeral key's API version and the mobile SDK's expected version returns a `failed` event with an SDK message about the API version. Ask the mobile team for the exact version, or pin one centrally on the server and update it in lockstep with SDK upgrades.
 
 ---
 
