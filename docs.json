@@ -139,12 +139,11 @@
             ]
           }
         ]
-      },{
+      },
+      {
         "group": "Payments",
         "icon": "shield",
         "pages": []
-          }
-        ]
       },
       {
         "group": "Custom Code",
