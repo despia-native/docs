@@ -144,19 +144,20 @@
         "group": "Payments",
         "icon": "dollar-sign",
         "pages": [
-          "introduction-1",
+          "payments/introduction",
           {
             "group": "RevenueCat",
             "icon": "coins",
             "pages": [
-              "introduction-3"
+              "payments/revenuecat/introduction",
+              "payments/revenuecat/reference"
             ]
           },
           {
             "group": "Stripe",
             "icon": "money-bill-1-wave",
             "pages": [
-              "introduction-2",
+              "payments/stripe/introduction",
               "payments/stripe/payment"
             ]
           }
@@ -209,7 +210,8 @@
             "pages": [
               "native-features/revenuecat/introduction",
               "native-features/revenuecat/reference"
-            ]
+            ],
+            "hidden": true
           },
           {
             "group": "OAuth 2.0",
