@@ -190,20 +190,6 @@ window.stripeEvent = function (event) {
 
 ---
 
-## Test versus live keys
-
-A `pk_test_...` publishable key requires a test-mode client secret, and `pk_live_...` requires a live-mode secret. Mismatched modes resolve to a `failed` event with an SDK message about an invalid client secret. Resolve the right key based on your environment before firing the action.
-
-```javascript
-const publishableKey = window.location.hostname === 'localhost'
-    ? 'pk_test_xxx'
-    : 'pk_live_xxx'
-
-if (isDespia) {
-    despia(`stripe://payment?publishable_key=${publishableKey}&payment_intent_client_secret=${clientSecret}`)
-}
-```
-
 ---
 
 ## Resources
