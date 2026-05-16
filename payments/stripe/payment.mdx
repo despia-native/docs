@@ -1,10 +1,12 @@
 ---
 title: "Payment"
-icon: "credit-card"
 description: "Show the native Stripe Payment Sheet from your web app and receive the result through a single global callback."
+icon: "credit-card"
 ---
 
 Call `despia('stripe://payment?...')` to show the native Stripe Payment Sheet with a publishable key and a Payment Intent client secret. The sheet handles card entry, 3DS, Link, and any other payment methods enabled on the Payment Intent, then the Despia runtime fires `window.stripeEvent` once with the outcome.
+
+A second action, `despia('stripe://manage?...')`, opens Stripe's native CustomerSheet so signed-in customers can add, remove, and pick a default among their saved payment methods. Both actions share the same `window.stripeEvent` callback. See [Manage saved cards](#manage-saved-cards).
 
 <Warning>
   **Do not use this for digital goods inside mobile apps.** Credits, coins, in-app currency, memberships, subscriptions, premium tiers, ad removal, unlocking levels, and any virtual content consumed inside the app must use [RevenueCat](/payments/revenuecat), the store-compliant native in-app purchase path backed by Apple StoreKit and Google Play Billing. Apple and Google will reject your app on submission if you accept payment for digital goods through Stripe or any other external payment system. See [in-app purchase rejections](/store-rejections/common-rejection/in-app-purchases) for the full policy and rejection language.
@@ -130,7 +132,7 @@ async function pay() {
 }
 ```
 
-The action is `stripe://payment`. The two required params are `publishable_key` (`pk_live_xxx` or `pk_test_xxx`) and `payment_intent_client_secret` (the full `pi_..._secret_...` string from the Payment Intent, not the bare `pi_...` id). Two optional params, `theme` and `accent_color`, control the sheet's appearance and are covered in the next section. Do not fire a second `stripe://payment` while one sheet is open.
+The action is `stripe://payment`. The two required params are `publishable_key` (`pk_live_xxx` or `pk_test_xxx`) and `payment_intent_client_secret` (the full `pi_..._secret_...` string from the Payment Intent, not the bare `pi_...` id). Four optional styling params (`theme`, `accent_color`, `corner_radius`, `action_corner_radius`) control the sheet's appearance and are covered in the next section. Do not fire a second `stripe://payment` while one sheet is open.
 
 ---
 
@@ -160,12 +162,12 @@ The `accent_color` param sets the color of the primary Pay button and the sheet'
 | 3-digit shorthand | `F0A` | expands to `FF00AA` |
 | 8-digit with alpha | `1A73E8CC` | `RRGGBBAA`, last byte is opacity |
 | With `#` prefix | `#1A73E8` | works but see below |
-| URL-encoded `#` | `%231A73E8` | output of `encodeURIComponent('#1A73E8')` |
+| Percent-encoded `#` | `%231A73E8` | output of `encodeURIComponent('#1A73E8')` |
 
 Hex digits are case-insensitive. All five forms above resolve to the same color when the underlying hex matches.
 
 <Info>
-  **Drop the `#`.** A literal `#` in a URL is the fragment delimiter. The Despia runtime tolerates a raw `#` in any position, but omitting it (or URL-encoding it as `%23`) is the portable habit and keeps the URL unambiguous if you ever log it, parse it, or copy it into another system.
+  **Drop the `#`.** In a `stripe://` command, a literal `#` would normally be treated as a fragment delimiter, which truncates everything that follows. The Despia runtime tolerates a raw `#` in any position of a native feature command, but omitting it (or percent-encoding it as `%23`) is the portable habit and keeps the command string unambiguous if you ever log it, parse it, or copy it into another system.
 </Info>
 
 ```javascript
@@ -176,15 +178,49 @@ if (isDespia) {
 
 Invalid color values (`accent_color=blue`, `accent_color=zzz`, an empty string) are silently ignored. The sheet renders with Stripe's default styling and the payment still completes normally, no `failed` event is emitted. Guard against typos by validating the hex on the page before firing the action, since the runtime will not surface the mistake.
 
-### Combining theme and accent color
+### Corner radius
 
-The two params are independent. Use either, both, or neither.
+The `corner_radius` param sets the general corner radius applied to the sheet's input fields and buttons together, including the secondary back button. The value is a non-negative number of points, with no units and no `#` prefix.
 
 ```javascript
 if (isDespia) {
-    despia(`stripe://payment?publishable_key=${publishable_key}&payment_intent_client_secret=${client_secret}&theme=dark&accent_color=1A73E8`)
+    despia(`stripe://payment?publishable_key=${publishable_key}&payment_intent_client_secret=${client_secret}&corner_radius=8`)
 }
 ```
+
+Decimal values are accepted, so `corner_radius=12.5` is valid. Invalid, negative, or non-finite values (`corner_radius=round`, `corner_radius=-4`, an empty string) are silently ignored and the sheet renders with Stripe's default corner radius.
+
+### Action corner radius
+
+The `action_corner_radius` param overrides the corner radius of the primary Pay button independently of the general radius. Same format as `corner_radius`: a non-negative number of points.
+
+The inheritance rules are the most useful part:
+
+- **Only `corner_radius` set.** Inputs and the Pay button both use it. The Pay button inherits automatically, you do not need to set `action_corner_radius` at all.
+- **Both set.** Everything uses `corner_radius` except the Pay button, which uses `action_corner_radius` as an independent override.
+- **Only `action_corner_radius` set.** Just the Pay button is rounded, the rest of the sheet stays at Stripe's default.
+
+```javascript
+// Everything at radius 8, Pay button as a pill at 24
+despia(`stripe://payment?publishable_key=${pk}&payment_intent_client_secret=${cs}&corner_radius=8&action_corner_radius=24`)
+
+// Everything (including the Pay button) at radius 12
+despia(`stripe://payment?publishable_key=${pk}&payment_intent_client_secret=${cs}&corner_radius=12`)
+```
+
+Invalid `action_corner_radius` values fall back to inheriting from `corner_radius` (or to Stripe's default if neither is set). No `failed` event is emitted for a bad value.
+
+### Combining styling options
+
+All four styling params are independent and may be combined freely. Use any subset, or omit them all for Stripe's default appearance.
+
+```javascript
+if (isDespia) {
+    despia(`stripe://payment?publishable_key=${publishable_key}&payment_intent_client_secret=${client_secret}&theme=dark&accent_color=1A73E8&corner_radius=8&action_corner_radius=24`)
+}
+```
+
+The same four params apply identically to the `stripe://manage` action covered below.
 
 ---
 
@@ -271,6 +307,113 @@ app.post('/api/create-payment-intent', async (req, res) => {
 ```
 
 Set `STRIPE_SECRET_KEY` and `STRIPE_PUBLISHABLE_KEY` to the test pair in your dev environment and the live pair in production. The web app never needs to know which is which, it just forwards whatever the server returned into the `despia('stripe://payment?...')` call.
+
+---
+
+## Manage saved cards
+
+Call `despia('stripe://manage?...')` to open Stripe's native CustomerSheet. The signed-in customer can add new cards, remove existing ones, and pick which card is their default. Use this for a "Payment methods" or "Wallet" screen, and only on screens where Stripe is the actual payment rail.
+
+<Warning>
+  This manages Stripe-stored cards only, used for direct Stripe charges. App Store and Google Play subscriptions managed through [RevenueCat](/payments/revenuecat) are not shown or controlled here. Surface "Manage cards" only where Stripe is the rail, never as a generic billing entry point, or users will expect to manage their subscription here and find it missing.
+</Warning>
+
+### Backend setup
+
+For the signed-in customer, your server must produce three values and return them to the page:
+
+1. The Stripe customer id (`cus_...`).
+2. An **ephemeral key** for that customer, created with the Stripe API version your mobile SDK expects. Returns `ephemeral_key_secret` (`ek_...`). The key is short-lived (about an hour), so generate it on demand right before opening the sheet, not at app start.
+3. (Recommended) A **SetupIntent** for that customer. Returns `client_secret` (`seti_..._secret_...`). Without it, the sheet still lists and selects existing cards but the customer cannot add a new one.
+
+```bash
+# 1. Ephemeral key (API version must match the mobile SDK)
+curl https://api.stripe.com/v1/ephemeral_keys \
+  -u "sk_live_xxx:" \
+  -H "Stripe-Version: 2024-06-20" \
+  -d customer=cus_xxx
+
+# 2. SetupIntent for adding a new card
+curl https://api.stripe.com/v1/setup_intents \
+  -u "sk_live_xxx:" \
+  -d customer=cus_xxx \
+  -d "automatic_payment_methods[enabled]=true"
+```
+
+The web app forwards these secrets as parameters on the `stripe://manage` command. The native runtime makes no Stripe network calls of its own. See the [Ephemeral Keys API reference](https://docs.stripe.com/api/ephemeral_keys/create) and the [SetupIntents API reference](https://docs.stripe.com/api/setup_intents) for the full parameter list.
+
+<Warning>
+  The ephemeral key must be created with the exact `Stripe-Version` header your mobile SDK expects. A mismatch fails the sheet with an SDK error. Ask the mobile team for the pinned version, or pin one centrally on your server and update it in lockstep with SDK upgrades.
+</Warning>
+
+### How it works
+
+Same fire-and-listen pattern as the payment action. Both share `window.stripeEvent`, so route on `event.method`: `paymentSheet` for charges, `customerSheet` for card management.
+
+```javascript
+import despia from 'despia-native'
+
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+window.stripeEvent = function (event) {
+    if (event.method === 'customerSheet') {
+        if (event.status === 'selected') {
+            // Customer confirmed a card selection, possibly a newly added one.
+            // Refresh saved cards from your backend if you display them.
+        } else if (event.status === 'canceled') {
+            // Customer closed the sheet without confirming.
+        } else if (event.status === 'failed') {
+            console.warn('CustomerSheet error:', event.error)
+        }
+    }
+}
+
+async function manageCards() {
+    const res = await fetch('/api/stripe/customer-sheet-setup', { method: 'POST' })
+    const {
+        publishable_key,
+        customer_id,
+        ephemeral_key_secret,
+        setup_intent_client_secret
+    } = await res.json()
+
+    if (isDespia) {
+        despia(`stripe://manage?publishable_key=${publishable_key}&customer_id=${customer_id}&ephemeral_key_secret=${ephemeral_key_secret}&setup_intent_client_secret=${setup_intent_client_secret}`)
+    }
+}
+```
+
+### Parameters
+
+| Param | Required | Notes |
+| --- | --- | --- |
+| `publishable_key` | Yes | `pk_live_xxx` or `pk_test_xxx`. Must match the mode of the ephemeral key. |
+| `customer_id` | Yes | The Stripe customer (`cus_...`). |
+| `ephemeral_key_secret` | Yes | From your server (`ek_...`). API-version-pinned and short-lived. |
+| `setup_intent_client_secret` | No | From your server (`seti_..._secret_...`). Omit to disable the "add card" flow. |
+| `theme`, `accent_color`, `corner_radius`, `action_corner_radius` | No | Same styling as the `payment` action. |
+
+Missing or empty `publishable_key`, `customer_id`, or `ephemeral_key_secret` returns `{ method: 'customerSheet', status: 'failed', error: 'missing param' }` and the sheet is not shown.
+
+### CustomerSheet result events
+
+The shape mirrors PaymentSheet, with `method: 'customerSheet'` and a different status set. There is no `completed` status, since managing cards is not a payment, and no `selected` status on `paymentSheet` either, so a strict `method` check is enough to route correctly.
+
+```javascript
+// status: 'selected'
+{ "method": "customerSheet", "status": "selected" }
+
+// status: 'canceled'
+{ "method": "customerSheet", "status": "canceled" }
+
+// status: 'failed' (validation, sheet never shown)
+{ "method": "customerSheet", "status": "failed", "error": "missing param" }
+
+// status: 'failed' (Stripe SDK error)
+{ "method": "customerSheet", "status": "failed", "error": "The ephemeral key has expired." }
+```
+
+The `selected` event fires when the customer confirms a card selection, including immediately after adding a new card via the SetupIntent flow. The chosen card's id, brand, and last four digits are intentionally not included in the event. Read the customer's saved methods from your backend if you need to display the current default.
 
 ---
 
