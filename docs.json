@@ -137,6 +137,16 @@
               "authentication/clerk/backend",
               "authentication/clerk/account"
             ]
+          },
+          {
+            "group": "Payments",
+            "icon": {
+              "name": "credit-card",
+              "library": "fontawesome"
+            },
+            "pages": [
+              "authentication/payments/test"
+            ]
           }
         ]
       },
@@ -440,5 +450,8 @@
   },
   "background": {
     "decoration": "grid"
+  },
+  "seo": {
+    "indexing": "all"
   }
 }
