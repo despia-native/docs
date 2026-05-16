@@ -140,10 +140,7 @@
           },
           {
             "group": "Payments",
-            "icon": {
-              "name": "credit-card",
-              "library": "fontawesome"
-            },
+            "icon": "credit-card",
             "pages": [
               "authentication/payments/test"
             ]
