@@ -6,9 +6,9 @@ description: "App Store and Google Play billing via RevenueCat, plus Stripe for 
 
 Despia offers two payment integrations because Apple and Google require different rails for different kinds of purchases. This is not a preference between competing tools, it is platform policy. Pick the right one based on what the customer is actually buying.
 
-<Info>
+<Note>
   Both integrations use the same `despia-native` SDK, the same `navigator.userAgent.toLowerCase().includes('despia')` detection, and the same fire-and-listen callback pattern. The only thing that changes is which scheme you fire and which callback you listen for. Many apps end up using both, scoped to their respective categories.
-</Info>
+</Note>
 
 ---
 
