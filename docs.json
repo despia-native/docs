@@ -137,13 +137,12 @@
               "authentication/clerk/backend",
               "authentication/clerk/account"
             ]
-          },
-          {
-            "group": "Payments",
-            "icon": "credit-card",
-            "pages": [
-              "authentication/payments/test"
-            ]
+          }
+        ]
+      },{
+        "group": "Payments",
+        "icon": "shield",
+        "pages": []
           }
         ]
       },
