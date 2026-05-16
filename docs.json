@@ -142,8 +142,25 @@
       },
       {
         "group": "Payments",
-        "icon": "shield",
-        "pages": []
+        "icon": "dollar-sign",
+        "pages": [
+          "introduction-1",
+          {
+            "group": "RevenueCat",
+            "icon": "coins",
+            "pages": [
+              "introduction-3"
+            ]
+          },
+          {
+            "group": "Stripe",
+            "icon": "money-bill-1-wave",
+            "pages": [
+              "introduction-2",
+              "payment"
+            ]
+          }
+        ]
       },
       {
         "group": "Custom Code",
