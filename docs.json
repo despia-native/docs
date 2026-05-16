@@ -157,7 +157,7 @@
             "icon": "money-bill-1-wave",
             "pages": [
               "introduction-2",
-              "payment"
+              "payments/stripe/payment"
             ]
           }
         ]

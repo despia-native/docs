@@ -4,6 +4,31 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="May 16, 2026" description="Stripe Payment - native Payment Sheet integration">
+  ## Stripe Payment Sheet
+
+  Native Stripe Payment Sheet integration is now available through the `stripe://payment` URL scheme. Apps can charge cards, Apple Pay, Google Pay, Link, and any other payment method enabled on the Payment Intent without leaving the web app or building a native wrapper.
+
+  The integration is a single fire-and-listen call. Your backend creates the Payment Intent with your Stripe secret key, your page passes the resulting client secret and publishable key into `despia('stripe://payment?...')`, and the Despia runtime fires `window.stripeEvent` once with the outcome.
+
+  **What ships today:**
+
+  - **Native Payment Sheet.** Calling `despia('stripe://payment?publishable_key=...&payment_intent_client_secret=...')` opens the native Stripe sheet on top of the WebView. The sheet handles card entry, 3DS, Apple Pay, Google Pay, Link, and any other method enabled on the Payment Intent.
+  - **Server-driven flow.** Amount, currency, customer, allowed payment methods, Stripe Connect routing, and metadata are all decided server-side when your backend creates the Payment Intent. The web app only forwards the publishable key and the resulting client secret to the native action.
+  - **Single result callback.** Define `window.stripeEvent` once at page load. The Despia runtime fires it exactly once per call with `{ method: 'paymentSheet', status: 'completed' | 'canceled' | 'failed', error? }`. There are no intermediate progress events, so branch on `status` and reconcile `completed` through your backend webhook before fulfilling the order.
+  - **Theme and accent color styling.** Optional `theme=light|dark|automatic` and `accent_color=<hex>` query params control the sheet's color scheme and the primary Pay button color. Both are independent, both safe to omit, and invalid color values fall back to default styling silently.
+  - **Stable error contract.** A missing `publishable_key` or `payment_intent_client_secret` returns the literal error string `missing param`, which is safe to match on. All other failures return Stripe's localized SDK message, which should be logged or displayed but never branched on, since it is locale-dependent.
+  - **iOS and Android parity.** The same `stripe://payment` URL works identically on both platforms with no fork in your web code.
+
+  Stripe Payment is for physical goods and real-world services such as marketplaces, delivery, ride-hailing, and bookings. Digital goods (credits, coins, subscriptions, memberships, premium tiers, ad removal) must continue to use [RevenueCat](/native-features/revenuecat/introduction), the store-compliant native in-app purchase path backed by Apple StoreKit and Google Play Billing. Apple and Google reject apps that accept payment for digital goods through Stripe or any other external payment system.
+
+  Documentation: [Stripe Payment](/payments/stripe/payment).
+
+  **Packages:** [despia-native](https://www.npmjs.com/package/despia-native).
+
+  Rebuild your app from the Despia dashboard to receive the new native bridge. No dashboard toggle is required to enable the feature. To integrate on the web side, create a Payment Intent endpoint on your backend that returns the client secret and publishable key, define `window.stripeEvent` on your page before firing the action, and call `despia('stripe://payment?...')` with the values your endpoint returns.
+</Update>
+
 <Update label="May 15, 2026" description="Clerk Auth - native iOS and Android authentication bridge">
   ## Clerk Auth for Despia
 

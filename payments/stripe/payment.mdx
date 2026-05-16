@@ -7,7 +7,7 @@ description: "Show the native Stripe Payment Sheet from your web app and receive
 Call `despia('stripe://payment?...')` to show the native Stripe Payment Sheet with a publishable key and a Payment Intent client secret. The sheet handles card entry, 3DS, Link, and any other payment methods enabled on the Payment Intent, then the Despia runtime fires `window.stripeEvent` once with the outcome.
 
 <Warning>
-  **Do not use this for digital goods inside mobile apps.** Credits, coins, in-app currency, memberships, subscriptions, premium tiers, ad removal, unlocking levels, and any virtual content consumed inside the app must use Apple In-App Purchase and Google Play Billing through [RevenueCat](/native-features/revenuecat/reference). Apple and Google will reject your app on submission if you accept payment for digital goods through Stripe or any other external payment system. See [in-app purchase rejections](/store-rejections/common-rejection/in-app-purchases) for the full policy and rejection language.
+  **Do not use this for digital goods inside mobile apps.** Credits, coins, in-app currency, memberships, subscriptions, premium tiers, ad removal, unlocking levels, and any virtual content consumed inside the app must use [RevenueCat](/payments/revenuecat), the store-compliant native in-app purchase path backed by Apple StoreKit and Google Play Billing. Apple and Google will reject your app on submission if you accept payment for digital goods through Stripe or any other external payment system. See [in-app purchase rejections](/store-rejections/common-rejection/in-app-purchases) for the full policy and rejection language.
 
   Stripe Payment is for physical goods and real-world services that are delivered or consumed outside the app. This is the same category Apple permits in section 3.1.3 of the App Review Guidelines and Google permits in the Play Store payments policy. Apps like Amazon (physical products), Uber (rides), DoorDash (food delivery), and Angie's List (service marketplace) all fall under this allowance. The rule of thumb: if what the user buys arrives at a doorstep, is performed by a human, or is fulfilled outside the app, Stripe is allowed. If it unlocks anything inside the app, use RevenueCat instead.
 </Warning>
@@ -91,7 +91,7 @@ A successful call returns the Payment Intent object as JSON:
 }
 ```
 
-The only field your web app needs is `client_secret`. Return it from your endpoint and pass it into the `despia('stripe://payment?...')` call. `id` and `status` stay server-side for webhook reconciliation, the `client_secret` already encodes the ID so the page never needs the bare `pi_...` value. `status` starts as `requires_payment_method` and transitions to `succeeded` once the sheet completes and the payment captures.
+Your server should return two fields to the page: `client_secret` from this response, and your matching `publishable_key` from your environment variables. Returning both together guarantees the keys never cross modes, since the server is the only place that knows for sure whether it is running with `sk_test_...` or `sk_live_...` (see [Test versus live keys](#test-versus-live-keys) below). `id` and `status` stay server-side for webhook reconciliation, the `client_secret` already encodes the ID so the page never needs the bare `pi_...` value. `status` starts as `requires_payment_method` and transitions to `succeeded` once the sheet completes and the payment captures.
 
 For the full parameter list, lifecycle, and error codes, see the [Payment Intents API reference](https://docs.stripe.com/api/payment_intents), the [Create a Payment Intent endpoint](https://docs.stripe.com/api/payment_intents/create), and the [Payment Intents guide](https://docs.stripe.com/payments/payment-intents).
 
@@ -122,17 +122,69 @@ window.stripeEvent = function (event) {
 
 async function pay() {
     const res = await fetch('/api/create-payment-intent', { method: 'POST' })
-    const { client_secret } = await res.json()
-
-    const publishableKey = 'pk_live_xxx'
+    const { client_secret, publishable_key } = await res.json()
 
     if (isDespia) {
-        despia(`stripe://payment?publishable_key=${publishableKey}&payment_intent_client_secret=${client_secret}`)
+        despia(`stripe://payment?publishable_key=${publishable_key}&payment_intent_client_secret=${client_secret}`)
     }
 }
 ```
 
-The action is `stripe://payment`. The two required params are `publishable_key` (`pk_live_xxx` or `pk_test_xxx`) and `payment_intent_client_secret` (the full `pi_..._secret_...` string from the Payment Intent, not the bare `pi_...` id). Do not fire a second `stripe://payment` while one sheet is open.
+The action is `stripe://payment`. The two required params are `publishable_key` (`pk_live_xxx` or `pk_test_xxx`) and `payment_intent_client_secret` (the full `pi_..._secret_...` string from the Payment Intent, not the bare `pi_...` id). Two optional params, `theme` and `accent_color`, control the sheet's appearance and are covered in the next section. Do not fire a second `stripe://payment` while one sheet is open.
+
+---
+
+## Styling
+
+The Payment Sheet accepts two optional query params that control its appearance: `theme` and `accent_color`. Both are independent, both are safe to omit if Stripe's default styling is fine.
+
+### Theme
+
+The `theme` param controls the sheet's color scheme. Accepted values are `light`, `dark`, and `automatic`. Case is ignored, so `Dark` and `DARK` resolve the same way. Anything else (a typo, an empty value, or omitting the param) falls back to `automatic`, which follows the device's system light/dark setting.
+
+```javascript
+if (isDespia) {
+    despia(`stripe://payment?publishable_key=${publishable_key}&payment_intent_client_secret=${client_secret}&theme=dark`)
+}
+```
+
+Native Stripe SDKs do not expose the named themes from Stripe.js (`stripe`, `night`, `flat`). The only theme switch available here is light, dark, or automatic.
+
+### Accent color
+
+The `accent_color` param sets the color of the primary Pay button and the sheet's primary accent (selected option highlights and similar). Use it to match your brand.
+
+| Form | Example | Notes |
+| --- | --- | --- |
+| 6-digit hex | `1A73E8` | most common, recommended |
+| 3-digit shorthand | `F0A` | expands to `FF00AA` |
+| 8-digit with alpha | `1A73E8CC` | `RRGGBBAA`, last byte is opacity |
+| With `#` prefix | `#1A73E8` | works but see below |
+| URL-encoded `#` | `%231A73E8` | output of `encodeURIComponent('#1A73E8')` |
+
+Hex digits are case-insensitive. All five forms above resolve to the same color when the underlying hex matches.
+
+<Info>
+  **Drop the `#`.** A literal `#` in a URL is the fragment delimiter. The Despia runtime tolerates a raw `#` in any position, but omitting it (or URL-encoding it as `%23`) is the portable habit and keeps the URL unambiguous if you ever log it, parse it, or copy it into another system.
+</Info>
+
+```javascript
+if (isDespia) {
+    despia(`stripe://payment?publishable_key=${publishable_key}&payment_intent_client_secret=${client_secret}&accent_color=1A73E8`)
+}
+```
+
+Invalid color values (`accent_color=blue`, `accent_color=zzz`, an empty string) are silently ignored. The sheet renders with Stripe's default styling and the payment still completes normally, no `failed` event is emitted. Guard against typos by validating the hex on the page before firing the action, since the runtime will not surface the mistake.
+
+### Combining theme and accent color
+
+The two params are independent. Use either, both, or neither.
+
+```javascript
+if (isDespia) {
+    despia(`stripe://payment?publishable_key=${publishable_key}&payment_intent_client_secret=${client_secret}&theme=dark&accent_color=1A73E8`)
+}
+```
 
 ---
 
@@ -183,12 +235,42 @@ window.stripeEvent = function (event) {
     if (event.status === 'completed') {
         // Ask your backend to read the Payment Intent status from Stripe
         // and only then unlock the purchase in your UI.
-        fetch('/api/confirm-payment?payment_intent=XXXX', { method: 'POST' })
+        fetch('/api/confirm-payment', { method: 'POST' })
     }
 }
 ```
 
 ---
+
+## Test versus live keys
+
+A `pk_test_...` publishable key requires a test-mode client secret, and `pk_live_...` requires a live-mode secret. Mismatched modes resolve to a `failed` event with an SDK message about an invalid client secret, so the keys must always match.
+
+<Warning>
+  Do not branch on `window.location.hostname` to choose the key. Despia's [local server](/local-server/introduction) serves the production web build from `http://localhost` on the device, so a `hostname === 'localhost'` shortcut classifies every production install as test mode and the Payment Sheet never succeeds in the wild. The same applies to checking `127.0.0.1` or the lack of a public domain. None of these distinguish dev from production inside a Despia app.
+</Warning>
+
+The reliable pattern is to let the server return the publishable key alongside the client secret. The server already knows which mode it is in, since it holds the secret key, so it can hand back the publishable key that pairs with it. Both keys come from the same environment, so they cannot be crossed.
+
+```javascript
+// Your server endpoint, e.g. /api/create-payment-intent
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY)
+
+app.post('/api/create-payment-intent', async (req, res) => {
+    const intent = await stripe.paymentIntents.create({
+        amount: 1999,
+        currency: 'usd',
+        automatic_payment_methods: { enabled: true }
+    })
+
+    res.json({
+        client_secret:   intent.client_secret,
+        publishable_key: process.env.STRIPE_PUBLISHABLE_KEY
+    })
+})
+```
+
+Set `STRIPE_SECRET_KEY` and `STRIPE_PUBLISHABLE_KEY` to the test pair in your dev environment and the live pair in production. The web app never needs to know which is which, it just forwards whatever the server returned into the `despia('stripe://payment?...')` call.
 
 ---
 
