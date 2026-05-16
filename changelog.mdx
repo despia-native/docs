@@ -4,6 +4,21 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="May 17, 2026" description="File viewer scheme - native preview for PDFs, images, and Office docs">
+  ## Native file preview with `fileviewer://`
+
+  A new `fileviewer://` URL scheme opens any remote file in the native OS previewer, using QuickLook on iOS and the system "Open with" chooser on Android. Files served behind your existing login work without extra token plumbing, since the download reuses the WebView's current cookies and User-Agent.
+
+  **What ships today:**
+
+  - **Single cross-platform call.** `despia('fileviewer://?src=<url>')` works identically on iOS and Android, with the same encoding rules and the same fire-and-forget contract.
+  - **Authenticated downloads.** The native fetch forwards the WebView's cookie jar and User-Agent automatically, so session-protected file URLs render without query-string tokens or custom headers.
+  - **Broad type coverage.** PDFs, images (PNG, JPG, HEIC), plain text, RTF, CSV, and Office documents (DOCX, XLSX, PPTX) are supported. The file extension is taken from the URL path, with a fallback to the response `Content-Type`.
+  - See the [File Viewer documentation](/native-features/file-viewer) for the full API contract, the CDN-only URL requirement, and the upload-first pattern for canvas-exported or generated files.
+
+  Rebuild your app to pick up the new scheme handler. No dashboard configuration changes or integration code changes are required.
+</Update>
+
 <Update label="May 16, 2026" description="Stripe Payment - PaymentSheet and CustomerSheet integration">
   ## Stripe Payment
 
