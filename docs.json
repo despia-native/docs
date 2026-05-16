@@ -262,6 +262,7 @@
           "native-features/camera-roll",
           "native-features/offline-push",
           "native-features/app-settings",
+          "native-features/file-viewer",
           "native-features/home-widgets",
           "native-features/file-sharing",
           "native-features/focus-events",

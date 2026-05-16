@@ -1,0 +1,144 @@
+---
+title: "File Viewer"
+description: "Opens any remote file in the native OS previewer, supporting PDFs, images, Office documents, and more."
+icon: "file-magnifying-glass"
+---
+
+Opens a remote file in the native OS previewer. Works on iOS through QuickLook and on Android through the system "Open with" chooser. The download reuses the current web session's cookies and user agent, so files behind the same login work without extra auth.
+
+---
+
+## Installation
+
+<Tabs>
+  <Tab title="Bundle">
+    <CodeGroup>
+
+    ```bash npm
+    npm install despia-native
+    ```
+
+    ```bash pnpm
+    pnpm add despia-native
+    ```
+
+    ```bash yarn
+    yarn add despia-native
+    ```
+
+    </CodeGroup>
+
+    ```javascript
+    import despia from 'despia-native';
+    ```
+  </Tab>
+  <Tab title="CDN">
+    <CodeGroup>
+
+    ```html UMD
+    <script src="https://cdn.jsdelivr.net/npm/despia-native/index.min.js"></script>
+    ```
+
+    ```html ESM
+    <script type="module">
+        import despia from 'https://cdn.jsdelivr.net/npm/despia-native/+esm'
+    </script>
+    ```
+
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+---
+
+## How it works
+
+The native side intercepts the navigation to `fileviewer://`, cancels it so the page never leaves, downloads `src` off the main thread using the WebView's current cookies and User-Agent, resolves the file type from the URL extension (falling back to the response `Content-Type`), and hands the file to the OS viewer. Always pass the URL through `encodeURIComponent` so the scheme separator, slashes, and any query characters survive transit.
+
+```javascript
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+if (isDespia) {
+    const src = encodeURIComponent('https://example.com/report.pdf')
+    despia(`fileviewer://?src=${src}`)
+}
+```
+
+This is fire-and-forget. There is no JS callback for success or failure. Native errors (missing `src`, non-2xx response, no installed app for the file type) surface as a toast or log on the device, never as a JS event.
+
+---
+
+## Supported file types
+
+The viewer renders PDFs, images (PNG, JPG, HEIC), plain text, RTF, CSV, and Office documents (DOCX, XLSX, PPTX). On iOS the previewer is QuickLook, which handles all of these natively. On Android the OS routes the file to whichever installed app handles its MIME type, so render fidelity depends on the user's device. For best results, serve a correct `Content-Type` header or use a URL that ends in the real file extension.
+
+---
+
+## Preview helper
+
+A small wrapper centralizes the encoding and the platform gate, so an unencoded `src` cannot leak through by accident and the call is a no-op outside the native runtime.
+
+```javascript
+function previewFile(url) {
+    if (!isDespia) return
+    despia(`fileviewer://?src=${encodeURIComponent(url)}`)
+}
+
+previewFile('https://example.com/report.docx')
+previewFile('https://example.com/cdn163773.pdf')
+```
+
+---
+
+## Authenticated downloads
+
+Because the native fetch carries the WebView's existing cookie jar and User-Agent, files served behind your existing login work without any extra token plumbing. Log the user in through the web app first and protected file URLs download fine, no query-string tokens or custom headers needed.
+
+```javascript
+const internalUrl = 'https://app.example.com/users/me/invoices/2026-04.pdf'
+
+if (isDespia) {
+    despia(`fileviewer://?src=${encodeURIComponent(internalUrl)}`)
+}
+```
+
+---
+
+## Generated or canvas-exported files
+
+<Warning>
+  The `src` must be a publicly fetchable HTTPS URL. `data:` URLs, `blob:` URLs, and local `file://` paths are rejected by the runtime, since the native side performs a real network fetch. Upload generated content to a CDN (or your own authenticated endpoint) first and pass the resulting HTTPS URL.
+</Warning>
+
+If your app produces a file on the client, a canvas export, a generated PDF, a CSV built from in-memory data, upload it first and then pass the returned URL to the scheme.
+
+```javascript
+async function previewGeneratedPdf(blob) {
+    const form = new FormData()
+    form.append('file', blob, 'report.pdf')
+
+    const res = await fetch('https://your-api.example.com/upload', {
+        method: 'POST',
+        body: form,
+    })
+    const { url } = await res.json()
+
+    if (isDespia) {
+        despia(`fileviewer://?src=${encodeURIComponent(url)}`)
+    }
+}
+```
+
+---
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card title="NPM Package" icon="npm" href="https://www.npmjs.com/package/despia-native">
+    despia-native
+  </Card>
+
+  <Card title="Support" icon="envelope" href="mailto:support@despia.com">
+    [support@despia.com](mailto:support@despia.com)
+  </Card>
+</CardGroup>
