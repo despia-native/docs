@@ -208,7 +208,8 @@
             "icon": "nfc-symbol",
             "pages": []
           }
-        ]
+        ],
+        "hidden": true
       },
       {
         "group": "Native Features",
