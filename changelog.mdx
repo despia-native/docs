@@ -4,17 +4,21 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
-<Update label="May 17, 2026" description="File viewer scheme - native preview for PDFs, images, and Office docs">
+<Update label="May 16, 2026" description="File viewer scheme - native preview with custom Android engine">
   ## Native file preview with `fileviewer://`
 
-  A new `fileviewer://` URL scheme opens any remote file in the native OS previewer, using QuickLook on iOS and the system "Open with" chooser on Android. Files served behind your existing login work without extra token plumbing, since the download reuses the WebView's current cookies and User-Agent.
+  A new `fileviewer://` URL scheme opens any remote file in a native previewer on both platforms: QuickLook on iOS, and Despia's own in-app file viewer on Android. Files served behind your existing login work without extra token plumbing, since the download reuses the WebView's current cookies and User-Agent.
 
   **What ships today:**
 
-  - **Single cross-platform call.** `despia('fileviewer://?src=<url>')` works identically on iOS and Android, with the same encoding rules and the same fire-and-forget contract.
+  - **Custom Android previewer.** Android uses Despia's own in-app file preview engine, not the system "Open with" chooser. This removes the dependency on whichever third-party file viewer the user happens to have installed and delivers render fidelity on par with QuickLook on iOS. Comparable commercial Android file viewer SDKs are typically licensed at \$1,500 or more per project, and this is included in Despia at no additional cost.
+  - **True cross-platform parity.** The same `fileviewer://` call renders identically on iOS and Android. Your users see consistent output regardless of device, OS version, or what apps they have installed.
   - **Authenticated downloads.** The native fetch forwards the WebView's cookie jar and User-Agent automatically, so session-protected file URLs render without query-string tokens or custom headers.
   - **Broad type coverage.** PDFs, images (PNG, JPG, HEIC), plain text, RTF, CSV, and Office documents (DOCX, XLSX, PPTX) are supported. The file extension is taken from the URL path, with a fallback to the response `Content-Type`.
-  - See the [File Viewer documentation](/native-features/file-viewer) for the full API contract, the CDN-only URL requirement, and the upload-first pattern for canvas-exported or generated files.
+  - **Optional theme parameter.** Pass `theme=light` or `theme=dark` alongside `src` to match the native previewer to your app's current appearance. Defaults to the system appearance when omitted.
+  - **Same interception model as other in-app schemes.** Matches the navigation-hook pattern used by `printitem://` and `savethisimage://`, so no web-side setup is required beyond calling the scheme.
+
+  See the [File Viewer documentation](/native-features/file-viewer) for the full API contract, the CDN-only URL requirement, and the upload-first pattern for canvas-exported or generated files.
 
   Rebuild your app to pick up the new scheme handler. No dashboard configuration changes or integration code changes are required.
 </Update>

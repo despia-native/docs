@@ -1,10 +1,10 @@
 ---
 title: "File Viewer"
-description: "Opens any remote file in the native OS previewer, supporting PDFs, images, Office documents, and more."
+description: "Opens any remote file in a native previewer on both iOS and Android, with consistent render fidelity across devices."
 icon: "file-magnifying-glass"
 ---
 
-Opens a remote file in the native OS previewer. Works on iOS through QuickLook and on Android through the system "Open with" chooser. The download reuses the current web session's cookies and user agent, so files behind the same login work without extra auth.
+Opens a remote file in a native previewer. iOS uses QuickLook; Android uses Despia's own in-app file viewer, built to match QuickLook's render fidelity so output stays consistent across platforms without depending on whichever third-party file viewer the user has installed. The download reuses the current web session's cookies and user agent, so files behind the same login work without extra auth.
 
 ---
 
@@ -53,7 +53,7 @@ Opens a remote file in the native OS previewer. Works on iOS through QuickLook a
 
 ## How it works
 
-The native side intercepts the navigation to `fileviewer://`, cancels it so the page never leaves, downloads `src` off the main thread using the WebView's current cookies and User-Agent, resolves the file type from the URL extension (falling back to the response `Content-Type`), and hands the file to the OS viewer. Always pass the URL through `encodeURIComponent` so the scheme separator, slashes, and any query characters survive transit.
+The native side intercepts the navigation to `fileviewer://`, cancels it so the page never leaves, downloads `src` off the main thread using the WebView's current cookies and User-Agent, resolves the file type from the URL extension (falling back to the response `Content-Type`), and hands the file to the native previewer: QuickLook on iOS, or Despia's in-app file viewer on Android. Always pass the URL through `encodeURIComponent` so the scheme separator, slashes, and any query characters survive transit.
 
 ```javascript
 const isDespia = navigator.userAgent.toLowerCase().includes('despia')
@@ -64,13 +64,22 @@ if (isDespia) {
 }
 ```
 
-This is fire-and-forget. There is no JS callback for success or failure. Native errors (missing `src`, non-2xx response, no installed app for the file type) surface as a toast or log on the device, never as a JS event.
+This is fire-and-forget. There is no JS callback for success or failure. Native errors (missing `src`, non-2xx response, unsupported file type) surface as a toast or log on the device, never as a JS event.
+
+---
+
+## Parameters
+
+| Parameter | Required | Description |
+| --- | --- | --- |
+| `src` | Yes | Absolute HTTPS URL of the file to preview. Must be passed through `encodeURIComponent`. |
+| `theme` | No | Appearance of the native previewer. Accepts `light` or `dark`. Defaults to the system appearance when omitted. |
 
 ---
 
 ## Supported file types
 
-The viewer renders PDFs, images (PNG, JPG, HEIC), plain text, RTF, CSV, and Office documents (DOCX, XLSX, PPTX). On iOS the previewer is QuickLook, which handles all of these natively. On Android the OS routes the file to whichever installed app handles its MIME type, so render fidelity depends on the user's device. For best results, serve a correct `Content-Type` header or use a URL that ends in the real file extension.
+The previewer renders PDFs, images (PNG, JPG, HEIC), plain text, RTF, CSV, and Office documents (DOCX, XLSX, PPTX). On iOS this is handled by QuickLook; on Android by Despia's in-app file viewer. Because both engines render the file directly, output is consistent across platforms regardless of what apps the user has installed. The file extension is taken from the URL path; if the URL has no extension, the runtime falls back to the response `Content-Type`. For best results, serve a correct `Content-Type` header or use a URL that ends in the real file extension.
 
 ---
 
@@ -87,6 +96,27 @@ function previewFile(url) {
 previewFile('https://example.com/report.docx')
 previewFile('https://example.com/cdn163773.pdf')
 ```
+
+---
+
+## Matching the previewer to your app's theme
+
+Pass `theme=light` or `theme=dark` to override the system appearance for the preview UI. This is useful when your app overrides the OS appearance internally and you want the previewer to follow your app's setting instead of the device default.
+
+```javascript
+function previewFile(url, theme) {
+    if (!isDespia) return
+    const params = new URLSearchParams({ src: url })
+    if (theme) params.set('theme', theme)
+    despia(`fileviewer://?${params.toString()}`)
+}
+
+previewFile('https://example.com/report.pdf', 'dark')
+previewFile('https://example.com/report.pdf', 'light')
+previewFile('https://example.com/report.pdf') // follows the system appearance
+```
+
+`URLSearchParams` is used here because it handles encoding for both values automatically. The previous direct-concatenation pattern still works, just remember to encode `src`.
 
 ---
 
