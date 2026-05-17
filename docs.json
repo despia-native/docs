@@ -194,8 +194,8 @@
         "icon": "database",
         "pages": [
           {
-            "group": "WebSockets",
-            "icon": "signal-stream",
+            "group": "Stream VoIP",
+            "icon": "phone-arrow-down-left",
             "pages": []
           },
           {
@@ -207,7 +207,8 @@
             "group": "NFC",
             "icon": "nfc-symbol",
             "pages": []
-          }
+          },
+          "connectivity/websockets"
         ],
         "hidden": true
       },

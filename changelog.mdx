@@ -4,6 +4,35 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="May 17, 2026" description="Native WebSocket - durable delivery on iOS and Android">
+  ## Native WebSocket
+
+  Despia now ships a native WebSocket bridge for iOS and Android, driven entirely from JavaScript over a `websocket://` URL scheme. Apps that need a WebSocket to survive WebView reloads, JS suspension, app background, or full relaunch can hand the connection to the native runtime, which owns the socket on its own thread, persists every inbound message to disk before reaching the handler, and durably queues outbound sends while offline.
+
+  The same `websocket://` URLs, event payloads, and command surface work identically on iOS and Android. Implementation differences (URLSessionWebSocketTask vs OkHttp, BGProcessingTask vs WorkManager, NWPathMonitor vs ConnectivityManager) happen under the hood and never reach the JS layer.
+
+  **What ships today:**
+
+  - **Native socket ownership.** `websocket://connect?id=...&url=...` opens a connection that the native runtime owns. WebView reloads, navigations, memory recycles, and OS-driven JS suspensions no longer drop the socket. Calling `connect` again on an open `id` is a no-op, the durable store survives across full relaunches and is reused on reconnect.
+  - **Durable inbound delivery.** Every received frame is written to a per-connection log on disk before reaching your handler. Unacknowledged messages are redelivered on every readiness signal (page load, app resume, reconnect, network restore) until your handler succeeds. Inbound records are kept for 7 days or up to 5,000 un-acked entries, whichever comes first.
+  - **Acknowledgement via handler return value.** `window.onWebSocketEvent` receives every event. The return value of your handler for `message` events decides delivery. A return that is not `false`, or a Promise resolving to anything other than `false`, removes the message from the durable store. A return of `false`, a thrown error, or a rejected Promise leaves the message in place for replay.
+  - **Durable outbound queue.** `websocket://send` writes a text frame. Sends issued while offline are persisted and flushed FIFO on reconnect, with per-record attempt tracking and a `send_failed` event after 25 retries. The rest of the queue keeps flowing past a permanently failed record.
+  - **Resume frame.** `websocket://subscribe` registers a frame replayed first on every connect and reconnect. Embed your cursor or last-seen id, your server uses it to replay missed events. Last-write-wins per connection, omit the `frame` parameter to clear it.
+  - **Reconnect and network awareness.** Exponential backoff with full jitter capped at 30 seconds, a 25-second application-level keepalive so middleboxes do not silently drop idle connections, and an OS network-change callback that triggers immediate reconnect on network recovery. `reconnect=false` disables automatic recovery for one-shot connections.
+  - **Authenticated handshakes and subprotocols.** Pass `headers` as a JSON-stringified object to attach HTTP handshake headers (Bearer tokens, custom auth), and `protocols` as a comma-separated subprotocol list for GraphQL-WS, MQTT, and similar negotiations.
+  - **Background refresh registered automatically.** The runtime registers an OS background-refresh task with no native config required. Reconnect, subscribe replay, and outbound drain run opportunistically while the app is backgrounded, throttled by the OS and unavailable under force-quit or battery-saver modes.
+  - **Connection status.** `websocket://status?id=...&rid=...` returns the live state (`connecting`, `open`, `waitingReconnect`, `closed`), the current reconnect attempt count, the number of pending outbound sends, and the number of un-acked inbound records. Every command accepts an optional `rid` echoed back on the matching `response` event for async correlation.
+  - **Single-channel event model.** All events flow through `window.onWebSocketEvent` discriminated by `evt.type`. Nine event types covering connection lifecycle (`connecting`, `open`, `reconnecting`, `closed`, `error`), durable delivery (`message`), command replies (`response`), durability backstops (`dropped`), and outbound failure (`send_failed`).
+
+  Available on iOS and Android. Documentation: [Native WebSocket](/connectivity/websockets).
+
+  **Packages:**
+
+  - [despia-native](https://www.npmjs.com/package/despia-native)
+
+  Rebuild your app from the Despia Editor to pick up the new native runtime. No dashboard configuration changes are required. Without a rebuild, `websocket://` scheme calls resolve silently and `window.onWebSocketEvent` never fires, since both the native scheme handler and the event-proxy injection are compiled into the signed binary.
+</Update>
+
 <Update label="May 16, 2026" description="File viewer scheme - native preview with custom Android engine">
   ## Native file preview with `fileviewer://`
 
@@ -11,12 +40,11 @@ icon: "clock-rotate-left"
 
   **What ships today:**
 
-  - **Custom Android previewer.** Android uses Despia's own in-app file preview engine, not the system "Open with" chooser. This removes the dependency on whichever third-party file viewer the user happens to have installed and delivers render fidelity on par with QuickLook on iOS. Comparable commercial Android file viewer SDKs are typically licensed at \$1,500 or more per project, and this is included in Despia at no additional cost.
+  - **Custom Android previewer.** Android uses Despia's own in-app file preview engine, not the system "Open with" chooser. This removes the dependency on whichever third-party file viewer the user happens to have installed and delivers render fidelity on par with QuickLook on iOS.
   - **True cross-platform parity.** The same `fileviewer://` call renders identically on iOS and Android. Your users see consistent output regardless of device, OS version, or what apps they have installed.
   - **Authenticated downloads.** The native fetch forwards the WebView's cookie jar and User-Agent automatically, so session-protected file URLs render without query-string tokens or custom headers.
   - **Broad type coverage.** PDFs, images (PNG, JPG, HEIC), plain text, RTF, CSV, and Office documents (DOCX, XLSX, PPTX) are supported. The file extension is taken from the URL path, with a fallback to the response `Content-Type`.
   - **Optional theme parameter.** Pass `theme=light` or `theme=dark` alongside `src` to match the native previewer to your app's current appearance. Defaults to the system appearance when omitted.
-  - **Same interception model as other in-app schemes.** Matches the navigation-hook pattern used by `printitem://` and `savethisimage://`, so no web-side setup is required beyond calling the scheme.
 
   See the [File Viewer documentation](/native-features/file-viewer) for the full API contract, the CDN-only URL requirement, and the upload-first pattern for canvas-exported or generated files.
 
