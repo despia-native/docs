@@ -190,6 +190,27 @@
         ]
       },
       {
+        "group": "Connectivity",
+        "icon": "database",
+        "pages": [
+          {
+            "group": "WebSockets",
+            "icon": "signal-stream",
+            "pages": []
+          },
+          {
+            "group": "Bluetooth",
+            "icon": "bluetooth",
+            "pages": []
+          },
+          {
+            "group": "NFC",
+            "icon": "nfc-symbol",
+            "pages": []
+          }
+        ]
+      },
+      {
         "group": "Native Features",
         "icon": "bolt-lightning",
         "expanded": false,
