@@ -228,6 +228,13 @@
         "tag": "V4"
       },
       {
+        "group": "Wallets",
+        "icon": "wallet",
+        "pages": [
+          "wallet/pkpass"
+        ]
+      },
+      {
         "group": "Native Features",
         "icon": "bolt-lightning",
         "expanded": false,
