@@ -120,7 +120,8 @@
               "local-cdn/reference"
             ]
           }
-        ]
+        ],
+        "tag": "V4"
       },
       {
         "group": "Authentication",
@@ -193,7 +194,8 @@
             "pages": [
               "analytics/posthog/introduction",
               "analytics/posthog/reference"
-            ]
+            ],
+            "tag": "V4"
           }
         ]
       },
@@ -454,6 +456,20 @@
           }
         ],
         "hidden": true
+      },
+      {
+        "group": "Messaging",
+        "hidden": true,
+        "pages": [
+          {
+            "group": "OneSignal",
+            "pages": []
+          },
+          {
+            "group": "Stream VoIP",
+            "pages": []
+          }
+        ]
       }
     ]
   },
