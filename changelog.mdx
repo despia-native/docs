@@ -4,6 +4,25 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="May 19, 2025" description="Native features - PK Pass wallet support">
+  ## PK Pass / Wallet
+
+  The `wallet://pkpass` command is now available, letting your app present the native wallet sheet and add a `.pkpass` file to the user's device wallet.
+
+  **What ships today:**
+
+  - **Pass sheet trigger.** Call `despia('wallet://pkpass?url=...')` with a publicly hosted HTTPS URL pointing to a `.pkpass` file. The runtime fetches the file and presents the native add-to-wallet sheet.
+  - **Callback payloads.** Define `window.onWalletEvent` before the `despia()` call to receive the outcome. Payloads report `presented`, `dismissed`, and `failed` states, with typed `error` strings for download failures, invalid passes, and device restrictions.
+
+  Full documentation is available at [PK Pass](/wallet/pkpass)
+
+  **Packages:**
+
+  - [`despia-native`](https://www.npmjs.com/package/despia-native)
+
+  No dashboard configuration changes or rebuild steps are required to use this feature.
+</Update>
+
 <Update label="May 18, 2026" description="Clerk Auth - username login, SSO, MFA, password reset, magic links, SMS, sheet events">
   ## Expanded Clerk Auth: SSO, MFA, password reset, SMS, magic links, and more
 
