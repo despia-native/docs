@@ -202,12 +202,11 @@
       },
       {
         "group": "Connectivity",
-        "icon": "database",
+        "icon": "plug",
         "pages": [
           "connectivity/websockets",
           "connectivity/nfc"
-        ],
-        "tag": ""
+        ]
       },
       {
         "group": "Wallets",
