@@ -137,7 +137,8 @@
               "authentication/clerk/sessions",
               "authentication/clerk/backend",
               "authentication/clerk/account"
-            ]
+            ],
+            "tag": "V4"
           }
         ]
       },
