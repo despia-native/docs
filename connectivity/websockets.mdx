@@ -150,7 +150,7 @@ Every event carries `id` (the connection label) and `ts` (epoch seconds). The ni
 
 ```javascript
 if (isDespia) {
-    const url       = encodeURIComponent('wss://example.com/ws')
+    const url       = encodeURIComponent('wss://example.com/ws') // Needs to be valid remote server - no localhost
     const headers   = encodeURIComponent(JSON.stringify({ Authorization: 'Bearer ' + token }))
     const protocols = encodeURIComponent('graphql-transport-ws,graphql-ws')
 
