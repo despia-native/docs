@@ -4,6 +4,36 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="May 18, 2026" description="Clerk Auth - username login, SSO, MFA, password reset, magic links, SMS, sheet events">
+  ## Expanded Clerk Auth: SSO, MFA, password reset, SMS, magic links, and more
+
+  The native Clerk Auth bridge gains a wave of new sign-in methods and a handful of upgrades to existing flows. Everything works identically on iOS and Android.
+
+  **New sign-in methods:**
+
+  - **Enterprise SSO.** Route the user to their organization's SAML or OIDC identity provider based on email domain. Returns a normal sign-in or sign-up event depending on whether the user is new to the organization.
+  - **MFA continuation.** Continue a sign-in whose first-factor result came back needing a second factor. Supports TOTP and backup codes via single-call verify, plus a prepare step for SMS or email second factors.
+  - **Password reset.** Three-step reset flow: send a code, verify the code, set a new password. Works with both email and phone identifiers, the bridge picks the right delivery channel.
+  - **SMS one-time code.** Passwordless sign-in via a one-time code sent over SMS. Phone numbers are normalized to E.164, so human-formatted numbers like `+1 (555) 123-4567` are accepted directly.
+  - **Magic link tickets.** Native equivalent of an email magic link. Your backend mints a one-time ticket through Clerk's API and includes it in an email or push that deep-links into the app, the app forwards the ticket to the bridge to complete sign-in.
+
+  **Existing methods, more flexible:**
+
+  - **Username and phone sign-in.** Password sign-in now accepts any identifier: email, username, or phone. Pass `jane`, `jane@example.com`, or `+15551234567` and the bridge resolves it.
+  - **Sign-up without email.** Password sign-up no longer requires an email address. At least one of email, username, or phone is enough, alongside the password. Username-only or phone-only accounts are valid.
+  - **Email code sign-up.** The email code flow now supports new-account creation, not just sign-in. Optional first name, last name, and username can be passed when sending the code.
+
+  **Behavior upgrades to existing flows:**
+
+  - **Auth Sheet and User Profile emit close events.** The prebuilt sign-in sheet now fires a completion event when it closes, carrying `userId` and `emailAddress` if the user signed in, or a dismissed event if the sheet closed without sign-in. The User Profile sheet fires a closed event on dismiss. Apps no longer need to poll the session state after the sheet closes.
+  - **Shared pending-flow state.** Email code, phone code, password reset, and MFA continuation all hold one in-memory pending sign-in at a time. Starting a new flow cancels any other in flight, and calling a later step before its prerequisite returns a missing-state error.
+  - **Unified completion semantics.** Every flow that reaches a successful completion now follows the same pattern: the result payload carries `userId` (plus `emailAddress` if a primary email exists), the JWT refresher starts, attribution fires, and `window.clerkJWT` populates a tick later.
+
+  Full reference at [Auth Methods](https://docs.despia.com/authentication/clerk/auth-methods) and the [API Reference](/authentication/clerk/reference).
+
+  Clerk Auth remains opt-in. Apps already using the bridge get everything in this drop automatically as soon as the runtime updates. No dashboard configuration changes, native build settings, or rebuild steps are required.
+</Update>
+
 <Update label="May 18, 2025" description="WebSockets - native runtime connections with durable message delivery">
   ## WebSockets
 
@@ -104,7 +134,7 @@ icon: "clock-rotate-left"
   - [Sessions](/authentication/clerk/sessions)
   - [Backend](/authentication/clerk/backend)
   - [Account](/authentication/clerk/account)
-  - [API Reference](https://docs.despia.com/authentication/clerk/reference)
+  - [API Reference](/authentication/clerk/reference)
 
   Clerk Auth is opt-in. The bridge stays inert until your web app fires `clerk://configure`, so apps not using it see no change. Apps that want it need a publishable key from the [Clerk Dashboard](https://dashboard.clerk.com) and a call to `clerk://configure` on boot. No dashboard configuration changes, native build settings, or rebuild steps are required to access the bridge - it ships in every Despia runtime.
 </Update>
