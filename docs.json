@@ -204,28 +204,10 @@
         "group": "Connectivity",
         "icon": "database",
         "pages": [
-          {
-            "group": "Stream VoIP",
-            "icon": "phone-arrow-down-left",
-            "pages": [
-              "connectivity/stream/introduction",
-              "connectivity/stream/reference"
-            ]
-          },
-          {
-            "group": "Bluetooth",
-            "icon": "bluetooth",
-            "pages": []
-          },
-          {
-            "group": "NFC",
-            "icon": "nfc-symbol",
-            "pages": []
-          },
-          "connectivity/websockets"
+          "connectivity/websockets",
+          "connectivity/nfc"
         ],
-        "hidden": true,
-        "tag": "V4"
+        "tag": ""
       },
       {
         "group": "Wallets",
@@ -300,7 +282,6 @@
           },
           "native-features/siri-shortcuts",
           "native-features/biometrics",
-          "native-features/nfc",
           "native-features/speech-recognition",
           "native-features/app-privacy",
           "native-features/safe-areas",
