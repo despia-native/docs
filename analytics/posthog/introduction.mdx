@@ -1,0 +1,149 @@
+---
+title: "Introduction"
+description: "GDPR-compliant product analytics, feature flags, and user identification bridged to your web layer via the Despia PostHog integration."
+icon: "circle-info"
+---
+
+Product analytics, feature flags, and user identification - fully bridged from the native PostHog SDK to your web layer. Track events, identify users, run experiments, and manage GDPR consent without writing a line of native code.
+
+<Info>
+  PostHog must be enabled in **Despia Editor \> App \> Settings \> Integrations \> PostHog** and your PostHog API key configured before any data will flow. A fresh native build is required after enabling or changing credentials.
+</Info>
+
+---
+
+## Installation
+
+<Tabs>
+  <Tab title="Bundle">
+    <CodeGroup>
+
+    ```bash npm
+    npm install despia-native
+    ```
+
+    ```bash pnpm
+    pnpm add despia-native
+    ```
+
+    ```bash yarn
+    yarn add despia-native
+    ```
+
+    </CodeGroup>
+
+    ```javascript
+    import despia from 'despia-native';
+    ```
+  </Tab>
+  <Tab title="CDN">
+    <CodeGroup>
+
+    ```html UMD
+    <script src="https://cdn.jsdelivr.net/npm/despia-native/index.min.js"></script>
+    ```
+
+    ```html ESM
+    <script type="module">
+        import despia from 'https://cdn.jsdelivr.net/npm/despia-native/+esm'
+    </script>
+    ```
+
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+---
+
+## How it works
+
+Despia initializes the native PostHog SDK at app start using your API key. On every page load, four variables are injected automatically into your web layer before any of your code runs.
+
+```javascript
+despia.postHogDistinctId  // string  - current PostHog distinct_id
+despia.postHogSessionId   // string  - current PostHog session ID
+despia.postHogOptedOut    // boolean - true if the user has opted out of tracking
+despia.postHogFlags       // object  - all evaluated feature flag values, keyed by flag name
+```
+
+Events and identity calls are fired from your web layer using `window.location.href = "posthog://..."` and intercepted natively. All four globals stay live - the native layer updates them in place whenever their value changes, with no page reload required.
+
+---
+
+## Injected globals
+
+Read these synchronously at any point. No scheme call, no callback, no await required.
+
+```javascript
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+if (isDespia) {
+    const userId   = despia.postHogDistinctId
+    const session  = despia.postHogSessionId
+    const optedOut = despia.postHogOptedOut
+    const newUI    = despia.postHogFlags["new_checkout"]     // boolean flag
+    const variant  = despia.postHogFlags["checkout_variant"] // multivariate flag, e.g. "control" or "test_v2"
+}
+```
+
+A flag that does not exist or has not yet loaded is absent from `postHogFlags`. Check presence with `"flag_key" in despia.postHogFlags` before reading if that distinction matters.
+
+---
+
+## Capture an event
+
+Fire any named event with optional properties. This is the core call.
+
+```javascript
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+if (isDespia) {
+    const props = {
+        plan: "pro",
+        revenue: 29.99,
+        currency: "USD"
+    }
+    window.location.href = "posthog://capture?event=" + encodeURIComponent("Checkout") + "&properties=" + encodeURIComponent(JSON.stringify(props))
+}
+```
+
+PostHog merges your properties with the device context it captures automatically - OS, app version, screen size, and more. Your keys take precedence on any conflict.
+
+---
+
+## GDPR consent
+
+PostHog tracking requires explicit user consent under GDPR. Use `opt_out` when a user declines your consent prompt and `opt_in` when they accept. PostHog enforces the cutoff at the SDK level - events fired after `opt_out` are dropped before they reach PostHog servers. `despia.postHogOptedOut` updates in place when either scheme fires, so your consent UI always reflects the current state.
+
+```javascript
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+// User declines analytics
+if (isDespia) {
+    window.location.href = "posthog://opt_out"
+}
+
+// User accepts analytics
+if (isDespia) {
+    window.location.href = "posthog://opt_in"
+}
+
+// Drive consent UI from the live global
+if (isDespia && despia.postHogOptedOut) {
+    // show opt-in prompt
+}
+```
+
+---
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card title="NPM Package" icon="npm" href="https://www.npmjs.com/package/despia-native">
+    despia-native
+  </Card>
+
+  <Card title="Support" icon="envelope" href="mailto:support@despia.com">
+    [support@despia.com](mailto:support@despia.com)
+  </Card>
+</CardGroup>

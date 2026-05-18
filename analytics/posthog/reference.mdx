@@ -1,0 +1,336 @@
+---
+title: "Reference"
+description: "Full reference for every posthog:// scheme supported by the Despia PostHog bridge."
+icon: "code"
+---
+
+Every scheme is called via `window.location.href`. All calls are fire-and-forget. Return values are read from the [injected globals](/analytics/posthog/introduction) - no callbacks or awaits required.
+
+---
+
+## Installation
+
+<Tabs>
+  <Tab title="Bundle">
+    <CodeGroup>
+
+    ```bash npm
+    npm install despia-native
+    ```
+
+    ```bash pnpm
+    pnpm add despia-native
+    ```
+
+    ```bash yarn
+    yarn add despia-native
+    ```
+
+    </CodeGroup>
+
+    ```javascript
+    import despia from 'despia-native';
+    ```
+  </Tab>
+  <Tab title="CDN">
+    <CodeGroup>
+
+    ```html UMD
+    <script src="https://cdn.jsdelivr.net/npm/despia-native/index.min.js"></script>
+    ```
+
+    ```html ESM
+    <script type="module">
+        import despia from 'https://cdn.jsdelivr.net/npm/despia-native/+esm'
+    </script>
+    ```
+
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+---
+
+## Encoding rules
+
+These apply to every scheme.
+
+- `properties` values are always `encodeURIComponent(JSON.stringify({ ... }))`. Never pass a raw JSON string.
+- All string params - event names, `distinct_id`, group keys, flag keys, screen names - are `encodeURIComponent(value)`.
+- Boolean and numeric params are passed as their raw string representation: `true`, `false`, `9.99`. No encoding needed.
+- Property values can be strings, numbers, booleans, or flat arrays of those types. Nested objects are not supported by PostHog and should be flattened.
+
+---
+
+## posthog://capture
+
+Captures a named event with optional properties. The core call.
+
+| Param | Type | Required | Notes |
+| :-- | :-- | :-- | :-- |
+| `event` | string | yes | Event name. Case-sensitive. |
+| `properties` | JSON string | no | Key-value pairs attached to the event. URI-encoded JSON object. |
+
+```javascript
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+if (isDespia) {
+    const props = {
+        plan: "pro",
+        revenue: 29.99,
+        currency: "USD"
+    }
+    window.location.href = "posthog://capture?event=" + encodeURIComponent("Checkout") + "&properties=" + encodeURIComponent(JSON.stringify(props))
+}
+```
+
+---
+
+## posthog://identify
+
+Associates the current anonymous device ID with a known user. Call this as soon as a user logs in. All subsequent events link to this identity until `posthog://reset` is called.
+
+| Param | Type | Required | Notes |
+| :-- | :-- | :-- | :-- |
+| `distinct_id` | string | yes | Your internal user ID. |
+| `properties` | JSON string | no | Person properties stored on the PostHog person record. Not event properties. |
+
+```javascript
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+if (isDespia) {
+    const person = {
+        email: "user@example.com",
+        name: "Jane Smith",
+        plan: "pro",
+        created_at: "2025-01-15"
+    }
+    window.location.href = "posthog://identify?distinct_id=" + encodeURIComponent("user_123") + "&properties=" + encodeURIComponent(JSON.stringify(person))
+}
+```
+
+Never send raw PII as event properties. Person properties on the PostHog person record have separate retention and access controls from event properties.
+
+---
+
+## posthog://alias
+
+Merges two distinct IDs into the same person. Use this at signup when a user has generated anonymous events before logging in and you want the pre-signup history to merge into their identified profile.
+
+| Param | Type | Required | Notes |
+| :-- | :-- | :-- | :-- |
+| `alias` | string | yes | The new ID to merge into the current distinct\_id. |
+
+```javascript
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+if (isDespia) {
+    window.location.href = "posthog://alias?alias=" + encodeURIComponent("user_123")
+}
+```
+
+Call once at signup, immediately before or after `posthog://identify`. Do not call repeatedly. PostHog merges the anonymous session history permanently.
+
+---
+
+## posthog://group
+
+Links all subsequent events in the session to a group - an organization, team, workspace, or account. Must be called again if the user switches group context.
+
+| Param | Type | Required | Notes |
+| :-- | :-- | :-- | :-- |
+| `type` | string | yes | Group type key, e.g. `company`, `team`, `workspace`. Must match a group type defined in your PostHog project. |
+| `key` | string | yes | Unique identifier for the specific group. |
+| `properties` | JSON string | no | Group-level properties stored on the group record. |
+
+```javascript
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+if (isDespia) {
+    const groupProps = {
+        name: "Acme Corp",
+        plan: "enterprise",
+        employee_count: 500
+    }
+    window.location.href = "posthog://group?type=company&key=" + encodeURIComponent("acme_corp") + "&properties=" + encodeURIComponent(JSON.stringify(groupProps))
+}
+```
+
+PostHog has a hard limit of 5 group types per project. Group types are created automatically on first use. Coordinate type naming with your PostHog project owner before shipping.
+
+---
+
+## posthog://screen
+
+Tracks a screen view. Sends a `$screen` event to PostHog with `$screen_name` set to the provided value.
+
+| Param | Type | Required | Notes |
+| :-- | :-- | :-- | :-- |
+| `name` | string | yes | Screen or view name, e.g. `Settings`, `Checkout`, `Profile`. |
+| `properties` | JSON string | no | Additional properties attached to the screen event. |
+
+```javascript
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+if (isDespia) {
+    const props = { source: "tab_bar" }
+    window.location.href = "posthog://screen?name=" + encodeURIComponent("Settings") + "&properties=" + encodeURIComponent(JSON.stringify(props))
+}
+```
+
+---
+
+## posthog://set\_person\_properties
+
+Sets or updates properties on the PostHog person record without capturing an event.
+
+| Param | Type | Required | Notes |
+| :-- | :-- | :-- | :-- |
+| `properties` | JSON string | yes | Properties to set. Merges with existing person properties. |
+
+```javascript
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+if (isDespia) {
+    const props = { plan: "enterprise", seats: 10 }
+    window.location.href = "posthog://set_person_properties?properties=" + encodeURIComponent(JSON.stringify(props))
+}
+```
+
+---
+
+## posthog://register
+
+Registers super properties - key-value pairs automatically appended to every subsequent `capture` call for the lifetime of the session.
+
+| Param | Type | Required | Notes |
+| :-- | :-- | :-- | :-- |
+| `properties` | JSON string | yes | Properties to register. Persisted across page loads until `posthog://unregister` or `posthog://reset`. |
+
+```javascript
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+if (isDespia) {
+    const superProps = { locale: navigator.language, app_version: "3.2.1" }
+    window.location.href = "posthog://register?properties=" + encodeURIComponent(JSON.stringify(superProps))
+}
+```
+
+Super properties merge with event-level properties. If the same key appears in both, the event-level value wins.
+
+---
+
+## posthog://unregister
+
+Removes a single super property by key.
+
+| Param | Type | Required | Notes |
+| :-- | :-- | :-- | :-- |
+| `key` | string | yes | The super property key to remove. |
+
+```javascript
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+if (isDespia) {
+    window.location.href = "posthog://unregister?key=" + encodeURIComponent("experiment_group")
+}
+```
+
+---
+
+## posthog://reset
+
+Resets all user data and starts a fresh session. Clears the distinct\_id, all person properties, all super properties, all group associations, and the session. Call this on logout only.
+
+```javascript
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+if (isDespia) {
+    window.location.href = "posthog://reset"
+}
+```
+
+After `reset` fires, the native layer updates `despia.postHogDistinctId`, `despia.postHogSessionId`, and `despia.postHogFlags` in place. Reads of those globals immediately after the call reflect the refreshed values.
+
+---
+
+## posthog://opt\_out
+
+Opts the user out of all PostHog tracking. No events are sent and no data is stored from this point forward. Persists across sessions until `posthog://opt_in` is called.
+
+This is the GDPR consent cutoff. Under GDPR, analytics tracking requires explicit user consent before any data is collected. Call `opt_out` when the user declines your consent prompt. PostHog enforces the cutoff at the SDK level - events fired after `opt_out` are dropped before they reach PostHog servers. `despia.postHogOptedOut` updates to `true` when this fires.
+
+```javascript
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+if (isDespia) {
+    window.location.href = "posthog://opt_out"
+}
+```
+
+---
+
+## posthog://opt\_in
+
+Opts the user in to PostHog tracking. Call this when the user explicitly accepts analytics in your consent prompt. `despia.postHogOptedOut` updates to `false` when this fires.
+
+```javascript
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+if (isDespia) {
+    window.location.href = "posthog://opt_in"
+}
+```
+
+---
+
+## Recommended call sequence
+
+Correct order for a standard auth flow.
+
+```javascript
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+// 1. On app load - register session-level super properties
+if (isDespia) {
+    const superProps = { locale: navigator.language, app_version: window.APP_VERSION }
+    window.location.href = "posthog://register?properties=" + encodeURIComponent(JSON.stringify(superProps))
+}
+
+// 2. On login - identify user
+if (isDespia) {
+    const person = { email: user.email, plan: user.plan }
+    window.location.href = "posthog://identify?distinct_id=" + encodeURIComponent(user.id) + "&properties=" + encodeURIComponent(JSON.stringify(person))
+}
+
+// 3. For B2B apps - associate with org after identify
+if (isDespia) {
+    const groupProps = { name: user.orgName, plan: user.orgPlan }
+    window.location.href = "posthog://group?type=company&key=" + encodeURIComponent(user.orgId) + "&properties=" + encodeURIComponent(JSON.stringify(groupProps))
+}
+
+// 4. Track actions
+if (isDespia) {
+    const props = { plan: "pro", revenue: 29.99 }
+    window.location.href = "posthog://capture?event=Checkout&properties=" + encodeURIComponent(JSON.stringify(props))
+}
+
+// 5. On logout - reset everything
+if (isDespia) {
+    window.location.href = "posthog://reset"
+}
+```
+
+---
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card title="NPM Package" icon="npm" href="https://www.npmjs.com/package/despia-native">
+    despia-native
+  </Card>
+
+  <Card title="Support" icon="envelope" href="mailto:support@despia.com">
+    [support@despia.com](mailto:support@despia.com)
+  </Card>
+</CardGroup>

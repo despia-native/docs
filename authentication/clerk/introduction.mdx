@@ -1,11 +1,11 @@
 ---
 title: "Introduction"
 description: "Drop-in authentication for your Despia app with email, OAuth, passkeys, and MFA handled by Clerk's native iOS SDK."
-icon: "circle-info"
-sidebarTitle: "Introduction"
+icon: "shield-halved"
+sidebarTitle: "Clerk Auth"
 ---
 
-Native Clerk authentication for iOS and Android, driven entirely from JavaScript over a `clerk://` URL scheme. Optional, for apps that need Keychain or Keystore backed sessions, native Sign in with Apple, offline cold-launch, or zero-config server-side auth. **Web auth providers like Supabase, Firebase, NextAuth, Auth0, or Clerk's own web SDK work in Despia out of the box without this.**
+Native Clerk authentication for iOS and Android. The host app embeds Clerk's native SDK, your web app drives it from JavaScript through `despia()` calls and two global hooks. Optional, for apps that need Keychain or Keystore backed sessions, native Sign in with Apple, offline cold-launch, or zero-config server-side auth. Web auth providers like Supabase, Firebase, NextAuth, Auth0, or Clerk's own web SDK work in Despia out of the box without this.
 
 <Info>
   Requires iOS 17 or Android API 24, and a publishable key from your [Clerk Dashboard](https://dashboard.clerk.com).
@@ -60,12 +60,12 @@ Native Clerk authentication for iOS and Android, driven entirely from JavaScript
 
 The bridge exposes two globals on `window`. You define `window.onClerkEvent` to receive every event, the bridge writes `window.clerkJWT` with the current session token and auto-refreshes it every 50 seconds.
 
-| Global | Type | Lifecycle |  |
-| --- | --- | --- | --- |
-|  | `window.onClerkEvent` | `(payload) => void` | You define. Receives every event. |
-| `window.clerkJWT` | \`string | null\` | Bridge writes. Auto-refreshed every 50s. `null` when signed out. |
+| Global | Type | Lifecycle |
+| --- | --- | --- |
+| `window.onClerkEvent` | `(payload) => void` | You define. Receives every event. |
+| `window.clerkJWT` | `string | null` | Bridge writes. Auto-refreshed every 50s. `null` when signed out. |
 
-Wire the listener first, then call `clerk://configure`. Events are not buffered, a handler attached after a command was issued will miss the result.
+Wire the listener first, then configure the bridge. Events are not buffered, a handler attached after a command was issued will miss the result.
 
 ```javascript
 const isDespia = navigator.userAgent.toLowerCase().includes('despia')
@@ -110,7 +110,7 @@ Every event has the same envelope:
 
 ## Configure
 
-Call `clerk://configure?key=pk_...` on every page load. Same-key calls re-emit `ready` as a no-op. Different keys switch tenant and clear the secure session store.
+Initialize the bridge with your Clerk publishable key on every page load. Same-key calls re-emit `ready` as a no-op. Different keys switch tenant and clear the secure session store.
 
 ```javascript
 despia('clerk://configure?key=pk_test_abc123')
@@ -135,7 +135,7 @@ Emits:
 
 <CardGroup cols={2}>
   <Card title="Auth Methods" icon="right-to-bracket" href="/authentication/clerk/auth-methods">
-    Auth Sheet, email & password, OAuth, Apple, email code, phone code, passkeys.
+    Auth Sheet, password, OAuth, Apple, email code, phone code, passkeys, MFA, SSO.
   </Card>
 
   <Card title="Sessions" icon="id-card" href="/authentication/clerk/sessions">

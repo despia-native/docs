@@ -1,16 +1,10 @@
----
-title: "Account"
-description: "User Profile sheet, sign-out, attribution sync, and multi-tenant switching."
-icon: "user-gear"
----
-
 Post sign-in routes: open the prebuilt profile sheet, sign out, sync the user ID into analytics SDKs, switch tenants.
 
 ---
 
 ## User Profile
 
-`clerk://userprofile` opens Clerk's prebuilt account-management sheet. The user can edit their profile, manage emails, phones, external accounts, passkeys, sessions, MFA, and delete their account.
+Clerk's prebuilt account-management sheet. The user can edit their profile, manage emails, phones, external accounts, passkeys, sessions, MFA, and delete their account.
 
 | Param | Values | Default |
 | --- | --- | --- |
@@ -20,7 +14,16 @@ Post sign-in routes: open the prebuilt profile sheet, sign out, sync the user ID
 despia('clerk://userprofile?dismissable=true')
 ```
 
-Requires the user to be signed in. No event fires when the sheet closes, poll [`clerk://state`](/authentication/clerk/sessions#session-state) after dismiss to pick up any changes.
+Requires the user to be signed in. Emits `userprofile` with `status: "closed"` when the sheet dismisses, so you can refresh the UI for any profile edits the user just made.
+
+```javascript
+window.onClerkEvent = (r) => {
+    if (r.ok && r.event === 'userprofile' && r.status === 'closed') {
+        // User dismissed the profile sheet, re-read state to pick up any edits
+        despia('clerk://state')
+    }
+}
+```
 
 Errors emit with `event: "userprofile"`: `not_configured`, `unsupported_os`, `sdk_not_linked`.
 
@@ -28,7 +31,7 @@ Errors emit with `event: "userprofile"`: `not_configured`, `unsupported_os`, `sd
 
 ## Sign Out
 
-`clerk://signout` revokes the session, stops the JWT refresher, sets `window.clerkJWT` to null, clears attribution IDs, and writes the signed-out cookie state.
+Revokes the current session server-side, stops the JWT refresher, clears `window.clerkJWT`, clears attribution IDs, and writes the signed-out cookie state.
 
 ```javascript
 despia('clerk://signout')
@@ -85,7 +88,7 @@ A second reconfigure while one is in flight returns `reconfigure_in_progress`. W
 
 ## Attribution Sync
 
-`clerk://attribution` auto-syncs the Clerk userId into OneSignal and AppsFlyer. On by default. Every sign-in or sign-up pushes the userId to both SDKs, sign-out or tenant switch clears them.
+Auto-syncs the Clerk userId into OneSignal and AppsFlyer. On by default. Every successful sign-in or sign-up pushes the userId to both SDKs, sign-out or tenant switch clears them.
 
 | Param | Values | Default |
 | --- | --- | --- |

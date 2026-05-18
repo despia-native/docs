@@ -186,6 +186,14 @@
               "analytics/appsflyer/campaigns",
               "analytics/appsflyer/events"
             ]
+          },
+          {
+            "group": "PostHog",
+            "icon": "chart-column",
+            "pages": [
+              "analytics/posthog/introduction",
+              "analytics/posthog/reference"
+            ]
           }
         ]
       },

@@ -1,16 +1,10 @@
----
-title: "Sessions"
-description: "Check who's signed in, read the auto-refreshed JWT, and authenticate API calls."
-icon: "id-card"
----
-
-After [sign-in](/authentication/clerk/methods), the bridge keeps `window.clerkJWT` populated and maintains an in-memory user snapshot you can read offline.
+After [sign-in](/authentication/clerk/auth-methods), the bridge keeps `window.clerkJWT` populated and maintains an in-memory user snapshot you can read offline.
 
 ---
 
 ## Session State
 
-`clerk://state` returns a full snapshot from the in-memory cache hydrated from the secure session store. No network round-trip. Calling it on a signed-in user also restarts the JWT refresher.
+A full snapshot of the signed-in user and active session, read from the in-memory cache hydrated from the secure session store. No network round-trip, works fully offline. Calling it on a signed-in user also restarts the JWT refresher.
 
 ```javascript
 despia('clerk://state')
@@ -83,13 +77,24 @@ Optional fields are omitted when absent. Timestamps are ISO-8601 with fractional
 When signed out:
 
 ```json
-{ "ok": true, "event": "state", "isConfigured": true, "isSignedIn": false, "publishableKey": "pk_test_abc123" }
+{
+    "ok": true,
+    "event": "state",
+    "isConfigured": true,
+    "isSignedIn": false,
+    "publishableKey": "pk_test_abc123"
+}
 ```
 
 When not configured:
 
 ```json
-{ "ok": true, "event": "state", "isConfigured": false, "isSignedIn": false }
+{
+    "ok": true,
+    "event": "state",
+    "isConfigured": false,
+    "isSignedIn": false
+}
 ```
 
 ---
@@ -109,20 +114,24 @@ async function api(path, opts = {}) {
 
 The refresher de-duplicates writes, so watchers on `window.clerkJWT` don't see spurious churn. Failed refreshes (offline) leave the last good value in place rather than nulling it.
 
-Refresher starts on configure, reconfigure, `clerk://state` while signed in, and any sign-in flow reaching `complete`. Stops on sign-out and reconfigure.
+Refresher starts on configure, reconfigure, `clerk://state` while signed in, and any sign-in flow reaching `complete`. Stops on sign-out and reconfigure. When the app returns from the background, the bridge automatically refreshes the JWT (and re-syncs SSR cookies) before your code runs again, so a backgrounded app comes back with a fresh token.
 
 ---
 
 ## Force a refresh
 
-`clerk://token` forces a refresh and emits the result. Use this only when you need a guaranteed-fresh token right now.
+An on-demand JWT refresh, same source as the background refresher. Use this only when you need a guaranteed-fresh token right now.
 
 ```javascript
 despia('clerk://token')
 ```
 
 ```json
-{ "ok": true, "event": "token", "jwt": "eyJhbGciOiJSUzI1Ni..." }
+{
+    "ok": true,
+    "event": "token",
+    "jwt": "eyJhbGciOiJSUzI1Ni..."
+}
 ```
 
 `jwt` is `null` when there is no session. Errors emit with `event: "token"`: `not_configured`, `token_fetch_failed` (window.clerkJWT keeps last value), `unsupported_os`, `sdk_not_linked`.
@@ -149,7 +158,7 @@ async function api(path) {
 
 On the server, verify the JWT with `@clerk/backend` and trust only the verified `sub` claim. Never trust a client-reported `userId`.
 
-For middleware-based auth on Next.js, TanStack, and other frameworks, see [Server-Side Auth](/authentication/clerk/server-side).
+For middleware-based auth on Next.js, TanStack, and other frameworks, see [Server-Side Auth](/authentication/clerk/backend).
 
 ---
 
