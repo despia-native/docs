@@ -194,10 +194,10 @@
             "pages": [
               "analytics/posthog/introduction",
               "analytics/posthog/reference"
-            ],
-            "tag": "V4"
+            ]
           }
-        ]
+        ],
+        "tag": "V4"
       },
       {
         "group": "Connectivity",
@@ -223,7 +223,8 @@
           },
           "connectivity/websockets"
         ],
-        "hidden": true
+        "hidden": true,
+        "tag": "V4"
       },
       {
         "group": "Native Features",
