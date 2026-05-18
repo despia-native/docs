@@ -69,7 +69,7 @@ if (isDespia) {
         console.log(payload.action, payload.status, payload.error ?? '')
     }
 
-    const passUrl = 'https://cdn.example.com/passes/boarding.pkpass'
+    const passUrl = 'https://cdn.example.com/passes/user123/boarding.pkpass'
     despia(`wallet://pkpass?url=${encodeURIComponent(passUrl)}`)
 }
 ```
@@ -127,7 +127,7 @@ if (isDespia) {
         }
     }
 
-    despia(`wallet://pkpass?url=${encodeURIComponent('https://cdn.example.com/passes/membership.pkpass')}`)
+    despia(`wallet://pkpass?url=${encodeURIComponent('https://cdn.example.com/passes/membership/user123.pkpass')}`)
 }
 ```
 
