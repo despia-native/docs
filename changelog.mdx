@@ -4,33 +4,27 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
-<Update label="May 17, 2026" description="Native WebSocket - durable delivery on iOS and Android">
-  ## Native WebSocket
+<Update label="May 18, 2025" description="WebSockets - native runtime connections with durable message delivery">
+  ## WebSockets
 
-  Despia now ships a native WebSocket bridge for iOS and Android, driven entirely from JavaScript over a `websocket://` URL scheme. Apps that need a WebSocket to survive WebView reloads, JS suspension, app background, or full relaunch can hand the connection to the native runtime, which owns the socket on its own thread, persists every inbound message to disk before reaching the handler, and durably queues outbound sends while offline.
-
-  The same `websocket://` URLs, event payloads, and command surface work identically on iOS and Android. Implementation differences (URLSessionWebSocketTask vs OkHttp, BGProcessingTask vs WorkManager, NWPathMonitor vs ConnectivityManager) happen under the hood and never reach the JS layer.
+  WebSocket connections can now be opened and managed through the native runtime, keeping them alive across WebView reloads, app backgrounding, and network loss.
 
   **What ships today:**
 
-  - **Native socket ownership.** `websocket://connect?id=...&url=...` opens a connection that the native runtime owns. WebView reloads, navigations, memory recycles, and OS-driven JS suspensions no longer drop the socket. Calling `connect` again on an open `id` is a no-op, the durable store survives across full relaunches and is reused on reconnect.
-  - **Durable inbound delivery.** Every received frame is written to a per-connection log on disk before reaching your handler. Unacknowledged messages are redelivered on every readiness signal (page load, app resume, reconnect, network restore) until your handler succeeds. Inbound records are kept for 7 days or up to 5,000 un-acked entries, whichever comes first.
-  - **Acknowledgement via handler return value.** `window.onWebSocketEvent` receives every event. The return value of your handler for `message` events decides delivery. A return that is not `false`, or a Promise resolving to anything other than `false`, removes the message from the durable store. A return of `false`, a thrown error, or a rejected Promise leaves the message in place for replay.
-  - **Durable outbound queue.** `websocket://send` writes a text frame. Sends issued while offline are persisted and flushed FIFO on reconnect, with per-record attempt tracking and a `send_failed` event after 25 retries. The rest of the queue keeps flowing past a permanently failed record.
-  - **Resume frame.** `websocket://subscribe` registers a frame replayed first on every connect and reconnect. Embed your cursor or last-seen id, your server uses it to replay missed events. Last-write-wins per connection, omit the `frame` parameter to clear it.
-  - **Reconnect and network awareness.** Exponential backoff with full jitter capped at 30 seconds, a 25-second application-level keepalive so middleboxes do not silently drop idle connections, and an OS network-change callback that triggers immediate reconnect on network recovery. `reconnect=false` disables automatic recovery for one-shot connections.
-  - **Authenticated handshakes and subprotocols.** Pass `headers` as a JSON-stringified object to attach HTTP handshake headers (Bearer tokens, custom auth), and `protocols` as a comma-separated subprotocol list for GraphQL-WS, MQTT, and similar negotiations.
-  - **Background refresh registered automatically.** The runtime registers an OS background-refresh task with no native config required. Reconnect, subscribe replay, and outbound drain run opportunistically while the app is backgrounded, throttled by the OS and unavailable under force-quit or battery-saver modes.
-  - **Connection status.** `websocket://status?id=...&rid=...` returns the live state (`connecting`, `open`, `waitingReconnect`, `closed`), the current reconnect attempt count, the number of pending outbound sends, and the number of un-acked inbound records. Every command accepts an optional `rid` echoed back on the matching `response` event for async correlation.
-  - **Single-channel event model.** All events flow through `window.onWebSocketEvent` discriminated by `evt.type`. Nine event types covering connection lifecycle (`connecting`, `open`, `reconnecting`, `closed`, `error`), durable delivery (`message`), command replies (`response`), durability backstops (`dropped`), and outbound failure (`send_failed`).
+  - **Native connection ownership.** The connection lives on the native side rather than in the WebView. It persists through JavaScript suspension, app backgrounding, and WebView reloads without any additional handling in your code.
+  - **Durable inbound message storage.** Incoming messages are written to disk before your handler sees them. If the handler fails or the app restarts, Despia replays the message on the next resume, reconnect, or reload.
+  - **Durable outbound queue.** Sends issued while the socket is offline are saved and flushed in order once the connection is restored.
+  - **Auto-reconnect with backoff.** Dropped connections retry automatically with wait times that grow per attempt and cap at 30 seconds. A keepalive ping goes out every 25 seconds to prevent routers and proxies from closing idle sockets.
+  - **Subscribe frame registration.** The `websocket://subscribe` command registers a frame Despia sends to the server on every connect and reconnect, enabling server-side cursor replay for any messages missed during a gap.
+  - **Connection status.** The `websocket://status` command returns the live state of a connection, including pending outbound sends and unacknowledged inbound messages.
 
-  Available on iOS and Android. Documentation: [Native WebSocket](/connectivity/websockets).
+  Full documentation is available at [WebSockets](/connectivity/websockets).
 
   **Packages:**
 
   - [despia-native](https://www.npmjs.com/package/despia-native)
 
-  Rebuild your app from the Despia Editor to pick up the new native runtime. No dashboard configuration changes are required. Without a rebuild, `websocket://` scheme calls resolve silently and `window.onWebSocketEvent` never fires, since both the native scheme handler and the event-proxy injection are compiled into the signed binary.
+  Rebuild your app to pick up the new scheme handler. No dashboard configuration changes or integration code changes are required.
 </Update>
 
 <Update label="May 16, 2026" description="File viewer scheme - native preview with custom Android engine">

@@ -4,10 +4,10 @@ description: "WebSocket connection owned by the native runtime, with durable mes
 icon: "signal-stream"
 ---
 
-Open a WebSocket through the native runtime. Inbound messages are persisted to disk before your handler runs and replayed until acknowledged. Outbound sends queue while offline and flush in order on reconnect. Drive the connection with `websocket://` schemes, receive events through `window.onWebSocketEvent`.
+Open and manage WebSocket connections through the native runtime rather than the WebView. Connections stay alive across reloads, backgrounding, and network loss, with durable storage for both inbound messages and outbound sends.
 
 <Info>
-  Delivery is at-least-once, dedupe on `message_id` in your handler. Background coverage is best-effort, embed a resume cursor in your subscribe frame so the server can replay missed events.
+  The same message can arrive more than once. Always check `message_id` in your handler and skip any message you have already processed. Mobile platforms do not keep a socket alive indefinitely in the background, so include a cursor or last-seen id in your subscribe frame and let the server replay anything missed during the gap.
 </Info>
 
 ---
@@ -55,86 +55,120 @@ Open a WebSocket through the native runtime. Inbound messages are persisted to d
 
 ---
 
-## Scheme reference
-
-Five `websocket://` schemes drive the native side. Every command accepts an optional `rid` echoed back on the matching `response` event for async correlation. Always wrap dynamic values in `encodeURIComponent()`, the query is parsed `application/x-www-form-urlencoded`.
-
-| scheme | required params | optional params | purpose |
-| :-- | :-- | :-- | :-- |
-| `websocket://connect` | `id`, `url` | `headers`, `protocols`, `reconnect`, `rid` | Open or re-attach a connection |
-| `websocket://send` | `id`, `payload` | `rid` | Send a text frame, queued if offline |
-| `websocket://subscribe` | `id` | `frame`, `rid` | Register a frame replayed on every connect |
-| `websocket://disconnect` | `id` | `rid` | Close and disable auto-reconnect |
-| `websocket://status` | `id` | `rid` | Get connection state as a `response` event |
-
----
-
 ## How it works
 
-Assign your event handler, then call `websocket://connect` with a label and URL. The handler can be assigned at any point, messages buffered before assignment flush as soon as it is wired up.
+Two pieces are required: open a socket with `websocket://connect`, then assign `window.onWebSocketEvent` to receive all events that connection produces. The `id` parameter is your label for the connection. Every event carries it back, so one handler can route between multiple open sockets. The handler can be assigned before or after `connect`. Despia buffers events until the handler is present and flushes them once it is.
 
 ```javascript
 const isDespia = navigator.userAgent.toLowerCase().includes('despia')
 
-if (isDespia) {
-    window.onWebSocketEvent = function (evt) {
-        if (evt.type === 'message') {
-            console.log(`[${evt.id}] ${evt.payload}`)
-        }
+window.onWebSocketEvent = function (evt) {
+    if (evt.type === 'message') {
+        console.log(`[${evt.id}]`, evt.payload)
     }
+}
 
+if (isDespia) {
     const url = encodeURIComponent('wss://example.com/ws')
     despia(`websocket://connect?id=orders&url=${url}`)
 }
 ```
 
-The `id` identifies the connection and is echoed back on every event for routing. Calling `connect` again on an open id is a no-op. Wrap every dynamic value passed to a `websocket://` scheme in `encodeURIComponent()`.
+---
 
-Right after `connect` the runtime fires a `connecting` event followed by `open` once the handshake completes.
+## Handling events
 
-```json
-{
-    "id": "orders",
-    "type": "connecting",
-    "ts": 1747600000,
-    "attempt": 0
+Define `window.onWebSocketEvent` once. Despia calls it for every event on every open connection: incoming messages, reconnects, network drops, and command replies.
+
+```javascript
+window.onWebSocketEvent = function (evt) {
+    switch (evt.type) {
+        case 'open':
+            console.log(`[${evt.id}] connected`)
+            break
+        case 'message':
+            return handleBusinessEvent(evt)
+        case 'reconnecting':
+            console.warn(`[${evt.id}] retry #${evt.attempt} in ${evt.delay.toFixed(1)}s`)
+            break
+        case 'closed':
+            console.warn(`[${evt.id}] closed code=${evt.code}`)
+            break
+        case 'dropped':
+            resync(evt.id)
+            break
+        case 'send_failed':
+            console.error(`[${evt.id}] outbound ${evt.oid} permanently failed`)
+            break
+    }
 }
 ```
 
-```json
-{
-    "id": "orders",
-    "type": "open",
-    "ts": 1747600001,
-    "protocol": "graphql-transport-ws"
-}
-```
+Every event carries `id` (the connection label) and `ts` (epoch seconds). The nine event types:
 
-`protocol` is the negotiated subprotocol from the handshake, or `""` if none was requested.
+<ParamField path="connecting" type="object">
+  The socket is opening. Carries `attempt`, which is `0` on the first connect and the retry number on each subsequent reconnect.
+</ParamField>
+
+<ParamField path="open" type="object">
+  The socket is ready. Carries `protocol`, the subprotocol the server agreed to, or an empty string.
+</ParamField>
+
+<ParamField path="message" type="object">
+  An incoming frame. Carries `message_id` (unique per connection), `dataType` (`json`, `text`, or `binary`), and `payload`. This is the only event type that requires an acknowledgement.
+</ParamField>
+
+<ParamField path="reconnecting" type="object">
+  The socket dropped and Despia is waiting before retrying. Carries `attempt` (the retry count) and `delay` (seconds until the next attempt). Wait time grows with each retry, capped at 30 seconds.
+</ParamField>
+
+<ParamField path="closed" type="object">
+  The socket closed. Carries `code` (WebSocket close code), `reason` (server close reason, often empty), and `clean` (`true` only for clean closes with code 1000).
+</ParamField>
+
+<ParamField path="error" type="object">
+  A transient socket error. A `closed` and `reconnecting` event typically follow, so most applications only need to react to `closed`. Carries `error`, a string suitable for logging.
+</ParamField>
+
+<ParamField path="response" type="object">
+  A reply to any command that included a `rid`. Carries `rid` (echoed back), `ok`, and `error` if something failed, plus any extra fields the command returns.
+</ParamField>
+
+<ParamField path="dropped" type="object">
+  Despia discarded undelivered messages from the durable store, either because they are older than 7 days or because more than 5000 accumulated. Carries `count` and `reason`. Re-register your subscribe frame so the server can replay the gap.
+</ParamField>
+
+<ParamField path="send_failed" type="object">
+  A single outbound send failed 25 consecutive times and Despia gave up on it. Carries `oid`, the id Despia assigned to that send. The remainder of the queue continues.
+</ParamField>
 
 ---
 
-## Authenticated handshakes and subprotocols
+## Opening a connection
 
-Pass HTTP handshake headers as a JSON object and subprotocols as a comma-separated list. Both go through `encodeURIComponent`.
+`websocket://connect` opens or re-attaches to a connection. `id` and `url` are required. `headers` accepts a JSON-stringified object for handshake headers such as Bearer tokens. `protocols` accepts a comma-separated subprotocol list. `reconnect` defaults to `true`.
 
 ```javascript
-const url       = encodeURIComponent('wss://example.com/ws')
-const headers   = encodeURIComponent(JSON.stringify({ Authorization: 'Bearer ' + token }))
-const protocols = encodeURIComponent('graphql-transport-ws,graphql-ws')
+if (isDespia) {
+    const url       = encodeURIComponent('wss://example.com/ws')
+    const headers   = encodeURIComponent(JSON.stringify({ Authorization: 'Bearer ' + token }))
+    const protocols = encodeURIComponent('graphql-transport-ws,graphql-ws')
 
-despia(`websocket://connect?id=orders&url=${url}&headers=${headers}&protocols=${protocols}`)
+    despia(`websocket://connect?id=orders&url=${url}&headers=${headers}&protocols=${protocols}`)
+}
 ```
 
-Set `reconnect=false` if you want a one-shot connection that does not auto-recover, the default is `true`.
+Calling `connect` on a connection that is already open is a no-op. To point an id at a different URL, call `disconnect` first, then call `connect` with the new URL.
+
+Once the socket is open, Despia maintains it automatically. Drops trigger auto-reconnect with exponential backoff capped at 30 seconds. A keepalive ping goes out every 25 seconds to prevent routers and proxies from closing idle sockets. When the device regains network access, the reconnect fires immediately rather than waiting on a timeout. Pass `reconnect=false` only when the connection should terminate on the first drop.
 
 ---
 
 ## Receiving messages
 
-Every inbound frame arrives as a `message` event with a unique `message_id`, the frame type, the payload, and the receive timestamp. This is the only event type that participates in the acknowledgement flow.
+Every incoming frame arrives as a `message` event. The shape of `payload` depends on `dataType`.
 
-The shape of `payload` depends on `dataType`. A text frame whose body is a JSON object or array is delivered as `dataType: "json"` with the payload already parsed, so use it directly and never call `JSON.parse` on it.
+If the server sent a text frame whose body is a JSON object or array, Despia parses it and delivers `dataType: "json"` with `payload` as the parsed value. Do not call `JSON.parse` on it again.
 
 ```json
 {
@@ -150,7 +184,7 @@ The shape of `payload` depends on `dataType`. A text frame whose body is a JSON 
 }
 ```
 
-Plain text frames and bare JSON scalars (`42`, `"hi"`, `true`, `null`) come through as `dataType: "text"`. Scalars stay as text so an intended string `"42"` is never confused with the number `42`.
+Plain text frames and bare JSON scalars (`42`, `"hi"`, `true`, `null`) arrive as `dataType: "text"`. Scalars remain as text so an intended string `"42"` is never confused with the number `42`.
 
 ```json
 {
@@ -163,7 +197,7 @@ Plain text frames and bare JSON scalars (`42`, `"hi"`, `true`, `null`) come thro
 }
 ```
 
-Binary frames come through as `dataType: "binary"` with a base64-encoded payload. Decode with `atob` and a `Uint8Array` before use.
+Binary frames are base64-encoded into `payload` with `dataType: "binary"`. Decode with `atob` and a `Uint8Array` before use.
 
 ```json
 {
@@ -176,59 +210,13 @@ Binary frames come through as `dataType: "binary"` with a base64-encoded payload
 }
 ```
 
-`message_id` is unique per connection and monotonic, format is `<id>:<n>`. Use it as the dedupe key, the runtime can deliver the same message more than once.
-
 ---
 
-## Resume on reconnect
+## Acknowledging messages
 
-`websocket://subscribe` registers a frame that is re-sent on every connect. Embed your cursor or last-seen id so the server can replay events that arrived while the socket was down.
+Despia determines whether a message was handled by inspecting the return value of `window.onWebSocketEvent`. Returning anything other than `false` acknowledges the message, removes it from the durable store, and marks it complete. Returning `false`, throwing, or rejecting a returned Promise causes Despia to replay the message later.
 
-```javascript
-const frame = encodeURIComponent(JSON.stringify({
-    action: 'subscribe',
-    topics: ['orders'],
-    since: lastCursor
-}))
-
-despia(`websocket://subscribe?id=orders&frame=${frame}`)
-```
-
-Only one frame is stored per connection, the latest registration replaces the previous one. Omit `frame` to clear it. Update it as your cursor advances.
-
-The frame is sent to the server first on every connect, before any queued outbound sends or inbound replay. There is no JS-side event for the send itself, the next `message` events from your server are the proof it was received.
-
----
-
-## Sending messages
-
-`websocket://send` writes a text frame. If the socket is down the send persists to disk and flushes FIFO when the connection comes back. Permanent failure after 25 retries surfaces as a `send_failed` event carrying the outbound id.
-
-```javascript
-const payload = encodeURIComponent(JSON.stringify({ ping: 1 }))
-despia(`websocket://send?id=orders&payload=${payload}`)
-```
-
-For binary frames, base64 encode the bytes and pass the resulting string as `payload`.
-
-When a send permanently fails, `send_failed` fires once for that outbound and the rest of the queue keeps flowing past it.
-
-```json
-{
-    "id": "orders",
-    "type": "send_failed",
-    "ts": 1747600099,
-    "oid": "orders#42"
-}
-```
-
-`oid` is the outbound id assigned by the runtime when you called `send`, format is `<id>#<n>`. Keep your own mapping if you need to correlate `send_failed` back to a specific application-level intent.
-
----
-
-## Acknowledgement
-
-Your handler's return value controls acknowledgement for `message` events. A return that is not `false`, or a Promise that resolves to anything other than `false`, acknowledges the message and removes it from the durable store. A return of `false`, a thrown error, or a rejected Promise forces replay.
+Replay occurs on WebView reload, app resume, socket reconnect, and network restoration. Always check `message_id` before processing a message. The same message can arrive more than once, for example if the app terminated after the handler succeeded but before Despia recorded the acknowledgement. An in-memory `Set` is sufficient for a single page session. Use IndexedDB if the check needs to survive reloads.
 
 ```javascript
 const seen = new Set()
@@ -239,9 +227,9 @@ window.onWebSocketEvent = function (evt) {
     if (seen.has(evt.message_id)) return true
 
     const data =
-        evt.dataType === 'json'   ? evt.payload                                          // already parsed
+        evt.dataType === 'json'   ? evt.payload
       : evt.dataType === 'binary' ? Uint8Array.from(atob(evt.payload), c => c.charCodeAt(0))
-      :                             evt.payload                                          // raw text
+      :                             evt.payload
 
     return handleBusinessEvent(evt.id, data)
         .then(() => { seen.add(evt.message_id); return true })
@@ -249,97 +237,65 @@ window.onWebSocketEvent = function (evt) {
 }
 ```
 
-Replay triggers are WebView reload, app resume, socket reconnect, and network restore. The same `message_id` can arrive more than once, dedupe on it. For dedupe across reloads, back the set with IndexedDB or another persistent store.
-
 ---
 
-## Lifecycle and error events
+## Sending messages
 
-Route non-message events by `evt.type` for logging, UI state, and resync triggers. None of these participate in the acknowledgement flow.
+`websocket://send` writes a text frame. If the socket is down at call time, Despia saves the send to a durable outbound queue and flushes the queue in order once the connection is restored. Sends issued while offline are not lost.
 
 ```javascript
-window.onWebSocketEvent = function (evt) {
-    switch (evt.type) {
-        case 'open':
-            console.log(`[${evt.id}] connected ${evt.protocol || ''}`)
-            return
-
-        case 'reconnecting':
-            console.warn(`[${evt.id}] retry #${evt.attempt} in ${evt.delay.toFixed(1)}s`)
-            return
-
-        case 'closed':
-            console.warn(`[${evt.id}] closed code=${evt.code} clean=${evt.clean}`)
-            return
-
-        case 'dropped':
-            resync(evt.id)
-            return
-
-        case 'send_failed':
-            console.error(`[${evt.id}] outbound ${evt.oid} permanently failed`)
-            return
-    }
+if (isDespia) {
+    const payload = encodeURIComponent(JSON.stringify({ ping: 1 }))
+    despia(`websocket://send?id=orders&payload=${payload}`)
 }
 ```
 
-`reconnecting` fires when the runtime is waiting before the next reconnect attempt. `attempt` is the 1-indexed retry number, `delay` is the wait in seconds.
+For binary frames, base64-encode the bytes before passing them as `payload`.
+
+If a single send fails 25 consecutive times, Despia gives up on it and fires `send_failed` with its outbound id. The rest of the queue continues. Maintain your own mapping from `oid` to application intent if you need to surface the failure to the user.
 
 ```json
 {
     "id": "orders",
-    "type": "reconnecting",
-    "ts": 1747600055,
-    "attempt": 3,
-    "delay": 4.2
-}
-```
-
-`closed` fires when the socket terminates. `code` is the WebSocket close code per RFC 6455, `reason` is the server-supplied reason string (often empty), `clean` is `true` only for clean server-initiated closes (code 1000).
-
-```json
-{
-    "id": "orders",
-    "type": "closed",
-    "ts": 1747600060,
-    "code": 1006,
-    "reason": "",
-    "clean": false
-}
-```
-
-`error` fires on transient socket errors during a session and is typically followed by a `closed` and a `reconnecting` if `reconnect` is true. Most apps can ignore `error` and react only to `closed` and `reconnecting`.
-
-```json
-{
-    "id": "orders",
-    "type": "error",
-    "ts": 1747600059,
-    "error": "The network connection was lost."
-}
-```
-
-`dropped` fires when inbound records are purged because they exceeded the 7-day age limit or the 5000-entry cap. Re-register your subscribe frame with a fresh cursor to replay from the server.
-
-```json
-{
-    "id": "orders",
-    "type": "dropped",
-    "ts": 1747600100,
-    "count": 17,
-    "reason": "expired_or_overflow"
+    "type": "send_failed",
+    "ts": 1747600099,
+    "oid": "orders#42"
 }
 ```
 
 ---
 
-## Connection status
+## Resuming after reconnect
 
-`websocket://status` returns the connection state as a `response` event. Pass a `rid` to correlate the reply with the call.
+`websocket://subscribe` registers a frame that Despia sends to the server on every connect and reconnect. Include a cursor or last-seen id so the server can replay events that arrived while the socket was down.
+
+Only one frame is stored per connection. The latest registration replaces the previous one. Omit `frame` to clear it. Update the registration as your cursor advances so the server always has an accurate resume point.
 
 ```javascript
-const rid = Date.now().toString()
-despia(`websocket://status?id=orders&rid=${rid}`)
+if (isDespia) {
+    const frame = encodeURIComponent(JSON.stringify({
+        action: 'subscribe',
+        topics: ['orders'],
+        since: lastCursor
+    }))
+
+    despia(`websocket://subscribe?id=orders&frame=${frame}`)
+}
+```
+
+If more than 7 days pass without acknowledgement, or more than 5000 messages accumulate unacknowledged, Despia drops the oldest records from the durable store and fires `dropped`. Re-register the subscribe frame with a fresh cursor when this occurs.
+
+---
+
+## Checking connection status
+
+`websocket://status` returns the current state of a connection as a `response` event. Include a `rid` to correlate the reply with the call.
+
+```javascript
+if (isDespia) {
+    const rid = Date.now().toString()
+    despia(`websocket://status?id=orders&rid=${rid}`)
+}
 ```
 
 ```json
@@ -356,94 +312,21 @@ despia(`websocket://status?id=orders&rid=${rid}`)
 }
 ```
 
-Every command accepts an optional `rid`, echoed back on the matching `response` event. Use it whenever you want a deterministic ack that a command was accepted, especially for `subscribe` and `send` which otherwise have no synchronous return.
-
-A failed `response` carries `ok: false` and an `error` string. Failure cases are limited to malformed commands.
-
-```json
-{
-    "id": "orders",
-    "type": "response",
-    "ts": 1747600200,
-    "rid": "1747600200000",
-    "ok": false,
-    "error": "no_connection_for_id"
-}
-```
+`state` is one of `connecting`, `open`, `waitingReconnect`, or `closed`. `pendingOutbound` is the number of sends still queued. `unacked` is the number of incoming messages Despia has delivered but is holding in case of replay. Any command can include a `rid`. Despia echoes it back on the matching `response` event.
 
 ---
 
 ## Disconnecting
 
-`websocket://disconnect` closes the socket and disables auto-reconnect. The durable store is preserved, calling `connect` with the same `id` reuses it.
+`websocket://disconnect` closes the socket and disables auto-reconnect so the connection does not resume when the app returns to the foreground. The durable store is preserved. Calling `connect` again with the same `id` picks up where it left off.
 
 ```javascript
-despia('websocket://disconnect?id=orders')
-```
-
-A clean disconnect fires a `closed` event with `code: 1001` and `clean: true`.
-
-```json
-{
-    "id": "orders",
-    "type": "closed",
-    "ts": 1747600300,
-    "code": 1001,
-    "reason": "client_shutdown",
-    "clean": true
+if (isDespia) {
+    despia('websocket://disconnect?id=orders')
 }
 ```
 
-To point an id at a different URL, disconnect first then issue a fresh `connect` with the new URL.
-
----
-
-## Event reference
-
-Every event includes `id` and `ts` (epoch seconds). Only `message` events participate in the ack flow.
-
-| `type` | extra fields | durable |
-| :-- | :-- | :-- |
-| `connecting` | `attempt` | no |
-| `open` | `protocol` | no |
-| `message` | `message_id`, `dataType`, `payload` | yes |
-| `reconnecting` | `attempt`, `delay`, `error` | no |
-| `closed` | `code`, `reason`, `clean` | no |
-| `error` | `error` | no |
-| `response` | `rid`, `ok`, `error`, plus command result fields | no |
-| `dropped` | `count`, `reason` | no |
-| `send_failed` | `oid` | no |
-
-`payload` is the parsed object or array for `dataType: "json"`, the raw string for `dataType: "text"`, and base64 for `dataType: "binary"`.
-
----
-
-## Value reference
-
-Closed value sets for command parameters and event fields. Anything not listed accepts any string.
-
-| parameter | accepted values |
-| :-- | :-- |
-| `url` | string starting with `wss://` or `ws://` |
-| `reconnect` | `"true"` (default), `"false"` |
-| `protocols` | comma-separated subprotocol names, e.g. `graphql-transport-ws,graphql-ws` |
-| `headers` | JSON-stringified object of HTTP header name and value pairs |
-
-| event field | accepted values |
-| :-- | :-- |
-| `dataType` | `json`, `text`, `binary` |
-| `state` | `connecting`, `open`, `waitingReconnect`, `closed` |
-| `clean` | `true`, `false` |
-| `ok` | `true`, `false` |
-| `code` | numeric WebSocket close code per RFC 6455 |
-
-When `ok` is `false` on a `response` event, `error` is one of:
-
-| error | meaning |
-| :-- | :-- |
-| `missing id/url` | `connect` was missing `id` or `url` |
-| `no_connection_for_id` | the targeted `id` has no live or registered connection |
-| `unknown_command: <name>` | scheme host wasn't `connect`, `subscribe`, `send`, `disconnect`, or `status` |
+A clean disconnect fires a `closed` event with `code: 1001` and `clean: true`. To point an id at a different URL, disconnect first, then issue a fresh `connect` with the new URL.
 
 ---
 

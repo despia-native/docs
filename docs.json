@@ -196,7 +196,10 @@
           {
             "group": "Stream VoIP",
             "icon": "phone-arrow-down-left",
-            "pages": []
+            "pages": [
+              "connectivity/stream/introduction",
+              "connectivity/stream/reference"
+            ]
           },
           {
             "group": "Bluetooth",
