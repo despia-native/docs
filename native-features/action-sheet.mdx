@@ -58,7 +58,7 @@ Attach a global `window.onSheetEvent` function once, somewhere in your app. The 
 ```javascript
 window.onSheetEvent = function (value) {
     if (value === null) {
-        // user tapped Cancel, tapped outside, or tapped back
+        // user tapped outside or tapped back
         return
     }
     console.log('selected', value)
@@ -81,7 +81,7 @@ if (isDespia) {
 }
 ```
 
-`items` must be a JSON string, not an object. Each item needs both `label` (the displayed text) and `value` (the stable identifier passed to your callback, so prefer `'delete'` over `'Delete Post'`). Cancel is added by the native side, do not include it in `items`.
+`items` must be a JSON string, not an object. Each item needs both `label` (the displayed text) and `value` (the stable identifier passed to your callback, so prefer `'delete'` over `'Delete Post'`).
 
 `window.onSheetEvent` is a single global hook. If you have multiple call sites, reassign it right before each `despia()` call so the correct handler runs.
 
