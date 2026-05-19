@@ -4,6 +4,23 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="May 20, 2025" description="Push notifications - path routing and metadata delivery">
+  ## OneSignal push routing and metadata
+
+  Push notifications can now deliver a client-side route and arbitrary metadata to the web layer, enabling deep-link navigation and state restoration on notification tap without a full WebView reload.
+
+  **What ships today:**
+
+  - **Path-based routing.** Send a `path` key in the OneSignal `data` object (e.g. `/account/orders/4567?tab=tracking`). Despia applies the route via `pushState` and fires `popstate` on notification tap. Most SPA routers react to the `popstate` event and navigate automatically with no additional code required on the web side.
+  - **Metadata delivery.** Send a `metadata` key in the `data` object with any JSON value. The payload is delivered to `window.onNotificationEvent` as an object when sent via the REST API, or as a string requiring `JSON.parse` when set via the OneSignal dashboard Additional Data fields. Use it to restore app state on open.
+  - **`window.onNotificationEvent` hook.** For routers that do not react to a synthetic `popstate`, or when using `metadata`, define `window.onNotificationEvent` at the top of your entry bundle. The host app calls it on every notification tap after applying the URL change. If the handler is not defined when the event fires, the event is lost and will not be replayed.
+  - **Legacy `data.url` behavior unchanged.** Pushes that send only `data.url` continue to trigger a full WebView navigation. They now also fire `window.onNotificationEvent` with `url` in the payload, which is a no-op if the handler is not implemented.
+
+  Refer to the [push reference documentation](/native-features/onesignal/reference#deep-linking-and-routing-from-a-notification) for the full payload shape, timing table, and backend examples.
+
+  No dashboard configuration changes but a rebuild is required if you want to use the new API version. Add `path` and `metadata` to your OneSignal `data` object to use the new behavior.
+</Update>
+
 <Update label="May 19, 2026" description="PostHog analytics - event capture, feature flags, and GDPR consent">
   ## PostHog analytics bridge
 
