@@ -4,6 +4,32 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="May 19, 2026" description="PostHog analytics - event capture, feature flags, and GDPR consent">
+  ## PostHog analytics bridge
+
+  Despia now ships a native PostHog integration, exposing event capture, user identification, group analytics, screen tracking, feature flags, and GDPR consent controls through `despia()` schemes and four injected globals. Analytics run inside the native PostHog SDK, with batching, persistence, and delivery handled outside the WebView.
+
+  **What ships today:**
+
+  - **Event capture.** The `posthog://capture` scheme fires named events with optional URI-encoded JSON properties. Device context (OS, app version, screen size) is attached automatically by the native SDK, and your keys take precedence on any conflict.
+  - **Identity and aliasing.** The `posthog://identify` scheme links the device to your internal user ID and stores person properties on the PostHog person record. The `posthog://alias` scheme merges anonymous pre-signup history into the identified profile in a single call.
+  - **Group analytics.** The `posthog://group` scheme associates subsequent events with an organization, team, or workspace for B2B funnels. Group types are created automatically on first use, up to PostHog's hard limit of five per project.
+  - **Screen tracking.** The `posthog://screen` scheme sends a `$screen` event with the provided name, suitable for route-change tracking.
+  - **Super and person properties.** The `posthog://register` and `posthog://unregister` schemes manage session-level super properties appended to every captured event. The `posthog://set_person_properties` scheme updates the person record without capturing an event.
+  - **Feature flags via injected globals.** The `despia.postHogFlags` global holds all evaluated flag values, keyed by flag name, and updates in place whenever PostHog pushes new values. Reads are synchronous, always current, and require no `despia()` call.
+  - **Injected identity globals.** `despia.postHogDistinctId`, `despia.postHogSessionId`, and `despia.postHogOptedOut` are kept live on the `despia` object and update in place after every relevant scheme fires.
+  - **GDPR consent controls.** The `posthog://opt_out` and `posthog://opt_in` schemes act as the SDK-level consent cutoff. Events fired while opted out are dropped before they reach PostHog servers, and the cutoff persists across sessions.
+  - **Reset on logout.** The `posthog://reset` scheme clears the distinct ID, person properties, super properties, group associations, and session in a single call.
+
+  Full scheme list, parameters, and the standard auth flow are documented in the [PostHog reference](https://setup.despia.com/analytics/posthog/reference).
+
+  **Packages:**
+
+  - [despia-native](https://www.npmjs.com/package/despia-native)
+
+  To enable the integration, paste your PostHog project API key into **Despia \> App \> Integrations \> PostHog**, toggle the integration on, and rebuild. PostHog SDK initialization is compiled into the binary, so the rebuild is required before any scheme will fire.
+</Update>
+
 <Update label="May 19, 2025" description="Native features - PK Pass wallet support">
   ## PK Pass / Wallet
 
