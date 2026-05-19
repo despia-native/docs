@@ -4,7 +4,7 @@ description: "GDPR-compliant product analytics, feature flags, and user identifi
 icon: "circle-info"
 ---
 
-Product analytics, feature flags, and user identification - fully bridged from the native PostHog SDK to your web layer. Track events, identify users, run experiments, and manage GDPR consent without writing a line of native code.
+The native PostHog SDK runs inside the Despia runtime and bridges everything to your web layer. Track events, identify users, run A/B experiments, and manage GDPR consent from JavaScript, with no native code and no PostHog web SDK to install separately.
 
 <Info>
   PostHog must be enabled in **Despia Editor \> App \> Settings \> Integrations \> PostHog** and your PostHog API key configured before any data will flow. A fresh native build is required after enabling or changing credentials.
@@ -57,7 +57,7 @@ Product analytics, feature flags, and user identification - fully bridged from t
 
 ## How it works
 
-Despia initializes the native PostHog SDK at app start using your API key. On every page load, four variables are injected automatically into your web layer before any of your code runs.
+Despia initializes the native PostHog SDK at app start using your API key. On every page load, four variables are injected into your web layer before any of your code runs.
 
 ```javascript
 despia.postHogDistinctId  // string  - current PostHog distinct_id
@@ -66,7 +66,7 @@ despia.postHogOptedOut    // boolean - true if the user has opted out of trackin
 despia.postHogFlags       // object  - all evaluated feature flag values, keyed by flag name
 ```
 
-Events and identity calls are fired from your web layer using `window.location.href = "posthog://..."` and intercepted natively. All four globals stay live - the native layer updates them in place whenever their value changes, with no page reload required.
+Events and identity calls are fired from your web layer using `despia('posthog://...')` and intercepted natively. All four globals stay live - the native layer updates them in place whenever their value changes, with no page reload required.
 
 ---
 
@@ -95,6 +95,8 @@ A flag that does not exist or has not yet loaded is absent from `postHogFlags`. 
 Fire any named event with optional properties. This is the core call.
 
 ```javascript
+import despia from 'despia-native'
+
 const isDespia = navigator.userAgent.toLowerCase().includes('despia')
 
 if (isDespia) {
@@ -103,7 +105,7 @@ if (isDespia) {
         revenue: 29.99,
         currency: "USD"
     }
-    window.location.href = "posthog://capture?event=" + encodeURIComponent("Checkout") + "&properties=" + encodeURIComponent(JSON.stringify(props))
+    despia(`posthog://capture?event=${encodeURIComponent("Checkout")}&properties=${encodeURIComponent(JSON.stringify(props))}`)
 }
 ```
 
@@ -120,12 +122,12 @@ const isDespia = navigator.userAgent.toLowerCase().includes('despia')
 
 // User declines analytics
 if (isDespia) {
-    window.location.href = "posthog://opt_out"
+    despia('posthog://opt_out')
 }
 
 // User accepts analytics
 if (isDespia) {
-    window.location.href = "posthog://opt_in"
+    despia('posthog://opt_in')
 }
 
 // Drive consent UI from the live global
