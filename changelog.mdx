@@ -4,6 +4,31 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="May 20, 2026" description="Vision OCR - on-device text recognition for iOS and Android">
+  ## Vision OCR
+
+  Despia apps can now run optical character recognition on any image using the device's native text engine, returning the extracted text straight to your web app. Recognition happens entirely on-device, so it works offline and never sends image data anywhere, with no server round-trips and no third-party API keys.
+
+  **What ships today:**
+
+  - **Multiple image sources.** Recognize a hosted HTTPS image, a `data:` URI, a raw base64 string, a photo the user picks, or a multi-page document scan, all through one capability.
+  - **Native pickers.** The `@imagepicker` token opens the system photo library and the `@filepicker` token opens an image-filtered file browser, with the selection flowing straight into recognition.
+  - **Document scanning.** The `@documentscanner` token opens the native document camera with edge detection and perspective correction, recognizing every captured page and returning the combined text in one result.
+  - **Structured results.** Each result delivers the full text plus a per-line breakdown through the `window.onVisionEvent` callback. Lines carry a confidence score on iOS where the engine exposes one. Output is normalized so each line is trimmed and blank runs collapse before delivery.
+  - **Parallel recognition.** Jobs run independently and are correlated by a caller-supplied `id`, so several images can be processed at once.
+  - **Script hints.** An optional language hint constrains recognition to a known script for non-Latin text, though both platforms auto-detect by default.
+
+  See the [Vision OCR documentation](/machine-learning/vision/ocr) for the full event reference, error codes, and sample payloads.
+
+  **Privacy by design.** Because recognition runs fully on-device, no image or extracted text is ever transmitted to Despia or any third party. Sensitive content stays on the user's device, which removes the third-party processing and data-transfer exposure that frameworks like GDPR and HIPAA are concerned with. This makes the feature well-suited to handling personal and health-related data, though overall compliance still depends on how your app stores, transmits, and handles that data end to end.
+
+  **Packages:**
+
+  - [despia-native](https://www.npmjs.com/package/despia-native)
+
+  Vision OCR is available in the current `despia-native` package and requires a fresh native build to pick up the new capability. No dashboard configuration or integration credentials are required.
+</Update>
+
 <Update label="May 20, 2025" description="Push notifications - path routing and metadata delivery">
   ## OneSignal push routing and metadata
 
