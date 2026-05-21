@@ -23,7 +23,7 @@ PowerSync brings a native local SQLite database to your Despia app, with optiona
 | Layer | Works offline | Requires PowerSync cloud setup | APIs |
 | --- | --- | --- | --- |
 | Local SQLite | Yes | No | `init`, `query`, `get`, `execute`, `batch`, `transaction`, `watch`, `migrate`, `schema` |
-| Cloud sync | Yes, sync resumes later | Yes | `db.powersync.connect`, `db.powersync.sync`, `db.powersync.status`, `db.powersync.events.status` |
+| Cloud sync | Yes, sync resumes later | Yes | `db.powersync.connect`, `db.powersync.sync`, `db.powersync.status`, `db.powersync.events.status`, `db.powersync.events.upload` |
 
 Local database operations do not require a token. Sync starts only after native has an active schema, applied migrations, and credentials from `db.powersync.connect({ token })`.
 
@@ -267,6 +267,48 @@ await db.powersync.sync()
 
 ---
 
+## Local write upload
+
+If your backend upload runs in JavaScript, register an upload handler so native can hand local CRUD writes to your HTTP layer:
+
+```typescript
+const unsubscribe = db.powersync.events.upload(async ({ crud }) => {
+    await fetch('/api/powersync-upload', {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ crud }),
+    })
+})
+```
+
+The handler is called when native PowerSync has pending CRUD rows to send to your backend. If the handler resolves, the native queue is finalized. If it throws, PowerSync retries later. Register one upload handler per session.
+
+---
+
+## Search
+
+Register native full-text indexes on any local SQLite table and query them with plain, prefix, or fuzzy matching:
+
+```typescript
+await db.search.index({
+    name:    'todosSearch',
+    table:   'todos',
+    columns: ['title'],
+})
+
+const results = await db.search.query<Todo>({
+    index: 'todosSearch',
+    text:  'buy mlk',
+    mode:  'fuzzy',
+    limit: 20,
+})
+```
+
+Native uses SQLite FTS5 for full-text and prefix search, and native trigram/edit-distance ranking for `mode: "fuzzy"` when supported by the app build.
+
+---
+
 ## Startup lifecycle
 
 Use this order on every app start. It guarantees that sync only begins after the schema is active and migrations are applied.
@@ -371,7 +413,7 @@ Why this order matters:
   </Card>
 
   <Card title="Reference" icon="code" href="/local-database/reference">
-    Full API, init, query, execute, batch, watch, migrate, sync
+    Full API, init, query, execute, batch, watch, migrate, search, sync
   </Card>
 
   <Card title="PowerSync" icon="link" href="https://powersync.com">

@@ -1,6 +1,6 @@
 ---
 title: "Reference"
-description: "Full API reference for @despia/powersync, init, query, write, watch, sync, and migrate."
+description: "Full API reference for @despia/powersync, init, query, write, watch, search, sync, and migrate."
 icon: "code"
 ---
 
@@ -8,7 +8,7 @@ icon: "code"
   The PowerSync integration is fully built and production-ready. It will become publicly available when the Despia V4 editor launches shortly. To enable it for your app in the meantime, contact Despia customer support at [support@despia.com](mailto:support@despia.com).
 </Info>
 
-Query a local SQLite database, run migrations, watch live results, and optionally sync with your backend in real time.
+Query a local SQLite database, run migrations, watch live results, search with full-text indexes, and optionally sync with your backend in real time.
 
 ## Installation
 
@@ -465,6 +465,126 @@ unsubscribe()
 ```
 
 Use this for sync state UI (syncing indicators, offline banners, last-synced timestamps). For row data, use `db.watch()` instead.
+
+---
+
+### db.powersync.events.upload
+
+Register a handler that native calls when it has local CRUD writes to send to your backend. Use this when your backend upload runs in JavaScript rather than natively.
+
+```typescript
+const unsubscribe = db.powersync.events.upload(async ({ crud }) => {
+    await fetch('/api/powersync-upload', {
+        method:      'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ crud }),
+    })
+})
+
+// Stop listening when tearing down the session
+unsubscribe()
+```
+
+The callback receives the pending CRUD batch and may return a promise. If the handler resolves, the SDK tells native `upload_complete` so the native queue can be finalized. If the handler throws, the SDK reports the error back to native and PowerSync retries later. Register one upload handler per app session — calling `events.upload()` again replaces the previous handler.
+
+---
+
+## Search
+
+Search lets you register native full-text indexes on local SQLite tables and query them with plain, prefix, or fuzzy matching. Native uses SQLite FTS5 for full-text and prefix search, and native trigram/edit-distance ranking for `mode: "fuzzy"` when supported by the app build.
+
+The SDK trims search names, table names, column names, and query text before sending them to native. Search index columns must be unique, query text is capped at `256` characters, and `limit` is capped at `1000` per request.
+
+### db.search.index
+
+Create or update a native full-text search index on a table.
+
+```typescript
+await db.search.index({
+    name:    'postsSearch',
+    table:   'posts',
+    columns: ['title', 'body'],
+})
+```
+
+Native validates that the source table and columns exist before creating the index.
+
+<ParamField path="name" type="string" required>
+  Unique name for this search index.
+</ParamField>
+
+<ParamField path="table" type="string" required>
+  The SQLite table to index.
+</ParamField>
+
+<ParamField path="columns" type="string[]" required>
+  The columns to include in the full-text index. Must be non-empty and reference columns that exist in the table.
+</ParamField>
+
+---
+
+### db.search.indexes
+
+List all native search indexes currently registered for the database.
+
+```typescript
+const indexes = await db.search.indexes()
+// [{ name: 'postsSearch', table: 'posts', columns: ['title', 'body'] }]
+```
+
+---
+
+### db.search.query
+
+Query a native search index.
+
+```typescript
+type PostRow = { id: string; title: string; body: string | null }
+
+const rows = await db.search.query<PostRow>({
+    index: 'postsSearch',
+    text:  'ofline sycn',
+    mode:  'fuzzy',
+    limit: 20,
+})
+```
+
+<ParamField path="index" type="string" required>
+  Name of the search index to query.
+</ParamField>
+
+<ParamField path="text" type="string" required>
+  Search text. Capped at 256 characters.
+</ParamField>
+
+<ParamField path="mode" type='"plain" | "prefix" | "fuzzy"' required>
+  Search mode. `"plain"` matches exact terms, `"prefix"` matches term prefixes, `"fuzzy"` uses typo-tolerant ranking when supported by the app build.
+</ParamField>
+
+<ParamField path="limit" type="number">
+  Maximum number of results to return. Capped at 1000.
+</ParamField>
+
+---
+
+### db.search.rebuildIndex
+
+Rebuild a search index. Use this after large migrations or data repairs if your native integration uses rebuild-based fuzzy indexes.
+
+```typescript
+await db.search.rebuildIndex({ name: 'postsSearch' })
+```
+
+---
+
+### db.search.dropIndex
+
+Remove a search index permanently.
+
+```typescript
+await db.search.dropIndex({ name: 'postsSearch' })
+```
 
 ---
 
@@ -985,6 +1105,56 @@ export type SyncStatus = {
     downloading: boolean
 }
 
+export type PowerSyncCrudOperation = 'INSERT' | 'UPDATE' | 'DELETE'
+
+export type PowerSyncCrudEntry = {
+    id:        string
+    table:     string
+    operation: PowerSyncCrudOperation
+    data:      Record<string, unknown>
+}
+
+export type PowerSyncUploadPayload = {
+    crud: PowerSyncCrudEntry[]
+}
+
+export type PowerSyncUploadHandler = (
+    payload: PowerSyncUploadPayload
+) => void | Promise<void>
+
+export type PowerSyncSearchMode = 'plain' | 'prefix' | 'fuzzy'
+
+export type PowerSyncSearchIndexOptions = {
+    name:    string
+    table:   string
+    columns: string[]
+}
+
+export type PowerSyncSearchIndex = {
+    name:    string
+    table:   string
+    columns: string[]
+}
+
+export type PowerSyncSearchQueryOptions = {
+    index: string
+    text:  string
+    mode:  PowerSyncSearchMode
+    limit?: number
+}
+
+export type PowerSyncSearchRow<T> = T & {
+    _rank?: number
+}
+
+export type PowerSyncSearchDropIndexOptions = {
+    name: string
+}
+
+export type PowerSyncSearchRebuildIndexOptions = {
+    name: string
+}
+
 export type PowerSyncErrorDetail = {
     path?:     string
     reason?:   string
@@ -1002,19 +1172,40 @@ export type PowerSyncError = Error & {
 
 ---
 
-## Environment check
+## Exports
 
 ```typescript
-import { active } from '@despia/powersync'
-
-if (active()) {
-    // Use PowerSync
-} else {
-    // Fallback for non-Despia environment (standard browser)
-}
+import {
+    active,
+    db,
+    Database,
+    onEvent,
+    type BatchResult,
+    type BatchStatement,
+    type ExecuteResult,
+    type PowerSyncConfig,
+    type PowerSyncColumnType,
+    type PowerSyncCrudEntry,
+    type PowerSyncCrudOperation,
+    type PowerSyncError,
+    type PowerSyncErrorDetail,
+    type PowerSyncErrorDetails,
+    type PowerSyncInitOptions,
+    type PowerSyncSchema,
+    type PowerSyncSchemaState,
+    type PowerSyncSearchDropIndexOptions,
+    type PowerSyncSearchIndex,
+    type PowerSyncSearchIndexOptions,
+    type PowerSyncSearchMode,
+    type PowerSyncSearchQueryOptions,
+    type PowerSyncSearchRebuildIndexOptions,
+    type PowerSyncSearchRow,
+    type PowerSyncTableSchema,
+    type PowerSyncUploadHandler,
+    type PowerSyncUploadPayload,
+    type SyncStatus,
+} from '@despia/powersync'
 ```
-
-`@despia/powersync` requires the native bridge and will throw in a standard browser. Gate calls behind this check if your app also runs on web.
 
 ---
 
