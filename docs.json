@@ -209,6 +209,22 @@
         ]
       },
       {
+        "group": "Health",
+        "icon": "heart-pulse",
+        "hidden": true,
+        "tag": "V4",
+        "pages": [
+          {
+            "group": "Terra",
+            "icon": "webhook",
+            "pages": [
+              "introduction-1",
+              "reference"
+            ]
+          }
+        ]
+      },
+      {
         "group": "Machine Learning",
         "icon": "head-side-gear",
         "tag": "V4",
@@ -218,6 +234,13 @@
             "icon": "eye",
             "pages": [
               "machine-learning/vision/ocr"
+            ]
+          },
+          {
+            "group": "Voice",
+            "icon": "walkie-talkie",
+            "pages": [
+              "machine-learning/voice/speech-recognition"
             ]
           }
         ]

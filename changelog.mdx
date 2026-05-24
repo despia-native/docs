@@ -4,6 +4,16 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="May 24, 2025" description="Android - Kotlin support added alongside existing Java runtime">
+  ## Android runtime now supports Kotlin
+
+  Despia Android now runs on both Java and Kotlin. Previously, the Android layer was Java-only, which blocked integration with modern SDKs that require Kotlin.
+
+  Adding Kotlin support alongside the existing Java runtime removes that constraint and allows Despia Android builds to integrate with the growing set of SDKs that depend on Kotlin.
+
+  No dashboard configuration changes are required. Developers integrating Kotlin-based SDKs should rebuild their app to pick up the updated runtime.
+</Update>
+
 <Update label="May 20, 2026" description="Vision OCR - on-device text recognition for iOS and Android">
   ## Vision OCR
 
