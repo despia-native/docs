@@ -39,12 +39,7 @@ Home Widgets on iOS runs as a separate Widget Extension target with its own bund
     Scroll down to **Capabilities**, check **App Groups**, click **Edit**, and select the same `group.com.despia.myapp.widgetsharing` group. Click **Continue** and **Save**. Both bundles now share storage, which is how the widget reads user-specific data the core app wrote.
   </Step>
   <Step title="Enable Home Widgets in the Despia Editor">
-    Open the Despia Editor and go to **App \> Targets \> Home Widget**. Toggle the integration on, then paste in:
-
-    - **Widget Extension Bundle ID**: `com.despia.myapp.ImageWidget`
-    - **App Group ID**: `group.com.despia.myapp.widgetsharing`
-
-    Both values must match exactly what you registered in Apple Developer.
+    Open the Despia Editor and go to **App \> Targets \> Home Widget**. Toggle the integration on.
   </Step>
   <Step title="Rebuild your app">
     Trigger a fresh build from the Despia Editor. The widget target has to be compiled into your app binary and signed with the matching provisioning profile, so this cannot be applied over-the-air. After the build finishes, the widget becomes available for users to add to their home screen, and your `widget://` SDK call sets the SVG source.
