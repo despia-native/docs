@@ -4,6 +4,35 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="May 30, 2026" description="Offline support - opt-in PWA service workers on iOS and Android">
+  ## Service-worker offline support (opt-in)
+
+  Apps that load from a remote `https` origin and ship a Progressive Web App service worker can now run that worker inside the native WebView on iOS and Android, serving offline from the worker's own cache and behaving like an installed PWA. This is opt-in per app and off by default.
+
+  The native layer gets out of the way once the feature is on, so the worker owns the offline experience instead of the app dropping to its local-HTML fallback. Enabling it is the same on both platforms: select PWA in the editor's Offline Support section.
+
+  **What ships today:**
+
+  - **Worker-served offline on both platforms.** With the feature on, navigations flow through the service worker whether online or offline, and the native offline fallback no longer hijacks the navigation into the bundled local HTML.
+  - **App-Bound Domains on iOS.** WKWebView only runs service workers when the app declares its domains as App-Bound Domains, so opted-in iOS builds register the app host plus its in-app navigation domains automatically. On Android the WebView runs service workers natively, with none of the App-Bound constraints below.
+  - **Cold-start offline bootstrap.** On a cold offline launch the app loads a tiny same-origin page, waits for the worker to become ready, then soft-navigates to the target so the worker serves the cached shell.
+
+  **How to enable it:**
+
+  - In the Despia editor, open the Offline Support section and select PWA (service workers). The build registers the required domains automatically.
+  - If the main view loads third-party domains not already in the app config, list them as extra service-worker domains.
+
+  **Requirements and constraints:**
+
+  - The web app must be a client-side-routed SPA. A fresh top-level navigation to an uncached route is not served offline; in-page routing is.
+  - The origin must be served over `https`, the first launch must be online so the worker can install, and the persistent data store must stay intact. Clear-data and reset flows wipe the worker and its caches.
+  - On iOS only, App-Bound Domains is capped at 10 entries, listed individually, and every domain the main view navigates to in-webview must be listed. Full-page OAuth redirects or popup logins to unlisted domains (for example `accounts.google.com`, `m.facebook.com`, or `appleid.apple.com`) fail under App-Bound mode and should be routed through native sign-in instead.
+
+  For new offline-first apps, the Despia Local Server (`@despia/local`) is the cleaner option: it serves the build from `http://localhost`, so service workers and other PWA features work natively with none of the App-Bound Domains constraints above. See [https://setup.despia.com/local-server/introduction](https://setup.despia.com/local-server/introduction).
+
+  This feature is off by default and must be enabled per app. To turn it on, open the Offline Support section in the Despia editor and select PWA, confirm the web app is a client-side-routed SPA, and on iOS list any third-party in-webview domains. No changes are needed for apps that do not opt in.
+</Update>
+
 <Update label="May 24, 2025" description="Android - Kotlin support added alongside existing Java runtime">
   ## Android runtime now supports Kotlin
 
