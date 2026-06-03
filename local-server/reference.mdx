@@ -23,7 +23,7 @@ npm install --save-dev @despia/local
     ```javascript vite.config.js
     import { defineConfig } from 'vite';
     import { despiaLocalPlugin } from '@despia/local/vite';
-
+    
     export default defineConfig({
       plugins: [
         despiaLocalPlugin({
@@ -39,7 +39,7 @@ npm install --save-dev @despia/local
 
     ```javascript webpack.config.js
     const DespiaLocalPlugin = require('@despia/local/webpack');
-
+    
     module.exports = {
       plugins: [
         new DespiaLocalPlugin({
@@ -53,7 +53,7 @@ npm install --save-dev @despia/local
   <Tab title="Rollup">
     ```javascript rollup.config.js
     import { despiaLocal } from '@despia/local/rollup';
-
+    
     export default {
       plugins: [
         despiaLocal({
@@ -78,7 +78,7 @@ npm install --save-dev @despia/local
     ```javascript vite.config.js
     import { sveltekit } from '@sveltejs/kit/vite';
     import { despiaLocalSvelteKit } from '@despia/local/sveltekit';
-
+    
     export default {
       plugins: [
         sveltekit(),
@@ -91,7 +91,7 @@ npm install --save-dev @despia/local
     ```javascript astro.config.mjs
     import { defineConfig } from 'astro/config';
     import despiaLocal from '@despia/local/astro';
-
+    
     export default defineConfig({
       integrations: [
         despiaLocal({ entryHtml: 'index.html', outDir: 'dist' })
@@ -103,7 +103,7 @@ npm install --save-dev @despia/local
     ```javascript vite.config.js
     import { remix } from '@remix-run/dev';
     import { despiaLocalRemix } from '@despia/local/remix';
-
+    
     export default {
       plugins: [
         remix(),
@@ -116,7 +116,7 @@ npm install --save-dev @despia/local
     ```javascript build.mjs
     import { build } from 'esbuild';
     import { despiaLocalEsbuild } from '@despia/local/esbuild';
-
+    
     await build({
       entryPoints: ['src/index.js'],
       outdir: 'dist',
@@ -150,114 +150,6 @@ npm install --save-dev @despia/local
     ```
   </Tab>
 </Tabs>
-
-<Prompt
-  description="**Configure `@despia/local` for a specific framework and verify the manifest output.** The agent will wire up the plugin, run the build, and confirm `despia/local.json` is generated correctly. Provide your framework, output directory, and entry HTML filename."
-  icon="sparkles"
-  actions={["copy", "cursor"]}
->
-## Core context — read this before writing any code
-
-### What Despia Local Server is
-Despia is a no-code platform that wraps a web app inside a native iOS and Android shell. The app runs in a WebView (Android) or WKWebView (iOS). The local server feature downloads the web build to the device and serves it from an on-device HTTP server at `http://localhost`, enabling instant boot and full offline operation.
-
-### How the local server works
-1. On first launch, Despia fetches the web build (HTML, CSS, JS, images, fonts) from the hosting URL and caches it on the device.
-2. The on-device HTTP server starts at `http://localhost` and serves the cached assets.
-3. On subsequent launches, the app boots instantly from the local cache with zero network latency.
-4. In the background, Despia fetches `despia/local.json`, compares `deployed_at` with the cached value, and downloads a new build only if the value has changed.
-5. The new build is staged separately and applied on the next launch — the running app is never interrupted.
-
-### The manifest file
-The `@despia/local` build plugin generates `despia/local.json` in your output directory after every build. This path is fixed and must not be changed. The manifest has this shape:
-
-```json
-{
-  "entry": "/index.html",
-  "deployed_at": "1737225600000",
-  "assets": [
-    "/index.html",
-    "/assets/app.abc123.css",
-    "/assets/app.def456.js"
-  ]
-}
-```
-
-- `entry` — the entry HTML file, always required
-- `deployed_at` — millisecond timestamp as a string, updated on every build, used to detect new deployments
-- `assets` — alphabetically sorted array of all asset paths
-
-### Plugin options
-
-| Option | Type | Default | Description |
-|---|---|---|---|
-| `outDir` | string | `dist` | Output directory to scan for assets |
-| `entryHtml` | string | `index.html` | Entry HTML filename to include in manifest |
-
-### Safe area CSS variables
-Despia injects two CSS variables into every WebView automatically:
-- `var(--safe-area-top)` — height of the status bar, notch, or Dynamic Island
-- `var(--safe-area-bottom)` — height of the home indicator or gesture bar
-
-Apply these to the **container** of any top or bottom fixed element, not to the element itself:
-
-```css
-.top-container    { padding-top:    var(--safe-area-top);    }
-.bottom-container { padding-bottom: var(--safe-area-bottom); }
-```
-
-These variables are `0` in a desktop browser. Always test on device.
-
-### What the plugin does not do
-- Does not download or execute native code — only HTML, CSS, JS, and static assets
-- Does not modify the native binary after submission
-- Does not add new native capabilities — only web UI can change via OTA
-
----
-
-## Task
-
-Configure `@despia/local` for [YOUR_FRAMEWORK] with output directory `[YOUR_OUTPUT_DIR]` and entry file `[YOUR_ENTRY_HTML]`.
-
-1. Install the package: `npm install --save-dev @despia/local`
-2. Add the correct plugin import for `[YOUR_FRAMEWORK]` (use the table above to pick the right entry point)
-3. Register the plugin after the framework's own plugin in the plugins array
-4. Set `outDir` to `[YOUR_OUTPUT_DIR]` and `entryHtml` to `[YOUR_ENTRY_HTML]`
-5. Run the build and confirm `[YOUR_OUTPUT_DIR]/despia/local.json` exists with a valid `deployed_at` value and a non-empty `assets` array
-6. If the manifest is missing, confirm the plugin is listed after the framework plugin — order matters for some bundlers
-
-## React reference implementation
-
-```jsx vite.config.js
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import { despiaLocalPlugin } from '@despia/local/vite';
-
-export default defineConfig({
-  plugins: [
-    react(),
-    despiaLocalPlugin({
-      outDir: 'dist',
-      entryHtml: 'index.html'
-    })
-  ]
-});
-```
-
-## HTML reference implementation
-
-```html postbuild (universal)
-<!-- package.json postbuild hook for any build system -->
-<!--
-{
-  "scripts": {
-    "build": "your-build-command",
-    "postbuild": "despia-local dist index.html"
-  }
-}
--->
-```
-</Prompt>
 
 ---
 
@@ -325,124 +217,6 @@ import { VersionGuard } from 'despia-version-guard';
 
 `despia-version-guard` supports React, Vue, Angular, Svelte, and Vanilla JS / Web Components.
 
-<Prompt
-  description="**Add version guards to an existing Despia web app.** The agent will wrap the correct components in `VersionGuard`, identify the minimum version needed for each feature, and ensure fallback UI is in place for older runtimes. Provide your framework and the features you want to version-gate."
-  icon="sparkles"
-  actions={["copy", "cursor"]}
->
-## Core context — read this before writing any code
-
-### What Despia Local Server is
-Despia is a no-code platform that wraps a web app inside a native iOS and Android shell. The app runs in a WebView (Android) or WKWebView (iOS). The local server feature downloads the web build to the device and serves it from an on-device HTTP server at `http://localhost`, enabling instant boot and full offline operation.
-
-### How the local server works
-1. On first launch, Despia fetches the web build (HTML, CSS, JS, images, fonts) from the hosting URL and caches it on the device.
-2. The on-device HTTP server starts at `http://localhost` and serves the cached assets.
-3. On subsequent launches, the app boots instantly from the local cache with zero network latency.
-4. In the background, Despia fetches `despia/local.json`, compares `deployed_at` with the cached value, and downloads a new build only if the value has changed.
-5. The new build is staged separately and applied on the next launch — the running app is never interrupted.
-
-### The manifest file
-The `@despia/local` build plugin generates `despia/local.json` in your output directory after every build. This path is fixed and must not be changed. The manifest has this shape:
-
-```json
-{
-  "entry": "/index.html",
-  "deployed_at": "1737225600000",
-  "assets": [
-    "/index.html",
-    "/assets/app.abc123.css",
-    "/assets/app.def456.js"
-  ]
-}
-```
-
-- `entry` — the entry HTML file, always required
-- `deployed_at` — millisecond timestamp as a string, updated on every build, used to detect new deployments
-- `assets` — alphabetically sorted array of all asset paths
-
-### Safe area CSS variables
-Despia injects two CSS variables into every WebView automatically:
-- `var(--safe-area-top)` — height of the status bar, notch, or Dynamic Island
-- `var(--safe-area-bottom)` — height of the home indicator or gesture bar
-
-Apply these to the **container** of any top or bottom fixed element, not to the element itself:
-
-```css
-.top-container    { padding-top:    var(--safe-area-top);    }
-.bottom-container { padding-bottom: var(--safe-area-bottom); }
-```
-
-These variables are `0` in a desktop browser. Always test on device.
-
-### What the plugin does not do
-- Does not download or execute native code — only HTML, CSS, JS, and static assets
-- Does not modify the native binary after submission
-- Does not add new native capabilities — only web UI can change via OTA
-
----
-
-## Task
-
-Add `despia-version-guard` to gate `[YOUR_FEATURE_COMPONENT]` behind runtime version `[YOUR_MIN_VERSION]`.
-
-1. Install the package if not already present: `npm install despia-version-guard`
-2. Import `VersionGuard` from `despia-version-guard`
-3. Wrap `[YOUR_FEATURE_COMPONENT]` in `<VersionGuard min_version="[YOUR_MIN_VERSION]">`
-4. Add a fallback UI inside a second `VersionGuard` or a plain conditional for users below the minimum version — never leave an empty slot
-5. Repeat for each feature that requires a different minimum version
-6. Test on a device running a runtime version below the threshold to confirm the fallback renders
-
-Do not add version guards to components that use stable native APIs available in all submitted binaries.
-
-## React reference implementation
-
-```tsx MyFeature.tsx
-import { VersionGuard } from 'despia-version-guard';
-import NewFeatureComponent from './NewFeatureComponent';
-import FallbackComponent from './FallbackComponent';
-
-export function MyFeature() {
-  return (
-    <>
-      <VersionGuard min_version="[YOUR_MIN_VERSION]">
-        <NewFeatureComponent />
-      </VersionGuard>
-
-      {/* Fallback for older runtimes — adjust or remove if no fallback is needed */}
-      <VersionGuard max_version="[YOUR_MIN_VERSION]">
-        <FallbackComponent />
-      </VersionGuard>
-    </>
-  );
-}
-```
-
-## HTML reference implementation
-
-```html index.html
-<script type="module">
-  import { versionGuard } from 'despia-version-guard';
-
-  versionGuard('[YOUR_MIN_VERSION]', {
-    onSupported: () => {
-      document.getElementById('new-feature').style.display = 'block';
-    },
-    onUnsupported: () => {
-      document.getElementById('fallback').style.display = 'block';
-    }
-  });
-</script>
-
-<div id="new-feature" style="display:none">
-  <!-- New feature UI -->
-</div>
-<div id="fallback" style="display:none">
-  <!-- Fallback UI for older runtimes -->
-</div>
-```
-</Prompt>
-
 ---
 
 ## Troubleshooting
@@ -456,7 +230,7 @@ export function MyFeature() {
 
 **Missing assets in manifest**
 
-- The plugin scans the entire output directory — confirm assets are copied there during the build step
+- The plugin scans the entire output directory - confirm assets are copied there during the build step
 - Check that file paths resolve correctly relative to the output root
 
 **Path format issues**
@@ -467,7 +241,7 @@ export function MyFeature() {
 
 ---
 
-## External resources
+## Resources
 
 <CardGroup cols={2}>
   <Card title="@despia/local on npm" icon="npm" href="https://www.npmjs.com/package/@despia/local">
@@ -475,6 +249,6 @@ export function MyFeature() {
   </Card>
 
   <Card title="despia-native SDK" icon="mobile" href="https://www.npmjs.com/package/despia-native">
-    Reference for the JavaScript bridge and all 30\+ native API bindings.
+    Reference for the JavaScript bridge and all 50\+ native API bindings.
   </Card>
 </CardGroup>

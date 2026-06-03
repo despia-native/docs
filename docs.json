@@ -36,22 +36,6 @@
         ]
       },
       {
-        "group": "Local Server",
-        "icon": "globe",
-        "pages": [
-          "local-server/introduction",
-          "local-server/reference"
-        ]
-      },
-      {
-        "group": "Local CDN",
-        "icon": "box-open",
-        "pages": [
-          "how-it-works",
-          "reference"
-        ]
-      },
-      {
         "group": "Best Practices",
         "icon": "thumbs-up",
         "expanded": true,
@@ -101,6 +85,267 @@
         ]
       },
       {
+        "group": "Local Ecosystem",
+        "icon": "wifi-slash",
+        "pages": [
+          {
+            "group": "Local Server",
+            "icon": "globe",
+            "pages": [
+              "local-server/introduction",
+              "local-server/reference"
+            ]
+          },
+          {
+            "group": "Local Intelligence",
+            "icon": "sparkle",
+            "pages": [
+              "local-intelligence/Introduction",
+              "local-intelligence/reference"
+            ]
+          },
+          {
+            "group": "Local Database",
+            "icon": "database",
+            "pages": [
+              "local-database/introduction",
+              "local-database/reference"
+            ]
+          },
+          {
+            "group": "Local CDN",
+            "icon": "box-open",
+            "pages": [
+              "local-cdn/introduction",
+              "local-cdn/reference"
+            ]
+          }
+        ],
+        "tag": "V4"
+      },
+      {
+        "group": "Authentication",
+        "icon": "shield",
+        "pages": [
+          {
+            "group": "Clerk",
+            "icon": "arrow-right-from-arc",
+            "pages": [
+              "authentication/clerk/introduction",
+              "authentication/clerk/reference",
+              "authentication/clerk/auth-methods",
+              "authentication/clerk/sessions",
+              "authentication/clerk/backend",
+              "authentication/clerk/account"
+            ],
+            "tag": "V4"
+          }
+        ]
+      },
+      {
+        "group": "Payments",
+        "icon": "dollar-sign",
+        "pages": [
+          "payments/introduction",
+          {
+            "group": "RevenueCat",
+            "icon": "coins",
+            "pages": [
+              "payments/revenuecat/introduction",
+              "payments/revenuecat/reference"
+            ]
+          },
+          {
+            "group": "Stripe",
+            "icon": "money-bill-1-wave",
+            "pages": [
+              "payments/stripe/introduction",
+              "payments/stripe/payment"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "Custom Code",
+        "icon": "code",
+        "hidden": true,
+        "pages": [
+          "custom-code/extensions"
+        ]
+      },
+      {
+        "group": "Analytics",
+        "icon": "chart-mixed",
+        "pages": [
+          {
+            "group": "AppsFlyer",
+            "icon": "chart-pie-simple",
+            "pages": [
+              "analytics/appsflyer/introduction",
+              "analytics/appsflyer/testing",
+              "analytics/appsflyer/attribution",
+              "analytics/appsflyer/deeplinking",
+              "analytics/appsflyer/campaigns",
+              "analytics/appsflyer/events"
+            ]
+          },
+          {
+            "group": "PostHog",
+            "icon": "chart-column",
+            "pages": [
+              "analytics/posthog/introduction",
+              "analytics/posthog/reference"
+            ]
+          }
+        ],
+        "tag": "V4"
+      },
+      {
+        "group": "Connectivity",
+        "icon": "plug",
+        "pages": [
+          "connectivity/websockets",
+          "connectivity/nfc"
+        ]
+      },
+      {
+        "group": "Health",
+        "icon": "heart-pulse",
+        "hidden": true,
+        "tag": "V4",
+        "pages": [
+          {
+            "group": "Terra",
+            "icon": "webhook",
+            "pages": [
+              "introduction-1",
+              "reference"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "Machine Learning",
+        "icon": "head-side-gear",
+        "tag": "V4",
+        "pages": [
+          {
+            "group": "Vision",
+            "icon": "eye",
+            "pages": [
+              "machine-learning/vision/ocr"
+            ]
+          },
+          {
+            "group": "Voice",
+            "icon": "walkie-talkie",
+            "pages": [
+              "machine-learning/voice/speech-recognition"
+            ]
+          }
+        ]
+      },
+      {
+        "group": "Wallets",
+        "icon": "wallet",
+        "pages": [
+          "wallet/pkpass"
+        ],
+        "tag": "V4"
+      },
+      {
+        "group": "Native Features",
+        "icon": "bolt-lightning",
+        "expanded": false,
+        "pages": [
+          "native-features/user-agent",
+          {
+            "group": "OneSignal",
+            "icon": "bell-ring",
+            "pages": [
+              "native-features/onesignal/introduction",
+              "native-features/onesignal/reference"
+            ]
+          },
+          "native-features/deeplinking",
+          {
+            "group": "RevenueCat",
+            "icon": "coins",
+            "pages": [
+              "native-features/revenuecat/introduction",
+              "native-features/revenuecat/reference"
+            ],
+            "hidden": true
+          },
+          {
+            "group": "OAuth 2.0",
+            "icon": "key",
+            "pages": [
+              "native-features/oauth/introduction",
+              "native-features/oauth/apple",
+              "native-features/oauth/google",
+              "native-features/oauth/tiktok"
+            ]
+          },
+          "native-features/purchases",
+          "native-features/paywalls",
+          "native-features/restore-purchase",
+          "native-features/storage-vault",
+          "native-features/gps-location",
+          "native-features/gyroscope",
+          "native-features/light-and-dark-mode",
+          {
+            "group": "AdMob",
+            "icon": "clapperboard-play",
+            "pages": [
+              "native-features/admob/Iinterstitial",
+              "native-features/admob/inline-ads",
+              "native-features/admob/rewarded-ads"
+            ]
+          },
+          "native-features/external-links",
+          "native-features/device-indexing",
+          "native-features/haptic-feedback",
+          "native-features/prevent-autoscroll",
+          "native-features/contact-access",
+          "native-features/healthkit",
+          {
+            "group": "Health Data",
+            "icon": "leaf-heart",
+            "pages": [
+              "health-data/apple-health",
+              "health-data/google-health"
+            ]
+          },
+          "native-features/siri-shortcuts",
+          "native-features/biometrics",
+          "native-features/speech-recognition",
+          "native-features/app-privacy",
+          "native-features/safe-areas",
+          "native-features/screen-radius",
+          "native-features/action-sheet",
+          "native-features/camera-roll",
+          "native-features/offline-push",
+          "native-features/app-settings",
+          "native-features/file-viewer",
+          "native-features/home-widgets",
+          "native-features/file-sharing",
+          "native-features/focus-events",
+          "native-features/screen-brightness",
+          "native-features/share-dialog",
+          "native-features/clipboard",
+          "native-features/store-location",
+          "native-features/share-extension",
+          "native-features/quick-actions",
+          "native-features/simple-storage",
+          "native-features/print-documents",
+          "native-features/screenshot",
+          "native-features/notification-sounds",
+          "native-features/audio-player",
+          "native-features/bluetooth"
+        ]
+      },
+      {
         "group": "Roadblocks",
         "icon": "bug",
         "pages": [
@@ -133,100 +378,10 @@
               "roadblocks/runtime/o-auth-failures",
               "roadblocks/runtime/slow-apps",
               "roadblocks/runtime/empty-pages",
-              "roadblocks/runtime/wrong-framework"
+              "roadblocks/runtime/wrong-framework",
+              "roadblocks/runtime/watermark-bug"
             ]
           }
-        ]
-      },
-      {
-        "group": "Analytics",
-        "icon": "chart-mixed",
-        "pages": [
-          {
-            "group": "AppsFlyer",
-            "icon": "chart-pie-simple",
-            "pages": [
-              "analytics/appsflyer/introduction",
-              "analytics/appsflyer/attribution",
-              "analytics/appsflyer/deeplinking",
-              "analytics/appsflyer/campaigns",
-              "analytics/appsflyer/events"
-            ]
-          }
-        ]
-      },
-      {
-        "group": "Native Features",
-        "icon": "bolt-lightning",
-        "expanded": false,
-        "pages": [
-          "native-features/user-agent",
-          {
-            "group": "OneSignal",
-            "icon": "bell-ring",
-            "pages": [
-              "native-features/onesignal/introduction",
-              "native-features/onesignal/reference"
-            ]
-          },
-          "native-features/deeplinking",
-          {
-            "group": "RevenueCat",
-            "icon": "coins",
-            "pages": [
-              "native-features/revenuecat/introduction",
-              "native-features/revenuecat/reference"
-            ]
-          },
-          {
-            "group": "OAuth 2.0",
-            "icon": "key",
-            "pages": [
-              "native-features/oauth/introduction",
-              "native-features/oauth/apple",
-              "native-features/oauth/google",
-              "native-features/oauth/tiktok"
-            ]
-          },
-          "native-features/purchases",
-          "native-features/paywalls",
-          "native-features/restore-purchase",
-          "native-features/storage-vault",
-          "native-features/gps-location",
-          "native-features/light-and-dark-mode",
-          {
-            "group": "AdMob",
-            "icon": "clapperboard-play",
-            "pages": [
-              "native-features/admob/Iinterstitial",
-              "native-features/admob/inline-ads",
-              "native-features/admob/rewarded-ads"
-            ]
-          },
-          "native-features/external-links",
-          "native-features/device-indexing",
-          "native-features/haptic-feedback",
-          "native-features/contact-access",
-          "native-features/healthkit",
-          "native-features/siri-shortcuts",
-          "native-features/biometrics",
-          "native-features/app-privacy",
-          "native-features/safe-areas",
-          "native-features/camera-roll",
-          "native-features/offline-push",
-          "native-features/app-settings",
-          "native-features/home-widgets",
-          "native-features/file-sharing",
-          "native-features/screen-brightness",
-          "native-features/share-dialog",
-          "native-features/clipboard",
-          "native-features/store-location",
-          "native-features/share-extension",
-          "native-features/quick-actions",
-          "native-features/simple-storage",
-          "native-features/print-documents",
-          "native-features/screenshot",
-          "native-features/notification-sounds"
         ]
       },
       {
@@ -326,6 +481,21 @@
               "lovable/native-features/gps-location"
             ]
           }
+        ],
+        "hidden": true
+      },
+      {
+        "group": "Messaging",
+        "hidden": true,
+        "pages": [
+          {
+            "group": "OneSignal",
+            "pages": []
+          },
+          {
+            "group": "Stream VoIP",
+            "pages": []
+          }
         ]
       }
     ]
@@ -373,5 +543,8 @@
   },
   "background": {
     "decoration": "grid"
+  },
+  "seo": {
+    "indexing": "all"
   }
 }

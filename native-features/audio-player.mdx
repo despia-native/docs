@@ -1,0 +1,247 @@
+---
+title: "Audio"
+description: "Stream audio with a real native player, lock-screen controls, and live config updates."
+icon: "headphones"
+tag: "V4"
+hidden: true
+---
+
+Hand a queue or a paginated feed to the native side and let the OS handle playback, lock-screen controls, background audio, and route changes. Update playback config on the fly without restarting the player.
+
+---
+
+## Installation
+
+<Tabs>
+  <Tab title="Bundle">
+    <CodeGroup>
+
+    ```bash npm
+    npm install despia-native
+    ```
+
+    ```bash pnpm
+    pnpm add despia-native
+    ```
+
+    ```bash yarn
+    yarn add despia-native
+    ```
+
+    </CodeGroup>
+
+    ```javascript
+    import despia from 'despia-native';
+    ```
+  </Tab>
+  <Tab title="CDN">
+    <CodeGroup>
+
+    ```html UMD
+    <script src="https://cdn.jsdelivr.net/npm/despia-native/index.min.js"></script>
+    ```
+
+    ```html ESM
+    <script type="module">
+        import despia from 'https://cdn.jsdelivr.net/npm/despia-native/+esm'
+    </script>
+    ```
+
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+---
+
+## Load a queue
+
+Use `audio://setqueue` for a fixed list of tracks you have up front. The native side rebuilds the player and starts at track 0.
+
+```javascript
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+const tracks = [
+    {
+        id:      'track-1',
+        url:     'https://cdn.example.com/audio/intro.mp3',
+        title:   'Intro',
+        artist:  'The Show',
+        artwork: 'https://cdn.example.com/art/intro.jpg',
+    },
+    {
+        id:      'track-2',
+        url:     'https://cdn.example.com/audio/episode-1.mp3',
+        title:   'Episode 1',
+        artist:  'The Show',
+        artwork: 'https://cdn.example.com/art/ep1.jpg',
+    },
+]
+
+if (isDespia) {
+    const params = new URLSearchParams({
+        tracks:        JSON.stringify(tracks),
+        controls:      'next,prev,skipforward,skipback',
+        skip_interval: '15',
+    }).toString()
+
+    despia(`audio://setqueue?${params}`)
+}
+```
+
+`tracks` must be a JSON string, not an object. `id` is required on every track, the bridge uses it to track which track is current across config updates and feed swaps. `title`, `artist`, and `artwork` are surfaced on the lock screen.
+
+---
+
+## Load a paginated feed
+
+Use `audio://setfeed` when tracks are loaded incrementally from a server. The native side fetches the URL, plays through the returned page, then fetches the next page when the queue runs low.
+
+```javascript
+if (isDespia) {
+    const params = new URLSearchParams({
+        url:           'https://api.example.com/feed',
+        controls:      'next,prev',
+        skip_interval: '30',
+    }).toString()
+
+    despia(`audio://setfeed?${params}`)
+}
+```
+
+Re-issuing `setfeed` with the same `url=` is a no-op idempotent path, the player keeps running. Re-issuing with a different `url=` rebuilds the player, and if the currently-playing track is not present in the new feed, playback terminates rather than silently jumping to a different track.
+
+---
+
+## Playback controls
+
+The lock-screen buttons fire these schemes automatically. Call them yourself from JS to drive your own play / pause / seek / skip UI.
+
+```javascript
+despia('audio://play')
+despia('audio://pause')
+despia('audio://next')
+despia('audio://prev')
+
+// Jump by skip_interval seconds
+despia('audio://skipforward')
+despia('audio://skipback')
+
+// Seek to an absolute position
+despia('audio://seek?position=120')
+```
+
+`audio://skipforward` and `audio://skipback` use whatever `skip_interval` is currently configured.
+
+---
+
+## Listen for events
+
+Attach a global `window.onAudioEvent` function once. The native side calls it with one argument, an event object, every time the player state changes.
+
+```javascript
+window.onAudioEvent = function (e) {
+    if (e.type === 'playing') {
+        hideSpinner()
+    } else if (e.type === 'pause') {
+        showPlayButton()
+    } else if (e.type === 'position') {
+        updateScrubber(e.positionSeconds, e.durationSeconds)
+    } else if (e.type === 'track_error') {
+        showError(e.error)
+    } else if (e.type === 'config_updated') {
+        myUI.loop          = e.state.loop
+        myUI.speedRate     = e.state.speed_rate
+        myUI.skipInterval  = e.state.skip_interval
+    } else if (e.type === 'terminated') {
+        teardownPlayer()
+    }
+}
+```
+
+All events go through this single callback, dispatch on `e.type` inside it. The single-channel design keeps events ordered and easy to log.
+
+---
+
+## Update config without restarting playback
+
+Use `audio://config` to change playback settings on an active player without tearing down or interrupting it. Toggle loop, change playback speed, swap which lock-screen controls show, or adjust the skip interval, the player keeps playing through the change.
+
+```javascript
+if (isDespia) {
+    despia('audio://config?controls=next,prev')
+}
+```
+
+Pass any combination of the four config params. Fields you omit are left untouched.
+
+| Param | Value | Effect |
+| --- | --- | --- |
+| `controls` | comma-separated list of `next`, `prev`, `skipforward`, `skipback`, `seek`. Empty for play/pause only. | Updates which optional lock-screen buttons render. Live. |
+| `loop` | `'true'` or `'false'` | Updates loop. Takes effect on the next track-end. |
+| `skip_interval` | number, in seconds | Updates the ±N button labels and the default jump distance for `audio://skipforward` and `audio://skipback`. |
+| `speed_rate` | number, clamped 0.5–3.0 | Updates playback speed live. Mid-track changes take effect immediately, no track restart. |
+
+```javascript
+// Hide every optional lock-screen button except play/pause
+despia('audio://config?controls=')
+
+// Speed up mid-track without restarting
+despia('audio://config?speed_rate=1.5')
+
+// Several at once
+const params = new URLSearchParams({
+    controls:      'skipforward,skipback',
+    speed_rate:    '2',
+    skip_interval: '10',
+}).toString()
+
+despia(`audio://config?${params}`)
+```
+
+After every successful `audio://config` call, the bridge fires `config_updated` through `window.onAudioEvent`. The `state` object reflects the new values:
+
+```json
+{
+  "type": "config_updated",
+  "state": {
+    "status": "playing",
+    "mode": "feed",
+    "current_index": 2,
+    "position_seconds": 73.5,
+    "duration_seconds": 372.7,
+    "loop": true,
+    "skip_interval": 30,
+    "speed_rate": 1.5,
+    "feed_exhausted": false
+  }
+}
+```
+
+`queue` is not included, `config_updated` is not a queue-changing event. `controls` is not echoed back either, your JS already knows what it sent.
+
+---
+
+## Choosing the right command
+
+`audio://config` exists because `setqueue` and `setfeed` are heavy operations. Reach for it whenever you only need to change settings, restarting the player just to flip a control button is the wrong shape.
+
+| Want to... | Use | Tears down the player? |
+| --- | --- | --- |
+| Load a fixed list of tracks | `audio://setqueue` | Yes, rebuilds the player from track 0. |
+| Switch to a paginated feed | `audio://setfeed` with a new `url=` | Yes, rebuilds the player. May terminate if the currently-playing track is not in the new feed. |
+| Re-issue the same feed URL | `audio://setfeed` with the same `url=` | No, idempotent no-op. |
+| Change only `controls`, `loop`, `speed_rate`, or `skip_interval` | `audio://config` | No, never touches the player or queue. |
+
+---
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card title="NPM Package" icon="npm" href="https://www.npmjs.com/package/despia-native">
+    despia-native
+  </Card>
+
+  <Card title="Support" icon="envelope" href="mailto:support@despia.com">
+    [support@despia.com](mailto:support@despia.com)
+  </Card>
+</CardGroup>

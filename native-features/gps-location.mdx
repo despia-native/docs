@@ -1,400 +1,312 @@
 ---
 title: "GPS Location"
-description: "Track and retrieve a user's real-time location data with configurable intervals using the Despia SDK."
-icon: "location-arrow"
+description: "Track a user's real-time location with configurable time intervals, distance thresholds, live frontend callbacks, and optional server delivery."
+icon: "location-dot"
 ---
 
-<Prompt description="**AI Agent Prompt**\
-\
-Install the `despia-native` package and import it into your app 
+Track and retrieve a user's real-time location using the device's native GPS. Supports live updates to your frontend as the user moves, chronological replay on app reopen, optional server delivery on each point, and distance-based triggers for high-accuracy use cases like running or navigation apps.
 
-Use the `despia('location://')` method with a `server` parameter (the remote endpoint to send coordinates to) and a `buffer` parameter (the interval in seconds between each GPS update) to begin sending GPS coordinates to a remote server at a defined interval.
+Foreground tracking works out of the box with no additional setup. Background tracking, where the GPS keeps recording after the user leaves your app, requires a one-time toggle in the Despia Editor and a rebuild.
 
-Use the `despia('stoplocation://')` method with the `locationSession` key to end the session and retrieve all collected location data, including coordinates, speed, altitude, accuracy, and battery level.
-
-Use the `despia.locationTracking` variable to update the UI to reflect whether tracking is currently active or stopped." icon="sparkle" actions={["copy", "cursor"]}>
-# Integrate Despia Native GPS Location Tracking
-
-Install the `despia-native` package from https://www.npmjs.com/package/despia-native and import it into your app.
-
-```bash
-npm install despia-native
-```
-
-```javascript
-import despia from 'despia-native';
-```
-
-&nbsp;
-
-## Start Tracking
-
-Use the `despia('location://')` method with a `server` parameter (the remote endpoint to receive GPS updates via POST) and a `buffer` parameter (the minimum seconds between each location update) to begin tracking. Always check `despia.locationTracking` before starting to avoid duplicate sessions.
-
-```javascript
-if (!despia.locationTracking) {
-    despia("location://?server=https://api.example.com/track?user=USER_ID&buffer=10");
-}
-```
-
-**Parameters:**
-
-- `server` *(optional)* — the remote API endpoint that receives each location update as a POST request. Omit if you only need local storage.
-- `buffer` *(required)* — minimum seconds between GPS updates. Use `5` for high frequency, `30` for battery-conscious use cases.
-
-&nbsp;
-
-## Stop Tracking and Retrieve Data
-
-Use the `despia('stoplocation://')` method with the `locationSession` key to end the session and retrieve the full array of collected location data.
-
-```javascript
-const data = await despia("stoplocation://", ["locationSession"]);
-const locations = data.locationSession;
-
-console.log(despia.locationTracking); // false
-console.log(locations);
-```
-
-&nbsp;
-
-## Tracking State in the UI
-
-Use the `despia.locationTracking` boolean to reflect the current tracking state in your UI. It is automatically set to `true` when `location://` is called and `false` when `stoplocation://` is called.
-
-```javascript
-if (despia.locationTracking) {
-    // show active tracking indicator
-} else {
-    // show start tracking button
-}
-```
-
-&nbsp;
-
-## Location Session Payload
-
-Each object in the returned `locationSession` array has the following shape:
-
-```json
-[
-    {
-        "latitude": 25.276987,
-        "longitude": 55.296249,
-        "timestamp": 1737219125.5,
-        "gpsTimestamp": 1737219125.3,
-        "speed": 2.5,
-        "course": 87.3,
-        "altitude": 12.4,
-        "horizontalAccuracy": 5.2,
-        "verticalAccuracy": 3.8,
-        "battery": 85
-    },
-    {
-        "latitude": 25.277123,
-        "longitude": 55.296401,
-        "timestamp": 1737219135.7,
-        "gpsTimestamp": 1737219135.5,
-        "speed": 3.1,
-        "course": 89.7,
-        "altitude": 12.6,
-        "horizontalAccuracy": 4.8,
-        "verticalAccuracy": 3.5,
-        "battery": 84
-    },
-    {
-        "latitude": 25.277289,
-        "longitude": 55.296587,
-        "timestamp": 1737219145.9,
-        "gpsTimestamp": 1737219145.7,
-        "speed": null,
-        "course": null,
-        "altitude": 12.3,
-        "horizontalAccuracy": 6.1,
-        "verticalAccuracy": 4.2,
-        "battery": 83
-    }
-]
-```
-
-**Field reference:**
-
-- `latitude` — GPS latitude coordinate
-- `longitude` — GPS longitude coordinate
-- `timestamp` — Unix timestamp when the location was recorded on the device (seconds since epoch)
-- `gpsTimestamp` — raw GPS chip timestamp (seconds since epoch), may differ slightly from `timestamp`
-- `speed` — current speed in meters per second, `null` if the device could not determine speed
-- `course` — direction of travel in degrees from 0 to 360, `null` if unavailable
-- `altitude` — elevation above sea level in meters
-- `horizontalAccuracy` — accuracy radius of the lat/lng position in meters, lower is better
-- `verticalAccuracy` — accuracy of the altitude measurement in meters
-- `battery` — device battery percentage at the exact moment the point was recorded, 0 to 100
-
-&nbsp;
-
-## Full Lifecycle Example
-
-```javascript
-import despia from 'despia-native';
-
-// Start tracking
-async function startTracking() {
-    if (!despia.locationTracking) {
-        despia("location://?server=https://api.example.com/track?user=USER_ID&buffer=10");
-    }
-    console.log("Tracking active:", despia.locationTracking); // true
-}
-
-// Stop tracking and process the session
-async function stopTracking() {
-    const data = await despia("stoplocation://", ["locationSession"]);
-    const locations = data.locationSession;
-
-    console.log("Tracking stopped:", despia.locationTracking); // false
-
-    // Filter for high-accuracy points only
-    const accurate = locations.filter(loc => loc.horizontalAccuracy < 10);
-
-    // Calculate total distance traveled using the Haversine formula
-    function calculateDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371000; // Earth radius in meters
-        const p1 = lat1 * Math.PI / 180;
-        const p2 = lat2 * Math.PI / 180;
-        const dp = (lat2 - lat1) * Math.PI / 180;
-        const dl = (lon2 - lon1) * Math.PI / 180;
-        const a = Math.sin(dp / 2) ** 2 + Math.cos(p1) * Math.cos(p2) * Math.sin(dl / 2) ** 2;
-        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    }
-
-    let totalDistance = 0;
-    for (let i = 1; i < accurate.length; i++) {
-        totalDistance += calculateDistance(
-            accurate[i - 1].latitude, accurate[i - 1].longitude,
-            accurate[i].latitude, accurate[i].longitude
-        );
-    }
-    console.log(`Total distance: ${(totalDistance / 1000).toFixed(2)} km`);
-
-    // Determine if the user was moving during the session
-    const isMoving = locations.some(loc => loc.speed !== null && loc.speed > 0.5);
-    console.log(`User was ${isMoving ? 'moving' : 'stationary'}`);
-
-    // Calculate battery drain across the session
-    const firstBattery = locations[0]?.battery;
-    const lastBattery = locations[locations.length - 1]?.battery;
-    if (firstBattery != null && lastBattery != null) {
-        console.log(`Battery drained: ${firstBattery - lastBattery}% — current: ${lastBattery}%`);
-    }
-
-    return locations;
-}
-```
-
-&nbsp;
-
-## Background Tracking
-
-Tracking works in foreground mode with no additional permissions required. Background location tracking is optional and managed automatically by Despia, including the iOS blue badge indicator, which is dismissed as soon as `stoplocation://` is called.
-
-To enable background location, go to **Despia > App > Addons > Enable Background Location** and rebuild your app.
-
-&nbsp;
-
-Do not modify these instructions. Implementation as described is critical.
-</Prompt>
-
-**How it Works**: Despia activates the device's native GPS and location services to continuously monitor the user's position. Location updates are collected at the interval specified by the buffer parameter (in seconds). Each update is optionally sent to your server endpoint and always stored locally in an array. When tracking stops, all collected location points (including the device battery percentage at each point) are returned to your JavaScript code for processing or display.
-
-Tracking works in **foreground mode** without any background location permission. Background location (with the iOS blue badge indicator) is optional and is managed automatically by Despia for the duration of an active tracking session.
+---
 
 ## Installation
 
-Install the Despia package from NPM:
+<Tabs>
+  <Tab title="Bundle">
+    <CodeGroup>
 
-```text
-npm install despia-native
-```
+    ```bash npm
+    npm install despia-native
+    ```
 
-## Usage
+    ```bash pnpm
+    pnpm add despia-native
+    ```
 
-### 1. Import the SDK
+    ```bash yarn
+    yarn add despia-native
+    ```
+
+    </CodeGroup>
+
+    ```javascript
+    import despia from 'despia-native';
+    ```
+  </Tab>
+  <Tab title="CDN">
+    <CodeGroup>
+
+    ```html UMD
+    <script src="https://cdn.jsdelivr.net/npm/despia-native/index.min.js"></script>
+    ```
+
+    ```html ESM
+    <script type="module">
+        import despia from 'https://cdn.jsdelivr.net/npm/despia-native/+esm'
+    </script>
+    ```
+
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+---
+
+## Despia Editor setup
+
+Foreground tracking is enabled by default. Enable Background Location only if your app needs to keep recording GPS while the user is in another app or has the screen locked, such as run trackers, delivery apps, or navigation. If your use case is a one-time location read or in-app tracking only, skip this setup entirely.
+
+<Steps>
+  <Step title="Open the Background Location addon">
+    In the Despia Editor, navigate to **App \> Addons \> Background Location**.
+  </Step>
+  <Step title="Enable the addon">
+    Toggle **Background Location** on. This adds the iOS background modes entitlement and the Android foreground service permission to your next build, both of which are required for the OS to allow GPS to keep running while your app is not in the foreground.
+  </Step>
+  <Step title="Rebuild your app">
+    Trigger a fresh build from the Despia Editor. Background location requires native entitlements that have to be compiled into the app binary, so this cannot be applied over-the-air. After the rebuild, calls to `location://` keep recording when the app is backgrounded.
+  </Step>
+</Steps>
+
+<Warning>
+  Skipping the rebuild leaves background tracking inactive even if the toggle reads enabled. The `location://` call will still work in the foreground, but as soon as the user backgrounds the app, the GPS stops recording silently. If your tracking sessions are missing the middle section, this is almost always the cause.
+</Warning>
+
+---
+
+## How it works
+
+Call `location://` to start the native GPS session and `stoplocation://` to end it and retrieve the full session array. While tracking is active, every GPS point is delivered to `window.onLocationChange` in real time and stored locally on the device. When tracking stops, the complete session is returned to your JavaScript for processing.
 
 ```javascript
-import despia from 'despia-native';
+import despia from 'despia-native'
+
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+if (isDespia && !despia.locationTracking) {
+    despia('location://?buffer=10')
+}
 ```
 
-### 2. Start Location Tracking
+To stop tracking and retrieve the session:
 
 ```javascript
-// Check if already tracking before starting
-if (!despia.locationTracking) {
-    despia("location://?server=https://api.example.com/track?user=USER_ID&buffer=10");
+const data = await despia('stoplocation://', ['locationSession'])
+const locations = data.locationSession
+```
+
+---
+
+## Parameters
+
+`location://` accepts the following query parameters.
+
+| Parameter | Required | Description |
+| :-- | :-- | :-- |
+| `buffer` | Yes | Minimum seconds between time-based GPS updates. Use `5` for high frequency, `30` or higher for battery-conscious use cases |
+| `server` | No | Remote API endpoint that receives each location update as a POST request. Omit if you only need local storage or frontend updates |
+| `movement` | No | Distance threshold in centimetres. When set, an additional update fires immediately whenever the device moves this distance, regardless of the buffer timer. Use `100` for 1 metre precision |
+
+---
+
+## Live updates with `window.onLocationChange`
+
+Define `window.onLocationChange` before calling `location://` to receive every GPS point in real time as the user moves. Each call receives a single location object with an `active` flag indicating whether tracking is still running.
+
+```javascript
+import despia from 'despia-native'
+
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+window.onLocationChange = function (data) {
+    if (!data.active) {
+        // Tracking ended, finalize the route or show summary
+        finalizeRoute()
+        return
+    }
+
+    // Coordinates, use directly for map rendering
+    drawPointOnMap(data.latitude, data.longitude)
+
+    // Speed, convert m/s to min/km pace
+    if (data.speed !== null && data.speed > 0) {
+        const paceMinPerKm = (1000 / data.speed / 60).toFixed(2)
+        updatePaceDisplay(paceMinPerKm + ' min/km')
+    }
+
+    // Course, rotate a heading arrow
+    if (data.course !== null) {
+        headingArrow.style.transform = `rotate(${data.course}deg)`
+    }
+
+    // Accuracy, skip noisy points
+    if (data.horizontalAccuracy > 10) return
+
+    // Battery, show live drain
+    updateBatteryIndicator(data.battery + '%')
 }
 
-// Without server (local storage only)
-// if (!despia.locationTracking) {
-//     despia("location://?buffer=5");
-// }
+if (isDespia && !despia.locationTracking) {
+    despia('location://?buffer=60&movement=100')
+}
 ```
 
-**Parameters:**
+When the app reopens during an active session, all buffered points are replayed into `window.onLocationChange` in chronological order so your frontend can reconstruct the full route without any additional code.
 
-- `server` (optional) - API endpoint to receive location updates via POST
-- `buffer` (required) - Minimum seconds between location updates (e.g., 5, 10, 30)
+---
 
-> **Foreground vs Background:** If background location is not enabled, tracking continues as long as the app remains in the foreground. This is sufficient for most use cases and does not require the user to grant background location permission.
+## High-accuracy tracking
 
-<Note>
-  To enable background location tracking, go to **Despia \> App \> Addons \> Enable Background Location** and rebuild your app. This adds the required native modules to your binary. Without this step, tracking will only work while the app is in the foreground.
-</Note>
-
-### 3. Stop Tracking and Retrieve Data
+For use cases where each metre counts, combine `movement` with a long `buffer` to get distance-triggered updates as the primary signal and time-based updates as a heartbeat fallback.
 
 ```javascript
-const data = await despia("stoplocation://", ["locationSession"]);
-const locations = data.locationSession;
+window.onLocationChange = function (data) {
+    if (!data.active) {
+        finalizeRoute()
+        return
+    }
+    drawPointOnMap(data.latitude, data.longitude)
+    updatePace(data.speed)
+}
 
-console.log(despia.locationTracking); // false
-console.log(locations);
+// Fire on every 1 metre moved, with a 60s heartbeat
+if (isDespia) {
+    despia('location://?buffer=60&movement=100')
+}
 ```
 
-<Note>
-  Despia automatically dismisses the iOS blue dot indicator as soon as tracking stops. This ensures the background location badge is never visible to users outside of an active tracking session, keeping your app compliant with App Store review guidelines.
-</Note>
+Filter for high-accuracy points using `horizontalAccuracy` before calculating distances. A value below `10` indicates a precise fix.
 
-### 4. Example Response
+```javascript
+const accurate = locations.filter(loc => loc.horizontalAccuracy < 10)
+```
+
+---
+
+## Server delivery
+
+When `server` is set, each GPS point is POSTed to your endpoint as it is recorded. Server delivery, `window.onLocationChange`, and local session storage all run simultaneously and independently. Loss of network does not affect local storage or frontend callbacks.
+
+```javascript
+if (isDespia) {
+    despia('location://?server=https://api.example.com/track?user=USER_ID&buffer=30&movement=100')
+}
+```
+
+Each POST body matches the location object shape below.
+
+---
+
+## Location object
+
+Every location point, whether delivered via `window.onLocationChange`, the session array, or server POST, has the following shape.
 
 ```json
-[
-    {
-        "latitude": 25.276987,
-        "longitude": 55.296249,
-        "timestamp": 1737219125.5,
-        "gpsTimestamp": 1737219125.3,
-        "speed": 2.5,
-        "course": 87.3,
-        "altitude": 12.4,
-        "horizontalAccuracy": 5.2,
-        "verticalAccuracy": 3.8,
-        "battery": 85
-    },
-    {
-        "latitude": 25.277123,
-        "longitude": 55.296401,
-        "timestamp": 1737219135.7,
-        "gpsTimestamp": 1737219135.5,
-        "speed": 3.1,
-        "course": 89.7,
-        "altitude": 12.6,
-        "horizontalAccuracy": 4.8,
-        "verticalAccuracy": 3.5,
-        "battery": 84
-    },
-    {
-        "latitude": 25.277289,
-        "longitude": 55.296587,
-        "timestamp": 1737219145.9,
-        "gpsTimestamp": 1737219145.7,
-        "speed": null,
-        "course": null,
-        "altitude": 12.3,
-        "horizontalAccuracy": 6.1,
-        "verticalAccuracy": 4.2,
-        "battery": 83
-    }
-]
-```
-
-### 5. Full Tracking Lifecycle Example
-
-```javascript
-import despia from 'despia-native';
-
-async function startTracking() {
-    if (!despia.locationTracking) {
-        despia("location://?server=https://api.example.com/track?user=USER_ID&buffer=10");
-    }
-    console.log("Tracking active:", despia.locationTracking); // true
-}
-
-async function stopTracking() {
-    const data = await despia("stoplocation://", ["locationSession"]);
-    const locations = data.locationSession;
-
-    console.log("Tracking stopped:", despia.locationTracking); // false
-    console.log("Collected locations:", locations);
-
-    return locations;
+{
+    "latitude": 25.276987,
+    "longitude": 55.296249,
+    "timestamp": 1737219125.5,
+    "gpsTimestamp": 1737219125.3,
+    "speed": 2.5,
+    "course": 87.3,
+    "altitude": 12.4,
+    "horizontalAccuracy": 5.2,
+    "verticalAccuracy": 3.8,
+    "battery": 85,
+    "active": true
 }
 ```
 
-### 6. Calculate Distance and Analyze Movement
+| Field | Description | Usage |
+| :-- | :-- | :-- |
+| `latitude` | GPS latitude coordinate | Map rendering, distance calculation |
+| `longitude` | GPS longitude coordinate | Map rendering, distance calculation |
+| `timestamp` | Unix timestamp when the point was recorded on the device (seconds) | Chronological ordering, elapsed time |
+| `gpsTimestamp` | Raw GPS chip timestamp (seconds), may differ slightly from `timestamp` | High-precision timing |
+| `speed` | Speed in metres per second. `null` if unavailable | Pace display: `(1000 / data.speed / 60).toFixed(2)` gives min/km |
+| `course` | Direction of travel in degrees from 0 to 360. `null` if unavailable | Rotate a heading arrow: `arrow.style.transform = 'rotate(' + data.course + 'deg)'` |
+| `altitude` | Elevation above sea level in metres | Elevation gain charts |
+| `horizontalAccuracy` | Accuracy radius of the lat/lng in metres. Lower is better | Filter noisy points: discard if `> 10` |
+| `verticalAccuracy` | Accuracy of the altitude measurement in metres | Filter noisy elevation data |
+| `battery` | Device battery percentage recorded at the exact moment of each GPS point | Battery drain per route: `firstPoint.battery - lastPoint.battery` |
+| `active` | `true` while tracking is running. `false` on the final event when tracking stops | Drive UI state, finalize route |
+
+Battery percentage is sampled at every GPS point throughout the session, giving you a precise drain curve for the entire route rather than just a start and end value.
+
+---
+
+## Tracking state
+
+Use `despia.locationTracking` to reflect the current tracking state in your UI. It is set to `true` when `location://` is called and `false` when `stoplocation://` is called.
 
 ```javascript
-const data = await despia("stoplocation://", ["locationSession"]);
-const locations = data.locationSession;
+if (despia.locationTracking) {
+    // show stop button and active indicator
+} else {
+    // show start button
+}
+```
 
-console.log(despia.locationTracking); // false
+---
 
-// Filter for high-accuracy locations only
-const accurateLocations = locations.filter(loc => loc.horizontalAccuracy < 10);
+## Calculate distance and analyse movement
 
-// Calculate total distance traveled (simple method)
+Use the Haversine formula to calculate total distance from the session array after stopping.
+
+```javascript
+const data = await despia('stoplocation://', ['locationSession'])
+const locations = data.locationSession
+
+// Filter for high-accuracy points only
+const accurate = locations.filter(loc => loc.horizontalAccuracy < 10)
+
 function calculateDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371000; // Earth's radius in meters
-    const φ1 = lat1 * Math.PI / 180;
-    const φ2 = lat2 * Math.PI / 180;
-    const Δφ = (lat2 - lat1) * Math.PI / 180;
-    const Δλ = (lon2 - lon1) * Math.PI / 180;
-    
-    const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) +
-              Math.cos(φ1) * Math.cos(φ2) *
-              Math.sin(Δλ/2) * Math.sin(Δλ/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    
-    return R * c; // Distance in meters
+    const R  = 6371000
+    const p1 = lat1 * Math.PI / 180
+    const p2 = lat2 * Math.PI / 180
+    const dp = (lat2 - lat1) * Math.PI / 180
+    const dl = (lon2 - lon1) * Math.PI / 180
+    const a  = Math.sin(dp / 2) ** 2 + Math.cos(p1) * Math.cos(p2) * Math.sin(dl / 2) ** 2
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
 }
 
-let totalDistance = 0;
-for (let i = 1; i < accurateLocations.length; i++) {
-    const prev = accurateLocations[i - 1];
-    const curr = accurateLocations[i];
+let totalDistance = 0
+for (let i = 1; i < accurate.length; i++) {
     totalDistance += calculateDistance(
-        prev.latitude, prev.longitude,
-        curr.latitude, curr.longitude
-    );
+        accurate[i - 1].latitude, accurate[i - 1].longitude,
+        accurate[i].latitude,     accurate[i].longitude
+    )
 }
 
-console.log(`Total distance: ${(totalDistance / 1000).toFixed(2)} km`);
+console.log(`Total distance: ${(totalDistance / 1000).toFixed(2)} km`)
 
-// Check if user is moving
-const isMoving = locations.some(loc => loc.speed && loc.speed > 0.5);
-console.log(`User is ${isMoving ? 'moving' : 'stationary'}`);
+// Check movement
+const isMoving = locations.some(loc => loc.speed !== null && loc.speed > 0.5)
 
-// Monitor battery drain during tracking session
-const firstBattery = locations[0]?.battery;
-const lastBattery = locations[locations.length - 1]?.battery;
-if (firstBattery != null && lastBattery != null) {
-    const batteryDrain = firstBattery - lastBattery;
-    console.log(`Battery drained ${batteryDrain}% during tracking session`);
-    console.log(`Current battery: ${lastBattery}%`);
-}
+// Battery drain
+const drain = locations[0]?.battery - locations[locations.length - 1]?.battery
+console.log(`Battery used: ${drain}%`)
 ```
 
-## Android & Low Power Mode
+---
 
-Despia handles Android background location automatically, including full support for devices with aggressive battery and background management systems.
+## Background tracking notes
 
-**Samsung devices:** Samsung's low power mode is known to restrict background location events on the OS level. Despia includes built-in handling for this, ensuring location tracking and server events are delivered reliably even when low power mode is active. No additional configuration is required.
+Foreground tracking works with no additional permissions and continues as long as the app is in the foreground. To track while the app is backgrounded, follow the Despia Editor setup at the top of this page. Once enabled, Despia manages the iOS blue badge indicator automatically and dismisses it as soon as `stoplocation://` is called.
 
-**Other Android manufacturers:** Devices from manufacturers such as Huawei, Xiaomi, and OnePlus apply similar background restrictions by default. Despia accounts for these behaviours out of the box, so location tracking works consistently across all supported Android devices without any extra setup on your end.
+On Android, Despia handles background location delivery across all major manufacturers including Samsung, Huawei, Xiaomi, and OnePlus, which apply aggressive background restrictions by default. No additional configuration is required. If you encounter missing server events on a specific Android device, contact [location@despia.com](mailto:location@despia.com).
 
-In the rare case that you encounter missing server events on an Android device, reach out to [location@despia.com](mailto:location@despia.com) and our team will look into it.
+---
 
 ## Resources
 
-[**NPM Package**](https://www.npmjs.com/package/despia-native)
+<CardGroup cols={2}>
+  <Card title="NPM Package" icon="npm" href="https://www.npmjs.com/package/despia-native">
+    despia-native
+  </Card>
 
-View full NPM documentation for additional configuration options
-
-For additional support or questions, please contact our support team at [support@despia.com](mailto:support@despia.com)
+  <Card title="Support" icon="envelope" href="mailto:support@despia.com">
+    [support@despia.com](mailto:support@despia.com)
+  </Card>
+</CardGroup>
