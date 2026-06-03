@@ -4,6 +4,27 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="June 03, 2026" description="HealthKit - raw individual samples via raw=true">
+  ## HealthKit raw samples
+
+  The `readhealthkit://` scheme now accepts an opt-in `raw=true` parameter that returns every individual quantity sample with its own timestamp, instead of the default one averaged value per day.
+
+  The daily average was computed on-device, so the underlying samples never reached the web app. With `raw=true` they do, which unlocks intra-day and overnight analysis such as tracking how HRV moves across a night of sleep.
+
+  **What ships today:**
+
+  - **Raw quantity samples.** Add `raw=true` to a `readhealthkit://` read to receive individual samples, each with `startDate`, `endDate`, `value`, and `unit`, sorted oldest to newest.
+  - **Works across the existing call shape.** The parameter combines with comma-separated identifiers and multi-day `days` windows, and applies to quantity types only. It has no effect on sleep or workout reads, which already return per-sample data.
+
+  Adding `raw=true` is non-breaking. Calls without it return exactly the same daily aggregate as before. See the [Apple Health docs](/health-data/apple-health) for the full sample shape and examples.
+
+  This feature requires an app build that includes the update. On older builds `raw=true` is ignored and the read returns the daily aggregate, so rebuild from the Despia Editor to enable it. No dashboard configuration changes are required.
+
+  **Packages:**
+
+  - [despia-native](https://www.npmjs.com/package/despia-native)
+</Update>
+
 <Update label="May 30, 2026" description="Offline support - opt-in PWA service workers on iOS and Android">
   ## Service-worker offline support (opt-in)
 

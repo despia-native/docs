@@ -165,7 +165,7 @@ Characteristics (`HKCharacteristicTypeIdentifierDateOfBirth`, biological sex, bl
 
 ### Quantity types
 
-Quantity types cover numeric metrics: steps, heart rate, distance, body mass, calories, and more. Each record represents one day's value for the requested identifier.
+Quantity types cover numeric metrics: steps, heart rate, distance, body mass, calories, and more. Each record represents one day's value for the requested identifier. For individual samples with timestamps instead of a daily value, see [Raw samples](#raw-samples).
 
 ```javascript
 if (isDespiaIOS) {
@@ -193,6 +193,45 @@ if (isDespiaIOS) {
 <ResponseField name="unit" type="string">
   Unit of measurement, e.g. `count`, `count/min`, `kg`, `m`. Determined automatically by the identifier.
 </ResponseField>
+
+---
+
+### Raw samples
+
+By default a quantity read returns one averaged value per day. Add `raw=true` to get every individual sample with its own timestamp instead. The daily average is computed on-device, so without `raw` the underlying samples never reach your app. This is the mode to use for intra-day or overnight analysis, for example tracking how HRV moves across a night of sleep.
+
+```javascript
+if (isDespiaIOS) {
+    const data    = await despia('readhealthkit://HKQuantityTypeIdentifierHeartRateVariabilitySDNN?days=1&raw=true', ['healthkitResponse'])
+    const samples = data.healthkitResponse.HKQuantityTypeIdentifierHeartRateVariabilitySDNN
+}
+```
+
+```json
+[
+  { "startDate": "2026-06-03T01:14:23Z", "endDate": "2026-06-03T01:14:23Z", "value": 52.3, "unit": "ms" },
+  { "startDate": "2026-06-03T01:19:41Z", "endDate": "2026-06-03T01:19:41Z", "value": 48.7, "unit": "ms" },
+  { "startDate": "2026-06-03T01:24:58Z", "endDate": "2026-06-03T01:24:58Z", "value": 61.2, "unit": "ms" }
+]
+```
+
+<ResponseField name="startDate" type="string">
+  ISO 8601 start time of the sample
+</ResponseField>
+
+<ResponseField name="endDate" type="string">
+  ISO 8601 end time of the sample
+</ResponseField>
+
+<ResponseField name="value" type="number">
+  The measured value for that sample
+</ResponseField>
+
+<ResponseField name="unit" type="string">
+  Unit of measurement, determined automatically by the identifier
+</ResponseField>
+
+`raw=true` works with comma-separated identifiers and multi-day windows, and applies to quantity types only. Samples come back sorted oldest to newest. It has no effect on `HKCategoryTypeIdentifierSleepAnalysis` or workout reads, which already return per-sample data. Calls without `raw=true` return the same daily aggregate as before, so adding it is non-breaking, and on an app build that predates this feature `raw=true` is ignored and you get the aggregate.
 
 ---
 
