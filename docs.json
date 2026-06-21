@@ -379,7 +379,8 @@
               "roadblocks/runtime/slow-apps",
               "roadblocks/runtime/empty-pages",
               "roadblocks/runtime/wrong-framework",
-              "roadblocks/runtime/watermark-bug"
+              "roadblocks/runtime/watermark-bug",
+              "roadblocks/runtime/legacy-setups"
             ]
           }
         ]

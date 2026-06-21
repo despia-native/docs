@@ -166,14 +166,14 @@ if (access_token) {
 
 ## Key differences
 
-| Step                | Web Flow                          | Despia Flow                           |
-| :------------------ | :-------------------------------- | :------------------------------------ |
-| **Login page**      | `window.location.href = oauthUrl` | `despia('oauth://?url=...')`          |
-| **OAuth redirect**  | → `/auth`                         | → `/native-callback`                  |
-| **Callback action** | Set session, navigate             | Redirect to deeplink                  |
-| **Deeplink**        | None                              | `yourappdeeplink://oauth/auth?tokens` |
-| **Browser closes**  | N/A                               | When deeplink called                  |
-| **Final landing**   | `/auth` (already there)           | `/auth` (via deeplink)                |
+| Step | Web Flow | Despia Flow |
+| :-- | :-- | :-- |
+| **Login page** | `window.location.href = oauthUrl` | `despia('oauth://?url=...')` |
+| **OAuth redirect** | → `/auth` | → `/native-callback` |
+| **Callback action** | Set session, navigate | Redirect to deeplink |
+| **Deeplink** | None | `yourappdeeplink://oauth/auth?tokens` |
+| **Browser closes** | N/A | When deeplink called |
+| **Final landing** | `/auth` (already there) | `/auth` (via deeplink) |
 
 ---
 
@@ -231,6 +231,36 @@ console.log('OAuth URL:', oauthUrl);
 
 ---
 
+### Provider blocks login inside the app
+
+**Problem:** The provider's login page opens inside your app's WebView instead of a secure browser. Google shows `403: disallowed_useragent`. Other providers show a blank page, a security warning, or refuse to load.
+
+**Cause:** On the login page the Despia branch redirects the WebView straight to the provider URL with `window.location.href` instead of opening a secure browser session.
+
+In the Despia flow you never send the provider URL to the WebView. Google and Apple block OAuth inside embedded WebViews, and most providers' terms forbid it. Always hand the URL to `oauth://`, which opens ASWebAuthenticationSession on iOS or Chrome Custom Tabs on Android, a session the provider trusts.
+
+**Wrong:**
+
+```javascript
+// Loads the provider inside the WebView, blocked by Google and others
+if (isDespia) {
+  window.location.href = oauthUrl;
+}
+```
+
+**Right:**
+
+```javascript
+// Opens a secure browser session the provider accepts
+if (isDespia) {
+  despia(`oauth://?url=${encodeURIComponent(oauthUrl)}`);
+}
+```
+
+The one exception is Apple Sign-In on iOS, which is built into WebKit and uses a direct redirect on purpose. See the Apple Sign-In section above. Every other provider, and Apple on Android, must go through `oauth://`.
+
+---
+
 ### Browser doesn't close after login
 
 **Problem:** User completes OAuth, stuck in browser.
@@ -276,23 +306,27 @@ console.log('Access token:', new URLSearchParams(window.location.search).get('ac
 
 ### Redirect URI mismatch
 
-**Problem:** OAuth provider shows "redirect_uri mismatch" error.
+**Problem:** OAuth provider shows "redirect\_uri mismatch" or "invalid redirect URI" error.
 
-**Cause:** Callback URL not registered with OAuth provider.
+**Cause:** The callback URL your code sends is not registered with the OAuth provider, or the callback page was added or renamed without updating the provider.
 
 **Fix:**
 
-1. For Despia flow: Register `https://yourapp.com/native-callback`
-2. For web flow: Register `https://yourapp.com/auth`
-3. URLs must match **exactly** (no trailing slash differences)
+1. For Despia flow: register `https://yourapp.com/native-callback`
+2. For web flow: register `https://yourapp.com/auth`
+3. URLs must match **exactly**, no trailing slash differences
+
+**Whenever you add or rename a native callback page, register that exact URL with the provider.** A custom `/native-callback` or `/native-callback.html` is a redirect URI like any other. If you switch from `/native-callback` to `/native-callback.html` (the SPA fix below), that is a different URL, so register `https://yourapp.com/native-callback.html` or every login fails with an invalid redirect URI error.
 
 ---
 
 ### Hash tokens lost in SPA routing
 
-**Problem:** Tokens disappear from URL hash.
+**Problem:** Tokens disappear from the URL hash before your callback code runs. Common with implicit-flow providers that return `#access_token=...`.
 
-**Solution:** Create static HTML callback page.
+**Cause:** SPA routers (React Router, Vue Router, and similar) handle the route change and strip the `#` fragment before your component mounts and reads it.
+
+**Solution:** For any SPA, use a static `native-callback.html` in your `public/` folder as the callback. It loads directly with no router involved, so the hash survives. Treat this as the default for SPAs, not just a fallback.
 
 **Create /native-callback.html:**
 
@@ -330,9 +364,11 @@ console.log('Access token:', new URLSearchParams(window.location.search).get('ac
 
 **Update OAuth redirect:**
 
-```
+```text
 redirect_uri: https://yourapp.com/native-callback.html
 ```
+
+Register this exact `.html` URL with your provider, see Redirect URI mismatch above, or you get an invalid redirect URI error.
 
 **Why this works:** Static HTML loads directly, no router involved, hash preserved.
 
@@ -452,6 +488,7 @@ When OAuth isn't working:
 
 - Check user agent: `console.log(navigator.userAgent)`
 - Verify correct flow selected
+- Verify the Despia branch uses `despia('oauth://?url=...')`, never `window.location.href` to the provider
 - Verify OAuth URL is valid
 - Verify OAuth URL is encoded
 
@@ -461,6 +498,7 @@ When OAuth isn't working:
 - Check tokens received: `console.log('Token:', !!access_token)`
 - Check deeplink format: `myapp://oauth/auth?...`
 - Verify `oauth/` prefix present
+- Verify the callback path you use is registered with the provider
 
 **In /auth page:**
 
@@ -480,11 +518,28 @@ When OAuth isn't working:
 - If true → Despia flow with `despia('oauth://...')` and `/native-callback`
 - If false → Web flow with standard redirect and `/auth`
 
-**The **`oauth/`**prefix is critical.** 
+**Never redirect the WebView to the provider.**
+
+- In the Despia branch, always use `despia('oauth://?url=...')`
+- A direct `window.location.href` to the provider loads it inside the WebView, which Google and most providers block
+- Only exception: Apple Sign-In on iOS, which uses a direct redirect by design
+
+**The `oauth/` prefix is critical.**
 
 - Deeplink format: `yourappdeeplink://oauth/auth?tokens`
 - Without `oauth/` → browser won't close
 - With `oauth/` → browser closes and app receives tokens
+
+**SPAs should use a static native-callback.html.**
+
+- SPA routers strip the `#` fragment before your code reads it
+- A static `public/native-callback.html` bypasses the router and preserves the hash
+- Register the exact `.html` URL with your provider
+
+**Register every callback path with the provider.**
+
+- Adding or renaming `/native-callback` or `/native-callback.html` means updating the provider
+- A path the provider does not know returns an invalid redirect URI error
 
 **Apple Sign-In on iOS is special.**
 
@@ -494,4 +549,4 @@ When OAuth isn't working:
 
 ---
 
-For support or questions, contact: support@despia.com
+For support or questions, contact: [support@despia.com](mailto:support@despia.com)
