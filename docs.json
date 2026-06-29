@@ -359,6 +359,12 @@
                 "pages": [
                   "roadblocks/deployment/apple-i-os/health-kit"
                 ]
+              },
+              {
+                "group": "General",
+                "pages": [
+                  "roadblocks/deployment/update-bundle-id"
+                ]
               }
             ]
           },
