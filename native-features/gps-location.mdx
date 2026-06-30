@@ -1,12 +1,14 @@
 ---
 title: "GPS Location"
-description: "Track a user's real-time location with configurable time intervals, distance thresholds, live frontend callbacks, and optional server delivery."
+description: "Track a user's real-time location with configurable time intervals, distance thresholds, live frontend callbacks, single reads, optional server delivery, and a long-range mode that keeps recording after the app is force-killed."
 icon: "location-dot"
 ---
 
-Track and retrieve a user's real-time location using the device's native GPS. Supports live updates to your frontend as the user moves, chronological replay on app reopen, optional server delivery on each point, and distance-based triggers for high-accuracy use cases like running or navigation apps.
+Track and retrieve a user's real-time location using the device's native GPS. Supports live updates to your frontend as the user moves, chronological replay on app reopen, optional server delivery on each point, one-off single reads, and distance-based triggers for high-accuracy use cases like running or navigation apps. A coarse long-range mode keeps recording while the app is backgrounded and survives the app being force-killed, which suits delivery tracking, trip logging, and region-crossing detection.
 
-Foreground tracking works out of the box with no additional setup. Background tracking, where the GPS keeps recording after the user leaves your app, requires a one-time toggle in the Despia Editor and a rebuild.
+<Info>
+  Location tracking runs in one of two modes. Continuous mode gives high-accuracy foreground updates. Long-range mode trades accuracy for background persistence that survives the app being force-killed. The mode is selected automatically from how far apart you ask points to be, covered below.
+</Info>
 
 ---
 
@@ -55,17 +57,17 @@ Foreground tracking works out of the box with no additional setup. Background tr
 
 ## Despia Editor setup
 
-Foreground tracking is enabled by default. Enable Background Location only if your app needs to keep recording GPS while the user is in another app or has the screen locked, such as run trackers, delivery apps, or navigation. If your use case is a one-time location read or in-app tracking only, skip this setup entirely.
+Foreground tracking is enabled by default. Enable Background Location if your app needs to keep recording GPS while the user is in another app or has the screen locked, such as run trackers, delivery apps, or navigation. The long-range mode covered later also depends on this addon. If your use case is a one-time read or in-app tracking only, skip this setup entirely.
 
 <Steps>
   <Step title="Open the Background Location addon">
     In the Despia Editor, navigate to **App \> Addons \> Background Location**.
   </Step>
   <Step title="Enable the addon">
-    Toggle **Background Location** on. This adds the iOS background modes entitlement and the Android foreground service permission to your next build, both of which are required for the OS to allow GPS to keep running while your app is not in the foreground.
+    Toggle **Background Location** on. This grants your next build the background location capability the OS requires to let GPS keep running while your app is not in the foreground.
   </Step>
   <Step title="Rebuild your app">
-    Trigger a fresh build from the Despia Editor. Background location requires native entitlements that have to be compiled into the app binary, so this cannot be applied over-the-air. After the rebuild, calls to `location://` keep recording when the app is backgrounded.
+    Trigger a fresh build from the Despia Editor. Background location requires native capabilities that have to be compiled into the app binary, so this cannot be applied over-the-air. After the rebuild, calls to `location://` keep recording when the app is backgrounded.
   </Step>
 </Steps>
 
@@ -77,7 +79,7 @@ Foreground tracking is enabled by default. Enable Background Location only if yo
 
 ## How it works
 
-Call `location://` to start the native GPS session and `stoplocation://` to end it and retrieve the full session array. While tracking is active, every GPS point is delivered to `window.onLocationChange` in real time and stored locally on the device. When tracking stops, the complete session is returned to your JavaScript for processing.
+Call `location://` to start the native GPS session and `stoplocation://` to end it and retrieve the full session array. While tracking is active, every GPS point is delivered to `window.onLocationChange` in real time and stored locally on the device. When tracking stops, the complete session is returned to your JavaScript for processing. For a one-time position with no session, request a single fix instead, covered below.
 
 ```javascript
 import despia from 'despia-native'
@@ -104,9 +106,9 @@ const locations = data.locationSession
 
 | Parameter | Required | Description |
 | :-- | :-- | :-- |
-| `buffer` | Yes | Minimum seconds between time-based GPS updates. Use `5` for high frequency, `30` or higher for battery-conscious use cases |
-| `server` | No | Remote API endpoint that receives each location update as a POST request. Omit if you only need local storage or frontend updates |
-| `movement` | No | Distance threshold in centimetres. When set, an additional update fires immediately whenever the device moves this distance, regardless of the buffer timer. Use `100` for 1 metre precision |
+| `buffer` | Yes | Minimum seconds between time-based GPS updates. Use `5` for high frequency, `30` or higher for battery-conscious use cases. Falls back to `5` if it cannot be parsed |
+| `server` | No | Remote HTTPS endpoint that receives each location update as a POST request. Omit if you only need local storage or frontend updates |
+| `movement` | No | Distance threshold in centimetres. When set, an update fires immediately whenever the device moves this distance, in addition to the buffer timer. Use `100` for 1 metre precision. A value of `50000` (500 metres) or higher switches tracking into long-range background mode, described below |
 
 ---
 
@@ -121,29 +123,29 @@ const isDespia = navigator.userAgent.toLowerCase().includes('despia')
 
 window.onLocationChange = function (data) {
     if (!data.active) {
-        // Tracking ended, finalize the route or show summary
+        // tracking ended, finalize the route or show summary
         finalizeRoute()
         return
     }
 
-    // Coordinates, use directly for map rendering
+    // coordinates, use directly for map rendering
     drawPointOnMap(data.latitude, data.longitude)
 
-    // Speed, convert m/s to min/km pace
+    // speed, convert m/s to min/km pace
     if (data.speed !== null && data.speed > 0) {
         const paceMinPerKm = (1000 / data.speed / 60).toFixed(2)
         updatePaceDisplay(paceMinPerKm + ' min/km')
     }
 
-    // Course, rotate a heading arrow
+    // course, rotate a heading arrow
     if (data.course !== null) {
         headingArrow.style.transform = `rotate(${data.course}deg)`
     }
 
-    // Accuracy, skip noisy points
+    // accuracy, skip noisy points
     if (data.horizontalAccuracy > 10) return
 
-    // Battery, show live drain
+    // battery, show live drain
     updateBatteryIndicator(data.battery + '%')
 }
 
@@ -152,7 +154,26 @@ if (isDespia && !despia.locationTracking) {
 }
 ```
 
-When the app reopens during an active session, all buffered points are replayed into `window.onLocationChange` in chronological order so your frontend can reconstruct the full route without any additional code.
+When the app reopens during an active session, all buffered points are replayed into `window.onLocationChange` in chronological order so your frontend can reconstruct the full route without any additional code. Define the callback before calling `location://`, since any points emitted before it exists are lost.
+
+---
+
+## Read a single location
+
+For a one-time position read with no continuous tracking, request a single fix. The native GPS returns one snapshot and stops, which is ideal for stamping a location onto a form submission, a check-in, or a photo without starting a session.
+
+```javascript
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+if (isDespia) {
+    const data = await despia('location://simple', ['locationSession'])
+    const fix  = data.locationSession[0]
+
+    console.log(fix.latitude, fix.longitude)
+}
+```
+
+A single read prompts for While-Using location permission if it has not been granted, never the Always permission that long-range tracking requires. The result is returned as a one-element session array in the same location object shape as a tracking point.
 
 ---
 
@@ -170,17 +191,47 @@ window.onLocationChange = function (data) {
     updatePace(data.speed)
 }
 
-// Fire on every 1 metre moved, with a 60s heartbeat
+// fire on every 1 metre moved, with a 60s heartbeat
 if (isDespia) {
     despia('location://?buffer=60&movement=100')
 }
 ```
 
-Filter for high-accuracy points using `horizontalAccuracy` before calculating distances. A value below `10` indicates a precise fix.
+Filter for high-accuracy points using `horizontalAccuracy` before calculating distances. A value below `10` indicates a precise fix. Keep `movement` below `50000` here, since `50000` or higher hands tracking to the coarse long-range mode.
 
 ```javascript
 const accurate = locations.filter(loc => loc.horizontalAccuracy < 10)
 ```
+
+---
+
+## Track long-range movement in the background
+
+For coarse, long-distance use cases like delivery runs, trip logging, or detecting when a device crosses a region, set `movement` to `50000` (500 metres) or higher. This switches GPS into a low-power long-range mode that fires roughly every 500 metres of travel, keeps recording while the app is backgrounded, and survives the app being force-killed. When iOS relaunches your app to deliver the next point, Despia restores the session and resumes delivery on its own.
+
+```javascript
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+window.onLocationChange = function (data) {
+    if (!data.active) {
+        finalizeRoute()
+        return
+    }
+    sendPositionToServer(data.latitude, data.longitude)
+}
+
+if (isDespia && !despia.locationTracking) {
+    despia('location://?server=https://api.example.com/track&buffer=300&movement=50000')
+}
+```
+
+Long-range mode is driven by distance, not time. It fires on roughly every 500 metres of movement rather than on the `buffer` timer, so you will not receive points at a fixed interval while the device is stationary. The `buffer` value only throttles how often a point is posted once a fix arrives, not how often fixes happen. This mode requests Always location permission, since the OS needs it to wake a terminated app, and it depends on the Background Location addon being enabled in your build.
+
+<Warning>
+  Always call `stoplocation://` when a long-range session is finished. Despia persists the session so iOS can relaunch your app and continue delivery, and that persisted session is only cleared when you stop tracking. Skip the stop call and a later relaunch can silently resume tracking in the background.
+</Warning>
+
+For region or border detection, long-range mode does not watch specific boundaries. It wakes your app every 500 metres or so and posts the current position, and your server decides whether a line was crossed. With `buffer=300`, points arrive at most every five minutes, so a fast-moving device can pass a boundary before the next point lands. Lower `buffer` for tighter detection.
 
 ---
 
@@ -194,13 +245,13 @@ if (isDespia) {
 }
 ```
 
-Each POST body matches the location object shape below.
+Posts are fire-and-forget. A non-2xx response or a network error is not retried, so the point is dropped from the server stream while still kept in the local session. Make your endpoint idempotent and tolerant of out-of-order points, and sort by `gpsTimestamp` if order matters. The endpoint must be HTTPS. Each POST body matches the location object shape below.
 
 ---
 
 ## Location object
 
-Every location point, whether delivered via `window.onLocationChange`, the session array, or server POST, has the following shape.
+Every location point, whether delivered via `window.onLocationChange`, the session array, or a server POST, has the following shape.
 
 ```json
 {
@@ -217,6 +268,16 @@ Every location point, whether delivered via `window.onLocationChange`, the sessi
     "active": true
 }
 ```
+
+The callback delivers this object in two states, distinguished by `active`.
+
+<ParamField path="active: true" type="object">
+  A live tracking point emitted while a session is running. Carries the full set of fields below. Use the coordinates for map rendering and the speed, course, and accuracy fields to drive live UI.
+</ParamField>
+
+<ParamField path="active: false" type="object">
+  The final event of a session, emitted once when `stoplocation://` is called. Same shape as a tracking point, but signals that tracking has ended so you can finalise the route or show a summary.
+</ParamField>
 
 | Field | Description | Usage |
 | :-- | :-- | :-- |
@@ -258,7 +319,7 @@ Use the Haversine formula to calculate total distance from the session array aft
 const data = await despia('stoplocation://', ['locationSession'])
 const locations = data.locationSession
 
-// Filter for high-accuracy points only
+// filter for high-accuracy points only
 const accurate = locations.filter(loc => loc.horizontalAccuracy < 10)
 
 function calculateDistance(lat1, lon1, lat2, lon2) {
@@ -281,19 +342,27 @@ for (let i = 1; i < accurate.length; i++) {
 
 console.log(`Total distance: ${(totalDistance / 1000).toFixed(2)} km`)
 
-// Check movement
+// check movement
 const isMoving = locations.some(loc => loc.speed !== null && loc.speed > 0.5)
 
-// Battery drain
+// battery drain
 const drain = locations[0]?.battery - locations[locations.length - 1]?.battery
 console.log(`Battery used: ${drain}%`)
 ```
 
 ---
 
-## Background tracking notes
+## Background and termination behaviour
 
-Foreground tracking works with no additional permissions and continues as long as the app is in the foreground. To track while the app is backgrounded, follow the Despia Editor setup at the top of this page. Once enabled, Despia manages the iOS blue badge indicator automatically and dismisses it as soon as `stoplocation://` is called.
+Foreground tracking works with no addon and continues as long as the app is in the foreground. What happens once the app leaves the foreground depends on the mode.
+
+| State | Continuous (movement below 500 m) | Long-range (movement 500 m or higher) |
+| :-- | :-- | :-- |
+| Foreground | Streams high-accuracy points | Fires on roughly every 500 m moved |
+| Backgrounded | Keeps recording only with the Background Location addon enabled, otherwise stops within minutes | Keeps recording |
+| Force-killed | Stops | iOS relaunches your app to deliver the next point |
+
+Once the addon is enabled, Despia manages the iOS blue location badge automatically and dismisses it as soon as `stoplocation://` is called.
 
 On Android, Despia handles background location delivery across all major manufacturers including Samsung, Huawei, Xiaomi, and OnePlus, which apply aggressive background restrictions by default. No additional configuration is required. If you encounter missing server events on a specific Android device, contact [location@despia.com](mailto:location@despia.com).
 

@@ -4,6 +4,28 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="June 30, 2026" description="GPS Location - single reads and long-range background mode">
+  ## GPS single reads and long-range background tracking
+
+  The GPS Location feature now supports one-off location reads and a coarse long-range mode that keeps recording while the app is backgrounded and survives the app being force-killed.
+
+  **What ships today:**
+
+  - **Single location reads.** The `location://simple` scheme returns one GPS fix and stops, with no continuous session. It prompts only for While-Using permission and delivers the result as a one-element session array, which suits stamping a position onto a form submission, a check-in, or a photo.
+  - **Long-range background mode.** Setting `movement` to `50000` (500 metres) or higher on a `location://` call switches GPS into a low-power mode that fires roughly every 500 metres of travel, keeps running in the background, and survives termination. When iOS relaunches the app for the next point, Despia restores the session and resumes delivery automatically.
+  - **Automatic mode selection.** The tracking mode is chosen from the `movement` value with no separate flag. Values below `50000` keep continuous high-accuracy tracking, values of `50000` or higher select long-range mode.
+
+  Long-range mode is driven by distance rather than the `buffer` timer, requests Always location permission so the OS can wake a terminated app, and depends on the Background Location addon. Always call `stoplocation://` when a long-range session ends, since the persisted session is only cleared on stop and a later relaunch can otherwise resume tracking silently.
+
+  Full details are in the [GPS Location documentation](https://docs.despia.com/features/gps-location).
+
+  Single reads and continuous foreground tracking require no setup and work on existing builds. Long-range background tracking requires enabling the Background Location addon in the Despia Editor and triggering a fresh build, since the background capability is compiled into the app binary and cannot be applied over-the-air.
+
+  **Packages:**
+
+  - [despia-native](https://www.npmjs.com/package/despia-native)
+</Update>
+
 <Update label="June 03, 2026" description="HealthKit - raw individual samples via raw=true">
   ## HealthKit raw samples
 
