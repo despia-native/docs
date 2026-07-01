@@ -33,10 +33,10 @@ If nothing in your app calls the ATT prompt, that declaration is dead weight, an
 
 ### Why it ships on by default
 
-The default is deliberate. Your app is a web app, and web apps carry tracking the developer often did not write and cannot see in the compiled binary. A Meta Pixel, a GA4 tag, a Hotjar or Segment snippet: any of these sets an identifier and sends user data to an ad network the moment a page loads. Under Apple's definition that is tracking, whether or not you ever trigger the ATT prompt yourself. On a WebView app the binary looks clean to you while a third-party script quietly reports to an ad platform on every session, so Despia ships the declaration on as the safe posture.
+The default is deliberate. Your app is a web app, and web apps often carry third-party scripts the developer did not write and cannot see in the compiled binary. Some analytics and marketing scripts may count as tracking depending on configuration, especially if they are used for ads, attribution, cross-site profiling, or data sharing with third parties. Apple defines Data Used to Track You as app data linked with data from other companies' apps, websites, or offline properties and used for advertising or shared with a data broker, so a Meta Pixel wired for ad attribution can qualify while a first-party, self-hosted analytics setup may not. On a WebView app the binary looks clean to you while a script like that quietly reports on every session, so Despia ships the declaration on as the safe posture until you have confirmed what your scripts actually do.
 
 <Warning>
-  Turning off the declaration on a build that still loads tracking scripts does not fix anything. You will have shipped tracking while telling Apple you do not track, which is a privacy policy violation, not a warning. It is grounds for rejection at review, or a takedown later if it clears and Apple catches it in a scan. Only switch Disable Tracking Declaration on after you have audited your web codebase and confirmed there are no pixels, analytics tags, or third-party scripts that read device identifiers.
+  Turning off the declaration on a build that still loads tracking scripts does not fix anything. You will have shipped tracking while telling Apple you do not track, which is a privacy policy violation, not a warning. It is grounds for rejection at review, or a takedown later if it clears and Apple catches it in a scan. Only switch Disable Tracking Declaration on after you have audited your web codebase and confirmed no script links user data with other companies' apps or websites for advertising, attribution, or sharing with a data broker.
 </Warning>
 
 ---
@@ -70,18 +70,6 @@ Once you have verified your web app does not track, remove the declaration and s
 <Warning>
   The toggle only affects future builds. If you flip Disable Tracking Declaration but attach an old binary, the key is still in that build and App Store Connect keeps blocking you. You have to publish a new build and upload that one.
 </Warning>
-
----
-
-## "Can you just remove it from our Info.plist?"
-
-We get this one a lot:
-
-> Our latest build is currently blocked from App Store submission due to the inclusion of the `NSUserTrackingUsageDescription` key.
->
-> Since we do not actually utilize App Tracking Transparency (ATT) tracking, could you please remove this key from our `Info.plist` file for the next build?
-
-We do not hand-edit the plist, and you do not need us to. In a managed build the Info.plist is regenerated on every publish, so a manual edit would be overwritten on your next build anyway. Disable Tracking Declaration is the durable version of the same change: switch it on, and the key is absent from every binary from that point on. That holds across rebuilds instead of lasting a single upload.
 
 ---
 
