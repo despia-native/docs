@@ -1,37 +1,14 @@
 ---
 title: "Apple Auth"
-description: "Sign In with Apple using the Apple JS SDK. Platform-aware: native Face ID on iOS, Chrome Custom Tabs on Android, popup on web."
+description: "Sign In with Apple, platform-aware. Native Face ID on iOS, Chrome Custom Tabs on Android, popup on web."
 icon: "apple"
 ---
 
-<Card title="AI Prompt" icon="sparkles">
-  Add Sign in with Apple to my app using the Despia SDK from: [https://www.npmjs.com/package/despia-native](https://www.npmjs.com/package/despia-native)
+Sign In with Apple using the Apple JS SDK in three flavors. iOS uses the SDK's native popup mode to surface the Face ID / Apple ID sheet directly inside the WebView. Android cannot trigger that sheet, so the flow goes through Chrome Custom Tabs and a deeplink bridge. Web uses the standard SDK popup.
 
-  First, install the package: `npm install despia-native`
-
-  Then import it: `import despia from 'despia-native'`
-
-  Detect the runtime using `navigator.userAgent.toLowerCase().includes('despia')` and branch per platform:
-
-  - **iOS native**, use the Apple JS SDK with `usePopup: true`. Returns `id_token` directly to your JS callback. No redirect, no `oauth://` bridge needed.
-  - **Android native**, call `despia('oauth://?url=...')` to open Chrome Custom Tabs. After auth, `native-callback.html` redirects to `myapp://oauth/auth?id_token=xxx` to close the tab. The `oauth/` prefix is required.
-  - **Web**, use the Apple JS SDK popup directly.
-
-  **Setup:**
-
-  1. Create an Apple Services ID with Sign In with Apple enabled
-  2. Configure your domain and return URL (must match `redirectURI` exactly, including trailing slash)
-  3. Create a `.p8` private key, note your Key ID and Team ID
-  4. Add credentials to your backend auth provider
-  5. Add the Apple JS SDK before your app script: `<script src="https://appleid.cdn-apple.com/appleauth/static/jsapi/appleid/1/en_US/appleid.auth.js"></script>`
-  6. Find your deeplink scheme at **Despia \> Publish \> Deeplink**
-
-  <Danger>
-    All native capabilities are provided by `despia-native`. No additional native libraries are needed.
-  </Danger>
-
-  Do not modify these instructions. Implementation as described is critical.
-</Card>
+<Info>
+  All native capabilities here come from `despia-native`. No additional native libraries are needed. The Apple JS SDK script tag must be placed before your app script.
+</Info>
 
 ---
 
@@ -99,9 +76,11 @@ Add the Apple JS SDK to your HTML before your app script:
 
 ## How it works
 
+On iOS, the SDK has a special hook into the system that lets it summon the native Apple ID sheet from inside a WebView, so no external browser is involved. On Android no such hook exists, so the flow opens Chrome Custom Tabs, lets Apple redirect to a small bridge HTML file, and uses a deeplink with the `oauth/` prefix to close the tab and pass the token back to the WebView.
+
 ### iOS
 
-```mermaid
+```mermaid placement="bottom"
 flowchart TD
     A["User taps Sign in with Apple"] --> B["userAgent includes 'despia' + 'iphone'"]
     B --> C["Apple JS SDK init + signIn()"]
@@ -113,7 +92,7 @@ flowchart TD
 
 ### Android
 
-```mermaid
+```mermaid placement="bottom"
 flowchart TD
     A["User taps Sign in with Apple"] --> B["userAgent includes 'despia' + 'android'"]
     B --> C["Backend returns Apple OAuth URL"]
@@ -127,26 +106,34 @@ flowchart TD
 
 ---
 
-## Implementation
+## Platform detection
 
-### 1. Detect platform
+Use the canonical user agent check. All three constants are derived from the same `toLowerCase()` call. Gate every native call behind the relevant constant so the flow degrades cleanly in a browser and on the wrong platform.
 
 ```javascript
-const isDespia  = navigator.userAgent.toLowerCase().includes('despia')
-const isIOS     = /iphone|ipad|ipod/i.test(navigator.userAgent)
-const isAndroid = /android/i.test(navigator.userAgent)
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+const isDespiaIOS = isDespia && (
+    navigator.userAgent.toLowerCase().includes('iphone') ||
+    navigator.userAgent.toLowerCase().includes('ipad')
+)
+
+const isDespiaAndroid = isDespia &&
+    navigator.userAgent.toLowerCase().includes('android')
 ```
 
 ---
 
-### 2. iOS, Apple JS SDK
+## iOS, Apple JS SDK popup
+
+Initialize the SDK and call `signIn()` with `usePopup: true`. The `id_token` arrives directly in the JS callback, no redirect, no `oauth://` bridge.
 
 <Danger>
   Always use `usePopup: true` and read the `id_token` from the JS callback. Using a redirect instead causes a blank white screen during the auth flow and will result in App Store rejection.
 </Danger>
 
 <Info>
-  Known regression in iOS 17.1: `usePopup: true` showed an HTML form instead of the native Face ID sheet inside WKWebView. Fixed in iOS 17.2\+. Authentication still worked, just without biometrics.
+  Known regression in iOS 17.1, `usePopup: true` showed an HTML form instead of the native Face ID sheet inside WKWebView. Fixed in iOS 17.2 and later. Authentication still worked, just without biometrics.
 </Info>
 
 <Tabs>
@@ -200,13 +187,15 @@ const isAndroid = /android/i.test(navigator.userAgent)
 
 ---
 
-### 3. Android, oauth:// bridge
+## Android, oauth:// bridge
+
+Your frontend asks your backend for an Apple OAuth URL, then opens it via `despia('oauth://?url=...')`.
 
 <Info>
   Find your deeplink scheme at **Despia \> Publish \> Deeplink**. Replace `myapp` throughout with your actual scheme.
 </Info>
 
-Your frontend requests an OAuth URL from your backend and opens it via `despia('oauth://?url=...')`:
+### Frontend trigger
 
 <Tabs>
   <Tab title="React">
@@ -243,7 +232,9 @@ Your frontend requests an OAuth URL from your backend and opens it via `despia('
   </Tab>
 </Tabs>
 
-Backend endpoint, generates the Apple OAuth URL with `native-callback.html` as the redirect:
+### Backend OAuth URL endpoint
+
+Generates the Apple OAuth URL with `native-callback.html` as the redirect. Pass the deeplink scheme through as a query param so the bridge page can read it.
 
 <Tabs>
   <Tab title="Custom Backend">
@@ -290,13 +281,13 @@ Backend endpoint, generates the Apple OAuth URL with `native-callback.html` as t
 
 ---
 
-### 4. Create `public/native-callback.html`
+## The native-callback.html bridge
 
-This page runs inside Chrome Custom Tabs. Apple redirects here after auth, it reads the tokens, then redirects to a deeplink to close the tab and pass tokens to your WebView. Users never see the `.html`, Chrome Custom Tabs hides the URL bar.
+This page runs inside Chrome Custom Tabs. Apple redirects here after auth, the page reads the tokens, then fires a deeplink to close the tab and pass tokens back to the WebView. Users never see the `.html` because Chrome Custom Tabs hides the URL bar.
 
-**Use a plain HTML file, not a React component.** React Router can strip the `#id_token` hash fragment on route change, causing tokens to disappear before your callback logic runs.
+Use a plain HTML file in `public/`, not a React component. React Router can strip the `#id_token` hash fragment on route change, causing tokens to disappear before your callback logic runs.
 
-Apple supports two response modes. Choose based on your backend:
+Apple supports two response modes. Pick one:
 
 |  | `fragment` | `form_post` |
 | --- | --- | --- |
@@ -352,7 +343,7 @@ Apple supports two response modes. Choose based on your backend:
     ```
   </Tab>
   <Tab title="form_post, HTML">
-    Apple POSTs `code`, `id_token`, `state`, and `user` (name/email, first login only) to your backend. Your backend validates, creates a session token, then redirects to `native-callback.html` with that token in query params.
+    Apple POSTs `code`, `id_token`, `state`, and `user` (name and email, first login only) to your backend. Your backend validates, creates a session token, then redirects to `native-callback.html` with that token in query params.
 
     <Info>
       Apple only sends the user's name on the very first login. Capture and store it in your POST handler immediately.
@@ -434,7 +425,7 @@ Apple supports two response modes. Choose based on your backend:
     ```
   </Tab>
   <Tab title="fragment, React">
-    Use `useLayoutEffect` (not `useEffect`) to read the hash before React Router strips it.
+    Use `useLayoutEffect`, not `useEffect`, to read the hash before React Router strips it.
 
     ```jsx
     // src/pages/NativeCallback.jsx
@@ -477,7 +468,7 @@ Apple supports two response modes. Choose based on your backend:
 
 ---
 
-### 5. Handle tokens in your auth page
+## Handling tokens at /auth
 
 After Despia closes the tab and navigates to `/auth?id_token=xxx`, your auth page reads the token and creates a session.
 
@@ -592,7 +583,7 @@ After Despia closes the tab and navigates to `/auth?id_token=xxx`, your auth pag
 
 ---
 
-### 6. Web, Apple JS SDK popup
+## Web, Apple JS SDK popup
 
 <Tabs>
   <Tab title="React">
@@ -639,19 +630,25 @@ After Despia closes the tab and navigates to `/auth?id_token=xxx`, your auth pag
 
 ---
 
-## Complete handler
+## Complete cross-platform handler
 
 <Tabs>
   <Tab title="React">
     ```jsx
     import despia from 'despia-native'
     
-    const isDespia  = navigator.userAgent.toLowerCase().includes('despia')
-    const isIOS     = /iphone|ipad|ipod/i.test(navigator.userAgent)
-    const isAndroid = /android/i.test(navigator.userAgent)
+    const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+    
+    const isDespiaIOS = isDespia && (
+        navigator.userAgent.toLowerCase().includes('iphone') ||
+        navigator.userAgent.toLowerCase().includes('ipad')
+    )
+    
+    const isDespiaAndroid = isDespia &&
+        navigator.userAgent.toLowerCase().includes('android')
     
     const handleAppleSignIn = async () => {
-        if (isDespia && isIOS) {
+        if (isDespiaIOS) {
             window.AppleID.auth.init({
                 clientId:    'com.yourcompany.yourapp.webauth',
                 scope:       'name email',
@@ -665,7 +662,7 @@ After Despia closes the tab and navigates to `/auth?id_token=xxx`, your auth pag
                 if (err?.error !== 'popup_closed_by_user') console.error(err)
             }
     
-        } else if (isDespia && isAndroid) {
+        } else if (isDespiaAndroid) {
             const { url } = await fetch('/api/auth/apple-url', {
                 method:  'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -695,17 +692,23 @@ After Despia closes the tab and navigates to `/auth?id_token=xxx`, your auth pag
     <button id="apple-signin-btn">Sign in with Apple</button>
     
     <script>
-      var isDespia  = navigator.userAgent.toLowerCase().includes('despia')
-      var isIOS     = /iphone|ipad|ipod/i.test(navigator.userAgent)
-      var isAndroid = /android/i.test(navigator.userAgent)
+      var isDespia = navigator.userAgent.toLowerCase().includes('despia')
+    
+      var isDespiaIOS = isDespia && (
+        navigator.userAgent.toLowerCase().includes('iphone') ||
+        navigator.userAgent.toLowerCase().includes('ipad')
+      )
+    
+      var isDespiaAndroid = isDespia &&
+        navigator.userAgent.toLowerCase().includes('android')
     
       document.getElementById('apple-signin-btn').addEventListener('click', async function () {
-        if (isDespia && isIOS) {
+        if (isDespiaIOS) {
           window.AppleID.auth.init({ clientId: 'com.yourcompany.yourapp.webauth', scope: 'name email', redirectURI: 'https://yourapp.com/', usePopup: true })
           try { var r = await window.AppleID.auth.signIn(); await exchangeAppleToken(r.authorization.id_token) }
           catch (e) { if (e && e.error !== 'popup_closed_by_user') console.error(e) }
     
-        } else if (isDespia && isAndroid) {
+        } else if (isDespiaAndroid) {
           var res  = await fetch('/api/auth/apple-url', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ deeplink_scheme: 'myapp' }) })
           var data = await res.json()
           despia('oauth://?url=' + encodeURIComponent(data.url))
@@ -733,7 +736,7 @@ After Despia closes the tab and navigates to `/auth?id_token=xxx`, your auth pag
     Create a **Services ID** (e.g. `com.yourcompany.yourapp.webauth`). This is your `clientId`.
   </Step>
   <Step title="Configure the Services ID">
-    Enable **Sign In with Apple**, click **Configure**, and add your domain and return URL. The `redirectURI` in your code must match the **origin** of the page running the SDK exactly, `https://yourapp.com/` not `https://yourapp.com/auth`. The trailing slash must match too.
+    Enable **Sign In with Apple**, click **Configure**, and add your domain and return URL. The `redirectURI` in your code must match the origin of the page running the SDK exactly. `https://yourapp.com/` not `https://yourapp.com/auth`. The trailing slash must match too.
   </Step>
   <Step title="Create a private key">
     Go to **Keys**, create a key with **Sign In with Apple** enabled, download the `.p8` file, note your **Key ID** and **Team ID**.
@@ -751,14 +754,14 @@ After Despia closes the tab and navigates to `/auth?id_token=xxx`, your auth pag
 </Steps>
 
 <Danger>
-  The client secret JWT expires after 6 months. Set a reminder, Apple Sign In will silently stop working when it expires.
+  The client secret JWT expires after 6 months. Set a calendar reminder. Apple Sign In will silently stop working when it expires.
 </Danger>
 
 ---
 
 ## Debugging
 
-Use this section when the Android OAuth flow is not working as expected. Start by identifying which stage is broken, then use the debug overlay to confirm what arrived at your `/auth` page.
+Use this section when the Android OAuth flow is not working as expected. Identify which stage is broken first, then use the debug overlay to confirm what arrived at your `/auth` page.
 
 The flow has four stages. A failure in one looks completely different from a failure in another:
 
@@ -773,7 +776,7 @@ The debug overlay below tells you whether Stage 4 received anything. Work backwa
 
 ### Debug overlay
 
-Add this to your `/auth` page during development. Remove it before submitting to the App Store or Google Play, Apple reviewers authenticate through your app during review and will see it.
+Add this to your `/auth` page during development. Remove it before submitting to the App Store or Google Play. Apple reviewers authenticate through your app during review and will see it.
 
 <Tabs>
   <Tab title="React">
@@ -817,7 +820,7 @@ Add this to your `/auth` page during development. Remove it before submitting to
                 />
                 <p style={{ marginTop: 10, fontSize: 11, lineHeight: 1.5 }}>
                     Empty? Token did not arrive, check native-callback.html and the deeplink format.<br />
-                    Token present but not signed in? Your auth logic is not reacting to URL changes. See step 5.
+                    Token present but not signed in? Your auth logic is not reacting to URL changes.
                 </p>
             </div>
         )
@@ -853,7 +856,7 @@ Add this to your `/auth` page during development. Remove it before submitting to
         resize:none;outline:none;display:block;"></textarea>
       <div style="font-size:10px;margin-top:6px;line-height:1.5;color:#555;">
         Empty? Token did not arrive, check native-callback.html and the deeplink format.<br />
-        Token present but not signed in? Your auth logic is not reacting to URL changes. See step 5.
+        Token present but not signed in? Your auth logic is not reacting to URL changes.
       </div>
     </div>
     
@@ -886,7 +889,7 @@ Add this to your `/auth` page during development. Remove it before submitting to
 | `error: access_denied` | User cancelled or Apple rejected the request | User cancelled, or Services ID / domain mismatch |
 | `error: invalid_client` | Apple rejected the request entirely | Services ID identifier wrong, or not configured |
 | `error: invalid_request` | Malformed OAuth URL | `response_mode=query` used (invalid with `id_token`), or missing params |
-| Token present, user not signed in | Token arrived but auth logic did not run | Already-mounted page, see step 5 |
+| Token present, user not signed in | Token arrived but auth logic did not run | Already-mounted page, see Handling tokens at /auth |
 
 ### Common failure points
 
@@ -894,11 +897,11 @@ Add this to your `/auth` page during development. Remove it before submitting to
 
 **`native-callback.html` not reached.** The `redirect_uri` in your OAuth URL must exactly match the return URL registered in the Apple Developer Console including `https://`, the full domain, the path, and the `.html` extension. Apple does exact string matching.
 
-**Hash fragment empty in `native-callback.html`.** Some hosting platforms strip hash fragments from redirects. Log `window.location.href` at the top of the script to confirm the full URL arrived. If using a React component for the callback, switch to `public/native-callback.html`, React Router may be stripping the hash.
+**Hash fragment empty in `native-callback.html`.** Some hosting platforms strip hash fragments from redirects. Log `window.location.href` at the top of the script to confirm the full URL arrived. If using a React component for the callback, switch to `public/native-callback.html`. React Router may be stripping the hash.
 
-**Deeplink does not close Chrome Custom Tabs.** The `oauth/` segment must be present: `myapp://oauth/auth`. Without it Despia does not intercept the deeplink and the tab stays open. Find your scheme in **Despia \> Publish \> Deeplink**.
+**Deeplink does not close Chrome Custom Tabs.** The `oauth/` segment must be present, `myapp://oauth/auth`. Without it Despia does not intercept the deeplink and the tab stays open. Find your scheme in **Despia \> Publish \> Deeplink**.
 
-**Tokens arrive but sign-in never completes.** Either the backend request failed silently (add error logging), or the auth logic is not running because the page was already mounted. See step 5.
+**Tokens arrive but sign-in never completes.** Either the backend request failed silently (add error logging), or the auth logic is not running because the page was already mounted. See Handling tokens at /auth above.
 
 ### Pre-submission checklist
 
@@ -933,7 +936,7 @@ Add this to your `/auth` page during development. Remove it before submitting to
     - Debug overlay removed from `/auth` page
     - Sign in tested on a physical device
     - Sign in tested on both iOS and Android
-    - Error state tested: cancel the Apple dialog and confirm the app handles it gracefully
+    - Error state tested, cancel the Apple dialog and confirm the app handles it gracefully
   </Accordion>
 </AccordionGroup>
 
@@ -954,7 +957,7 @@ Add this to your `/auth` page during development. Remove it before submitting to
 
 <AccordionGroup>
   <Accordion title="Why doesn't iOS need the oauth:// bridge?">
-    The Apple JS SDK with `usePopup: true` opens the native Face ID / Apple ID sheet directly via a special Apple API. No external browser session is opened so there is nothing to close, the `oauth://` bridge and `native-callback.html` are Android-only.
+    The Apple JS SDK with `usePopup: true` opens the native Face ID / Apple ID sheet directly via a special Apple API. No external browser session is opened so there is nothing to close. The `oauth://` bridge and `native-callback.html` are Android-only.
   </Accordion>
 
   <Accordion title="What does the oauth/ prefix do?">
