@@ -357,7 +357,8 @@
                 "group": "Apple iOS",
                 "icon": "apple-whole",
                 "pages": [
-                  "roadblocks/deployment/apple-i-os/health-kit"
+                  "roadblocks/deployment/apple-ios/health-kit",
+                  "roadblocks/deployment/apple-ios/att-and-tracking"
                 ]
               },
               {
