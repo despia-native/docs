@@ -4,6 +4,30 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="July 5, 2026" description="Audio - native player with lock-screen controls and feed pagination">
+  ## Native audio player
+
+  The native audio player is now. Hand the native side a fixed queue or a paginated feed and it owns playback end to end: background audio, lock-screen and Control Center controls, interruption handling, and route changes, all without your page touching an audio element.
+
+  **What ships today:**
+
+  - **Queue and feed playback.** The `audio://setqueue` scheme takes a fixed track list, and `audio://setfeed` points the player at a paginated server endpoint that it fetches ahead of time so the queue never runs dry.
+  - **Full transport controls.** `audio://play`, `pause`, `next`, `prev`, `playat`, `seek`, `skipforward`, `skipback`, and `speed` drive playback from your own UI, and the lock-screen buttons fire the same commands.
+  - **Live config without a restart.** The `audio://config` command toggles loop, playback speed, skip interval, and which lock-screen controls show, all while playback continues.
+  - **Lock screen and background.** Every track renders a Now Playing card across the lock screen, Control Center, Dynamic Island, CarPlay, and watch. Playback keeps running when the app is backgrounded or the screen locks, pauses for calls and Siri, and resumes automatically.
+  - **State through one callback.** All state changes arrive through a single `window.onAudioEvent` handler, including a 1 Hz progress tick, so your UI stays correct no matter who pressed the button.
+  - **Server-side progress tracking.** The `audio://webhook` command POSTs playback milestones to your backend, including ones triggered from the lock screen while your web app is suspended.
+  - **Reload survival.** Native playback outlives web view reloads and in-app navigation. Call `audio://sync` on page load to re-hydrate your UI to what is already playing.
+
+  This launch is iOS only. Full scheme, parameter, and event reference is in the [Audio documentation](/native-features/audio-player).
+
+  **Packages:**
+
+  - [despia-native](https://www.npmjs.com/package/despia-native)
+
+  Enable the feature in the Despia Editor and trigger a fresh native build to pick it up. No integration code changes are required beyond wiring the `audio://` commands and the `window.onAudioEvent` handler documented above.
+</Update>
+
 <Update label="June 30, 2026" description="GPS Location - single reads and long-range background mode">
   ## GPS single reads and long-range background tracking
 
