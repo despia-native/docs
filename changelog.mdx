@@ -4,6 +4,28 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="July 07, 2026" description="Sandbox Testing - repoint a build at a staging environment at runtime">
+  ## Sandbox Testing
+
+  Sandbox Testing lets a compiled app be repointed at a test environment at runtime, without rebuilding. Testers can redirect the running app to a staging host and start URL, run QA against the test backend, then restore the production app when they are done.
+
+  **What ships today:**
+
+  - **Point at a test environment.** The `sandbox://set` command overrides the runtime host and start URL, persists the override, and reloads the WebView into staging. Pass a `host`, a `start_url`, or both, and the missing value is derived from the other.
+  - **Return to production.** The `sandbox://clear` command restores the production host and start URL from the snapshot captured at launch and reloads into the production app.
+  - **Read the current environment.** `despia.isSandbox` is `true` whenever a test environment is active and `false` in production, so the page can branch on which backend it is talking to.
+  - **Persists across launches.** An active override survives a cold launch. Every launch into a test environment shows a reminder alert, and each switch shows a native alert, so it is always clear which environment is live.
+  - **Identical on both platforms.** The commands, the persisted behaviour, and `despia.isSandbox` work 1:1 on iOS and Android.
+
+  See the [Sandbox Testing](/native-features/sandbox) documentation for the full parameter reference and QA flow.
+
+  The feature is part of the native runtime, so it is available in builds created from today onward. No dashboard configuration or integration code is required to receive it, and the commands are callable directly from your loaded page.
+
+  **Packages:**
+
+  - [despia-native](https://www.npmjs.com/package/despia-native)
+</Update>
+
 <Update label="July 5, 2026" description="Audio - native player with lock-screen controls and feed pagination">
   ## Native audio player
 

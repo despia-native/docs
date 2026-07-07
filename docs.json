@@ -342,7 +342,8 @@
           "native-features/screenshot",
           "native-features/notification-sounds",
           "native-features/audio-player",
-          "native-features/bluetooth"
+          "native-features/bluetooth",
+          "native-features/sandbox"
         ]
       },
       {
