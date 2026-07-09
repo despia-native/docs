@@ -4,6 +4,26 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="July 09, 2026" description="AppsFlyer - Android support, deep linking, ad revenue">
+  ## AppsFlyer on Android, deferred deep linking, and ad revenue tracking
+
+  The native AppsFlyer integration now runs on Android alongside iOS, delivers deep link metadata to your web layer through a callback, and adds impression-level ad revenue reporting. Attribution, events, identity, and consent behave the same across both platforms and are driven entirely from your web layer.
+
+  **What ships today:**
+
+  - **Android support.** AppsFlyer now works on Android as well as iOS. The SDK is embedded and managed natively on both platforms, so installs, attribution, events, and deep links flow the same way.
+  - **Deferred deep linking.** The context you attach to a OneLink, the product, creator, invite code, or offer, survives a store install and arrives on first launch. Despia resolves the link natively and delivers the payload to `window.onAppsFlyerDeepLink`, and your app reads it to open the right content. Put the IDs a fresh install must receive into `deep_link_sub1` through `deep_link_sub10`.
+  - **Ad revenue tracking.** The `log_ad_revenue` scheme reports impression-level ad revenue per network across Meta, TikTok, and AdMob, feeding LTV and ROAS reporting per acquisition channel.
+  - **Live session and attribution.** A new session starts every time the app returns to the foreground, and attribution is re-injected the moment it resolves or updates, so `despia.appsFlyerAttribution`, `despia.appsFlyerReferrer`, and `despia.appsFlyerUID` stay current without polling.
+  - **Expanded attribution object.** The object now exposes a `raw` field with every key AppsFlyer returned, `pid` and `c` aliases, and campaign cost fields.
+
+  To use deep linking, define `window.onAppsFlyerDeepLink` early in your page and read the payload to open the right content. Adding your AppsFlyer Dev Key, OneLink domains, or ad platform IDs in the Despia Editor requires a fresh native build to take effect. See [Deep Linking](/analytics/appsflyer/deeplinking), [Ad Revenue](/analytics/appsflyer/ad-revenue), and [Campaigns](/analytics/appsflyer/campaigns).
+
+  **Packages:**
+
+  - [despia-native](https://www.npmjs.com/package/despia-native)
+</Update>
+
 <Update label="July 07, 2026" description="Sandbox Testing - repoint a build at a staging environment at runtime">
   ## Sandbox Testing
 

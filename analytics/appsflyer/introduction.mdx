@@ -67,7 +67,7 @@ despia.appsFlyerUID          // unique AppsFlyer device ID
 
 Commands fired from your web layer using `despia("appsflyer://...")` are intercepted natively and forwarded to AppsFlyer in real time. AppsFlyer then postbacks to your connected partners (Meta, TikTok, Google) based on your dashboard configuration. Emails and phone numbers are hashed with SHA256 on the device before transmission, so raw PII never leaves the app.
 
-When a user arrives through a OneLink (an ad click or a creator's affiliate link), the native layer resolves it, including deferred resolution after a fresh install, and pushes the payload to your web app through the `window.onAppsFlyerDeepLink` callback. Your web router decides where to navigate.
+When a user arrives through a OneLink, an ad click or a creator's affiliate link, the native layer resolves it and delivers the click's metadata (the product, creator, invite code, or offer you attached to the link) to your web app through the `window.onAppsFlyerDeepLink` callback. This works even for a brand-new user who installs from the store first: AppsFlyer stores the click server-side and delivers it on that first launch (deferred deep linking). Your app reads the payload and decides what to do with it, redirect, fetch, or render the right content in place. Put anything a fresh install must receive into `deep_link_sub1` through `deep_link_sub10`, the fields AppsFlyer guarantees on deferred resolution.
 
 <Info>
   On iOS, the AppsFlyer SDK waits up to 60 seconds for the App Tracking Transparency prompt to be answered before finalizing install attribution. This is handled automatically.
@@ -83,7 +83,7 @@ When a user arrives through a OneLink (an ad click or a creator's affiliate link
   </Card>
 
   <Card title="Deep Linking" icon="link" href="/analytics/appsflyer/deeplinking">
-    Receive OneLink payloads (direct and deferred) through a callback and route users in your web app.
+    Receive OneLink payloads (direct and deferred) through a callback and open the right content in your app.
   </Card>
 
   <Card title="Events" icon="bolt" href="/analytics/appsflyer/events">
@@ -134,6 +134,15 @@ When a user arrives through a OneLink (an ad click or a creator's affiliate link
   <Step title="Log your first event">
     ```javascript
     despia("appsflyer://log_event?event_name=af_login&event_values=" + encodeURIComponent("{}"))
+    ```
+  </Step>
+  <Step title="Handle deep links">
+    Define the callback early, before your bundle loads, and open the right content from the payload.
+
+    ```javascript
+    window.onAppsFlyerDeepLink = (payload) => {
+        if (payload.deep_link_value) openContent(payload.deep_link_value, payload.deep_link_sub1)
+    }
     ```
   </Step>
 </Steps>

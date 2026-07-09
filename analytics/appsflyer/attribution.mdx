@@ -130,8 +130,12 @@ The full attribution object. All fields are optional strings unless noted.
   Affiliate-style aliases: `pid` falls back to `media_source`, `c` falls back to `campaign`.
 </ResponseField>
 
-<ResponseField name="deep_link_value / deep_link_sub1 / deep_link_sub2" type="string">
-  Deep link routing values from the OneLink. See [Deep Linking](/analytics/appsflyer/deeplinking).
+<ResponseField name="deep_link_value / deep_link_sub1 ... deep_link_sub10" type="string">
+  Deep link routing values from the OneLink. `deep_link_value` plus `deep_link_sub1` through `deep_link_sub10` are the fields AppsFlyer guarantees on a deferred first-launch resolution. See [Deep Linking](/analytics/appsflyer/deeplinking).
+</ResponseField>
+
+<ResponseField name="page_id" type="string">
+  Normalized to a top-level field on both platforms. `page_id` is the one custom OneLink param Despia lifts out of the raw payload for you. Any other custom key lives only under `raw`.
 </ResponseField>
 
 <ResponseField name="is_organic" type="boolean">
@@ -159,7 +163,7 @@ The full attribution object. All fields are optional strings unless noted.
 </ResponseField>
 
 <ResponseField name="raw" type="object">
-  Every raw key and value AppsFlyer returned, as strings. Custom parameters you add to a OneLink (e.g. `page_id`, `creator_code`) always appear here.
+  Every raw key and value AppsFlyer returned, as strings. Custom parameters you add to a OneLink (e.g. `creator_code`, `episode_id`) appear here. `page_id` appears here too but is also normalized to a top-level field.
 </ResponseField>
 
 <Warning>
@@ -179,6 +183,8 @@ The full attribution object. All fields are optional strings unless noted.
       "utm_medium": "paid",
       "utm_campaign": "summer_2025",
       "deep_link_value": "product",
+      "deep_link_sub1": "alex123",
+      "page_id": "sneaker_42",
       "is_organic": false,
       "install_type": "install",
       "is_first_launch": true,
@@ -231,7 +237,7 @@ function pickOnboarding() {
     const attr = despia.appsFlyerAttribution
 
     if (attr?.deep_link_value === "offer") {
-        return startOfferFlow(attr.raw?.page_id)
+        return startOfferFlow(attr.page_id ?? attr.raw?.page_id)
     }
     if (despia.appsFlyerReferrer.startsWith("tiktok")) {
         return startVideoFirstOnboarding()
