@@ -183,10 +183,13 @@
             "pages": [
               "analytics/appsflyer/introduction",
               "analytics/appsflyer/testing",
+              "analytics/appsflyer/identity",
               "analytics/appsflyer/attribution",
               "analytics/appsflyer/deeplinking",
               "analytics/appsflyer/campaigns",
-              "analytics/appsflyer/events"
+              "analytics/appsflyer/events",
+              "analytics/appsflyer/ad-revenue",
+              "analytics/appsflyer/consent"
             ]
           },
           {
