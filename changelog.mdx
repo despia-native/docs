@@ -4,6 +4,30 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="July 26, 2026" description="V4 - core runtime being open sourced under MIT">
+  ## Open sourcing the Despia V4 runtime
+
+  Ahead of the V4 release, the core runtime is being prepared for publication as open source under the MIT license. The editor follows later this year.
+
+  The V4 runtime is a dynamic kernel. Every capability above it - WebView, native UI, web UI, backend - is a package that the kernel loads at runtime. What gets open sourced is the kernel, the brain of the system. The packages stay in a closed source folder and are not part of the release.
+
+  **What is included:**
+
+  - **The kernel.** Package loading, command dispatch, and lifecycle management - the layer everything else runs on.
+  - **The component contract.** The components folder and the attribute model that text, image, button, and every other primitive are declared against. Anyone can implement against it.
+  - **Nothing above the kernel.** The Despia WebView package, native UI package, web UI package, and backend package are excluded and remain closed source.
+
+  **Why:**
+
+  - **Auditability.** Enterprises evaluating Despia can read the runtime that executes their apps rather than take its behaviour on trust. This is the main blocker we hear in enterprise reviews.
+  - **Compliant deployments.** Under MIT, an organisation can vendor the kernel into its own internal build where compliance requires it, without a dependency on Despia infrastructure.
+  - **A usable runtime on its own.** The kernel is functional without our packages. Writing your own WebView package, native UI package, and component implementations against the contract gives you a working runtime at no cost.
+
+  This is not a wind-down of the commercial product. Despia's hosted platform, build pipeline, OTA updates, native packages, and support continue as they are, and open sourcing the kernel is intended to expand where Despia can be adopted, not reduce it. The goal is for Despia - hosted or self-hosted - to be the default runtime for AI-assisted development of production apps that stay maintainable and stay current through OTA updates.
+
+  Nothing changes for existing apps. No dashboard configuration changes, rebuild steps, or integration code changes are required. Repository and license details will be published with the V4 release.
+</Update>
+
 <Update label="July 09, 2026" description="AppsFlyer - Android support, deep linking, ad revenue">
   ## AppsFlyer on Android, deferred deep linking, and ad revenue tracking
 
@@ -503,9 +527,7 @@ icon: "clock-rotate-left"
 
   - [despia-native](https://www.npmjs.com/package/despia-native)
 
-  Existing integrations require no code changes. To use the new scheme, call `healthkit://workouts` and read from `window.healthkitWorkouts`. If your app has not been rebuilt since the new endpoint shipped, trigger a fresh build from the Despia Editor to pick it up.\
-  \
-  This feature requires a native rebuild. Add the handlers in your web code, then rebuild your app from the dashboard for the callbacks to fire.
+  Existing integrations require no code changes. To use the new scheme, call `healthkit://workouts` and read from `window.healthkitWorkouts`. If your app has not been rebuilt since the new endpoint shipped, trigger a fresh build from the Despia Editor to pick it up.<br /><br />This feature requires a native rebuild. Add the handlers in your web code, then rebuild your app from the dashboard for the callbacks to fire.
 </Update>
 
 <Update label="May 08, 2026" description="Gyroscope - live angular velocity and compass heading on one channel">
@@ -529,9 +551,7 @@ icon: "clock-rotate-left"
 
   - [despia-native](https://www.npmjs.com/package/despia-native)
 
-  No dashboard configuration changes are required. Install or update `despia-native`, define `window.onGyroscopeChange`, and call `gyroscope://start` to begin receiving readings.\
-  \
-  This feature requires a native rebuild. Add the handlers in your web code, then rebuild your app from the dashboard for the callbacks to fire.
+  No dashboard configuration changes are required. Install or update `despia-native`, define `window.onGyroscopeChange`, and call `gyroscope://start` to begin receiving readings.<br /><br />This feature requires a native rebuild. Add the handlers in your web code, then rebuild your app from the dashboard for the callbacks to fire.
 </Update>
 
 <Update label="May 07, 2026" description="Layout - device screen corner radius now exposed">
