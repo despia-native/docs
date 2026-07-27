@@ -4,6 +4,27 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="July 27, 2026" description="Usage Descriptions - editable iOS and Android permissions">
+  ## Usage Descriptions
+
+  Every permission your app declares is now an editable field under App \> Settings \> Usage Descriptions. You control the wording of each iOS purpose string, and clearing a field removes the permission from the build entirely.
+
+  Until today, every Despia binary shipped a broad default permission set so that any web API you reached for would work without a new native build. Apple now runs an automated analysis of purpose strings at submission and rejects binaries under Guideline 5.1.1 when a string is generic or when a permission is declared for a resource the app never uses.
+
+  **What ships today:**
+
+  - **Editable purpose strings.** Each of the fourteen supported permissions has its own field. Write your own copy describing what your app does with the data, or use Revert to Default to restore the Despia wording and edit from there.
+  - **Removal by clearing the field.** An empty field removes the key from `Info.plist`. It also strips the feature, its native code, and any dependencies or libraries it imported, so exported Xcode and Android Studio projects contain no dead capability.
+  - **Android manifest mapping.** The iOS keys are mapped to their Android equivalents. Filling in a usage description adds the matching feature and permission to the Android manifest, and clearing it removes them from both platforms. HealthKit keys are iOS only.
+  - **Supported keys.** Camera, Microphone, Photo Library, Save to Photos, Location While Using, Background Location, Always-On Location, Contacts, Calendar, Face ID, Health Read, Health Write, Speech Recognition, and NFC Scanning.
+
+  A field must be completely empty for the permission to be removed. A single space counts as a value and the key stays in the build.
+
+  Removing a permission removes it from the binary, and no over-the-air update can add it back. If web code later calls an API whose usage description was removed, iOS terminates the app. Gate native capabilities on the app version using the `getappversion://` scheme, ship the binary carrying the new usage description first, then push the web update that enables the feature.
+
+  Existing apps keep their current permission set until you edit it. Changes to usage descriptions apply on the next native build.
+</Update>
+
 <Update label="July 26, 2026" description="V4 - core runtime being open sourced under MIT">
   ## Open sourcing the Despia V4 runtime
 
