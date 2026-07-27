@@ -4,7 +4,7 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
-<Update label="July 27, 2026" description="Usage Descriptions - editable iOS and Android permissions">
+<Update label="July 26, 2026" description="Usage Descriptions - editable iOS and Android permissions">
   ## Usage Descriptions
 
   Every permission your app declares is now an editable field under App \> Settings \> Usage Descriptions. You control the wording of each iOS purpose string, and clearing a field removes the permission from the build entirely.
@@ -13,10 +13,10 @@ icon: "clock-rotate-left"
 
   **What ships today:**
 
-  - **Editable purpose strings.** Each of the fourteen supported permissions has its own field. Write your own copy describing what your app does with the data, or use Revert to Default to restore the Despia wording and edit from there.
+  - **Editable purpose strings.** Each of the seventeen supported permissions has its own field. Write your own copy describing what your app does with the data, or use Revert to Default to restore the Despia wording and edit from there.
   - **Removal by clearing the field.** An empty field removes the key from `Info.plist`. It also strips the feature, its native code, and any dependencies or libraries it imported, so exported Xcode and Android Studio projects contain no dead capability.
-  - **Android manifest mapping.** The iOS keys are mapped to their Android equivalents. Filling in a usage description adds the matching feature and permission to the Android manifest, and clearing it removes them from both platforms. HealthKit keys are iOS only.
-  - **Supported keys.** Camera, Microphone, Photo Library, Save to Photos, Location While Using, Background Location, Always-On Location, Contacts, Calendar, Face ID, Health Read, Health Write, Speech Recognition, and NFC Scanning.
+  - **Android manifest mapping.** The iOS keys are mapped to their Android equivalents. Filling in a usage description adds the matching feature and permission to the Android manifest, and clearing it removes them from both platforms. The Health keys and Tracking are iOS only.
+  - **Supported keys.** Camera, Microphone, Photo Library, Save to Photos, Location While Using, Background Location, Always-On Location, Bluetooth, Contacts, Calendar, Face ID, Health Read, Health Write, Speech Recognition, NFC Scanning, and Tracking. Push Notifications is also a field, holding the copy for your own priming screen, since iOS does not allow custom text in the system notification alert.
 
   A field must be completely empty for the permission to be removed. A single space counts as a value and the key stays in the build.
 
