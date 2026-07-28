@@ -4,6 +4,24 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="July 28, 2026" description="Offline support - PWA service workers on iOS and Android">
+  ## PWA service workers
+
+  Despia apps can now run the service worker your web app already ships, giving you a working offline mode driven entirely by standard web APIs with no build tools and no native offline layer.
+
+  **What ships today:**
+
+  - **Service worker registration.** Registration, installation, activation, and fetch handling behave the same inside the app as they do in a browser PWA, on both iOS and Android.
+  - **Cache storage.** Precached documents, assets, and API responses are served when the device has no connection, using whatever caching strategy your worker defines.
+  - **Offline state through web APIs.** IndexedDB and localStorage are available for persisting sessions, drafts, and queued writes, so login screens and app state survive an offline launch.
+
+  Enable it under App \> Settings \> Offline Support \> PWA, then increase the version code and rebuild. Offline support is a native runtime setting, so builds produced before the toggle was flipped ignore service worker registration entirely.
+
+  Your service worker is the single point of failure. A worker that caches once and never refreshes will pin users to an old release, block over the air updates, and can open the app to a white page when a cached document references assets that no longer exist. Serve from the network first while online, write successful responses back into the cache, and change the cache name on every release so stale entries are cleared on activate. See [PWA service workers](/native-features/service-workers) for the reference implementation and the offline verification test.
+
+  A dashboard change and a fresh native build are required. No integration code changes are needed beyond the service worker in your own web app.
+</Update>
+
 <Update label="July 26, 2026" description="Usage Descriptions - editable iOS and Android permissions">
   ## Usage Descriptions
 

@@ -294,6 +294,7 @@
           "native-features/paywalls",
           "native-features/restore-purchase",
           "native-features/storage-vault",
+          "native-features/service-workers",
           "native-features/gps-location",
           "native-features/gyroscope",
           "native-features/light-and-dark-mode",
@@ -346,8 +347,7 @@
           "native-features/notification-sounds",
           "native-features/audio-player",
           "native-features/bluetooth",
-          "native-features/sandbox",
-          "native-features/service-workers"
+          "native-features/sandbox"
         ]
       },
       {
