@@ -346,7 +346,8 @@
           "native-features/notification-sounds",
           "native-features/audio-player",
           "native-features/bluetooth",
-          "native-features/sandbox"
+          "native-features/sandbox",
+          "native-features/service-workers"
         ]
       },
       {
