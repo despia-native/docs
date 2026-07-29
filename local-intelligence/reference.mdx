@@ -1,10 +1,14 @@
 ---
-description: "Complete API reference for despia-intelligence: run, models, runtime, events, and error codes."
 title: "Reference"
+description: "Complete API reference for despia-intelligence: run, models, runtime, events, and error codes."
 icon: "code"
 ---
 
-Run language models on-device with one function call. Models load via the device's native AI acceleration stack. Inference jobs auto-resume across backgrounding. Downloads continue when users close the app.
+<Info>
+  This beta feature is currently unavailable. We are moving off a dependency that is no longer open source and onto our own local AI infrastructure, so that every Despia user gets a fully open source, license-compliant experience.
+</Info>
+
+<br />Run language models on-device with one function call. Models load via the device's native AI acceleration stack. Inference jobs auto-resume across backgrounding. Downloads continue when users close the app.
 
 ## Installation
 
@@ -200,7 +204,7 @@ Manage the on-device model catalogue. Models are downloaded from Hugging Face in
     ```javascript
     // Remove one model
     await intelligence.models.remove('qwen3-0.6b')
-
+    
     // Clear everything (use for a "free up space" button)
     await intelligence.models.removeAll()
     ```
@@ -349,6 +353,6 @@ The SDK never throws when the runtime is missing. It returns a not-ready handle 
   </Card>
 
   <Card title="Support" icon="envelope" href="mailto:support@despia.com">
-    support@despia.com
+    [support@despia.com](mailto:support@despia.com)
   </Card>
 </CardGroup>

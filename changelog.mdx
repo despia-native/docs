@@ -4,6 +4,25 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="July 29, 2026" description="Local AI - cutting ties with Cactus, building our own engine">
+  ## Cutting ties with Cactus, investing in our own local AI
+
+  Despia demo apps no longer ship with the Cactus inference backend, and Cactus is being removed as the engine behind the local AI feature entirely.
+
+  Cactus was open source when we adopted it. That changed. The current license is source-available, with commercial use gated behind funding and revenue thresholds. Despia does not ship one app, it ships an engine inside every customer's app, so a dependency like that becomes a liability for every project built on the platform.
+
+  We are not willing to build Despia apps on infrastructure that is not open source, or that we do not control enough to guarantee quality and fair pricing. So we are building the engine ourselves.
+
+  **What we are investing in:**
+
+  - **A fully open source local AI ecosystem.** Apache-2.0, no usage limits, no revenue thresholds, no license checks, no telemetry. Built on llama.cpp and whisper.cpp, both MIT.
+  - **Usable outside Despia.** The engine ships as standalone Swift, Kotlin, and TypeScript packages, so React Native and Capacitor apps can use it directly without touching Despia at all.
+  - **First-class support inside Despia.** In Despia it stays fully low-code - the `intelligence` capability keeps its existing action names, arguments, and return shapes, so integration code written today does not change when the new engine lands.
+  - **Streaming, tool calling, and MCP.** Token streaming, a native tool-calling loop wired to your app's own module actions, and an MCP client, across iOS, Android, macOS, and Windows.
+
+  No dashboard configuration changes, rebuild steps, or integration code changes are required today. Apps relying on on-device inference should treat the capability as unavailable until the new engine is released.
+</Update>
+
 <Update label="July 28, 2026" description="Offline support - PWA service workers on iOS and Android">
   ## PWA service workers
 
