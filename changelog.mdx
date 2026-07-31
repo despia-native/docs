@@ -16,7 +16,7 @@ icon: "clock-rotate-left"
   - **Documents picker for everything else.** Audio, PDFs, archives, and mixed media open the documents picker scoped to the accepted formats. An unrecognised extension is dropped from the scope rather than blocking the picker.
   - **Direct camera capture.** Pairing `capture` with a media `accept` skips the picker and opens the camera. `environment` selects the rear lens, `user` the front. On non-media inputs `capture` is ignored and normal routing applies.
   - **Multi-select.** The standard `multiple` attribute enables multi-select in whichever picker opens, including the documents picker. Cancelling leaves the `FileList` empty and raises no error, so a cancel stays distinguishable from a genuine failure.
-  - **Accept list override.** `despia-picker-overwrite` takes the same syntax as `accept` and takes precedence over it, for third-party upload components whose `accept` value you cannot change. The input still reports its original `accept` to form validation.
+
   - **Browser picker handoff.** The `filepicker://type?native_overwrite=true` command returns every file input on the page to the default web picker. The setting survives navigation and resets on relaunch, so pages that depend on it should set it on load.
   - **Configurable upload sources.** The sources offered when an input has no `accept` value are set per app in the Despia Editor: camera and gallery, camera only, or gallery only.
 
