@@ -4,6 +4,24 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="July 31, 2026" description="Dynamic App Source - custom URL scheme">
+  ## Custom URL scheme
+
+  The scheme your app registers with iOS and Android is now editable in **Despia \> App \> Settings \> Dynamic App Source \> URL Scheme**.
+
+  Until now the value was generated from your app name on the first build. App names containing spaces, punctuation, accented characters, or a leading digit produced a scheme the operating system will not register, and App Store Connect flags the malformed entry at submission rather than at build time.
+
+  **What ships today:**
+
+  - **Editable field.** Enter the value on its own, with no `://` suffix and no path. Entering `myapp` registers `myapp://`.
+  - **Independent of app name.** Renaming your app no longer changes the scheme, so a live login flow survives a rename.
+  - **Compliance control.** Apps whose generated scheme was rejected can now set a valid one without renaming the app itself.
+
+  The scheme is what closes a native authentication session and hands tokens back to your WebView, so changing it on a live app means registering the new value alongside the old one in every OAuth provider dashboard before shipping. Existing apps keep their current scheme until the field is edited. See [URL Scheme](/native-features/url-scheme) for the compliance rules and the migration checklist.
+
+  Editing the field is a native configuration change and requires a fresh build. Until that build is installed, the binary on the device answers to the old scheme only, and return links fire silently with no error.
+</Update>
+
 <Update label="July 29, 2026" description="Local AI - cutting ties with Cactus, building our own engine">
   ## Cutting ties with Cactus, investing in our own local AI
 

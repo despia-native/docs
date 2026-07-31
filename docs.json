@@ -295,6 +295,7 @@
           "native-features/restore-purchase",
           "native-features/storage-vault",
           "native-features/service-workers",
+          "untitled-page",
           "native-features/gps-location",
           "native-features/gyroscope",
           "native-features/light-and-dark-mode",
