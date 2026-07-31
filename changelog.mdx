@@ -4,6 +4,33 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="July 31, 2026" description="File Picker - native pickers driven by the accept attribute">
+  ## File Picker
+
+  File inputs now open the native picker that matches what the upload actually accepts, driven entirely by the standard `accept` attribute. Existing upload forms get native pickers with no code change.
+
+  **What ships today:**
+
+  - **Accept-driven routing.** The `accept` value is parsed when the user taps the input, mapped to native file types, and the matching picker is presented scoped to those types. Extensions, MIME types, and wildcards are all understood, and the mapping is generic rather than a fixed list, so `.mp3` and `.dwg` resolve the same way.
+  - **Photo picker for media.** `image/*`, `video/*`, `image/*,video/*`, and concrete types such as `image/png` open the system photo picker filtered to that type, keeping users out of the file system entirely.
+  - **Documents picker for everything else.** Audio, PDFs, archives, and mixed media open the documents picker scoped to the accepted formats. An unrecognised extension is dropped from the scope rather than blocking the picker.
+  - **Direct camera capture.** Pairing `capture` with a media `accept` skips the picker and opens the camera. `environment` selects the rear lens, `user` the front. On non-media inputs `capture` is ignored and normal routing applies.
+  - **Multi-select.** The standard `multiple` attribute enables multi-select in whichever picker opens, including the documents picker. Cancelling leaves the `FileList` empty and raises no error, so a cancel stays distinguishable from a genuine failure.
+  - **Accept list override.** `despia-picker-overwrite` takes the same syntax as `accept` and takes precedence over it, for third-party upload components whose `accept` value you cannot change. The input still reports its original `accept` to form validation.
+  - **Browser picker handoff.** The `filepicker://type?native_overwrite=true` command returns every file input on the page to the default web picker. The setting survives navigation and resets on relaunch, so pages that depend on it should set it on load.
+  - **Configurable upload sources.** The sources offered when an input has no `accept` value are set per app in the Despia Editor: camera and gallery, camera only, or gallery only.
+
+  Selected files arrive as ordinary `File` objects backed by a URL, so a long recording or a large video is streamed on upload rather than copied through memory first.
+
+  Full documentation is available on the [File Picker](/native-features/file-picker) page.
+
+  No integration code changes are required for accept-driven routing. Changing the upload source mode in the Despia Editor requires a fresh native build.
+
+  **Packages:**
+
+  - [despia-native](https://www.npmjs.com/package/despia-native)
+</Update>
+
 <Update label="July 31, 2026" description="Dynamic App Source - custom URL scheme">
   ## Custom URL scheme
 
