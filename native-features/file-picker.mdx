@@ -130,18 +130,6 @@ Cancelling any picker leaves the input's `FileList` empty and raises no error, s
 
 ---
 
-## Overriding the accept list
-
-When your upload component sets an `accept` value you cannot change, or sets none at all, `despia-picker-overwrite` supplies the list the picker should use instead. It takes the same syntax as `accept` and takes precedence over it.
-
-```html
-<input type="file" accept="image/*" despia-picker-overwrite=".mp3,.m4a">
-```
-
-The input above still reports `image/*` to your form validation and to any library reading the attribute, while the picker opens scoped to audio. Use it as an escape hatch for third-party components, not as the default way to describe an upload.
-
----
-
 ## Handing the picker back to the browser
 
 Some flows want the standard web file picker rather than a scoped native one, for example a page that already implements its own file browsing UI. Turning native routing off returns every file input on the page to the default behaviour.
