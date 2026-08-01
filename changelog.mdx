@@ -4,6 +4,22 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="August 01, 2026" description="OneSignal - available in builds with AD_ID disabled">
+  ## OneSignal with the advertising ID disabled
+
+  Android apps that disable the advertising ID can now use OneSignal. Previously, turning off tracking excluded the OneSignal SDK from the build entirely.
+
+  The OneSignal SDK declares `com.google.android.gms.permission.AD_ID` by default, which contradicts a Play Console data safety declaration stating the app does not collect an advertising identifier. Rather than ship a manifest that conflicts with that declaration, the SDK was dropped from tracking-disabled builds, which also removed push notifications along with it.
+
+  **What changes:**
+
+  - **OneSignal ships without AD\_ID.** The permission is stripped from the build instead of the SDK being excluded. Push notifications, in-app messages, tags, and segments all work as normal.
+  - **Only advertising-ID features are unavailable.** Anything that depends on the identifier itself - ad network attribution and GAID-based audience matching - stays off. Everything outside that scope is in.
+  - **The data safety declaration stays accurate.** The shipped AAB does not declare the advertising ID permission, so an app declaring no advertising identifier collection matches what is actually built.
+
+  Existing apps need a fresh native build to pick this up. No dashboard configuration or integration code changes are required beyond leaving the tracking setting off.
+</Update>
+
 <Update label="July 31, 2026" description="File Picker - native pickers driven by the accept attribute">
   ## File Picker
 
@@ -16,7 +32,6 @@ icon: "clock-rotate-left"
   - **Documents picker for everything else.** Audio, PDFs, archives, and mixed media open the documents picker scoped to the accepted formats. An unrecognised extension is dropped from the scope rather than blocking the picker.
   - **Direct camera capture.** Pairing `capture` with a media `accept` skips the picker and opens the camera. `environment` selects the rear lens, `user` the front. On non-media inputs `capture` is ignored and normal routing applies.
   - **Multi-select.** The standard `multiple` attribute enables multi-select in whichever picker opens, including the documents picker. Cancelling leaves the `FileList` empty and raises no error, so a cancel stays distinguishable from a genuine failure.
-
   - **Browser picker handoff.** The `filepicker://type?native_overwrite=true` command returns every file input on the page to the default web picker. The setting survives navigation and resets on relaunch, so pages that depend on it should set it on load.
   - **Configurable upload sources.** The sources offered when an input has no `accept` value are set per app in the Despia Editor: camera and gallery, camera only, or gallery only.
 
