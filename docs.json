@@ -353,6 +353,13 @@
         ]
       },
       {
+        "group": "Editor",
+        "icon": "edit",
+        "pages": [
+          "editor/versioning"
+        ]
+      },
+      {
         "group": "Roadblocks",
         "icon": "bug",
         "pages": [
