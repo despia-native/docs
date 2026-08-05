@@ -4,6 +4,22 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="August 05, 2026" description="RevenueCat - multipage paywall support">
+  ## Multipage RevenueCat paywalls
+
+  Paywalls built as multi-screen flows in RevenueCat now render every screen in Despia builds, so a paywall authored as Screen 1, Screen 2, then the purchase screen arrives on device in that order.
+
+  Previously these paywalls opened directly on the final purchase screen. RevenueCat gates multipage rendering behind a minimum native SDK version and falls back to the last screen on anything older, so the earlier screens were dropped before the app ever drew them. Nothing in the paywall design or the offering configuration caused this, which is why affected paywalls still previewed correctly in the RevenueCat dashboard.
+
+  **What ships today:**
+
+  - **iOS runtime.** purchases-ios and RevenueCatUI move from 5.80.3 to 5.83.0, the first release that renders multipage paywalls.
+  - **Android runtime.** purchases and purchases-ui move from 10.13.0 to 10.16.0, the matching Android release.
+  - **Existing paywall calls.** The `revenuecat://launchPaywall` scheme is unchanged. Paywalls launched with a specific offering identifier, and paywalls launched with the default offering, both pick up multipage rendering with no change to how they are called.
+
+  A new build is required. The RevenueCat SDK is compiled into the native binary, so multipage paywalls appear only in builds created after this release. No dashboard configuration changes or integration code changes are needed.
+</Update>
+
 <Update label="August 01, 2026" description="OneSignal - available in builds with AD_ID disabled">
   ## OneSignal with the advertising ID disabled
 
