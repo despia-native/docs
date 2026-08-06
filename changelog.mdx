@@ -4,6 +4,24 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="June 11, 2026" description="In-app rating - native star prompt without leaving the app">
+  ## Native in-app rating prompt
+
+  The `rateapp://` scheme now presents the operating system's native star rating prompt as a sheet inside your app, so users can leave a rating in a single tap without the session being interrupted.
+
+  Previously the scheme could route users out to the store listing depending on the `showcustomrateappdialog` configuration flag. A rating request cost the user their place in the app and required a manual trip back, which is the main reason in-app rating prompts convert poorly.
+
+  **What changes:**
+
+  - **Native prompt on the bare scheme.** Both `rateapp://` and `rateapp://rating` present the native rating sheet in place and never navigate away from your app.
+  - **Explicit opt-in for the review composer.** `rateapp://review` is now the only variant that leaves the app. It opens the store's write-review composer for your listing, which makes it suited to an explicit "Write a review" button rather than an automatic prompt.
+  - **`showcustomrateappdialog` is deprecated.** The flag is no longer read. The bare scheme always shows the native prompt regardless of what it is set to.
+
+  The operating system rate limits the native prompt to a small number of displays per user per year and suppresses it silently once that budget is spent. Treat the command as a request rather than a guarantee, and do not block a flow or show a confirmation on the assumption that the user saw it.
+
+  Existing `rateapp://` calls need no changes and pick up the native prompt automatically. If your app relied on `showcustomrateappdialog` to send users to the store listing, switch those calls to `rateapp://review` to keep the previous behaviour.
+</Update>
+
 <Update label="August 05, 2026" description="RevenueCat - multipage paywall support">
   ## Multipage RevenueCat paywalls
 
