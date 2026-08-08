@@ -4,6 +4,22 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="August 08, 2026" description="Android - 16 KB page size compliance and build verification">
+  ## Android 16 KB page size compatibility
+
+  Android builds now ship native libraries that meet Google Play's 16 KB page size requirement, and every build is checked against that requirement before the bundle is uploaded.
+
+  Previously the Android runtime included a build of `libsqliteJni.so` produced before NDK r28. Its segments were aligned correctly, so the usual alignment check passed, but its RELRO region stopped partway through the writable segment. The loader cannot apply protection to a partial page, so it dropped that protection entirely, and Google Play flagged the bundle for arm64-v8a and x86\_64.
+
+  **What changes:**
+
+  - **Updated SQLite native library.** The runtime now resolves androidx.sqlite to a version built with NDK r28, which pads the RELRO region out to a 16 KB boundary. This is the library named in the Play Console warning.
+  - **Release gate on every build.** Each Android build is inspected after compilation and before upload. Any 64-bit native library that is not 16 KB compatible fails the build with the offending file named, so a future dependency update cannot reintroduce the problem silently.
+  - **Native libraries stay uncompressed.** Libraries are kept uncompressed and page aligned inside the package, so the system maps them directly instead of extracting copies at install time and discarding their alignment.
+
+  No dashboard configuration or integration code changes are required. Rebuild your Android app to pick up the updated runtime.
+</Update>
+
 <Update label="June 11, 2026" description="In-app rating - native star prompt without leaving the app">
   ## Native in-app rating prompt
 
