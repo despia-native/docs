@@ -4,12 +4,58 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="September 03, 2026" description="Age Assurance - OS age range checks on iOS and Android">
+  ## Age Assurance
+
+  Despia apps can now read the age range the operating system already holds for a user, on iOS and Android, from a single call that returns the same shape on both platforms. Apple Declared Age Range and Google Play Age Signals sit behind one bridge, so a build can gate mature content, unlock adult-only features, or soften an experience for a minor without ever asking for a birthdate.
+
+  **What ships today:**
+
+  - **`ageassurance://check`.** Fires the platform consent sheet and delivers a verdict to `window.onAgeAssuranceResult`. Pass `gates` as up to three comma-separated ages you actually gate on, and `id` to correlate the response. Nothing throws and nothing rejects: every outcome, including every failure, arrives as a verdict with a `status` of `shared`, `declined`, `verification_required`, `not_applicable`, `unavailable`, or `error`.
+  - **Three-state gates.** Each key in the `gates` map answers `true`, `false`, or `null`, where `null` means the requested age falls inside the returned band and the operating system genuinely did not answer. Test for `=== true` before unlocking anything. Reading `null` as `true` is what hands adult content to a minor and costs an app its listing.
+  - **Assurance tiers.** Every shared verdict carries how the age was established: `self_declared`, `guardian_declared`, `verified_estimated`, `verified_strong`, or `unknown`. Require a stronger tier for the flows that need one.
+  - **`ageassurance://resolve`.** Android only. Sends a user into Play's own verification flow when Google answers `verification_required`. On iOS the command is absent from `ageAssuranceFeatures` and answers `error` with `unsupported_action`.
+  - **`ageassurance://last` and `ageassurance://forget`.** `last` replays the retained verdict without prompting. `forget` drops it on the native side and resets `ageAssuranceVerdict` to `null`, which is what you call on logout or an account switch so the next person to sign in cannot read the previous user's age range.
+  - **Capability globals.** `ageAssuranceAvailable`, `ageAssuranceProvider`, `ageAssuranceReason`, `ageAssuranceFeatures`, and `ageAssuranceVerdict` are plain globals that never prompt. Branch on these rather than on the operating system version or the user agent. They exist only in the top-level page: an `<iframe>` never receives them and an `ageassurance://` call from one is refused.
+
+  Coverage differs sharply by platform. Android reaches effectively every device from 6.0 upward, while iOS requires 26.2 or later and answers `unavailable` on the Simulator, so real iOS testing needs a physical device. Because Apple shapes its band from the ages passed at call time and Google returns bands configured in Play Console, the same user can produce different `ageLower` and `ageUpper` values on each platform. The `gates` map is the part that means the same thing everywhere.
+
+  Everything the web app receives is client-side and can be forged. Treat the verdict as a signal that shapes the experience, and for anything load-bearing echo it to your backend paired with App Attest or Play Integrity.
+
+  **Packages:**
+
+  - [despia-native](https://www.npmjs.com/package/despia-native)
+
+  This feature requires action. The native SDKs are linked at build time, so enabling the Age Assurance addon under App, then Addons is not enough on its own. Enable Declared Age Range on your identifier in the Apple Developer portal and regenerate the provisioning profile that build uses, accept the Age signals terms in Play Console and set your bands there, then rebuild with an increased version code. Until all of that is done every call answers `status: "unavailable"` with `reason: "not_configured"`, silently and with no warning. Confirm `despia.ageAssuranceAvailable` is `true` on the new install before relying on any verdict.
+</Update>
+
+<Update label="August 08, 2026" description="Easy OAuth - HTTPS sign-in callback on your own domain">
+  ## Easy OAuth
+
+  Social sign-in can now finish on your own domain instead of on a custom scheme, with the provider's redirect landing directly in your app and no intermediate callback page to build.
+
+  Pass `type=https` on the `oauth://` scheme and the runtime watches your entire host for the provider's redirect. When it lands, the secure browser session closes and your app loads that exact callback URL, query string and fragment intact.
+
+  **What ships today:**
+
+  - **The `type=https` parameter.** One flag on the `oauth://` scheme selects the flow. There is no callback path to configure, because the session watches the whole host and any redirect home finishes the login.
+  - **Verbatim delivery.** The callback URL loads exactly as the provider sent it, so implicit flow providers that return tokens in the fragment now work. The legacy flow rebuilds from path and query only, which drops the fragment.
+  - **Cookies land in your app.** The redirect is recognised at navigation time and never fetched inside the browser session, so your app makes the only real request and any `Set-Cookie` header on it is written to your app's own store.
+  - **Capability detection.** `despia.httpsAuthCallback` reports whether the current device can finish on your domain, so your page can pick the right `redirect_uri` before it builds the authorize URL. That choice cannot be changed once the flow starts.
+  - **Association failure reporting.** `window.onAuthCallbackError(host, code)` fires when the domain association is broken, a case iOS otherwise reports with the same code it uses for an ordinary user cancellation.
+  - **iOS and Android parity.** iOS runs the session on `ASWebAuthenticationSession` (17.4 and later). Android runs an Auth Tab where the browser supports it, falling back to a verified App Link with a Custom Tab.
+
+  Setup is required before the flow can work. Your domain needs an `apple-app-site-association` file carrying a `webcredentials` section and an `assetlinks.json` file carrying your Play app signing key fingerprint, Associated Domains has to be enabled on your main Bundle ID, and Web App Synchronization has to be turned on under Addons. The capability is written into the binary at build time, so it reaches users only through a store deployment on a raised version. The [Easy OAuth documentation](/native-features/oauth/easy-login-flow) covers each step, including where to find the SHA-256 fingerprint in Play Console.
+
+  This is opt-in and additive. Existing integrations are unaffected: a `despia()` call that does not pass `type=https` runs the legacy custom scheme flow unchanged, needs no code edits, and keeps working on devices that cannot support the new flow.
+</Update>
+
 <Update label="August 08, 2026" description="Android - 16 KB page size compliance and build verification">
   ## Android 16 KB page size compatibility
 
   Android builds now ship native libraries that meet Google Play's 16 KB page size requirement, and every build is checked against that requirement before the bundle is uploaded.
 
-  Previously the Android runtime included a build of `libsqliteJni.so` produced before NDK r28. Its segments were aligned correctly, so the usual alignment check passed, but its RELRO region stopped partway through the writable segment. The loader cannot apply protection to a partial page, so it dropped that protection entirely, and Google Play flagged the bundle for arm64-v8a and x86\_64.
+  Previously the Android runtime included a build of `libsqliteJni.so` produced before NDK r28. Its segments were aligned correctly, so the usual alignment check passed, but its RELRO region stopped partway through the writable segment. The loader cannot apply protection to a partial page, so it dropped that protection entirely, and Google Play flagged the bundle for arm64-v8a and x86_64.
 
   **What changes:**
 
@@ -63,7 +109,7 @@ icon: "clock-rotate-left"
 
   **What changes:**
 
-  - **OneSignal ships without AD\_ID.** The permission is stripped from the build instead of the SDK being excluded. Push notifications, in-app messages, tags, and segments all work as normal.
+  - **OneSignal ships without AD_ID.** The permission is stripped from the build instead of the SDK being excluded. Push notifications, in-app messages, tags, and segments all work as normal.
   - **Only advertising-ID features are unavailable.** Anything that depends on the identifier itself - ad network attribution and GAID-based audience matching - stays off. Everything outside that scope is in.
   - **The data safety declaration stays accurate.** The shipped AAB does not declare the advertising ID permission, so an app declaring no advertising identifier collection matches what is actually built.
 
@@ -99,7 +145,7 @@ icon: "clock-rotate-left"
 <Update label="July 31, 2026" description="Dynamic App Source - custom URL scheme">
   ## Custom URL scheme
 
-  The scheme your app registers with iOS and Android is now editable in **Despia \> App \> Settings \> Dynamic App Source \> URL Scheme**.
+  The scheme your app registers with iOS and Android is now editable in **Despia > App > Settings > Dynamic App Source > URL Scheme**.
 
   Until now the value was generated from your app name on the first build. App names containing spaces, punctuation, accented characters, or a leading digit produced a scheme the operating system will not register, and App Store Connect flags the malformed entry at submission rather than at build time.
 
@@ -144,7 +190,7 @@ icon: "clock-rotate-left"
   - **Cache storage.** Precached documents, assets, and API responses are served when the device has no connection, using whatever caching strategy your worker defines.
   - **Offline state through web APIs.** IndexedDB and localStorage are available for persisting sessions, drafts, and queued writes, so login screens and app state survive an offline launch.
 
-  Enable it under App \> Settings \> Offline Support \> PWA, then increase the version code and rebuild. Offline support is a native runtime setting, so builds produced before the toggle was flipped ignore service worker registration entirely.
+  Enable it under App > Settings > Offline Support > PWA, then increase the version code and rebuild. Offline support is a native runtime setting, so builds produced before the toggle was flipped ignore service worker registration entirely.
 
   Your service worker is the single point of failure. A worker that caches once and never refreshes will pin users to an old release, block over the air updates, and can open the app to a white page when a cached document references assets that no longer exist. Serve from the network first while online, write successful responses back into the cache, and change the cache name on every release so stale entries are cleared on activate. See [PWA service workers](/native-features/service-workers) for the reference implementation and the offline verification test.
 
@@ -154,7 +200,7 @@ icon: "clock-rotate-left"
 <Update label="July 26, 2026" description="Usage Descriptions - editable iOS and Android permissions">
   ## Usage Descriptions
 
-  Every permission your app declares is now an editable field under App \> Settings \> Usage Descriptions. You control the wording of each iOS purpose string, and clearing a field removes the permission from the build entirely.
+  Every permission your app declares is now an editable field under App > Settings > Usage Descriptions. You control the wording of each iOS purpose string, and clearing a field removes the permission from the build entirely.
 
   Until today, every Despia binary shipped a broad default permission set so that any web API you reached for would work without a new native build. Apple now runs an automated analysis of purpose strings at submission and rejects binaries under Guideline 5.1.1 when a string is generic or when a permission is declared for a resource the app never uses.
 
@@ -409,7 +455,7 @@ icon: "clock-rotate-left"
 
   - [despia-native](https://www.npmjs.com/package/despia-native)
 
-  To enable the integration, paste your PostHog project API key into **Despia \> App \> Integrations \> PostHog**, toggle the integration on, and rebuild. PostHog SDK initialization is compiled into the binary, so the rebuild is required before any scheme will fire.
+  To enable the integration, paste your PostHog project API key into **Despia > App > Integrations > PostHog**, toggle the integration on, and rebuild. PostHog SDK initialization is compiled into the binary, so the rebuild is required before any scheme will fire.
 </Update>
 
 <Update label="May 19, 2025" description="Native features - PK Pass wallet support">
@@ -605,7 +651,7 @@ icon: "clock-rotate-left"
 
   - [despia-native](https://www.npmjs.com/package/despia-native)
 
-  Setup is required. In Apple Developer, enable the **NFC Tag Reading** capability on your app's core bundle ID. In the Despia Editor, toggle **NFC** under **App \> Addons**. Trigger a fresh native build to apply both changes. Without the rebuild, `nfc://read` and `nfc://write` resolve silently and `window.onNFCEvent` never fires.
+  Setup is required. In Apple Developer, enable the **NFC Tag Reading** capability on your app's core bundle ID. In the Despia Editor, toggle **NFC** under **App > Addons**. Trigger a fresh native build to apply both changes. Without the rebuild, `nfc://read` and `nfc://write` resolve silently and `window.onNFCEvent` never fires.
 </Update>
 
 <Update label="May 10, 2026" description="Plugin bridge - window.despia switches to window.virtual.href after 15 years">
@@ -969,7 +1015,7 @@ icon: "clock-rotate-left"
   - **On-demand data retrieval.** Both `get_uid` and `get_attribution` support an await pattern - `await despia("appsflyer://get_uid", ["appsFlyerUID"])` - for cases where you need the value immediately in the same execution flow.
   - **Ad revenue tracking.** Coming soon - `despia("appsflyer://log_ad_revenue?...")` will allow impression-level revenue reporting back to AppsFlyer from Meta, TikTok, and AdMob to enable LTV and ROAS reporting per acquisition channel.
 
-  Configuration is handled entirely in the Despia dashboard with no native code changes required. Go to **Despia \> App \> Settings \> Integrations \> AppsFlyer** to enter your dev key, Apple App ID, OneLink URLs, and ad platform credentials. Despia configures Universal Links on iOS and App Links on Android automatically from the values you enter.
+  Configuration is handled entirely in the Despia dashboard with no native code changes required. Go to **Despia > App > Settings > Integrations > AppsFlyer** to enter your dev key, Apple App ID, OneLink URLs, and ad platform credentials. Despia configures Universal Links on iOS and App Links on Android automatically from the values you enter.
 
   Full documentation is available at [AppsFlyer](/analytics/appsflyer).
 

@@ -284,10 +284,16 @@
             "group": "OAuth 2.0",
             "icon": "key",
             "pages": [
-              "native-features/oauth/introduction",
-              "native-features/oauth/apple",
-              "native-features/oauth/google",
-              "native-features/oauth/tiktok"
+              "native-features/oauth/easy-login-flow",
+              {
+                "group": "Legacy",
+                "pages": [
+                  "native-features/oauth/introduction",
+                  "native-features/oauth/apple",
+                  "native-features/oauth/google",
+                  "native-features/oauth/tiktok"
+                ]
+              }
             ]
           },
           "native-features/purchases",
@@ -350,6 +356,7 @@
           "native-features/notification-sounds",
           "native-features/audio-player",
           "native-features/bluetooth",
+          "native-features/age-assurance",
           "native-features/sandbox"
         ]
       },
