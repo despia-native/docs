@@ -76,8 +76,30 @@ Register `https://yourapp.com/welcome` as the redirect URI in your provider dash
 
 | Parameter | Required | Description |
 | --- | --- | --- |
-| `url` | Yes | The provider authorization URL to open. Wrap with `encodeURIComponent(...)`. |
+| `url` | Yes | The provider authorization URL to open. Wrap with `encodeURIComponent(...)` exactly once. |
 | `type` | No | Set to `https` to finish on your own domain. Leave it out to run the legacy custom scheme flow. Any other value is treated as absent. |
+
+Wrap `url` once and only once. The runtime decodes it a single time, so a second `encodeURIComponent` reaches the provider still escaped, and hand-decoding before the call corrupts the request the other way: a `state` of `xY%2Bz` becomes `xY+z`, which a provider reads back as `xY z`, and a `%26` becomes a real `&` that splits one parameter into two.
+
+---
+
+## Passing the provider's URL, not your own endpoint
+
+The session watches your whole domain, so the URL you open has to live somewhere else. If `url` points at your own host, the session's very first navigation already matches and it closes before the provider is ever shown. The runtime detects that, declines the HTTPS callback, logs a line naming the fix, and runs the legacy custom scheme flow instead.
+
+```javascript
+const isDespia = navigator.userAgent.toLowerCase().includes('despia')
+
+if (isDespia) {
+    // Declined: this is on your own host, so the session would close immediately
+    despia(`oauth://?url=${encodeURIComponent('https://yourapp.com/api/auth/signin/google')}&type=https`)
+
+    // Correct: the provider's own authorize URL
+    despia(`oauth://?url=${encodeURIComponent(authUrl)}&type=https`)
+}
+```
+
+Server-side auth libraries hand you an own-host entry point by default, a route on your domain that redirects onward to the provider. Build the provider's authorize URL yourself for the native call, and keep your own endpoint as the `redirect_uri` it comes back to. The symptom of getting this wrong is a login that works but runs the legacy flow, which is easy to miss until someone reads the URL.
 
 ---
 
@@ -130,6 +152,8 @@ Keep the fallback branch. It is what lets one build serve every device.
 ## Verifying your domain
 
 The operating system will only deliver the redirect to your app if it can confirm you own the host. Both files must be served over HTTPS with `Content-Type: application/json` and no redirects.
+
+The host that matters is the domain your app loads, and the match is exact. Publish the files on that hostname, spelled the same way, including any `www` prefix. A subdomain does not inherit its parent, so `auth.yourapp.com` is not covered by files served on `yourapp.com`, and a host carrying a port cannot be verified at all.
 
 <Steps>
   <Step title="Enable Associated Domains on your main Bundle ID">
@@ -188,6 +212,8 @@ The operating system will only deliver the redirect to your app if it can confir
   </Step>
   <Step title="Set the domain in the Despia Editor">
     Enter the same host in your app's deep link domain settings, using the exact hostname the association files are published on, including any `www` prefix.
+
+    This has to be the domain your app itself loads. The session watches your app's own host, while the iOS association is granted from this setting, so if the two name different hosts the sheet opens on a domain the build was never associated with and closes without completing.
   </Step>
   <Step title="Turn on Web App Synchronization">
     Go to **Addons**, open **Web App Synchronization**, and enable it. This is what activates the native capability in the build. The association files and the domain setting on their own do nothing until this is on.
@@ -241,6 +267,8 @@ window.onAuthCallbackError('yourapp.com', 1)
 </ParamField>
 
 The runtime does not retry on the legacy flow after this fires, because the authorize URL was already built for the HTTPS redirect URI. Use the callback to surface a fallback path to the user, and treat it as a signal to check your association files.
+
+A user who simply dismisses the sheet or closes the tab does not reach this callback. That case is an ordinary cancellation and is not reported as a failure.
 
 ---
 
