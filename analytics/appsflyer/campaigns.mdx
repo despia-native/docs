@@ -4,6 +4,8 @@ description: "Connect TikTok and Meta as integrated partners, create custom attr
 icon: "rectangle-ad"
 ---
 
+Connect your TikTok and Meta ad accounts to AppsFlyer for accurate install attribution, event postbacks, and ROAS reporting per campaign. Combined with conversion events from the [Events](/analytics/appsflyer/events) page, this gives you a full picture of which campaigns drive the most valuable users, not just the most installs.
+
 ## Installation
 
 <Tabs>
@@ -45,26 +47,24 @@ icon: "rectangle-ad"
   </Tab>
 </Tabs>
 
-Connect your TikTok and Meta ad accounts to AppsFlyer to get accurate install attribution, event postbacks, and ROAS reporting per campaign. Combined with conversion events from the [Events](/analytics/appsflyer/events) page, this gives you a full picture of which campaigns drive the most valuable users, not just the most installs.
-
 ---
 
-## Connect Partners in AppsFlyer Dashboard
+## Connect Partners in AppsFlyer
 
 For install attribution and event postbacks to flow to Meta and TikTok you need to connect them as integrated partners.
 
 <Steps>
   <Step title="Open Integrated Partners">
-    In your AppsFlyer dashboard, go to **Configuration > Integrated Partners**
+    In your AppsFlyer dashboard, go to **Configuration \> Integrated Partners**.
   </Step>
   <Step title="Connect Meta">
-    Find **Meta ads**, click **Edit**, enable the integration, and enter your Meta App ID
+    Find **Meta ads**, click **Edit**, enable the integration, and enter your Meta App ID.
   </Step>
   <Step title="Map conversion events">
-    Under **In-App Events**, map `af_purchase`, `af_subscribe`, and any other conversion events you want Meta to optimize for
+    Under **In-App Events**, map `af_purchase`, `af_subscribe`, and any other conversion events you want Meta to optimize for.
   </Step>
   <Step title="Repeat for TikTok">
-    Find **TikTok for Business** and repeat the same process
+    Find **TikTok for Business** and repeat the same process.
   </Step>
 </Steps>
 
@@ -80,40 +80,40 @@ Create campaign-specific OneLink URLs to track performance per campaign, ad set,
 
 <Steps>
   <Step title="Open OneLink Management">
-    Go to **Engage > OneLink Management** in your AppsFlyer dashboard
+    Go to **Engage \> OneLink Management** in your AppsFlyer dashboard.
   </Step>
   <Step title="Create a link">
-    Select your OneLink template and click **Add Link**
+    Select your OneLink template and click **Add Link**.
   </Step>
   <Step title="Configure the link">
-    Set the media source, campaign name, and any custom parameters like `deep_link_value` or `page_id`
+    Set the media source, campaign name, and any custom parameters like `deep_link_value` or `page_id`.
   </Step>
   <Step title="Use in your ads">
-    Paste the generated link directly into your TikTok or Meta ad creative as the destination URL
+    Paste the generated link directly into your TikTok or Meta ad creative as the destination URL.
   </Step>
 </Steps>
 
-```
+```text
 https://yourapp.onelink.me/xxxx?pid=tiktokads_int&c=summer_2025&deep_link_value=product&page_id=sneaker_42
 ```
+
+To route users to the right page when they open the app from one of these links, see [Deep Linking](/analytics/appsflyer/deeplinking).
 
 ---
 
 ## Ad Revenue Tracking
 
-Report impression-level ad revenue back to AppsFlyer per platform. This enables LTV and ROAS reporting per acquisition channel so you can see which campaigns drive the most revenue, not just the most installs.
-
-Use `log_ad_revenue` each time an ad is shown to the user.
+Report impression-level ad revenue back to AppsFlyer per platform. This enables LTV and ROAS reporting per acquisition channel, so you can see which campaigns drive the most revenue, not just the most installs. Use `log_ad_revenue` each time an ad is shown to the user.
 
 <Tabs>
   <Tab title="Meta / Facebook">
     ```javascript
     const metaRevenue = {
-        "ad_platform": "facebook",
-        "currency": "USD",
-        "revenue": 0.008,
-        "ad_type": "interstitial",
-        "ad_unit_id": "your_unit_id"
+        ad_platform: "facebook",
+        currency: "USD",
+        revenue: 0.008,
+        ad_type: "interstitial",
+        ad_unit_id: "your_unit_id"
     }
     despia("appsflyer://log_ad_revenue?" + new URLSearchParams(metaRevenue).toString())
     ```
@@ -121,11 +121,11 @@ Use `log_ad_revenue` each time an ad is shown to the user.
   <Tab title="TikTok">
     ```javascript
     const tiktokRevenue = {
-        "ad_platform": "tiktok",
-        "currency": "USD",
-        "revenue": 0.005,
-        "ad_type": "banner",
-        "ad_unit_id": "your_unit_id"
+        ad_platform: "tiktok",
+        currency: "USD",
+        revenue: 0.005,
+        ad_type: "banner",
+        ad_unit_id: "your_unit_id"
     }
     despia("appsflyer://log_ad_revenue?" + new URLSearchParams(tiktokRevenue).toString())
     ```
@@ -133,11 +133,11 @@ Use `log_ad_revenue` each time an ad is shown to the user.
   <Tab title="AdMob">
     ```javascript
     const admobRevenue = {
-        "ad_platform": "admob",
-        "currency": "USD",
-        "revenue": 0.012,
-        "ad_type": "rewarded",
-        "ad_unit_id": "ca-app-pub-xxx/yyy"
+        ad_platform: "admob",
+        currency: "USD",
+        revenue: 0.012,
+        ad_type: "rewarded",
+        ad_unit_id: "ca-app-pub-xxx/yyy"
     }
     despia("appsflyer://log_ad_revenue?" + new URLSearchParams(admobRevenue).toString())
     ```
@@ -145,7 +145,7 @@ Use `log_ad_revenue` each time an ad is shown to the user.
 </Tabs>
 
 <ParamField path="ad_platform" type="string" required>
-  Ad network name. Accepted values: `"facebook"`, `"tiktok"`, `"admob"`
+  Ad network name. Accepted values: `"facebook"`, `"tiktok"`, `"admob"`.
 </ParamField>
 
 <ParamField path="currency" type="string" required>
@@ -157,18 +157,20 @@ Use `log_ad_revenue` each time an ad is shown to the user.
 </ParamField>
 
 <ParamField path="ad_type" type="string">
-  Type of ad served. Accepted values: `"banner"`, `"interstitial"`, `"rewarded"`, `"native"`
+  Type of ad served. Accepted values: `"banner"`, `"interstitial"`, `"rewarded"`, `"native"`.
 </ParamField>
 
 <ParamField path="ad_unit_id" type="string">
-  Your ad unit ID from the ad network
+  Your ad unit ID from the ad network.
 </ParamField>
+
+For best practices on impression-level reporting, see the [Ad Revenue](/analytics/appsflyer/ad-revenue) page.
 
 ---
 
 ## Web-to-App Attribution
 
-If users discover your app through your website before installing, add the AppsFlyer Smart Banner to stitch the web visit to the app install. Without this, users who visit your site and later install the app will appear as organic in AppsFlyer.
+If users discover your app through your website before installing, add the AppsFlyer Smart Banner to stitch the web visit to the app install. Without this, users who visit your site and later install the app appear as organic in AppsFlyer.
 
 Add this to your website `<head>`:
 
@@ -184,7 +186,7 @@ AF('banners', 'showBanner');
 ```
 
 <Warning>
-  Replace `YOUR_WEB_KEY` with the web key from your AppsFlyer dashboard under **Settings > Brand Bundles > Web dev key**. This is a web-only change. No native code changes are required.
+  Replace `YOUR_WEB_KEY` with the web key from your AppsFlyer dashboard under **Settings \> Brand Bundles \> Web dev key**. This is a web-only change, no native code changes are required.
 </Warning>
 
 ---
@@ -192,14 +194,16 @@ AF('banners', 'showBanner');
 ## Frequently Asked Questions
 
 <AccordionGroup>
-  <Accordion title="Why use AppsFlyer instead of Meta and TikTok SDKs directly?">
-    If you install Meta SDK and TikTok SDK separately, each platform only sees its own data and will overclaim credit for the same install. AppsFlyer acts as a neutral middleman. It determines which channel actually gets credit using last-click attribution and reports back to each platform what it earned. Your ROAS numbers become trustworthy.
+  <Accordion title="Why use AppsFlyer instead of the Meta and TikTok SDKs directly?">
+    If you install the Meta SDK and TikTok SDK separately, each platform only sees its own data and will overclaim credit for the same install. AppsFlyer acts as a neutral middleman. It determines which channel actually gets credit using last-click attribution and reports back to each platform what it earned, so your ROAS numbers become trustworthy.
   </Accordion>
+
   <Accordion title="Will Meta and TikTok numbers always match AppsFlyer?">
-    No, and that is expected. Meta and TikTok use their own attribution models which typically show higher install counts than AppsFlyer. AppsFlyer's numbers are more accurate for your own budget decisions. Use AppsFlyer to decide where to spend, use Meta and TikTok dashboards to manage creatives.
+    No, and that is expected. Meta and TikTok use their own attribution models, which typically show higher install counts than AppsFlyer. AppsFlyer's numbers are more accurate for your own budget decisions. Use AppsFlyer to decide where to spend, and use the Meta and TikTok dashboards to manage creatives.
   </Accordion>
+
   <Accordion title="What events should I map for TikTok and Meta optimization?">
-    Map `af_complete_registration`, `af_purchase`, and `af_subscribe` at minimum. These give the ad algorithms enough signal to find users likely to convert. If you only map installs, the algorithms optimize for install volume which rarely correlates with revenue.
+    Map `af_complete_registration`, `af_purchase`, and `af_subscribe` at minimum. These give the ad algorithms enough signal to find users likely to convert. If you only map installs, the algorithms optimize for install volume, which rarely correlates with revenue.
   </Accordion>
 </AccordionGroup>
 
@@ -208,16 +212,19 @@ AF('banners', 'showBanner');
 ## Resources
 
 <CardGroup cols={2}>
-  <Card icon="npm" href="https://www.npmjs.com/package/despia-native" title="NPM Package">
-    Install the Despia SDK
+  <Card title="NPM Package" icon="npm" href="https://www.npmjs.com/package/despia-native">
+    despia-native
   </Card>
-  <Card icon="code" href="https://dev.appsflyer.com/hc/docs/dl_smart_banner_v2" title="Smart Banners Docs">
+
+  <Card title="Smart Banners Docs" icon="code" href="https://dev.appsflyer.com/hc/docs/dl_smart_banner_v2">
     AppsFlyer Smart Banner SDK reference
   </Card>
-  <Card icon="chart-bar" href="https://support.appsflyer.com/hc/en-us/articles/4410480904081" title="Meta Ads Integration">
+
+  <Card title="Meta Ads Integration" icon="chart-bar" href="https://support.appsflyer.com/hc/en-us/articles/4410480904081">
     Meta ads event mapping guide
   </Card>
-  <Card icon="envelope" href="mailto:support@despia.com" title="Support">
-    Contact our support team
+
+  <Card title="Support" icon="envelope" href="mailto:support@despia.com">
+    [support@despia.com](mailto:support@despia.com)
   </Card>
 </CardGroup>

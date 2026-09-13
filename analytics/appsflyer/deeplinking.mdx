@@ -1,8 +1,14 @@
 ---
 title: "Deep Linking"
-description: "Route users to specific pages inside the app from ad campaigns and creator affiliate links, even if the app was not installed at the time of the click."
+description: "Carry campaign, affiliate, invite, and content metadata from a link into the app on first launch, even when the user installs from the store first."
 icon: "link"
 ---
+
+Deep linking carries the context of a click into your app. When someone taps your ad, a creator's affiliate link, an invite, or a share of a specific product or episode, the data you attached to that link (a product ID, a creator code, an invite code, an episode ID, an offer) is delivered to your app when it opens. This is the whole point of deferred deep linking: the user does not have the app yet, taps the link, gets sent to the App Store or Play Store, installs, and opens, and the original context still arrives on that first launch. Instead of dumping them on a generic home screen, you open the exact product, creator page, episode, or offer they came for.
+
+<Info>
+  Your app decides what happens with the data. Despia resolves the link natively and hands you the payload. It never navigates the WebView to a URL built from the link, so there is no 404 risk and no routing you are forced into. What you do with the metadata, redirect, fetch, or render in place, is entirely your app logic.
+</Info>
 
 ## Installation
 
@@ -45,376 +51,280 @@ icon: "link"
   </Tab>
 </Tabs>
 
-Deep linking routes users to the correct page inside your app from an ad, campaign link, or creator affiliate link. Despia handles both cases: users who already have the app installed and users who install after clicking a link (deferred deep linking). Your web layer only needs to read the values and render the correct page.
-
-<Info>
-  Deferred deep linking works even if the user installed the app days after clicking the link. AppsFlyer stores the click data and delivers it on first launch.
-</Info>
-
 ---
 
 ## How it works
 
 ```mermaid
 flowchart TD
-    A["User clicks ad or creator affiliate link"] --> B{"App installed?"}
-    B -->|"Yes"| C["Universal Link opens app directly"]
-    B -->|"No"| D["User sent to App Store"]
-    D --> E["User installs app"]
-    E --> F["App launches for first time"]
-    C --> G["AppsFlyer resolves deep link natively"]
-    F --> G
-    G --> H["Despia navigates WebView to the correct path automatically"]
-    H --> I["Your web app renders the correct page on load"]
+    A["User taps ad, creator, invite, or share link"] --> B{"App installed?"}
+    B -->|"No"| D["Sent to App Store / Play Store"]
+    D --> E["Installs and opens the app for the first time"]
+    B -->|"Yes"| C["Universal Link / App Link opens the app"]
+    E --> F["AppsFlyer resolves the stored click natively"]
+    C --> F
+    F --> G["Despia delivers the payload to window.onAppsFlyerDeepLink"]
+    G --> H["Your app reads the metadata and opens the right content"]
 ```
+
+You attach the context you care about to a OneLink when you create it (which product, which creator, which invite code). AppsFlyer stores that click server-side. When the app opens, the SDK resolves it and Despia calls `window.onAppsFlyerDeepLink(payload)` with that data. On a fresh install this is the deferred case: the click was stored before the app existed on the device, and it is delivered on first launch. Despia keeps registered OneLink domains out of the WebView entirely, so the user never sees a redirect page and your app never has to parse a link.
 
 <Info>
-  Despia handles navigation automatically. When a deep link is resolved, the native layer navigates the WebView to the correct path directly. Your web app just renders whatever page it lands on, the same way it handles any other URL.
+  Deferred deep linking works even if the user installs days after clicking. AppsFlyer stores the click with a configurable lookback window (default 7 days) and delivers it on the first launch inside that window.
 </Info>
 
-<Steps>
-  <Step title="Create a OneLink URL">
-    In your AppsFlyer dashboard, go to **Engage > OneLink Management** and create a campaign link with `deep_link_value` and any custom params like `page_id` or `creator_code`.
-  </Step>
-  <Step title="Use the link in your ads or share with creators">
-    Paste the generated OneLink URL into your TikTok or Meta ad creative, or give it to a content creator as their affiliate link.
-  </Step>
-  <Step title="Your web app renders the page">
-    Despia navigates the WebView automatically. Your web router handles the path like any normal page load.
-  </Step>
-</Steps>
-
 ---
 
-## Required: Map deep_link_value to a Real Route
+## What arrives in the app
 
-This is the most important setup step. `deep_link_value` is not magic. It is a plain string that Despia appends to your app's base URL to build a path. If that path does not exist as a real route in your web app, the user will land on a blank page or 404.
+The callback receives a plain object: the data you put on the link, delivered intact. A typical creator campaign for a specific product looks like this:
 
-**How the mapping works:**
-
+```json
+{
+    "deep_link_value": "product",
+    "page_id": "sneaker_42",
+    "deep_link_sub1": "alex123",
+    "media_source": "influencer_int",
+    "campaign": "summer_2025",
+    "is_first_launch": true,
+    "af_status": "Non-organic"
+}
 ```
-deep_link_value = "product"
-page_id         = "sneaker_42"
-creator_code    = "alex123"
 
-Despia navigates WebView to:
-https://yourapp.com/product?page_id=sneaker_42&creator_code=alex123
-```
+Two fields do the routing work, and the rest is context:
 
-Your web app must have a route at `/product` that reads `page_id` and `creator_code` from the query string and loads the correct content.
-
-**Step 1: Decide your deep link routes**
-
-Before creating any OneLink URLs, decide which pages you want to support as deep link destinations. Keep values short and URL-safe.
-
-| deep_link_value | Route in your app | Use case |
-|---|---|---|
-| `product` | `/product` | Land on a specific product page |
-| `collection` | `/collection` | Land on a curated collection |
-| `profile` | `/profile` | Land on a creator or user profile |
-| `offer` | `/offer` | Land on a special offer or promo page |
-| `onboarding` | `/onboarding` | Start a custom onboarding flow |
-| `home` | `/` | Default home screen |
-
-**Step 2: Add the routes to your web app**
-
-Each `deep_link_value` must have a corresponding route in your client-side router. Here is how to handle the query params:
-
-<Tabs>
-  <Tab title="React Router">
-    ```javascript
-    // App.jsx
-    import { Routes, Route, useSearchParams } from 'react-router-dom'
-
-    function ProductPage() {
-        const [params] = useSearchParams()
-        const pageId      = params.get('page_id')
-        const creatorCode = params.get('creator_code')
-
-        // load the product and apply any creator discount/tracking
-        useEffect(() => {
-            loadProduct(pageId)
-            if (creatorCode) trackCreatorReferral(creatorCode)
-        }, [pageId, creatorCode])
-
-        return <div>...</div>
-    }
-
-    export default function App() {
-        return (
-            <Routes>
-                <Route path="/"            element={<Home />} />
-                <Route path="/product"     element={<ProductPage />} />
-                <Route path="/collection"  element={<CollectionPage />} />
-                <Route path="/profile"     element={<ProfilePage />} />
-                <Route path="/offer"       element={<OfferPage />} />
-                <Route path="/onboarding"  element={<OnboardingPage />} />
-            </Routes>
-        )
-    }
-    ```
-  </Tab>
-  <Tab title="Vue Router">
-    ```javascript
-    // router/index.js
-    const routes = [
-        { path: '/',           component: Home },
-        { path: '/product',    component: ProductPage },
-        { path: '/collection', component: CollectionPage },
-        { path: '/profile',    component: ProfilePage },
-        { path: '/offer',      component: OfferPage },
-        { path: '/onboarding', component: OnboardingPage }
-    ]
-
-    // ProductPage.vue
-    const pageId      = route.query.page_id
-    const creatorCode = route.query.creator_code
-    ```
-  </Tab>
-  <Tab title="Plain JS">
-    ```javascript
-    // Read path and params on any page load
-    const path   = window.location.pathname
-    const params = new URLSearchParams(window.location.search)
-    const pageId      = params.get('page_id')
-    const creatorCode = params.get('creator_code')
-
-    if (path === '/product' && pageId) {
-        loadProduct(pageId)
-        if (creatorCode) trackCreatorReferral(creatorCode)
-    }
-    ```
-  </Tab>
-</Tabs>
-
-**Step 3: Use the exact same value in your OneLink URL**
-
-Whatever route path you set up in your web app, use the same string (without the leading slash) as `deep_link_value` in your OneLink campaign URL.
-
-```
-deep_link_value=product     ✓  matches route /product
-deep_link_value=Product     ✗  wrong case, route won't match
-deep_link_value=product-page ✗  wrong slug, route won't match
-```
+`deep_link_value` tells you what kind of destination this is, for example `"product"`, `"collection"`, `"creator"`, `"episode"`, or `"offer"`. It is just a string you chose when you built the link. The `deep_link_sub1` through `deep_link_sub10` params carry the specifics, the product ID, the creator or affiliate code, the invite code, the episode ID. Along with `deep_link_value`, these ten sub params are the fields AppsFlyer guarantees on a deferred first-launch resolution, so put anything a fresh install must receive into them. You can also add your own named params like `page_id` or `episode_id`, and they arrive as top-level keys on the callback, but read the reliability note below before relying on them for deferred installs.
 
 <Warning>
-  `deep_link_value` is case-sensitive and must exactly match your route path without the leading slash. If the route does not exist in your web app, the user will land on your app's 404 or fallback page.
+  On a deferred install, a brand-new user resolving through AppsFlyer Unified Deep Linking, only `deep_link_value` and `deep_link_sub1` through `deep_link_sub10` are guaranteed in the payload. Arbitrary custom keys are excluded from the UDL payload by design. Despia still surfaces them in practice, because it also forwards AppsFlyer's conversion-data payload on first launch and that payload carries your custom params for click-matched installs, but that is a fallback path, not the guaranteed one. For anything a fresh install must not lose, use `deep_link_sub1` through `deep_link_sub10`.
 </Warning>
+
+<Info>
+  On a deferred install both native paths can fire, so your handler may be called more than once. Keep it idempotent. The session-flag dedupe shown under Cold-start fallback covers this.
+</Info>
 
 ---
 
-## Read Deep Link Parameters
+## Use the data
 
-Even though Despia navigates automatically, the full deep link data is also available in `despia.appsFlyerAttribution` on every page load. Use this to personalize content based on the campaign or creator params.
+You get the object, you do whatever your app needs. There is no required pattern. The three most common:
+
+Redirect to a page that loads its own content from the params:
 
 ```javascript
-import despia from 'despia-native';
-
-const attr = despia.appsFlyerAttribution
-
-const deepLinkValue = attr.deep_link_value  // e.g. "product"
-const pageId        = attr.page_id          // e.g. "sneaker_42"
-const creatorCode   = attr.deep_link_sub1   // e.g. "alex123"
-const sub2          = attr.deep_link_sub2   // additional routing param
+window.onAppsFlyerDeepLink = function (payload) {
+    if (payload.deep_link_value) {
+        // e.g. /product?id=sneaker_42&ref=alex123, and that page fetches on load
+        const qs = new URLSearchParams({ id: payload.page_id, ref: payload.deep_link_sub1 })
+        window.location.assign("/" + payload.deep_link_value + "?" + qs)
+    }
+}
 ```
 
+Make the backend call right there and open the dynamic content, no navigation at all:
+
+```javascript
+window.onAppsFlyerDeepLink = async function (payload) {
+    if (payload.deep_link_value === "product") {
+        const product = await fetch("/api/products/" + payload.page_id).then(r => r.json())
+        openProductScreen(product)
+    }
+    if (payload.deep_link_value === "creator") {
+        const creator = await fetch("/api/creators/" + payload.page_id).then(r => r.json())
+        openCreatorProfile(creator)
+    }
+}
+```
+
+Apply an invite or affiliate code and drop the user into the referred experience:
+
+```javascript
+window.onAppsFlyerDeepLink = function (payload) {
+    const creatorCode = payload.deep_link_sub1    // guaranteed on deferred installs
+    const inviteCode  = payload.deep_link_sub2    // keep critical codes in sub1-sub10
+
+    if (creatorCode) applyCreatorReferral(creatorCode)
+    if (inviteCode)  applyInvite(inviteCode)
+
+    if (payload.page_id) openContent(payload.deep_link_value, payload.page_id)
+}
+```
+
+If your app already uses a client-side router, mapping `deep_link_value` to a route is one clean way to do the same thing, but it is an option, not a requirement:
+
+```javascript
+// Optional: router-based dispatch
+const ROUTES = { product: "/product", creator: "/creator", episode: "/episode", offer: "/offer" }
+
+window.onAppsFlyerDeepLink = function (payload) {
+    const path = ROUTES[payload.deep_link_value]
+    if (!path) return  // unknown value, leave the user on the current screen
+    navigate(path + "?id=" + payload.page_id)  // your router's navigate
+}
+```
+
+Read the metadata from the callback payload, not from the page URL. The OneLink's query string is never appended to your app's own URL.
+
+---
+
+## Register the callback early
+
+Define `window.onAppsFlyerDeepLink` as early as possible, ideally in an inline script in your document `<head>`, before your app bundle loads. Despia queues deep links that arrive before the page is ready and replays them roughly 300 ms after the page registers, so the handler must already exist by then. Assign it bare, outside any user agent gate, since setting a property on `window` is harmless when the app runs outside Despia.
+
+```javascript
+// index.html, before the bundle loads
+<script>
+  window.__pendingDeepLink = null
+  window.onAppsFlyerDeepLink = (payload) => { window.__pendingDeepLink = payload }
+</script>
+```
+
+```javascript
+// later, once your app and data layer are ready, drain the queue and take over
+function installDeepLinkHandler(handle) {
+    if (window.__pendingDeepLink) {
+        handle(window.__pendingDeepLink)
+        window.__pendingDeepLink = null
+    }
+    window.onAppsFlyerDeepLink = handle
+}
+```
+
+---
+
+## When the callback fires
+
+| Scenario | What happens |
+| --- | --- |
+| Fresh install (deferred) | On first launch the stored click resolves and the callback fires. `deep_link_value` and `deep_link_sub1` through `deep_link_sub10` are guaranteed; custom named params arrive when the conversion-data fallback matches the click. This is the case deep linking exists for. |
+| App installed, link tapped | The link opens the app, AppsFlyer resolves it, and the callback fires with the click payload. Attribution updates to `install_type: "re-engagement"`. |
+| Paid install without deep\_link\_value | The callback still fires on first launch for non-organic installs, so you can personalize onboarding from `media_source` or `campaign` even when the ad carried no routing value. |
+| Organic install, no link | The callback does not fire. `despia.appsFlyerReferrer` is `"organic"`. |
+
+<Info>
+  On iOS, deferred resolution happens after the App Tracking Transparency prompt is answered (the SDK waits up to 60 seconds for it), so on a fresh install the callback can arrive well after your first page render. Keep the handler installed, do not treat it as launch-time-only.
+</Info>
+
+---
+
+## Cold-start fallback
+
+The last resolved deep link also persists inside the injected attribution object. If your page reloads after the callback already fired, read it from there and de-duplicate with your own one-shot flag:
+
+```javascript
+const attr = despia.appsFlyerAttribution
+const dlv = attr?.deep_link_value
+
+if (dlv && sessionStorage.getItem("dl_handled") !== dlv) {
+    sessionStorage.setItem("dl_handled", dlv)
+    window.onAppsFlyerDeepLink(attr.raw ?? attr)
+}
+```
+
+---
+
+## Payload reference
+
 <ResponseField name="deep_link_value" type="string">
-  The main routing value. Despia navigates the WebView to this path automatically, e.g. `"product"`, `"collection"`, `"offer"`
+  The kind of destination, chosen by you when creating the OneLink, e.g. `"product"`, `"creator"`, `"episode"`, `"offer"`. Keep values short and URL-safe.
 </ResponseField>
 
 <ResponseField name="page_id" type="string">
-  A specific content ID to load on the destination page, e.g. a product ID, collection ID, or profile ID
+  The specific content ID to load, e.g. a product ID, episode ID, or profile ID. A custom param, but a special-cased one: Despia also lifts `page_id` to a top-level normalized field on `despia.appsFlyerAttribution` (both platforms). Other custom keys only appear under `despia.appsFlyerAttribution.raw`. On the callback payload every key is top-level regardless.
 </ResponseField>
 
-<ResponseField name="deep_link_sub1" type="string">
-  General-purpose sub-parameter. Commonly used for creator or affiliate codes.
+<ResponseField name="deep_link_sub1 ... deep_link_sub10" type="string">
+  Ten general-purpose values from the OneLink, commonly a creator code, affiliate code, or invite code. Along with `deep_link_value`, these are the only fields AppsFlyer guarantees on a deferred first-launch resolution, so use them for anything a fresh install must receive. `deep_link_sub1` also doubles as the `appsFlyerReferrer` fallback when `deep_link_value` is absent, so set both together.
 </ResponseField>
 
-<ResponseField name="deep_link_sub2" type="string">
-  General-purpose sub-parameter for additional routing context
+<ResponseField name="[your custom params]" type="string">
+  Any parameter you add to the OneLink (`episode_id`, `season`, `ref`, ...) arrives as a top-level key on the callback payload, and under `despia.appsFlyerAttribution.raw` on the attribution object. Reliable on direct opens and re-engagements. On a deferred install they come through the conversion-data fallback rather than the guaranteed UDL payload, so move must-have IDs into `deep_link_sub1` through `deep_link_sub10`.
 </ResponseField>
 
----
+<ResponseField name="media_source / campaign" type="string">
+  The attributed network and campaign for this click.
+</ResponseField>
 
-## Personalize the Page on Load
+<ResponseField name="is_first_launch" type="boolean">
+  `true` when the payload comes from a deferred deep link on first launch.
+</ResponseField>
 
-```javascript
-import despia from 'despia-native';
-
-const attr = despia.appsFlyerAttribution
-
-if (attr.page_id) {
-    loadProduct(attr.page_id)
-}
-
-if (attr.deep_link_sub1) {
-    // show creator welcome message or apply their promo
-    showCreatorWelcome(attr.deep_link_sub1)
-}
-```
+<ResponseField name="af_status" type="string">
+  `"Organic"` or `"Non-organic"` (first-launch conversion payloads only).
+</ResponseField>
 
 ---
 
 ## Creator and Affiliate Links
 
-Deep linking works great for content creator and influencer affiliate campaigns. Each creator gets their own OneLink URL with their unique code. When a user installs via a creator link, you know exactly which creator drove the install and can attribute credit, apply discounts, or personalize the welcome experience.
+Give each creator their own OneLink with a unique code in `deep_link_sub1` and the content they are promoting in `page_id`. When a user installs through that link, the code arrives on first launch, so you know exactly which creator drove the install and can credit them, apply their discount, and open the product they were promoting.
 
-**Example creator link:**
-
+```text
+https://yourapp.onelink.me/xxxx?pid=influencer_int&c=summer_2025&deep_link_value=product&page_id=sneaker_42&deep_link_sub1=alex123
 ```
-https://yourapp.onelink.me/xxxx?pid=influencer_int&c=summer_campaign&deep_link_value=product&page_id=sneaker_42&deep_link_sub1=alex123
-```
-
-**When the user opens the app:**
 
 ```javascript
-import despia from 'despia-native';
+window.onAppsFlyerDeepLink = function (payload) {
+    const creatorCode = payload.deep_link_sub1  // "alex123"
+    const productId   = payload.page_id         // "sneaker_42"
 
-const attr = despia.appsFlyerAttribution
+    if (creatorCode) {
+        showCreatorWelcome(creatorCode)
+        applyCreatorDiscount(creatorCode)
 
-// deep_link_sub1 carries the creator's affiliate code
-const creatorCode = attr.deep_link_sub1  // "alex123"
-const productId   = attr.page_id         // "sneaker_42"
-
-if (creatorCode) {
-    // show "You were referred by Alex" welcome screen
-    showCreatorWelcomeScreen(creatorCode)
-
-    // apply creator's discount or track commission
-    applyCreatorDiscount(creatorCode)
-
-    // log the referral event back to AppsFlyer
-    const referral = {
-        "af_sub1": creatorCode,
-        "af_content_id": productId
+        // report the referral back to AppsFlyer for commission tracking
+        const referral = { af_sub1: creatorCode, af_content_id: productId }
+        despia("appsflyer://log_event?event_name=creator_referral&event_values=" + encodeURIComponent(JSON.stringify(referral)))
     }
-    despia("appsflyer://log_event?event_name=creator_referral&event_values=" + encodeURIComponent(JSON.stringify(referral)))
+
+    if (productId) openProductScreen(productId)
 }
 ```
 
-<Tip>
-  Use `deep_link_sub1` through `deep_link_sub5` for creator and affiliate parameters. These map cleanly to AppsFlyer's `af_sub1` through `af_sub5` fields which are available in raw data exports and the AppsFlyer dashboard for commission reporting.
-</Tip>
+Filter raw data by `af_sub1` in your AppsFlyer dashboard to see installs, events, and revenue per creator.
 
 ---
 
-## Re-engagements: window.onAppsFlyerDeepLink
-
-For re-engagements, when a user who already has the app installed taps a campaign or creator link while the app is open, Despia calls `window.onAppsFlyerDeepLink` with the full click event data. Define this function to handle routing when the app is already running.
-
-```javascript
-window.onAppsFlyerDeepLink = (data) => {
-    const deepLinkValue = data.deep_link_value
-    const pageId        = data.page_id
-    const creatorCode   = data.deep_link_sub1
-
-    if (deepLinkValue === "product") {
-        window.location.href = `/product?page_id=${pageId}&creator_code=${creatorCode}`
-
-    } else if (deepLinkValue === "offer") {
-        window.location.href = `/offer?id=${pageId}`
-
-    } else if (deepLinkValue === "profile") {
-        window.location.href = `/profile?id=${pageId}`
-    }
-}
-```
-
-<Tip>
-  Define `window.onAppsFlyerDeepLink` as early as possible in your app, ideally at the top level of your entry file, so it is always available when Despia calls it.
-</Tip>
-
----
-
-## OneLink URL Structure
-
-```
-https://yourapp.onelink.me/xxxx?pid=tiktokads_int&c=summer_2025&deep_link_value=product&page_id=sneaker_42&deep_link_sub1=alex123
-```
-
-<ParamField path="deep_link_value" type="string" required>
-  The main routing destination. Despia uses this to navigate the WebView to the correct path automatically.
-</ParamField>
-
-<ParamField path="page_id" type="string">
-  A specific content ID to load on the destination page
-</ParamField>
-
-<ParamField path="deep_link_sub1" type="string">
-  General-purpose sub-parameter. Commonly used for creator codes, affiliate IDs, or promo codes.
-</ParamField>
-
-<ParamField path="deep_link_sub2" type="string">
-  General-purpose sub-parameter for additional context
-</ParamField>
-
-<ParamField path="pid" type="string">
-  Media source identifier, e.g. `"tiktokads_int"`, `"facebook"`, `"influencer_int"`. Set in the AppsFlyer dashboard.
-</ParamField>
-
-<ParamField path="c" type="string">
-  Campaign name for attribution and reporting
-</ParamField>
-
----
-
-## Despia Dashboard Setup
-
-All deep linking configuration is handled directly in the Despia dashboard. No code changes, no native setup required.
+## Create the OneLink
 
 <Steps>
-  <Step title="Open AppsFlyer Integration">
-    Go to **Despia > App > Settings > Integrations > AppsFlyer**
+  <Step title="Create a OneLink URL">
+    In your AppsFlyer dashboard, go to **Engage \> OneLink Management** and create a link. Attach a `deep_link_value` and put the IDs a fresh install must receive into `deep_link_sub1` through `deep_link_sub10`. `page_id` and other named params work too, but are only guaranteed on direct opens and re-engagements, see the reliability note above.
   </Step>
-  <Step title="Add your OneLink URLs">
-    Enter your OneLink subdomain and any OneLink URLs you want the app to handle as deep links
+  <Step title="Register the OneLink domain with your app">
+    Your OneLink domain (e.g. `yourapp.onelink.me`) must be registered in your Despia app build so the OS opens the app directly and Despia keeps the URL out of the WebView. Links from unregistered domains behave like ordinary web links.
   </Step>
-  <Step title="Add your ad platform IDs">
-    Enter your Facebook App ID, TikTok App ID, AdMob App ID, and any other ad platform credentials in the same screen
+  <Step title="Use the link in ads or hand it to creators">
+    Paste the OneLink into your TikTok or Meta ad creative, or give it to a content creator as their affiliate link.
   </Step>
-  <Step title="Save and rebuild">
-    Save the configuration and rebuild your app. Despia handles all the native plumbing automatically.
+  <Step title="Read the payload in your app">
+    Your `onAppsFlyerDeepLink` handler receives the metadata and opens the right content. That is the whole contract.
   </Step>
 </Steps>
 
-<Info>
-  Despia configures Universal Links automatically based on the OneLink URLs you enter in the dashboard. No entitlements files, no native developer involvement required.
-</Info>
-
-<Note>
-  Despia also registers the `appsflyer://` URI scheme automatically. This is an AppsFlyer SDK requirement for URI scheme deep linking fallback — it allows deep links to open the app when Universal Links are unavailable, for example in some in-app browsers or older iOS versions. This is separate from Despia's internal web bridge commands and requires no configuration on your part.
-</Note>
+<Warning>
+  Adding or changing OneLink domains and ad platform IDs in the Despia Editor requires a fresh native build. Until you rebuild and users install the new version, the OS will not open your app from those links and the metadata will not be delivered.
+</Warning>
 
 ---
 
 ## Frequently Asked Questions
 
 <AccordionGroup>
-  <Accordion title="Does Despia navigate the WebView automatically?">
-    Yes. When a deep link is resolved natively, Despia builds the full URL from `deep_link_value` and any custom params, then navigates the WebView to that path directly. Your web app handles it like any normal page load. You do not need to implement any navigation logic for this case.
+  <Accordion title="What is the actual point of deferred deep linking?">
+    To carry the context of a click into the app on first launch even though the user did not have the app when they clicked. They tap your ad or a creator link, install from the store, open the app, and the product, creator, invite, or episode they came for is available immediately. Without it, every install lands on a generic home screen and the campaign context is lost.
   </Accordion>
-  <Accordion title="What is window.onAppsFlyerDeepLink for?">
-    This is for re-engagements only, when a user who already has the app installed taps a campaign or creator link while the app is open. In this case the page has already loaded so there is no new page load. Despia calls `window.onAppsFlyerDeepLink(data)` with the click event data so your app can respond to the new link without a full page reload.
-  </Accordion>
-  <Accordion title="Does deferred deep linking work if the user installs days later?">
-    Yes. AppsFlyer stores the click data server-side with a configurable lookback window (default 7 days). When the user installs and opens the app within that window, the deep link parameters are delivered on first launch and Despia navigates automatically.
-  </Accordion>
-  <Accordion title="What if deep_link_value is null?">
-    The user did not come from a deep link campaign. Despia will not navigate anywhere and the app opens to its default page normally.
 
-    ```javascript
-    if (attr.deep_link_value) {
-        // came from a deep link campaign or creator link
-    } else {
-        // normal launch, show home screen
-    }
-    ```
+  <Accordion title="Do I have to use a router?">
+    No. You receive a plain object and do whatever you want with it, redirect, run a backend call and render the result, apply a code, or open a screen in place. A router is just one convenient way to dispatch on `deep_link_value` if your app already has one.
   </Accordion>
-  <Accordion title="How do I track which creator drove the most installs?">
-    Give each creator a unique OneLink URL with their code in `deep_link_sub1`. In your AppsFlyer dashboard, filter raw data by `af_sub1` to see installs, events, and revenue per creator. You can also fire a custom `creator_referral` event on first launch to track conversions per creator in your own backend.
+
+  <Accordion title="What if deep_link_value is null?">
+    The user did not come from a deep link campaign. Read `media_source` and `campaign` from the payload if you still want to personalize a paid install, otherwise show your default page.
   </Accordion>
-  <Accordion title="Can I pass custom parameters beyond deep_link_value?">
-    Yes. Add any query parameter to your OneLink URL and it will be available in `despia.appsFlyerAttribution`. Use `deep_link_sub1` through `deep_link_sub5` for standard affiliate and creator params. For fully custom parameters, access them via `attr.raw`.
+
+  <Accordion title="Can I pass my own custom parameters?">
+    Yes. Named params (`episode_id`, `ref`, ...) arrive as top-level keys on the callback payload and under `despia.appsFlyerAttribution.raw`. One caveat for deferred installs: AppsFlyer's Unified Deep Linking payload only guarantees `deep_link_value` and `deep_link_sub1` through `deep_link_sub10` for a brand-new user. Custom keys still tend to arrive because Despia also forwards the conversion-data payload on first launch, but that is a fallback, so put anything a fresh install must have into `deep_link_sub1` through `deep_link_sub10`.
   </Accordion>
 </AccordionGroup>
 
@@ -423,13 +333,11 @@ All deep linking configuration is handled directly in the Despia dashboard. No c
 ## Resources
 
 <CardGroup cols={2}>
-  <Card icon="npm" href="https://www.npmjs.com/package/despia-native" title="NPM Package">
-    Install the Despia SDK
+  <Card title="NPM Package" icon="npm" href="https://www.npmjs.com/package/despia-native">
+    despia-native
   </Card>
-  <Card icon="link" href="https://support.appsflyer.com/hc/en-us/articles/208874366" title="AppsFlyer OneLink Docs">
-    Create and manage OneLink campaign URLs
-  </Card>
-  <Card icon="envelope" href="mailto:support@despia.com" title="Support">
-    Contact our support team
+
+  <Card title="Support" icon="envelope" href="mailto:support@despia.com">
+    [support@despia.com](mailto:support@despia.com)
   </Card>
 </CardGroup>

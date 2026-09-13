@@ -1,87 +1,218 @@
 ---
 title: "Safe Areas"
 icon: "object-ungroup"
-description: "Handle device safe areas (notches, status bars, home indicators) using custom CSS variables for responsive mobile layouts in your Lovable application."
+description: "Handle notches, status bars, home indicators, and gesture bars using CSS variables injected by the Despia runtime, paired with a defensive env() fallback."
 ---
 
 <iframe src="https://www.youtube.com/embed/e4xN7eZW4NU" title="YouTube video player" frameborder="0" className="w-full aspect-video rounded-xl" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen />
 
-<Card title="AI Prompt" icon="sparkles">
-  Use CSS variables for safe area handling in your application. The Despia native runtime automatically provides `var(--safe-area-top)` and `var(--safe-area-bottom)` CSS variables.
+<Note>
+  The video uses a specific AI coding tool to demonstrate the setup, but the configuration works 1:1 with Cursor, Claude Code, or any other tool. Despia is web framework and tooling agnostic, so the only thing that matters is the CSS pattern you apply to your fixed and sticky elements.
+</Note>
 
-  1. Add spacer divs at the top and bottom of your layout
-  2. Set the height of spacer divs to `var(--safe-area-top)` and `var(--safe-area-bottom)`
-  3. Use CSS variables in padding or height styles for fixed positioned elements
-  4. Ensure fixed positioned elements respect device boundaries
-  5. Handle device notches, status bars, and home indicators automatically
+The Despia runtime injects four CSS variables into every WebView: `--safe-area-top`, `--safe-area-bottom`, `--safe-area-left`, `--safe-area-right`. Each one measures the inset for the matching edge, accounting for the status bar, notch, Dynamic Island, home indicator, and gesture bar on iOS, and the equivalent system chrome on Android. The variables are available before your JavaScript runs and update in real time when the device rotates.
 
-  <Danger>
-    **This feature is automatically provided by the Despia Native runtime - no npm package installation required!**
-  </Danger>
-  Please follow the implementation instructions closely. The CSS variables are injected by the Despia Native runtime environment.
-</Card>
+There is no SDK call. The variables are always present in the runtime, and you reference them from CSS exactly like any custom property.
 
-**How it works:** Lovable generates web application code that uses CSS variables (`var(--safe-area-top)` and `var(--safe-area-bottom)`) for safe area handling. When you deploy and run the generated app in the Despia native runtime, these CSS variables are automatically populated with accurate safe area measurements including iPhone notches, status bars, home indicators, and other device-specific UI elements. The values are updated in real-time when the device orientation changes, ensuring your app content is never obscured by system UI elements.
+---
 
-## **Installation**
+## Installation
 
-No installation required! The CSS variables are automatically provided by the Despia native runtime.
+No package installation is required for the CSS variables themselves. The runtime injects them automatically into every WebView. Install `despia-native` only if your page also calls SDK schemes for other features.
 
-## **Usage** **1.**
+<Tabs>
+  <Tab title="Bundle">
+    <CodeGroup>
 
-### **Top Safe Area Spacer**
+    ```bash npm
+    npm install despia-native
+    ```
 
-```tsx
-// Top Safe Area Spacer
-<div style={{ height: 'var(--safe-area-top)' }} />
+    ```bash pnpm
+    pnpm add despia-native
+    ```
+
+    ```bash yarn
+    yarn add despia-native
+    ```
+
+    </CodeGroup>
+
+    ```javascript
+    import despia from 'despia-native';
+    ```
+  </Tab>
+  <Tab title="CDN">
+    <CodeGroup>
+
+    ```html UMD
+    <script src="https://cdn.jsdelivr.net/npm/despia-native/index.min.js"></script>
+    ```
+
+    ```html ESM
+    <script type="module">
+        import despia from 'https://cdn.jsdelivr.net/npm/despia-native/+esm'
+    </script>
+    ```
+
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+---
+
+## The canonical pattern
+
+Safe areas are insets that stack on top of your existing padding, never replacements for it. Always combine them with your base padding using `calc()`, and always pair the runtime variable with `env(safe-area-inset-*)` as a fallback. The full pattern is:
+
+```css
+/* Top, status bar and notch region */
+padding-top: calc(1rem + var(--safe-area-top, env(safe-area-inset-top, 0px)));
+
+/* Bottom, home indicator and gesture bar region */
+padding-bottom: calc(1rem + var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)));
+
+/* Left and right, landscape on notched devices */
+padding-left:  calc(1rem + var(--safe-area-left,  env(safe-area-inset-left,  0px)));
+padding-right: calc(1rem + var(--safe-area-right, env(safe-area-inset-right, 0px)));
 ```
 
-### **2. Safe Area Implementation**
+Each piece of the chain serves a purpose:
 
-```tsx
-// Top Safe Area Spacer
-<div style={{ height: 'var(--safe-area-top)' }} />
+- `calc(BASE + ...)` because safe areas are insets layered on top of your existing padding, not replacements for it. Without `calc()`, your element loses its base padding on the safe-area edge.
+- `var(--safe-area-X, ...)` first because the Despia runtime can override the native value. This is the source of truth inside the native container.
+- `env(safe-area-inset-X, ...)` second because that is the native WebKit value, used during web preview and before the runtime injects its variables.
+- `0px` last because the `calc()` becomes invalid if both lookups resolve to nothing. The `0px` collapses the safe area cleanly to zero and leaves the base padding intact.
 
-// Fixed Header
-<header 
-  className="fixed top-0 left-0 right-0 bg-blue-600 text-white"
-  style={{ 
-    paddingTop: 'var(--safe-area-top)',
-    minHeight: 'calc(60px + var(--safe-area-top))'
-  }}
->
+Never write the bare `var(--safe-area-top)`, the bare `env(safe-area-inset-top)`, or any form without `calc()` and a base padding.
+
+---
+
+## Fixed header below the status bar
+
+A fixed header at the top of the screen needs to sit _below_ the status bar and notch, not under them. Apply the inset to `padding-top` so the header's background extends up to the top of the screen while its content stays in the safe region.
+
+```html
+<style>
+  .header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: #1a1a2e;
+    color: #fff;
+    padding-top:    calc(0.75rem + var(--safe-area-top, env(safe-area-inset-top, 0px)));
+    padding-left:   1rem;
+    padding-right:  1rem;
+    padding-bottom: 0.75rem;
+  }
+</style>
+
+<header class="header">
   <h1>My App</h1>
 </header>
-
-// Main Content
-<main 
-  style={{ 
-    paddingTop: 'calc(60px + var(--safe-area-top))',
-    paddingBottom: 'calc(80px + var(--safe-area-bottom))'
-  }}
->
-  Your content here
-</main>
-
-// Fixed Bottom Navigation
-<nav 
-  className="fixed bottom-0 left-0 right-0 bg-white"
-  style={{ 
-    paddingBottom: 'var(--safe-area-bottom)',
-    minHeight: 'calc(64px + var(--safe-area-bottom))'
-  }}
->
-  Navigation items
-</nav>
-
-// Bottom Safe Area Spacer
-<div style={{ height: 'var(--safe-area-bottom)' }} />
 ```
 
-## **Resources**
+The same pattern works in JSX. Inline the calc expression or move it to a class, both render identically.
 
-- **CSS Variables**: `var(--safe-area-top)` and `var(--safe-area-bottom)`
-- Automatically provided by Despia Native runtime
-- No external packages or configuration needed
+```jsx
+function Header() {
+    return (
+        <header style={{
+            position:      'fixed',
+            top:           0,
+            left:          0,
+            right:         0,
+            background:    '#1a1a2e',
+            color:         '#fff',
+            paddingTop:    'calc(0.75rem + var(--safe-area-top, env(safe-area-inset-top, 0px)))',
+            paddingLeft:   '1rem',
+            paddingRight:  '1rem',
+            paddingBottom: '0.75rem',
+        }}>
+            <h1>My App</h1>
+        </header>
+    )
+}
+```
 
-For additional support or questions about safe area implementation, please contact our support team at [**support@despia.com**](mailto:support@despia.com)
+---
+
+## Fixed bottom navigation above the home indicator
+
+A bottom tab bar or navigation needs to clear the home indicator on iOS and the gesture bar on Android. Apply the inset to `padding-bottom`.
+
+```html
+<style>
+  .tab-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #fff;
+    border-top: 1px solid #e0e0e0;
+    padding-top:    0.5rem;
+    padding-bottom: calc(0.5rem + var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)));
+    padding-left:   1rem;
+    padding-right:  1rem;
+    display: flex;
+    justify-content: space-around;
+  }
+</style>
+
+<nav class="tab-bar">
+  <button>Home</button>
+  <button>Search</button>
+  <button>Profile</button>
+</nav>
+```
+
+---
+
+## Scrollable content between fixed bars
+
+When you have both a fixed header and a fixed bottom bar, your scrollable content needs `padding-top` and `padding-bottom` large enough to clear both. Combine the bar height with the safe-area inset in a single `calc()`.
+
+```css
+.content {
+    /* clear fixed header (60px tall) plus its safe area */
+    padding-top: calc(60px + var(--safe-area-top, env(safe-area-inset-top, 0px)));
+
+    /* clear fixed bottom nav (64px tall) plus its safe area */
+    padding-bottom: calc(64px + var(--safe-area-bottom, env(safe-area-inset-bottom, 0px)));
+}
+```
+
+The header's own `padding-top` already accounts for the safe area inside the header, but the _content_ needs to clear the entire visible header (its base height plus the inset), so the inset shows up in both places. This is correct, not a duplication.
+
+---
+
+## Why pair var() with env()
+
+The runtime variable and the native env value are not redundant. They cover different cases.
+
+| Source | Available when |
+| :-- | :-- |
+| `var(--safe-area-top)` | Inside the Despia runtime, after the variables are injected. Source of truth |
+| `env(safe-area-inset-top)` | In any WebKit-based browser (Safari, iOS WKWebView), including web preview before the runtime initializes |
+| `0px` fallback | Anywhere the calc() would otherwise be invalid, e.g. desktop browsers without WebKit |
+
+In the native runtime, both lookups resolve, but `var()` wins because it comes first. In Safari preview, `var()` resolves to undefined and the chain falls through to `env()`. On desktop Chrome or Firefox, neither resolves and the chain ends at `0px`. The pattern is correct in every environment, which is why this is the only form the docs recommend.
+
+<Warning>
+  Without these insets, top elements render under the status bar and bottom elements are partially hidden behind the home indicator on modern iPhones. Always verify safe area behavior on a physical device or simulator running your Despia-built app, not in a desktop browser. Desktop preview shows zero insets, which makes the layout look fine when it would be broken on a real device.
+</Warning>
+
+---
+
+## Resources
+
+<CardGroup cols={2}>
+  <Card title="NPM Package" icon="npm" href="https://www.npmjs.com/package/despia-native">
+    despia-native
+  </Card>
+
+  <Card title="Support" icon="envelope" href="mailto:support@despia.com">
+    [support@despia.com](mailto:support@despia.com)
+  </Card>
+</CardGroup>
