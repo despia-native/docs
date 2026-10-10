@@ -34,32 +34,36 @@ const all = config.routes.map((r) => r.path).filter((p) => p.startsWith(only));
 const legacy = all.filter((p) => p.startsWith("/legacy/"));
 const routes = [...all.filter((p) => !p.startsWith("/legacy/")), ...legacy.filter((_, i) => i % Math.max(1, Math.floor(legacy.length / legacyN)) === 0).slice(0, legacyN)];
 
+// the content column: the legacy shell's .doc-page, or a V4 page's root stack in the scaffold's content pane. A V4 page
+// has two deliberate columns: the article (prose, code, tables) keeps a reading width, the console's platters (callouts,
+// list groups, cards) take the page width, so edges are compared within each.
+const COL = ".doc-page, main.dsx-scaffold-pane > .dsx-scroll > :first-child";
 const BLOCKS = [
-  ".doc-page .dsx-markdown > :not(.dsx-markdown-tabs)", ".doc-page .dsx-markdown-tabs",
-  ".doc-page .dsx-list-group .dsx-collection-row", ".doc-page .dsx-grid .dsx-grid-aria-row",
-  ".doc-page > .dsx-callout", ".doc-page > .dsx-codeblock", ".doc-page .dsx-searchbar-field", ".doc-page > .dsx-stack.dsx-hstack",
-].join(", ");
+  ".dsx-markdown > :not(.dsx-markdown-tabs)", ".dsx-markdown-tabs",
+  ".dsx-list-group .dsx-collection-row", ".dsx-grid .dsx-grid-aria-row",
+  ".dsx-callout", ".dsx-codeblock", ".dsx-searchbar-field",
+].map((b) => `:is(.doc-page, main.dsx-scaffold-pane) ${b}`).join(", ");
 
 const browser = await chromium.launch();
 const report = [];
 let n = 0;
 for (const scheme of schemes) for (const width of widths) {
   const ctx = await browser.newContext({ viewport: { width, height: 900 }, colorScheme: scheme });
-  const page = await ctx.newPage();
   for (const route of routes) {
     n += 1;
+    const page = await ctx.newPage();
     await page.goto(origin + route, { waitUntil: "networkidle" }).catch(() => {});
-    await page.waitForTimeout(250);
-    const found = await page.evaluate((sel) => {
+    await page.waitForTimeout(250).catch(() => {});
+    const found = await page.evaluate(([sel, colSel]) => {
       const v = [];
-      const col = document.querySelector(".doc-page");
+      const col = document.querySelector(colSel);
       if (!col) return { v: ["no content column"], gaps: [] };
       const vis = (e) => { const r = e.getBoundingClientRect(); const cs = getComputedStyle(e); return r.width > 0 && r.height > 0 && cs.visibility !== "hidden" && cs.display !== "none"; };
       // the column's edges = the edges of its list platters when it has any, else of its first block
       const blocks = [...document.querySelectorAll(sel)].filter(vis).filter((e) => !e.closest(".dsx-sheet, [role=dialog]"));
       // a markdown text block sizes to the column; its own text may be shorter, so measure the block box
-      const edges = blocks.map((e) => { const r = e.getBoundingClientRect(); return { e, l: Math.round(r.left), r: Math.round(r.right) }; });
-      if (edges.length > 0) {
+      const all = blocks.map((e) => { const r = e.getBoundingClientRect(); return { e, l: Math.round(r.left), r: Math.round(r.right), g: e.closest(".doc-article") ? 1 : 0 }; });
+      for (const edges of [all.filter((x) => x.g === 0), all.filter((x) => x.g === 1)]) if (edges.length > 0) {
         const count = new Map();
         for (const x of edges) count.set(`${x.l}|${x.r}`, (count.get(`${x.l}|${x.r}`) ?? 0) + 1);
         const [ref] = [...count.entries()].sort((a, b) => b[1] - a[1])[0][0].split("|").map(Number);
@@ -96,7 +100,8 @@ for (const scheme of schemes) for (const width of widths) {
         }
       }
       return { v: [...new Set(v)], gaps };
-    }, BLOCKS);
+    }, [BLOCKS, COL]).catch((e) => ({ v: [`audit failed: ${String(e).slice(0, 80)}`], gaps: [] }));
+    await page.close().catch(() => {});
     report.push({ route, width, scheme, violations: found.v, gaps: found.gaps });
   }
   await ctx.close();
