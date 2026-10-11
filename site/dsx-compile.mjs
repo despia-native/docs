@@ -266,7 +266,7 @@ function shell() {
       <SidebarItem repeat="dsx.variable.nav.guides" key="id" value="{{ dsx.this.path }}" icon="{{ dsx.this.icon }}" title="{{ dsx.this.title }}"/>
     </SidebarSection>
     <SidebarSection repeat="dsx.variable.groups" key="id" title="{{ dsx.this.title }}" root="{{ dsx.variable.areaPath }}"
-                    collapsible="{{ dsx.this.collapsible }}" expanded="{{ dsx.this.routes.includes(dsx.attribute.route) }}">
+                    collapsible="{{ dsx.this.collapsible }}" expanded="{{ !dsx.this.collapsible || dsx.this.routes.includes(dsx.attribute.route) }}">
       <SidebarItem repeat="dsx.this.rows" key="id" value="{{ dsx.this.path }}" icon="{{ dsx.this.icon }}" title="{{ dsx.this.title }}"/>
     </SidebarSection>
 
@@ -673,7 +673,7 @@ if (want("/packages")) {
     </grid>
   </stack>
   <ListGroup repeat="dsx.variable.sections" key="id" header="{{ dsx.this.title }}" visible-if="dsx.variable.compact">
-    <SettingsRow repeat="dsx.this.rows" key="id" title="{{ dsx.this.title }}" subtitle="{{ dsx.this.summary }}" lines="4" chevron="true" tappable="true" on:tap="dsx.module.route.select({ path: dsx.this.path })">
+    <SettingsRow repeat="dsx.this.rows" key="id" title="{{ dsx.this.title }}" subtitle="{{ dsx.this.summary }}" chevron="true" tappable="true" on:tap="dsx.module.route.select({ path: dsx.this.path })">
       <IconTile slot="leading" brand="{{ dsx.this.brand }}" icon="{{ dsx.this.symbol }}" tint="{{ dsx.this.tint }}" name="{{ dsx.this.title }}"/>
     </SettingsRow>
   </ListGroup>`;
