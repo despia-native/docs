@@ -516,16 +516,18 @@ writeFileSync(join(repo, "Components", "DocsShell.css"), `/*
 */
 .doc-article { align-items: stretch; max-width: 46rem; }
 
-/* THE TOP BAR: one header row on its own opaque surface (the page's ground), closed by a hairline in the theme's separator
-   colour across the content column, at the top of the page as well as while content scrolls under it. A large-title bar
-   at the top of its page is the exception: its title and description are the page header, which the NavBar closes with
-   its own hairline, so the bar stays seamless until content scrolls under it. The route chrome is the framework's
-   (body-level, so the rule is unscoped through body:has); only pages framed by DocsShell take it. */
-body:has([data-dsx-owner~="DocsShell"]) .dsx-route-chrome:not([data-dsx-large="true"][data-dsx-edge="top"]) {
-  background: var(--dsx-list-ground, var(--dsx-grouped-background));
-  border-block-end: var(--dsx-hairline, 1px) solid var(--dsx-separator);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
+/* THE PAGE HEADER LINE: a product page's header (icon, title, tagline) closes with the same divider, padding and
+   spacing as every other page header (the NavBar's page header knobs, --dsx-page-header-*), the line on the platters'
+   edges. */
+.dsx-product-header {
+  margin-inline: var(--dsx-list-inset-inline, 16px);
+  padding-inline: 0;
+  padding-block-end: var(--dsx-page-header-padding-end, 1rem);
+  margin-block-end: var(--dsx-page-header-spacing, 1.5rem);
+  border-bottom: var(--dsx-page-header-divider, var(--dsx-hairline, 1px) solid var(--dsx-separator));
+}
+@media (min-width: 48rem) {
+  .dsx-product-header { padding-block-end: var(--dsx-page-header-padding-end, 1.25rem); }
 }
 .doc-spaced { margin-block: var(--dsx-page-header-spacing, 1.5rem); }
 
