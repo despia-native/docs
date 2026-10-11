@@ -3,16 +3,14 @@
 // runtime cannot express declaratively yet:
 //   1. anchor ids: `doc-anchor-<slug>` class tokens promote to real element ids
 //      (the web renderer emits no id attribute), scoped to the active route frame
-//   2. rail scroll-spy: the "On this page" link for the section in view
-//   4. cmd/ctrl+K or "/" focuses the sidebar search
-//   5. rail clicks scroll in place (smooth only when motion is welcome)
-//   6. Copy for AI (the page's markdown sibling) and the lazy Support widget
+//   2. cmd/ctrl+K or "/" focuses the sidebar search
+//   3. Copy for AI (the page's markdown sibling) and the lazy Support widget
 //      (Ask AI, Ask a human, Propose an edit, Request a feature)
+// In-page links (#id) are the runtime's: it moves the page to the section, keeps the address and history, and marks
+// the link of the section being read aria-current="location".
 // Everything visible is stock DSX; nothing here draws.
 (function () {
   "use strict";
-
-  var reduced = window.matchMedia ? window.matchMedia("(prefers-reduced-motion: reduce)") : { matches: false };
 
   function activeFrame() {
     var frames = document.querySelectorAll(".dsx-frame:not([inert])");
@@ -31,41 +29,7 @@
   }
 
 
-  var spyTicking = false;
-  function spy() {
-    spyTicking = false;
-    var frame = activeFrame();
-    var root = frame === document ? document.body : frame;
-    var sections = root.querySelectorAll(".doc-section[id]");
-    if (sections.length === 0) return;
-    var currentId = sections[0].id;
-    for (var i = 0; i < sections.length; i += 1) {
-      if (sections[i].getBoundingClientRect().top <= 104) currentId = sections[i].id;
-    }
-    // the On this page row in view is aria-current (DocShell.css draws it); the heading in view
-    // is a scroll position, which no DSX binding reads yet (framework gap 22)
-    root.querySelectorAll('.doc-outline a[href^="#"]').forEach(function (link) {
-      var current = link.getAttribute("href").slice(1) === currentId;
-      if (current) link.setAttribute("aria-current", "true");
-      else link.removeAttribute("aria-current");
-    });
-  }
-  function queueSpy() {
-    if (spyTicking) return;
-    spyTicking = true;
-    requestAnimationFrame(spy);
-  }
 
-  document.addEventListener("click", function (event) {
-    var link = event.target && event.target.closest ? event.target.closest('.doc-outline a[href^="#"]') : null;
-    if (link === null) return;
-    var id = (link.getAttribute("data-dsx-href") || link.getAttribute("href")).slice(1);
-    var target = document.getElementById(id);
-    if (target === null) return;
-    event.preventDefault();
-    target.scrollIntoView({ behavior: reduced.matches ? "auto" : "smooth", block: "start" });
-    history.replaceState(history.state, "", "#" + id);
-  });
 
   // A region that scrolls its overflow must be keyboard-reachable (axe
   // scrollable-region-focusable). Sweep the active frame for scrollable boxes with
@@ -269,13 +233,6 @@
     refreshQueued = false;
     promoteAnchors();
     focusableScrollRegions();
-    spy();
-    if (location.hash.length > 1) {
-      var target = document.getElementById(location.hash.slice(1));
-      if (target !== null && target.getBoundingClientRect().top > window.innerHeight) {
-        target.scrollIntoView({ behavior: "auto", block: "start" });
-      }
-    }
   }
   function queueRefresh() {
     if (refreshQueued) return;
@@ -283,7 +240,6 @@
     requestAnimationFrame(refresh);
   }
 
-  document.addEventListener("scroll", queueSpy, { passive: true, capture: true });
   window.addEventListener("popstate", queueRefresh);
   if (typeof MutationObserver !== "undefined") {
     new MutationObserver(queueRefresh).observe(document.body, { childList: true, subtree: true });
