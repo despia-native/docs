@@ -402,6 +402,8 @@ body:has([data-dsx-owner~="DocsShell"]) {
 .doc-section { gap: 0; margin-block-start: var(--doc-space-7); scroll-margin-top: var(--doc-space-5); }
 .doc-article > .doc-section:first-child { margin-block-start: 0; }
 .doc-subsection { gap: 0; margin-block-start: var(--doc-space-6); scroll-margin-top: var(--doc-space-5); }
+/* a ### straight under its ## heading is a subtitle, not a new band */
+.doc-section > .dsx-markdown:has(> [role="heading"]:only-child) + .doc-subsection { margin-block-start: var(--doc-space-4); }
 .doc-article .dsx-markdown > [role="heading"] { margin-block-end: calc(var(--doc-space-3) - var(--doc-space-4)); }
 .doc-article .dsx-markdown > [role="heading"]:not(:first-child) { margin-block-start: var(--doc-space-2); }
 .doc-article .dsx-markdown > [role="heading"][aria-level="2"] {
