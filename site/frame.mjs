@@ -24,10 +24,14 @@ export function pageMenu(md, toc = []) {
   return `[${rows}{ header: true, title: 'This page' }, { title: 'View as Markdown', icon: 'doc.plaintext', href: '${md}' }, { separator: true }, { header: true, title: 'Ask about it in' }, { title: 'Claude', icon: 'sparkles', href: 'https://claude.ai/new?q=${ask}' }, { title: 'ChatGPT', icon: 'bubble.left', href: 'https://chatgpt.com/?q=${ask}' }]`;
 }
 
+// the page menu's rows as a head variable: a heading's own punctuation (a question mark, a colon) is string data there,
+// never read as expression syntax
+export const pageMenuVar = (md, toc = []) => (md !== "" ? `    <variable as="pageMenu">return ${pageMenu(md, toc)}</variable>\n` : "");
+
 // `title` and `description` are attribute text, or a ready {{ }} hole when the caller carries the text in a variable
 export const navBar = ({ title, description = "", md = "", large = true, copy = false, toc = [] }) => {
   const text = (v) => (/^\{\{ .* \}\}$/.test(v) ? v : attr(v));
-  const menu = md !== "" ? `    <menu slot="trailing" menu="{{ ${pageMenu(md, toc)} }}">
+  const menu = md !== "" ? `    <menu slot="trailing" menu="{{ dsx.variable.pageMenu }}">
       <button icon="ellipsis.circle" a11yLabel="Page options"/>
     </menu>
 ` : "";
