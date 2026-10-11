@@ -415,6 +415,8 @@ body:has([data-dsx-owner~="DocsShell"]) {
   --dsx-type-title3-leading: var(--doc-h3-leading);
 }
 .doc-article .dsx-markdown > :is(.dsx-codeblock, .dsx-markdown-table, .dsx-callout, .dsx-image) { margin-block: var(--doc-space-2); }
+/* two such blocks in a row are one --doc-space-5 apart, not two margins and a gap */
+.doc-article .dsx-markdown > :is(.dsx-codeblock, .dsx-markdown-table, .dsx-callout, .dsx-image) + :is(.dsx-codeblock, .dsx-markdown-table, .dsx-callout, .dsx-image) { margin-block-start: 0; }
 .doc-article .dsx-markdown > :not(.dsx-link-card) + .dsx-link-card { margin-block-start: var(--doc-space-2); }
 .doc-article .dsx-markdown > :first-child { margin-block-start: 0; }
 .doc-article .dsx-markdown > :last-child { margin-block-end: 0; }
