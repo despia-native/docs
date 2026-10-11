@@ -1,5 +1,5 @@
 ---
-title: OTA updates never reach the app
+title: OTA updates missing
 description: Changes deployed to production do not appear in the native app, even after force-closing it.
 symptom: Production deploys show in the browser but the installed app keeps loading the old version (a watermark that survives a licence upgrade is the same symptom).
 platform: legacy

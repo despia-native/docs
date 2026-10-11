@@ -1,5 +1,5 @@
 ---
-title: Your web app in a Despia app
+title: Web app quickstart
 description: Put the React, Next.js, Vue, Svelte or plain JavaScript app you already have inside an iOS and Android app, then call your first native feature from its own code.
 ---
 

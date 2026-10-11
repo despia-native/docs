@@ -22,6 +22,7 @@ import { fileURLToPath } from "node:url";
 import { parseFrontMatter, renderMarkdown, slugify } from "./md.mjs";
 import { SECTIONS, sectionOf, allPages } from "./ia.mjs";
 import { HOME_SAMPLE } from "./home.mjs";
+import { attr, navBar } from "./frame.mjs";
 import { loadPackages, groupOf, GROUP_ORDER } from "../scripts/packages-lib.mjs";
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), "..");
@@ -41,8 +42,6 @@ const SITE = `${SITE_CFG.origin}${SITE_CFG.base}`;
 const jsLiteral = (v) => JSON.stringify(v).replace(/"(?:[^"\\]|\\.)*"/g, (str) => str
   .replace(/[<>&{}]/g, (c) => `\\u${c.charCodeAt(0).toString(16).padStart(4, "0")}`)
   .replace(/dsx\./g, "dsx\\u002e"));
-// an attribute value: XML-escaped, and no {{ }} hole by accident
-const attr = (s) => String(s ?? "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\{\{/g, "{ {");
 
 // ── the docs' markdown subset -> DSX extended markdown (OpenSource/Documentation/guides/markdown.md) ─────────────
 //   ::: note|tip|warning Title  -> :::note{title="Title"}       (a Callout)
@@ -145,25 +144,60 @@ const PAGE_ICON = {
 // The global chrome keeps a few top-level destinations, as the console does: Home, DSX and Packages are tabs of their own,
 // and the task guides (Convert, Web apps, Build and ship) are one Guides tab whose root page (/guides) lists them. A wide
 // window shows the same grouping in the sidebar: the Docs section, then the Guides section with its three pages.
+// A sidebar row is one line: a title longer than the row takes a shorter label there (the page keeps its title).
+const NAV_LABEL = {
+  "Core/Store": "Purchases and paywalls",
+  "Core/Firebase": "Firebase Messaging",
+};
 const GUIDES = ["convert", "web-apps", "ship"];
 const GUIDES_ROOT = "/guides";
 const areaOf = (s) => ({ id: s.id, title: s.tab ?? s.label, icon: SECTION_ICON[s.id], path: s.href });
+// The other spaces (Legacy, Migration, Troubleshooting, Releases, App Review) are areas of the same frame: scripts/compile.mjs
+// builds their pages on DocsShell and writes their sidebars to public/nav.json, which runs before this script. The
+// switcher lists them under More; a page of one shows its own sidebar groups.
+const MORE_AREAS = [
+  { id: "legacy", icon: "clock.arrow.circlepath" },
+  { id: "migrate", icon: "arrow.up.circle" },
+  { id: "troubleshooting", icon: "wrench.and.screwdriver" },
+  { id: "releases", icon: "newspaper" },
+  { id: "app-review", icon: "checkmark.shield" },
+];
+const spacesNav = (() => {
+  const file = join(repo, "public", "nav.json");
+  return existsSync(file) ? JSON.parse(readFileSync(file, "utf8")).spaces ?? [] : [];
+})();
+const moreAreas = MORE_AREAS.map((a) => ({ ...a, space: spacesNav.find((s) => s.id === a.id) })).filter((a) => a.space !== undefined);
+const flatTree = (nodes, icon) => nodes.flatMap((n) => (n.items !== undefined ? flatTree(n.items, n.icon ?? icon) : [{ ...n, icon: n.icon ?? icon }]));
+const spaceGroups = (a) => a.space.sections.flatMap((sec) => {
+  const loose = sec.tree.filter((n) => n.items === undefined);
+  const nested = sec.tree.filter((n) => n.items !== undefined);
+  return [...(loose.length ? [{ title: sec.name, icon: sec.icon, nodes: loose, folds: false }] : []),
+    ...nested.map((n) => ({ title: n.group, icon: n.icon ?? sec.icon, nodes: n.items, folds: true }))];
+}).map((g) => {
+  const rows = flatTree(g.nodes, g.icon).map((n) => ({ id: n.route, title: n.label ?? n.title, icon: n.icon ?? "doc.text", path: n.route }));
+  return { id: `${a.id}-${g.title}`, section: a.id, title: g.title, rows, routes: rows.map((r) => r.path), collapsible: g.folds };
+});
 const navData = {
-  areas: [{ id: "home", title: "Home", icon: "house", path: "/" }].concat(SECTIONS.map(areaOf)),
+  areas: [{ id: "home", title: "Home", icon: "house", path: "/" }].concat(SECTIONS.map(areaOf))
+    .concat(moreAreas.map((a) => ({ id: a.id, title: a.space.label, icon: a.icon, path: a.space.home, more: true }))),
   tabs: [{ id: "home", title: "Home", icon: "house", path: "/" }].concat(SECTIONS.filter((s) => !GUIDES.includes(s.id)).map(areaOf)),
   guides: SECTIONS.filter((s) => GUIDES.includes(s.id)).map((s) => ({ ...areaOf(s), title: s.label })),
   groups: SECTIONS.flatMap((s) => s.id === "packages"
     ? GROUP_ORDER.map((g) => ({ id: `packages-${g}`, section: "packages", title: g,
       rows: pkgs.filter((p) => p.published && groupOf(p) === g).sort((a, b) => titleOf(a).localeCompare(titleOf(b)))
-        .map((p) => ({ id: p.url, title: titleOf(p), icon: GROUP_ICON(g), path: p.url })) })).filter((g) => g.rows.length)
+        .map((p) => ({ id: p.url, title: NAV_LABEL[p.path] ?? titleOf(p), icon: GROUP_ICON(g), path: p.url })) })).filter((g) => g.rows.length)
     // an area's root page is already its own row (Docs or Guides), so a group never repeats it: one destination, one
     // row, one selection
     : s.groups.map((g) => ({ id: `${s.id}-${g.title}`, section: s.id, title: g.title,
-      rows: g.pages.filter(([route]) => route !== s.href).map(([route, title]) => ({ id: route, title, icon: PAGE_ICON[route] ?? "doc.text", path: route })) }))
-      .filter((g) => g.rows.length > 0)),
+      rows: g.pages.filter(([route]) => route !== s.href).map(([route, title]) => ({ id: route, title: NAV_LABEL[route] ?? title, icon: PAGE_ICON[route] ?? "doc.text", path: route })) }))
+      .filter((g) => g.rows.length > 0))
+    .map((g) => ({ ...g, routes: g.rows.map((r) => r.path), collapsible: false }))
+    .concat(moreAreas.flatMap(spaceGroups)),
   palette: allPages().map((p) => ({ id: p.route, title: p.title, subtitle: p.description, icon: PAGE_ICON[p.route] ?? "doc.text",
     group: SECTIONS.find((s) => s.id === p.section).label, keywords: [p.group], path: p.route }))
-    .concat(pkgs.map((p) => ({ id: p.url, title: titleOf(p), subtitle: p.summary, icon: "shippingbox", group: "Packages", keywords: [p.command], path: p.url }))),
+    .concat(pkgs.map((p) => ({ id: p.url, title: titleOf(p), subtitle: p.summary, icon: "shippingbox", group: "Packages", keywords: [p.command ?? p.slug], path: p.url })))
+    .concat(moreAreas.flatMap((a) => spaceGroups(a).flatMap((g) => g.rows.map((r) => ({ id: r.path, title: r.title, subtitle: g.title, icon: r.icon, group: a.space.label, keywords: [], path: r.path })))))
+    .filter((row, i, all) => all.findIndex((x) => x.id === row.id) === i),
 };
 
 function shell() {
@@ -191,8 +225,9 @@ function shell() {
       return hit ? hit.title : (dsx.attribute.area == 'guides' ? 'Guides' : 'Home')
     </variable>
     <variable as="areaMenu" computed="true">
-      return [{ header: true, title: 'Despia V4 ${attr(RELEASE.version ?? "")}' }].concat(dsx.variable.nav.areas.map(a => ({
-        title: a.title, icon: a.id == dsx.attribute.area ? 'checkmark' : a.icon, action: 'route.reset', args: { path: a.path } })))
+      const row = a => ({ title: a.title, icon: a.id == dsx.attribute.area ? 'checkmark' : a.icon, action: 'route.reset', args: { path: a.path } })
+      return [{ header: true, title: 'Despia V4 ${attr(RELEASE.version ?? "")}' }].concat(dsx.variable.nav.areas.filter(a => !a.more).map(row))
+        .concat([{ separator: true }, { header: true, title: 'More' }]).concat(dsx.variable.nav.areas.filter(a => a.more).map(row))
     </variable>
     <variable as="tocRows" computed="true">
       const rows = JSON.parse(String(dsx.attribute.toc || '[]'))
@@ -230,7 +265,8 @@ function shell() {
     <SidebarSection title="Guides" tab="Guides" tabIcon="book" root="${GUIDES_ROOT}">
       <SidebarItem repeat="dsx.variable.nav.guides" key="id" value="{{ dsx.this.path }}" icon="{{ dsx.this.icon }}" title="{{ dsx.this.title }}"/>
     </SidebarSection>
-    <SidebarSection repeat="dsx.variable.groups" key="id" title="{{ dsx.this.title }}" root="{{ dsx.variable.areaPath }}">
+    <SidebarSection repeat="dsx.variable.groups" key="id" title="{{ dsx.this.title }}" root="{{ dsx.variable.areaPath }}"
+                    collapsible="{{ dsx.this.collapsible }}" expanded="{{ dsx.this.routes.includes(dsx.attribute.route) }}">
       <SidebarItem repeat="dsx.this.rows" key="id" value="{{ dsx.this.path }}" icon="{{ dsx.this.icon }}" title="{{ dsx.this.title }}"/>
     </SidebarSection>
 
@@ -271,21 +307,6 @@ function shell() {
 }
 
 // ── a page ──────────────────────────────────────────────────────────────────────────────────────────
-function pageMenu(md, toc = []) {
-  const ask = encodeURIComponent(`Read ${SITE}${md} so I can ask questions about it.`);
-  const quote = (t) => t.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
-  const outline = toc.filter((t) => t.level === 2);
-  const rows = outline.length >= 2
-    ? `{ header: true, title: 'On this page' }, ${outline.map((t) => `{ title: '${attr(quote(t.title))}', href: '#${t.id}' }`).join(", ")}, { separator: true }, `
-    : "";
-  return `[${rows}{ header: true, title: 'This page' }, { title: 'View as Markdown', icon: 'doc.plaintext', href: '${md}' }, { separator: true }, { header: true, title: 'Ask about it in' }, { title: 'Claude', icon: 'sparkles', href: 'https://claude.ai/new?q=${ask}' }, { title: 'ChatGPT', icon: 'bubble.left', href: 'https://chatgpt.com/?q=${ask}' }]`;
-}
-const navBar = ({ title, description, md, large = true, copy = false, toc = [] }) => `  <NavBar title="${attr(title)}"${large ? ` large="true" description="${attr(description)}"` : ""}>
-    <button slot="trailing" icon="magnifyingglass" a11yLabel="Search the docs" shortcut="cmd+k" on:tap="dsx.action.search()"/>
-${copy ? `    <CopyButton slot="trailing" value="{{ dsx.variable.pageText }}" label="Copy page"/>\n` : ""}    <menu slot="trailing" menu="{{ ${pageMenu(md, toc)} }}">
-      <button icon="ellipsis.circle" a11yLabel="Page options"/>
-    </menu>
-  </NavBar>`;
 const notice = (topic, title, message, action) => `  <Callout class="page-notice" tone="info" title="${attr(title)}" message="${attr(message)}" action="${attr(action)}" on:action="dsx.variable.notify = true"/>
   <sheet detents="content" present="dsx.variable.notify" title="${attr(action)}" close="trailing" on:dismiss="dsx.variable.notify = false">
     <NotifyForm topic="${attr(topic)}"/>
@@ -450,6 +471,14 @@ body:has([data-dsx-owner~="DocsShell"]) {
 }
 .doc-spaced { margin-block: var(--dsx-page-header-spacing, 1.5rem); }
 
+/* A docs card's symbol tile (a route, a guide, a link card) is the brand accent; a package's tile keeps the colour its
+   manifest gives it, as the console draws it. */
+.doc-cards .dsx-icon-tile-symbol { --dsx-icon-tile-background: var(--dsx-accent); }
+/* A card grid inside the reading column already stands on the column's inset, so it takes no second one. On a page
+   drawn on the plain ground (prose, no list group) its cards take the secondary ground, so the card stays a card. */
+.doc-article .doc-cards { padding-inline: 0; }
+.dsx-scaffold-pane:not([data-dsx-ground="grouped"]) .doc-cards { --dsx-item-card-background: var(--dsx-secondary-background); }
+
 /* THE CONSOLE'S OWN PAGE RHYTHM (despia-native/platform Components/HelpSheet.css): a notice in the page's flow keeps the
    page's spacing token from what follows it; a list group brings its own section spacing. */
 .page-notice:not(:has(+ .dsx-list-group)) { margin-block-end: var(--dsx-page-header-spacing, 1.5rem); }
@@ -547,7 +576,7 @@ for (const p of allPages()) {
 // home: the vision, the two routes as the console's cards, the sample, popular packages, build and ship
 if (want("/")) {
   const tiles = ["haptic", "appleauth", "push", "revenuecat"].map((c) => pkgs.find((p) => p.command === c || p.slug === c)).filter(Boolean);
-  const card = (p) => ({ id: p.url, title: titleOf(p), summary: p.summary, brand: p.icon?.brand ?? "", icon: p.icon?.symbol ?? GROUP_ICON(groupOf(p)), path: p.url });
+  const card = (p) => ({ id: p.url, title: titleOf(p), summary: p.summary, brand: p.icon?.brand ?? "", icon: p.icon?.symbol ?? GROUP_ICON(groupOf(p)), tint: p.icon?.tint ?? "", path: p.url });
   const sample = "## One document, three languages\n\nA screen is one `.dsx` file: markup for the structure, a `<style>` sheet in standard CSS, and JavaScript in its actions and holes. The same document runs on iOS, Android and the web.\n\n```dsx title=\"Components/Counter.dsx\"\n" + HOME_SAMPLE + "\n```";
   const head = mdVar("sample", sample)
     + `    <variable as="routes">return ${jsLiteral([
@@ -562,19 +591,26 @@ if (want("/")) {
       { id: "agents", title: "Use your AI agent", summary: "Connect mcp.despia.com and install the agent skills.", brand: "", icon: "sparkles", path: "/dsx/agents" },
     ])}</variable>\n`
     + `    <action as="go" input:path="dsx.this.path">dsx.module.route.push({ path: path })</action>\n`;
-  const body = `  <grid bind="dsx.variable.routes" key="id" columns="adaptive" minimum="300" scroll="false">
-    <ItemCard title="{{ dsx.this.title }}" summary="{{ dsx.this.summary }}" icon="{{ dsx.this.icon }}" status="{{ dsx.this.status }}" statusIcon="{{ dsx.this.statusIcon }}" href="{{ dsx.this.path }}"/>
+  // a card's sentence is its slot text in the card's summary style, so it wraps instead of ending in an ellipsis
+  const body = `  <grid bind="dsx.variable.routes" key="id" columns="adaptive" minimum="300" scroll="false" class="doc-cards">
+    <ItemCard title="{{ dsx.this.title }}" icon="{{ dsx.this.icon }}" status="{{ dsx.this.status }}" statusIcon="{{ dsx.this.statusIcon }}" href="{{ dsx.this.path }}">
+      <text class="dsx-item-card-summary" value="{{ dsx.this.summary }}"/>
+    </ItemCard>
   </grid>
   <vstack class="doc-article doc-spaced">
     <markdown bind="dsx.variable.sample" copyCode="true"/>
   </vstack>
   <ListGroup header="Native features" footer="Every package has one example for a DSX app and one for a converted web app."/>
   <grid bind="dsx.variable.features" key="id" columns="adaptive" minimum="300" scroll="false">
-    <ItemCard title="{{ dsx.this.title }}" summary="{{ dsx.this.summary }}" brand="{{ dsx.this.brand }}" icon="{{ dsx.this.icon }}" href="{{ dsx.this.path }}"/>
+    <ItemCard title="{{ dsx.this.title }}" brand="{{ dsx.this.brand }}" icon="{{ dsx.this.icon }}" tint="{{ dsx.this.tint }}" href="{{ dsx.this.path }}">
+      <text class="dsx-item-card-summary" value="{{ dsx.this.summary }}"/>
+    </ItemCard>
   </grid>
   <ListGroup header="Build and ship"/>
-  <grid bind="dsx.variable.ship" key="id" columns="adaptive" minimum="300" scroll="false">
-    <ItemCard title="{{ dsx.this.title }}" summary="{{ dsx.this.summary }}" brand="{{ dsx.this.brand }}" icon="{{ dsx.this.icon }}" href="{{ dsx.this.path }}"/>
+  <grid bind="dsx.variable.ship" key="id" columns="adaptive" minimum="300" scroll="false" class="doc-cards">
+    <ItemCard title="{{ dsx.this.title }}" brand="{{ dsx.this.brand }}" icon="{{ dsx.this.icon }}" href="{{ dsx.this.path }}">
+      <text class="dsx-item-card-summary" value="{{ dsx.this.summary }}"/>
+    </ItemCard>
   </grid>`;
   const title = "Despia V4";
   const description = "Build real native apps for iOS, Android and the web from one document, or convert the web app you already have. AI agents can read, change and check the whole app.";
@@ -601,7 +637,9 @@ if (want(GUIDES_ROOT)) {
 
 // the package catalog: the console's own Package Explorer arrangement
 if (want("/packages")) {
-  const items = pkgs.slice().sort((a, b) => (GROUP_ORDER.indexOf(groupOf(a)) - GROUP_ORDER.indexOf(groupOf(b))) || (Number(b.published) - Number(a.published)) || titleOf(a).localeCompare(titleOf(b))).map((p) => ({ id: p.url, title: titleOf(p), summary: p.summary, category: groupOf(p), brand: p.icon?.brand ?? "", symbol: p.icon?.symbol ?? GROUP_ICON(groupOf(p)),
+  // the console's catalog, the same rows its package explorer lists (data/packages.json `catalog`), so both say the
+  // same number
+  const items = pkgs.filter((p) => p.catalog).sort((a, b) => (GROUP_ORDER.indexOf(groupOf(a)) - GROUP_ORDER.indexOf(groupOf(b))) || (Number(b.published) - Number(a.published)) || titleOf(a).localeCompare(titleOf(b))).map((p) => ({ id: p.url, title: titleOf(p), summary: p.summary, category: groupOf(p), brand: p.icon?.brand ?? "", symbol: p.icon?.symbol ?? GROUP_ICON(groupOf(p)), tint: p.icon?.tint ?? "",
     status: p.published ? (p.maturity === "alpha" ? "Alpha" : "Available") : "Coming soon", statusIcon: p.published ? (p.maturity === "alpha" ? "flask" : "checkmark.circle.fill") : "clock",
     search: `${p.title} ${p.command} ${p.summary}`.toLowerCase(), path: p.url }));
   const cats = ["All"].concat(GROUP_ORDER.filter((g) => items.some((i) => i.category === g)));
@@ -629,13 +667,15 @@ if (want("/packages")) {
   <stack repeat="dsx.variable.sections" key="id" visible-if="!dsx.variable.compact">
     <ListGroup header="{{ dsx.this.title }}"/>
     <grid bind="dsx.this.rows" key="id" columns="adaptive" minimum="300" scroll="false">
-      <ItemCard title="{{ dsx.this.title }}" summary="{{ dsx.this.summary }}" brand="{{ dsx.this.brand }}" icon="{{ dsx.this.symbol }}"
-                statusIcon="{{ dsx.this.statusIcon }}" status="{{ dsx.this.status }}" href="{{ dsx.this.path }}"/>
+      <ItemCard title="{{ dsx.this.title }}" brand="{{ dsx.this.brand }}" icon="{{ dsx.this.symbol }}" tint="{{ dsx.this.tint }}"
+                statusIcon="{{ dsx.this.statusIcon }}" status="{{ dsx.this.status }}" href="{{ dsx.this.path }}">
+        <text class="dsx-item-card-summary" value="{{ dsx.this.summary }}"/>
+      </ItemCard>
     </grid>
   </stack>
   <ListGroup repeat="dsx.variable.sections" key="id" header="{{ dsx.this.title }}" visible-if="dsx.variable.compact">
-    <SettingsRow repeat="dsx.this.rows" key="id" title="{{ dsx.this.title }}" subtitle="{{ dsx.this.summary }}" lines="2" chevron="true" tappable="true" on:tap="dsx.module.route.select({ path: dsx.this.path })">
-      <IconTile slot="leading" brand="{{ dsx.this.brand }}" icon="{{ dsx.this.symbol }}" name="{{ dsx.this.title }}"/>
+    <SettingsRow repeat="dsx.this.rows" key="id" title="{{ dsx.this.title }}" subtitle="{{ dsx.this.summary }}" lines="4" chevron="true" tappable="true" on:tap="dsx.module.route.select({ path: dsx.this.path })">
+      <IconTile slot="leading" brand="{{ dsx.this.brand }}" icon="{{ dsx.this.symbol }}" tint="{{ dsx.this.tint }}" name="{{ dsx.this.title }}"/>
     </SettingsRow>
   </ListGroup>`;
   const title = "Packages";
@@ -650,13 +690,13 @@ for (const p of allPkgs) {
   const glance = [
     { id: "status", icon: "circle.badge.checkmark", title: "Status", value: p.published ? (p.maturity === "alpha" ? "Alpha" : "Available") : "Coming soon" },
     { id: "platforms", icon: "iphone", title: "Platforms", value: (p.targets ?? []).map((t) => ({ ios: "iOS", android: "Android", web: "Web", macos: "macOS" })[t] ?? t).join(", ") },
-    { id: "call", icon: "curlybraces", title: "Call", value: `dsx.module.${p.command}` },
+    ...(p.command ? [{ id: "call", icon: "curlybraces", title: "Call", value: `dsx.module.${p.command}` }] : []),
     { id: "group", icon: GROUP_ICON(groupOf(p)), title: "Category", value: groupOf(p) },
   ];
   const md = packageMarkdownFor(p);
   const sec = sectioned(toDsxMarkdown(p.description && md.startsWith(p.description) ? md.slice(p.description.length).trimStart() : md));
   const head = sec.head + `    <variable as="glance">return ${jsLiteral(glance)}</variable>\n`;
-  const body = `  <ProductHeader title="${attr(titleOf(p))}" subtitle="${attr(p.summary)}" brand="${attr(p.icon?.brand ?? "")}" icon="${attr(p.icon?.symbol ?? GROUP_ICON(groupOf(p)))}"/>
+  const body = `  <ProductHeader title="${attr(titleOf(p))}" subtitle="${attr(p.summary)}" brand="${attr(p.icon?.brand ?? "")}" icon="${attr(p.icon?.symbol ?? GROUP_ICON(groupOf(p)))}" tint="${attr(p.icon?.tint ?? "")}"/>
   <grid columns="adaptive" minimum="420" scroll="false">
     <ListGroup header="About">
       <SettingsRow title="${attr(p.description ?? p.summary)}" lines="12"/>

@@ -1,5 +1,5 @@
 ---
-title: Google Play service account
+title: Play service account
 description: Create the Google Cloud service account Despia uses to upload your Android app to Google Play, give it access in Play Console, and connect it once for your workspace.
 ---
 

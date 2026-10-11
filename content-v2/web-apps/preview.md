@@ -58,4 +58,4 @@ npx @despia-native/cli build ios --cloud --project <project-id> --wait
 - Every call is inside a handler or an effect, never in server code.
 - Every package you call is in the app, or the call sits behind `dsx.has`.
 - `cancelled` is handled as a normal choice, not an error.
-- If the site also runs in normal browsers, read [If your site also runs outside Despia](/web-apps/outside-despia).
+- If the site also runs in normal browsers, read [Outside Despia](/web-apps/outside-despia).

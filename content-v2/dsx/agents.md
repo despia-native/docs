@@ -1,5 +1,5 @@
 ---
-title: Use Despia with your AI agent
+title: Use your AI agent
 description: Connect your coding agent to Despia's hosted MCP server and to the CLI's own MCP server, install the agent skills, and give it the checks that keep its changes safe.
 ---
 

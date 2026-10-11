@@ -56,9 +56,14 @@ test("the /packages twin lists every catalog package", () => {
   for (const p of listed.filter((x) => !SERVER_HALF.test(x.path))) assert.ok(md.includes(`](${p.url})`), `/packages.md misses ${p.url}`);
 });
 
-test("the old pipeline builds only the spaces V4 does not own", () => {
+test("the old pipeline builds only the spaces V4 does not own, on the one DocsShell frame", () => {
   const old = config.routes.filter((r) => !r.component.startsWith("docs.V2")).map((r) => r.path);
   assert.ok(old.length > 0);
+  assert.ok(!existsSync(join(root, "Components", "DocShell.dsx")), "the old DocShell frame is back");
+  for (const r of config.routes.filter((x) => x.component.startsWith("docs.Page"))) {
+    const src = readFileSync(join(root, "Components", "pages", `${r.component.slice("docs.".length)}.dsx`), "utf8");
+    assert.match(src, /^<DocsShell area="[a-z-]+" route=/, `${r.path} is not on DocsShell`);
+  }
   for (const path of old) assert.match(path, /^\/(legacy|migrate|troubleshooting|releases|app-review)(\/|$)/, path);
   for (const stale of ["quickstart", "cli", "console", "deploying", "native-ui", "agents"]) {
     assert.ok(!existsSync(join(root, "public", `${stale}.md`)), `public/${stale}.md outlives its move`);
@@ -66,15 +71,27 @@ test("the old pipeline builds only the spaces V4 does not own", () => {
 });
 
 test("sidebar labels fit the sidebar, area titles fit the phone tab bar", () => {
-  const long = allPages().filter((p) => p.title.length > 32).map((p) => `${p.route}: "${p.title}"`);
+  // a sidebar row is one line: 24 characters fit beside its icon at the sidebar's width
+  const long = allPages().filter((p) => p.title.length > 24).map((p) => `${p.route}: "${p.title}"`);
+  const nav = JSON.parse(readFileSync(join(root, "public", "nav.json"), "utf8"));
+  for (const space of nav.spaces.filter((x) => x.id !== "modern")) {
+    for (const sec of space.sections) for (const pg of sec.pages) if ((pg.label ?? pg.title).length > 24) long.push(`${pg.route}: "${pg.label ?? pg.title}"`);
+  }
   assert.deepEqual(long, []);
   for (const s of SECTIONS) assert.ok((s.tab ?? s.label).length <= 10, `${s.id}: tab label "${s.tab ?? s.label}"`);
 });
 
-test("the docs CSS is the generated DocsShell.css plus the legacy shell's, and holds only its allowed rules", () => {
+test("the docs CSS is the generated DocsShell.css, and holds only its allowed rules", () => {
   const css = readFileSync(join(root, "Components", "DocsShell.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
   const selectors = [...css.matchAll(/([^{}]+)\{/g)].map((m) => m[1].trim());
-  const ALLOWED = /^(\.doc-[a-z-]+|\.doc-article \.dsx-markdown|\.doc-article > \.doc-section|\.doc-outline-[a-z-]+|\.page-notice:not\(:has\(\+ \.dsx-list-group\)\)|\.dsx-codeblock, \.dsx-codeblock-sheet|body:has\(\[data-dsx-owner~="DocsShell"\]\)|\.dsx-product-header|@media \((hover: hover|prefers-reduced-motion: reduce|max-width: 47\.99rem)\))/;
+  const ALLOWED = /^(\.doc-[a-z-]+|\.doc-article \.dsx-markdown|\.doc-article > \.doc-section|\.doc-outline-[a-z-]+|\.page-notice:not\(:has\(\+ \.dsx-list-group\)\)|\.dsx-codeblock, \.dsx-codeblock-sheet|body:has\(\[data-dsx-owner~="DocsShell"\]\)|\.dsx-product-header|\.dsx-scaffold-pane:not\(\[data-dsx-ground="grouped"\]\) \.doc-cards|@media \((hover: hover|prefers-reduced-motion: reduce|max-width: 47\.99rem)\))/;
   for (const s of selectors) assert.match(s, ALLOWED, `DocsShell.css: unexpected rule ${s}`);
   assert.ok(!/\b(font-size|font-weight|letter-spacing|text-transform|font-family)\s*:/.test(css), "type styling in DocsShell.css");
+});
+
+test("the package explorer lists the console's catalog: one row per capability option, the same number", () => {
+  const catalog = loadPackages().packages.filter((p) => p.catalog);
+  const src = readFileSync(join(root, "Components", "v2", "V2Packages.dsx"), "utf8");
+  assert.match(src, new RegExp(`placeholder="Search ${catalog.length} packages"`));
+  assert.ok(catalog.length >= 100, `${catalog.length} catalog packages`);
 });

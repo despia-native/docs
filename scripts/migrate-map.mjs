@@ -32,30 +32,30 @@ for (const e of map.entries) {
 
 const lines = [
   "---",
-  "title: v3 to v4 feature map",
-  "description: Every Despia v3 feature and the v4 package or API it moves to, generated from the legacy navigation and the framework's own names.",
+  "title: V3 to V4 feature map",
+  "description: Every Despia V3 feature and the V4 package or API it moves to, generated from the legacy navigation and the framework's own names.",
   "route: /migrate/map",
   "space: migrate",
-  "section: Move to v4",
+  "section: Move to V4",
   "label: Feature map",
   "order: 3",
   "---",
   "",
-  "# v3 to v4 feature map",
+  "# V3 to V4 feature map",
   "",
-  `Every page of the v3 docs, with the v4 package or API that replaces it. ${map.entries.length} rows: ` +
+  `Every page of the V3 docs, with the V4 package or API that replaces it. ${map.entries.length} rows: ` +
     Object.entries(STATUS_LABEL).map(([k, v]) => `${counts[k] ?? 0} ${v.toLowerCase()}`).join(", ") + ".",
   "",
-  "- **Mapped**: v4 has the same capability (often a one-to-one call).",
-  "- **Partial**: v4 covers it differently or only in part; read the note.",
+  "- **Mapped**: V4 has the same capability (often a one-to-one call).",
+  "- **Partial**: V4 covers it differently or only in part; read the note.",
   "- **Not applicable**: store, deployment or third-party guidance with no Despia API to move.",
-  "- **Unknown**: no v4 equivalent found yet. Ask support before you migrate that feature.",
+  "- **Unknown**: no V4 equivalent found yet. Ask support before you migrate that feature.",
   "",
   "Old `despia('scheme://...')` calls keep running through the optional `Core/Legacy` package while you move page by page; see the [step-by-step guide](/convert/from-v3). The same table is served as JSON at [/migrate-map.json](/migrate-map.json).",
   "",
 ];
 for (const g of groups) {
-  lines.push(`## ${g.name}`, "", "| v3 page | Status | v4 package | v4 API | Notes |", "|---|---|---|---|---|");
+  lines.push(`## ${g.name}`, "", "| V3 page | Status | V4 package | V4 API | Notes |", "|---|---|---|---|---|");
   for (const e of g.rows) {
     const v4 = e.v4 ?? {};
     const docs = v4.docs ? ` [Docs](${v4.docs})` : "";

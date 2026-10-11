@@ -1,5 +1,5 @@
 ---
-title: Collecting data the app does not need
+title: Data minimization
 description: Only ask for personal data the app's features need; anything optional must be clearly optional and explained.
 guideline: 5.1.1
 store: Apple, Google

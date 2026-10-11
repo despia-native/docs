@@ -1,5 +1,5 @@
 ---
-title: Users are logged out when they reopen the app
+title: Logged out on reopen
 description: Users close the app and land on the login page again when they reopen it.
 symptom: After closing and reopening the native app, signed-in users land on /auth or /login again.
 platform: legacy

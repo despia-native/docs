@@ -1,5 +1,5 @@
 ---
-title: White screen on launch, no splash screen
+title: White screen on launch
 description: The app opens to a blank white screen and the splash logo never appears.
 symptom: On a fresh install the app shows a white screen immediately; the splash screen GIF never displays.
 platform: legacy

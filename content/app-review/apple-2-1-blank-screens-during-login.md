@@ -1,4 +1,5 @@
 ---
+label: Blank screens at login
 title: Blank screens during login
 description: Reviewers reject flows that show blank or white screens or look unresponsive, which often happens during an OAuth redirect.
 guideline: 2.1

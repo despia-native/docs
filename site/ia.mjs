@@ -28,7 +28,7 @@ export const SECTIONS = [
       { title: "Tools", pages: [
         ["/dsx/cli", "The despia CLI", "Create, run, lint, build and ship from the terminal."],
         ["/dsx/console", "The console", "Projects, builds, store connections and your team."],
-        ["/dsx/agents", "Use Despia with your AI agent", "Connect mcp.despia.com or the local MCP server, and install the skills."],
+        ["/dsx/agents", "Use your AI agent", "Connect mcp.despia.com or the local MCP server, and install the skills."],
         ["/dsx/agents/skills", "Agent skills", "The skills that teach a coding agent to write DSX."],
       ] },
     ],
@@ -78,7 +78,7 @@ export const SECTIONS = [
       { title: "Before your first build", pages: [
         ["/ship", "Shipping overview", "From a project to the App Store and Google Play."],
         ["/ship/app-store-connect", "App Store Connect key", "Create the API key Despia uses to sign and upload iOS builds."],
-        ["/ship/google-play", "Google Play service account", "Create the service account Despia uses to upload Android builds."],
+        ["/ship/google-play", "Play service account", "Create the service account Despia uses to upload Android builds."],
       ] },
       { title: "Builds and releases", pages: [
         ["/ship/builds", "Builds", "Start a build, follow it, and download what it made."],

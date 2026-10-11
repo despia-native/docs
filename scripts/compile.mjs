@@ -24,6 +24,7 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { navBar } from "../site/frame.mjs";
 import { GROUP_ORDER, SHOW_UNSHIPPED, comingSoonMarkdown, expandPackagePage, generatedPackageSource, groupOf, loadPackages, packageFor, shipState } from "./packages-lib.mjs";
 
 // The component reference pages are NOT generated here. They are written into content/
@@ -569,31 +570,24 @@ function formatFences(page, text, startLine) {
  *  using, above the same source as a code block. One DSX document, rendered and shown. */
 const liveOf = new Map();                     // Live<hash> -> the page component that draws it
 const LIVE_FENCE = /^```(?:xml|dsx) (?:live|preview)\n([\s\S]*?)\n```[ \t]*$/m;
-/** A card group as a grid of stock Cards, each a link with its icon, title and one line (data: the Card's own
- *  `icon`, else data/icons.json for the page it links to). */
+/** A card group as the console's card grid: one ItemCard per card (its icon, title and link), the card's line as the
+ *  card's own summary text in its slot, which wraps instead of cutting the sentence. The icon is the Card's own `icon`,
+ *  else data/icons.json for the page it links to. */
 function cardGrid(node, indent) {
   const cards = node.children.filter((k) => k.tag === "Card");
-  const cols = Math.min(3, Math.max(1, Number(attrValue(node.attrs, "cols") ?? 2) || 2));
   const rows = cards.map((card) => {
     const title = decodeAttr(attrValue(card.attrs, "title")) ?? "";
     const href = decodeAttr(attrValue(card.attrs, "href")) ?? "";
     const target = byRoute.get(href);
     const icon = declaredIcon(decodeAttr(attrValue(card.attrs, "icon")) ?? undefined) ?? (target !== undefined ? pageIconOf(target) : ICONS.fallback);
     const line = mdText(card.children).replace(/\s+/g, " ").trim();
-    return [
-      `${indent}  <pressable class="doc-card" href="${escapeForDsxAttr(href)}" a11yLabel="${escapeForDsxAttr(title)}">`,
-      `${indent}    <Card>`,
-      `${indent}      <vstack class="doc-card-body">`,
-      `${indent}        <image class="doc-card-icon" icon="${icon}" a11yHidden="true"/>`,
-      `${indent}        <text class="doc-card-title" value="${escapeForDsxAttr(title)}"/>`,
-      ...(line !== "" ? [`${indent}        <text class="doc-card-line" value="${escapeForDsxAttr(line)}"/>`] : []),
-      `${indent}      </vstack>`,
-      `${indent}    </Card>`,
-      `${indent}  </pressable>`,
-    ].join("\n");
+    return line === ""
+      ? `${indent}  <ItemCard title="${escapeForDsxAttr(title)}" icon="${icon}" href="${escapeForDsxAttr(href)}"/>`
+      : `${indent}  <ItemCard title="${escapeForDsxAttr(title)}" icon="${icon}" href="${escapeForDsxAttr(href)}">
+${indent}    <text class="dsx-item-card-summary" value="${escapeForDsxAttr(line)}"/>
+${indent}  </ItemCard>`;
   });
-  // the stock adaptive grid: the grid's own width decides the column count (two on a wide page, one on a phone)
-  return `${indent}<grid class="doc-cards" columns="adaptive" minimum="${cols >= 3 ? 220 : 280}" scroll="false">\n${rows.join("\n")}\n${indent}</grid>`;
+  return `${indent}<grid class="doc-cards" columns="adaptive" minimum="300" scroll="false">\n${rows.join("\n")}\n${indent}</grid>`;
 }
 /** A run of lines as stock <markdown> (tags lowered to directives), with two exceptions drawn as DSX: a card
  *  group (an icon card grid) and a LIVE EXAMPLE (```xml live: its source becomes a generated component of this
@@ -679,16 +673,6 @@ const site = (process.env.DOCS_SITE_URL ?? `${siteCfg.origin}${siteCfg.base}`).r
 // separate builds served under /v/<version>/ (the version selector reads the list).
 const RELEASE = JSON.parse(readFileSync(join(root, "data", "release.json"), "utf8"));
 const DOCS_VERSION = process.env.DOCS_VERSION ?? RELEASE.version;
-// The Improvements ledger (despia.com/improvements.json, PLAN-J): an entry whose links name a docs
-// page puts an "Improved in vX" marker on that page. Read from DOCS_IMPROVEMENTS (a local copy of
-// the feed) or data/improvements.json; absent = no markers, never invented ones.
-const improvementsFile = process.env.DOCS_IMPROVEMENTS ?? join(root, "data", "improvements.json");
-const improvements = existsSync(improvementsFile) ? (JSON.parse(readFileSync(improvementsFile, "utf8")).entries ?? []) : [];
-function improvementsFor(route) {
-  const url = `${site}${route}`;
-  return improvements.filter((e) => (e.links?.docs ?? []).some((d) => d === route || d === url))
-    .map((e) => ({ id: e.id ?? e.slug ?? "", version: e.version ?? "", title: e.title ?? "", url: e.url ?? `https://despia.com/improvements#${e.id ?? e.slug ?? ""}` }));
-}
 const supportOrigin = (process.env.DOCS_SUPPORT_ORIGIN ?? "https://support.despia.com").replace(/\/+$/, "");
 /** The markdown sibling of a route: /x/y -> /x/y.md, / -> /index.md (Mintlify's own convention). */
 const mdSibling = (route) => (route === "/" ? "/index.md" : `${route}.md`);
@@ -1063,62 +1047,72 @@ for (const id of ["migrate", "troubleshooting", "app-review", "releases"]) {
 const flatItems = (items) => items.flatMap((i) => (i.group !== undefined ? flatItems(i.items) : [i]));
 const flatNavBySpace = Object.fromEntries(Object.entries(navBySpace).map(([id, sections]) =>
   [id, sections.flatMap((s) => flatItems(s.items).map((i) => ({ ...i, section: s.name })))]));
-const neighborsOf = (space, route) => {
-  const flat = flatNavBySpace[space] ?? [];
-  const at = flat.findIndex((p) => p.route === route);
-  return { prev: at > 0 ? flat[at - 1] : null, next: at >= 0 && at < flat.length - 1 ? flat[at + 1] : null };
-};
 const sectionNameOf = (space, route) => (flatNavBySpace[space] ?? []).find((p) => p.route === route)?.section ?? "";
 
 // ── the generated page components ─────────────────────────────────────────────────────────
-/** A shell attribute whose text could read as markup (braces, a `dsx.` reach) travels as a
- *  page variable instead of attribute text, so the scanners never see an interpolation. */
-function shellAttr(page, name, value) {
+// Every page of these spaces is a DocsShell page, the frame the V4 pages use (site/dsx-compile.mjs writes DocsShell and
+// reads these spaces' sidebars from public/nav.json): the NavBar header (title, description, search, Copy page, the page
+// menu), the space's notice, then the article in the reading column.
+/** A text that could read as markup (braces, a `dsx.` reach) travels as a page variable instead of attribute text, so
+ *  the scanners never see an interpolation. */
+function textAttr(page, value) {
   const text = String(value);
-  if (!/[{}]|dsx\./i.test(text)) return `${name}="${escapeForDsxAttr(text)}"`;
+  if (!/[{}]|dsx\./i.test(text)) return text;
   const n = page.attrVars.push(text) - 1;
-  return `${name}="{{ dsx.variable.a${n} }}"`;
+  return `{{ dsx.variable.a${n} }}`;
 }
-function shellAttrs(page, toc) {
-  const { prev, next } = neighborsOf(page.space, page.route);
-  page.attrVars = [];
+const LEGACY_NOTICE = (page) => {
+  const target = page.meta?.modern ?? "";
+  return `  <Callout class="page-notice" tone="info" title="Despia V3" message="This page documents Despia V3 and the despia-native package."
+           action="${target !== "" ? "Despia V4 equivalent" : "Migration map"}" on:action="dsx.module.route.push({ path: '${escapeForDsxAttr(target !== "" ? target : "/migrate/map")}' })"/>`;
+};
+// `after`: the page's lists (a filter, its rows), on the page's own edges after the reading column, as the console
+// stands its list groups
+function pageFrame(page, extraHead, body, toc = [], after = "") {
+  page.attrVars = page.attrVars ?? [];
   const tocVar = page.attrVars.push(JSON.stringify(toc)) - 1;
-  const improved = improvementsFor(page.route);
-  const improvedVar = improved.length > 0 ? page.attrVars.push(JSON.stringify(improved)) - 1 : -1;
-  const legacyHome = page.meta?.legacy !== undefined;
-  return [
-    shellAttr(page, "title", page.route.startsWith("/components/") ? componentLabel(page.route, page.title) : page.title),
-    shellAttr(page, "label", pageLabel(page)),
-    ...(page.description ? [shellAttr(page, "description", page.description)] : []),
-    ...(isAlpha(page) ? [`stability="alpha"`] : []),
-    `route="${page.route}"`,
-    `space="${page.space}"`,
-    ...(supportOrigin !== "https://support.despia.com" ? [`supportOrigin="${escapeForDsxAttr(supportOrigin)}"`] : []),
-    ...(page.body !== undefined ? [`md="${mdSibling(page.route)}"`] : []),
-    shellAttr(page, "section", sectionNameOf(page.space, page.route)),
-    `toc="{{ dsx.variable.a${tocVar} }}"`,
-    // the space picker, its labels and homes: SPACES above is the one declaration
-    shellAttr(page, "spaces", SPACES_JSON),
-    ...(legacyHome && page.meta.modern ? [`modern="${escapeForDsxAttr(page.meta.modern)}"`] : []),
-    ...["since", "changed", "removed"].filter((k) => page.meta?.[k]).map((k) => `${k}="${escapeForDsxAttr(page.meta[k])}"`),
-    ...(improvedVar >= 0 ? [`improved="{{ dsx.variable.a${improvedVar} }}"`] : []),
-    `version="${escapeForDsxAttr(DOCS_VERSION)}"`,
-    ...(prev !== null ? [`prev="${prev.route}"`, shellAttr(page, "prevLabel", prev.label)] : []),
-    ...(next !== null ? [`next="${next.route}"`, shellAttr(page, "nextLabel", next.label)] : []),
-  ].join(" ");
+  const md = page.body !== undefined ? mdSibling(page.route) : "";
+  const title = textAttr(page, page.title);
+  const description = page.description ? textAttr(page, page.description) : "";
+  const copy = page.mdVars.length > 0;
+  const head = [
+    `    <!-- GENERATED by scripts/compile.mjs${page.file ? ` from ${relative(root, page.file).split(sep).join("/")}` : ""} - edit the source, not this file. -->`,
+    ...varLines(page),
+    ...(copy ? [`    <variable as="pageText">return ${jseStringLiteral(`# ${page.title}\n\n`)} + [${page.mdVars.map((_, i) => `dsx.variable.md${i}`).join(", ")}].join("\\n\\n")</variable>`] : []),
+    ...extraHead,
+    `    <action as="search">dsx.global.docsSearch = true</action>`,
+  ];
+  return `<DocsShell area="${page.space}" route="${page.route}" md="${md}" toc="{{ dsx.variable.a${tocVar} }}">
+  <head>
+${head.join("\n")}
+  </head>
+${navBar({ title, description, md, copy, toc })}
+${page.space === "legacy" ? LEGACY_NOTICE(page) + "\n" : ""}  <vstack class="doc-article">
+${body}
+  </vstack>
+${after}${after !== "" ? "\n" : ""}</DocsShell>
+`;
 }
 const varLines = (page) => [
   ...page.mdVars.map((text, i) => `    <variable as="md${i}">return ${jseStringLiteral(text)}</variable>`),
   ...page.attrVars.map((text, i) => `    <variable as="a${i}">return ${jseStringLiteral(text)}</variable>`),
 ];
-const pageFrame = (page, extraHead, body) => `<DocShell ${page.shell}>
-  <head>
-    <!-- GENERATED by scripts/compile.mjs${page.file ? ` from ${relative(root, page.file).split(sep).join("/")}` : ""} - edit the source, not this file. -->
-${[...varLines(page), ...extraHead].join("\n")}
-  </head>
-${body}
-</DocShell>
-`;
+/** The page's sections as DocsShell's long form: each ## heading is a section carrying its id (On this page links to
+ *  it), each ### a subsection inside the ## before it. */
+function sectionBlocks(chunks, compile) {
+  const out = [];
+  let open = false;
+  for (const chunk of chunks) {
+    if (chunk.level === 0) { const lead = compile(chunk, "    "); if (lead !== "") out.push(lead); continue; }
+    if (chunk.level === 2) {
+      if (open) out.push("    </vstack>");
+      out.push(`    <vstack id="${chunk.id}" class="doc-section">`, compile(chunk, "      "));
+      open = true;
+    } else out.push(`      <vstack id="${chunk.id}" class="doc-subsection">`, compile(chunk, "        "), "      </vstack>");
+  }
+  if (open) out.push("    </vstack>");
+  return out.filter((block) => block !== "").join("\n");
+}
 
 const writeMd = (route, text) => {
   // two addresses, one text: the Mintlify-style sibling (/x.md) and the /md/ tree (/md/x.md)
@@ -1183,94 +1177,16 @@ function apiPage(body, label) {
 for (const page of pages) {
   if (page.space === "modern") continue;
   if (page.meta?.element !== undefined && page.route.startsWith("/components/")) page.body = apiPage(page.body, componentLabel(page.route, page.title));
-  // the page title is DocShell's title block (beside the page actions), so the body's own first heading is not drawn
+  // the page title is the NavBar's, so the body's own first heading is not drawn
   // twice; the markdown twin keeps it
   { const lines = page.body.split("\n"); const h1 = lines.findIndex((l) => /^# /.test(l)); if (h1 >= 0 && lines.slice(0, h1).every((l) => l.trim() === "" || /^<\/?[A-Za-z]/.test(l) === false)) { lines[h1] = ""; page.body = lines.join("\n"); } }
   const chunks = sectionize(page.body, page.bodyStart);
   const toc = chunks.filter((c) => c.level > 0).map((c) => ({ id: c.id, title: c.title, level: c.level }));
   page.mdVars = [];
-  const blocks = chunks.map((chunk) => {
-    if (chunk.level === 0) return compileBody(page, chunk.lines, chunk.start, "    ").join("\n");
-    const nodes = compileBody(page, chunk.lines, chunk.start, "      ");
-    return `    <stack class="doc-section doc-anchor-${chunk.id}">\n${nodes.join("\n")}\n    </stack>`;
-  }).filter((block) => block !== "").join("\n");
-  page.shell = shellAttrs(page, toc);
-  writeFileSync(join(generatedDir, `${page.component}.dsx`), pageFrame(page, [], blocks));
+  page.attrVars = [];
+  const blocks = sectionBlocks(chunks, (chunk, indent) => compileBody(page, chunk.lines, chunk.start, indent).join("\n"));
+  writeFileSync(join(generatedDir, `${page.component}.dsx`), pageFrame(page, [], blocks, toc));
   writeMd(page.route, page.mdSource ?? defang(readFileSync(page.file, "utf8")));
-}
-
-// ── the generated skills index (/agents/skills): data/skills.json ───────────────────────────────────────────────
-skillsIndex: {
-  const page = generatedPages.find((p) => p.route === "/agents/skills");
-  if (page.space === "modern") break skillsIndex;
-  const rows = SKILLS.skills.map((x) => ({ name: x.name, folder: x.folder, line: String(x.description).split(/(?<=\.)\s/)[0], url: `/agents/skills/${x.folder}`, badge: x.mirrored ? "" : "Soon" }));
-  page.body = [`# Agent skills`, "", page.description, "", "```sh", `npx skills add ${SKILLS.repo}`, "```", "",
-    ...rows.map((r) => `- [${r.name}](${site}${r.url}.md): ${r.line}`), ""].join("\n");
-  page.mdVars = [];
-  page.shell = shellAttrs(page, []);
-  const rowsVar = page.attrVars.push(JSON.stringify(rows)) - 1;
-  const intro = pushMdVar(page, "Skills teach your coding agent how Despia apps are built. Install them all with one command, or pick one below.\n\n```sh title=\"Terminal\"\nnpx skills add " + SKILLS.repo + "\n```");
-  const head = [`    <formula as="rows" input:raw="dsx.variable.a${rowsVar}">return JSON.parse(raw)</formula>`];
-  const body = [
-    `  <markdown bind="dsx.variable.md${intro}"/>`,
-    `  <ListGroup header="Skills">`,
-    `    <SettingsRow repeat="dsx.formula.rows" key="folder" icon="sparkles" title="{{ dsx.this.name }}" subtitle="{{ dsx.this.line }}" lines="2" badge="{{ dsx.this.badge }}"`,
-    `                 chevron="true" tappable="true" on:tap="dsx.module.route.select({ path: dsx.this.url })"/>`,
-    `  </ListGroup>`,
-  ].join("\n");
-  writeFileSync(join(generatedDir, `${page.component}.dsx`), pageFrame(page, head, body));
-  writeMd(page.route, page.body);
-}
-
-// ── the generated package catalog (/packages): data/packages.json, never hand listed ─────────────────────────────
-packageCatalog: {
-  const page = generatedPages.find((p) => p.route === "/packages");
-  if (page.space === "modern") break packageCatalog;
-  const listed = loadPackages().packages.filter((x) => x.listed);
-  const rows = listed.map((x) => {
-    const pageOf = entries.find((e) => e.route === x.url);
-    return {
-      slug: x.slug, url: x.url, title: x.title, summary: x.summary ?? "", group: groupOf(x),
-      soon: pageOf?.soon === true, badge: pageOf?.soon === true ? "Soon" : x.maturity === "alpha" ? "Alpha" : "",
-      brand: x.icon.brand ?? "", symbol: x.icon.symbol ?? "", tint: x.icon.tint ?? "",
-    };
-  }).sort((a, b) => (a.soon === b.soon ? (a.title < b.title ? -1 : 1) : a.soon ? 1 : -1));
-  const groups = GROUP_ORDER.filter((g) => rows.some((r) => r.group === g));
-  page.body = [`# Packages`, "", page.description, "",
-    ...groups.flatMap((g) => [`## ${g}`, "", ...rows.filter((r) => r.group === g).map((r) => `- [${r.title}](${site}${r.url}.md)${r.soon ? " (coming soon)" : ""}: ${r.summary}`), ""])].join("\n");
-  page.mdVars = [];
-  page.shell = shellAttrs(page, []);
-  const rowsVar = page.attrVars.push(JSON.stringify(rows)) - 1;
-  const head = [
-    `    <variable as="q">return ''</variable>`,
-    `    <variable as="group">return dsx.query.group ? String(dsx.query.group) : 'All'</variable>`,
-    `    <variable as="shipped">return 'All'</variable>`,
-    `    <formula as="rows" input:raw="dsx.variable.a${rowsVar}">return JSON.parse(raw)</formula>`,
-    `    <formula as="sections" input:rows="dsx.formula.rows" input:q="dsx.variable.q" input:group="dsx.variable.group" input:shipped="dsx.variable.shipped">`,
-    `      const needle = String(q || '').toLowerCase()`,
-    `      const hit = rows.filter((r) => (group === 'All' || r.group === group) &amp;&amp; (shipped === 'All' || (shipped === 'Available' ? !r.soon : r.soon)) &amp;&amp; (needle === '' || r.title.toLowerCase().includes(needle) || r.summary.toLowerCase().includes(needle)))`,
-    `      const names = ${JSON.stringify(groups)}`,
-    `      return names.map((name) => ({ id: name, title: name, rows: hit.filter((r) => r.group === name) })).filter((s) => s.rows.length &gt; 0)`,
-    `    </formula>`,
-  ];
-  const body = [
-    `  <searchbar bind="dsx.variable.q" placeholder="Search packages"/>`,
-    `  <ListGroup>`,
-    `    <SettingsRow icon="line.3.horizontal.decrease.circle" title="Category"><picker bind="dsx.variable.group" options="All,${groups.join(",")}" label="Category"/></SettingsRow>`,
-    `    <SettingsRow icon="checkmark.circle" title="Status"><segmented bind="dsx.variable.shipped" options="All,Available,Coming soon" label="Status"/></SettingsRow>`,
-    `  </ListGroup>`,
-    `  <ListGroup repeat="dsx.formula.sections" key="id" header="{{ dsx.this.title }}">`,
-    `    <SettingsRow repeat="dsx.this.rows" key="slug" title="{{ dsx.this.title }}" subtitle="{{ dsx.this.summary }}" lines="2" badge="{{ dsx.this.badge }}"`,
-    `                 chevron="true" tappable="true" on:tap="dsx.module.route.select({ path: dsx.this.url })">`,
-    `      <IconTile slot="leading" brand="{{ dsx.this.brand }}" icon="{{ dsx.this.symbol }}" tint="{{ dsx.this.tint }}" name="{{ dsx.this.title }}"/>`,
-    `    </SettingsRow>`,
-    `  </ListGroup>`,
-    `  <ListGroup visible-if="dsx.formula.sections.length === 0">`,
-    `    <SettingsRow icon="magnifyingglass" title="No package matches" subtitle="Try another word or category."/>`,
-    `  </ListGroup>`,
-  ].join("\n");
-  writeFileSync(join(generatedDir, `${page.component}.dsx`), pageFrame(page, head, body));
-  writeMd(page.route, page.body);
 }
 
 // ── the generated Troubleshooting index ───────────────────────────────────────────────────
@@ -1315,8 +1231,8 @@ packageCatalog: {
     "",
   ].join("\n");
   page.mdVars = [];
-  page.shell = shellAttrs(page, []);
-  const intro = pushMdVar(page, `# Troubleshooting\n\n${page.description} Every article is one symptom, its cause and the fix, with the platform it applies to. Filter by platform or by package.`);
+  page.attrVars = [];
+  const intro = pushMdVar(page, "Every article is one symptom, its cause and the fix, with the platform it applies to. Filter by platform or by package.");
   const itemsVar = page.attrVars.push(JSON.stringify(items)) - 1;
   // the variables carry JSON text; the formulas parse it once
   const head = [
@@ -1324,34 +1240,27 @@ packageCatalog: {
     `    <variable as="pkg">return 'All packages'</variable>`,
     `    <formula as="items" input:raw="dsx.variable.a${itemsVar}">return JSON.parse(raw)</formula>`,
     `    <formula as="shown" input:items="dsx.formula.items" input:wantPlatform="dsx.variable.platformFilter" input:pkg="dsx.variable.pkg">`,
-    `      return items.filter((i) => (wantPlatform === 'All' || i.platform.includes(wantPlatform)) && (pkg === 'All packages' || i.packages.includes(pkg)))`,
+    `      return items.filter((i) => (wantPlatform === 'All' || i.platform.includes(wantPlatform)) &amp;&amp; (pkg === 'All packages' || i.packages.includes(pkg)))`,
     `    </formula>`,
-    `    <formula as="fixed" input:items="dsx.formula.items">return items.filter((i) => i.fixed)</formula>`,
+    `    <formula as="fixed" input:items="dsx.formula.items">return items.filter((i) => i.fixed).map((i) => ({ ...i, line: 'Reported ' + i.reportedLabel + ', fixed in ' + i.timeToFix }))</formula>`,
   ];
+  const lead = `    <markdown bind="dsx.variable.md${intro}"/>`;
   const body = [
-    `    <markdown bind="dsx.variable.md${intro}"/>`,
-    `    <hstack class="doc-ts-filters" role="group" a11yLabel="Filter articles">`,
-    `      <segmented bind="dsx.variable.platformFilter" options="All,V4,Legacy" label="Platform" class="doc-ts-platform"/>`,
-    `      <picker bind="dsx.variable.pkg" options="${escapeForDsxAttr(packageOptions.join(","))}" label="Package" class="doc-ts-package"/>`,
-    `    </hstack>`,
-    `    <stack class="doc-ts-fixed" visible-if="dsx.formula.fixed.length > 0">`,
-    `      <text value="Fixed fast" type="headline"/>`,
-    `      <vstack class="doc-ts-fixed-list">`,
-    `        <FixedFast repeat="dsx.formula.fixed" key="id" title="{{ dsx.this.title }}" href="{{ dsx.this.route }}" reported="{{ dsx.this.reportedLabel }}" released="{{ dsx.this.releasedLabel }}" duration="{{ dsx.this.timeToFix }}" platform="{{ dsx.this.platform }}"/>`,
-    `      </vstack>`,
-    `    </stack>`,
-    `    <vstack class="doc-ts-list">`,
-    `      <Card repeat="dsx.formula.shown" key="id" title="{{ dsx.this.title }}" href="{{ dsx.this.route }}" class="doc-ts-card">`,
-    `        <text value="{{ dsx.this.symptom }}" type="callout"/>`,
-    `        <hstack class="doc-ts-card-meta">`,
-    `          <chip label="{{ dsx.this.platform }}"/>`,
-    `          <text value="{{ dsx.this.packagesLabel }}" type="footnote"/>`,
-    `        </hstack>`,
-    `      </Card>`,
-    `    </vstack>`,
-    `    <text value="No article matches these filters yet." type="footnote" visible-if="dsx.formula.shown.length === 0"/>`,
+    `    <ListGroup header="Filter">`,
+    `      <SettingsRow icon="iphone" title="Platform"><picker aria-label="Platform" bind="dsx.variable.platformFilter" options="All,V4,Legacy"/></SettingsRow>`,
+    `      <SettingsRow icon="shippingbox" title="Package"><picker aria-label="Package" bind="dsx.variable.pkg" options="${escapeForDsxAttr(packageOptions.join(","))}"/></SettingsRow>`,
+    `    </ListGroup>`,
+    `    <ListGroup header="Fixed fast" visible-if="dsx.formula.fixed.length &gt; 0">`,
+    `      <SettingsRow repeat="dsx.formula.fixed" key="id" icon="checkmark.circle" title="{{ dsx.this.title }}" subtitle="{{ dsx.this.line }}" lines="6" chevron="true" tappable="true" on:tap="dsx.module.route.push({ path: dsx.this.route })"/>`,
+    `    </ListGroup>`,
+    `    <ListGroup header="Articles" visible-if="dsx.formula.shown.length &gt; 0">`,
+    `      <SettingsRow repeat="dsx.formula.shown" key="id" icon="wrench.and.screwdriver" title="{{ dsx.this.title }}" subtitle="{{ dsx.this.symptom }}" value="{{ dsx.this.platform }}" lines="6" chevron="true" tappable="true" on:tap="dsx.module.route.push({ path: dsx.this.route })"/>`,
+    `    </ListGroup>`,
+    `    <ListGroup visible-if="dsx.formula.shown.length === 0">`,
+    `      <SettingsRow icon="magnifyingglass" title="No article matches" subtitle="Try another platform or package."/>`,
+    `    </ListGroup>`,
   ].join("\n");
-  writeFileSync(join(generatedDir, `${page.component}.dsx`), pageFrame(page, head, body));
+  writeFileSync(join(generatedDir, `${page.component}.dsx`), pageFrame(page, head, lead, [], body.replace(/^  /gm, "")));
   writeMd(page.route, page.body);
   writeFileSync(join(publicDir, "troubleshooting.json"), JSON.stringify({ articles: items }, null, 1) + "\n");
 }
@@ -1374,8 +1283,8 @@ packageCatalog: {
     "",
   ].join("\n");
   page.mdVars = [];
-  page.shell = shellAttrs(page, []);
-  const intro = pushMdVar(page, `# App Review\n\n${page.description} Search by guideline number or words, or filter by store, category and platform. Each entry links the official guideline text.`);
+  page.attrVars = [];
+  const intro = pushMdVar(page, "Search by guideline number or words, or filter by store, category and platform. Each entry links the official guideline text.");
   const itemsVar = page.attrVars.push(JSON.stringify(items)) - 1;
   const head = [
     `    <variable as="q">return ''</variable>`,
@@ -1396,34 +1305,29 @@ packageCatalog: {
     `      }`,
     `      const words = String(q || '').toLowerCase().split(' ').filter((w) => w !== '')`,
     `      return items.filter((i) => (wantStore === 'All' || i.stores.includes(wantStore))`,
-    `        && (wantCategory === 'All categories' || i.category === wantCategory)`,
-    `        && (wantPlatform === 'All' || i.platforms.includes(wantPlatform))`,
-    `        && words.every((w) => fuzzy(i.haystack, w)))`,
+    `        &amp;&amp; (wantCategory === 'All categories' || i.category === wantCategory)`,
+    `        &amp;&amp; (wantPlatform === 'All' || i.platforms.includes(wantPlatform))`,
+    `        &amp;&amp; words.every((w) => fuzzy(i.haystack, w)))`,
+    `        .map((i) => ({ ...i, heading: i.guideline + ' ' + i.title }))`,
     `    </formula>`,
+    `    <formula as="countLabel" input:shown="dsx.formula.shown">return shown.length + (shown.length === 1 ? ' guideline' : ' guidelines')</formula>`,
   ];
+  const lead = `    <markdown bind="dsx.variable.md${intro}"/>`;
   const body = [
-    `    <markdown bind="dsx.variable.md${intro}"/>`,
-    `    <stack class="doc-ar-search">`,
-    `      <searchbar bind="dsx.variable.q" placeholder="Search guidelines: 4.2, paywall, sign in…"/>`,
-    `    </stack>`,
-    `    <hstack class="doc-ts-filters" role="group" a11yLabel="Filter guidelines">`,
-    `      <segmented bind="dsx.variable.store" options="All,Apple,Google" label="Store" class="doc-ts-platform"/>`,
-    `      <segmented bind="dsx.variable.platformFilter" options="All,V4,Legacy" label="Platform" class="doc-ts-platform"/>`,
-    `      <picker bind="dsx.variable.category" options="${escapeForDsxAttr(categories.join(","))}" label="Category" class="doc-ts-package"/>`,
-    `    </hstack>`,
-    `    <text value="{{ dsx.formula.shown.length + (dsx.formula.shown.length === 1 ? ' guideline' : ' guidelines') }}" type="headline"/>`,
-    `    <vstack class="doc-ts-list">`,
-    `      <Card repeat="dsx.formula.shown" key="id" title="{{ dsx.this.guideline + ' · ' + dsx.this.title }}" href="{{ dsx.this.route }}" class="doc-ts-card">`,
-    `        <text value="{{ dsx.this.summary }}" type="callout"/>`,
-    `        <hstack class="doc-ts-card-meta">`,
-    `          <chip label="{{ dsx.this.storesLabel }}"/>`,
-    `          <chip label="{{ dsx.this.category }}"/>`,
-    `        </hstack>`,
-    `      </Card>`,
-    `    </vstack>`,
-    `    <text value="No guideline matches. Try fewer words, or the search in the header (it also asks the Support knowledge base)." type="footnote" visible-if="dsx.formula.shown.length === 0"/>`,
+    `    <searchbar bind="dsx.variable.q" placeholder="Search guidelines: 4.2, paywall, sign in"/>`,
+    `    <ListGroup header="Filter">`,
+    `      <SettingsRow icon="bag" title="Store"><picker aria-label="Store" bind="dsx.variable.store" options="All,Apple,Google"/></SettingsRow>`,
+    `      <SettingsRow icon="iphone" title="Platform"><picker aria-label="Platform" bind="dsx.variable.platformFilter" options="All,V4,Legacy"/></SettingsRow>`,
+    `      <SettingsRow icon="square.grid.2x2" title="Category"><picker aria-label="Category" bind="dsx.variable.category" options="${escapeForDsxAttr(categories.join(","))}"/></SettingsRow>`,
+    `    </ListGroup>`,
+    `    <ListGroup header="{{ dsx.formula.countLabel }}" visible-if="dsx.formula.shown.length &gt; 0">`,
+    `      <SettingsRow repeat="dsx.formula.shown" key="id" icon="checkmark.shield" title="{{ dsx.this.heading }}" subtitle="{{ dsx.this.summary }}" value="{{ dsx.this.storesLabel }}" lines="6" chevron="true" tappable="true" on:tap="dsx.module.route.push({ path: dsx.this.route })"/>`,
+    `    </ListGroup>`,
+    `    <ListGroup visible-if="dsx.formula.shown.length === 0">`,
+    `      <SettingsRow icon="magnifyingglass" title="No guideline matches" subtitle="Try fewer words, or search the whole docs with the search button."/>`,
+    `    </ListGroup>`,
   ].join("\n");
-  writeFileSync(join(generatedDir, `${page.component}.dsx`), pageFrame(page, head, body));
+  writeFileSync(join(generatedDir, `${page.component}.dsx`), pageFrame(page, head, lead, [], body.replace(/^  /gm, "")));
   writeMd(page.route, page.body);
   writeFileSync(join(publicDir, "app-review.json"), JSON.stringify({ guidelines: items.map(({ haystack, ...rest }) => ({ ...rest, url: site + rest.route, markdown: site + mdSibling(rest.route) })) }, null, 1) + "\n");
 }
@@ -1439,32 +1343,28 @@ packageCatalog: {
     ...(items.length === 0 ? ["No release notes are published yet."] :
       items.map((i) => `- [${i.title}](${site}${mdSibling(i.route)}) (${i.package} ${i.version}, ${i.date}): ${i.summary}`)), ""].join("\n");
   page.mdVars = [];
-  page.shell = shellAttrs(page, []);
-  const intro = pushMdVar(page, `# Releases\n\n${page.description} Feeds: [RSS](/releases/rss.xml), [JSON Feed](/releases/feed.json), [llms.txt](/releases/llms.txt).`);
+  page.attrVars = [];
+  const intro = pushMdVar(page, "Feeds: [RSS](/releases/rss.xml), [JSON Feed](/releases/feed.json), [llms.txt](/releases/llms.txt).");
   const itemsVar = page.attrVars.push(JSON.stringify(items)) - 1;
   const packages = ["All packages", ...[...new Set(items.map((i) => i.package))].sort()];
   const head = [
     `    <variable as="pkg">return 'All packages'</variable>`,
     `    <formula as="items" input:raw="dsx.variable.a${itemsVar}">return JSON.parse(raw)</formula>`,
-    `    <formula as="shown" input:items="dsx.formula.items" input:pkg="dsx.variable.pkg">return items.filter((i) => pkg === 'All packages' || i.package === pkg)</formula>`,
+    `    <formula as="shown" input:items="dsx.formula.items" input:pkg="dsx.variable.pkg">return items.filter((i) => pkg === 'All packages' || i.package === pkg).map((i) => ({ ...i, value: i.package + ' ' + i.version }))</formula>`,
   ];
+  const lead = `    <markdown bind="dsx.variable.md${intro}"/>`;
   const body = [
-    `    <markdown bind="dsx.variable.md${intro}"/>`,
-    `    <hstack class="doc-ts-filters" role="group" a11yLabel="Filter releases" visible-if="dsx.formula.items.length > 0">`,
-    `      <picker bind="dsx.variable.pkg" options="${escapeForDsxAttr(packages.join(","))}" label="Package" class="doc-ts-package"/>`,
-    `    </hstack>`,
-    `    <vstack class="doc-ts-list">`,
-    `      <Card repeat="dsx.formula.shown" key="id" title="{{ dsx.this.title }}" href="{{ dsx.this.route }}" class="doc-ts-card">`,
-    `        <text value="{{ dsx.this.summary }}" type="callout"/>`,
-    `        <hstack class="doc-ts-card-meta">`,
-    `          <chip label="{{ dsx.this.package + ' ' + dsx.this.version }}"/>`,
-    `          <text value="{{ dsx.this.date }}" type="footnote"/>`,
-    `        </hstack>`,
-    `      </Card>`,
-    `    </vstack>`,
-    `    <text value="No release notes are published yet. The first lands with the 0.1.0 release." type="footnote" visible-if="dsx.formula.items.length === 0"/>`,
+    `    <ListGroup header="Filter" visible-if="dsx.formula.items.length &gt; 0">`,
+    `      <SettingsRow icon="shippingbox" title="Package"><picker aria-label="Package" bind="dsx.variable.pkg" options="${escapeForDsxAttr(packages.join(","))}"/></SettingsRow>`,
+    `    </ListGroup>`,
+    `    <ListGroup header="Release notes" visible-if="dsx.formula.shown.length &gt; 0">`,
+    `      <SettingsRow repeat="dsx.formula.shown" key="id" icon="newspaper" title="{{ dsx.this.title }}" subtitle="{{ dsx.this.summary }}" value="{{ dsx.this.value }}" lines="6" chevron="true" tappable="true" on:tap="dsx.module.route.push({ path: dsx.this.route })"/>`,
+    `    </ListGroup>`,
+    `    <ListGroup visible-if="dsx.formula.items.length === 0">`,
+    `      <SettingsRow icon="newspaper" title="No release notes yet" subtitle="The first lands with the 0.1.0 release."/>`,
+    `    </ListGroup>`,
   ].join("\n");
-  writeFileSync(join(generatedDir, `${page.component}.dsx`), pageFrame(page, head, body));
+  writeFileSync(join(generatedDir, `${page.component}.dsx`), pageFrame(page, head, lead, [], body.replace(/^  /gm, "")));
   writeMd(page.route, page.body);
   mkdirSync(join(publicDir, "releases"), { recursive: true });
   const xmlE = (v) => String(v).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -1551,117 +1451,6 @@ packageCatalog: {
 for (const page of handAuthored) {
   writeMd(page.route, `# ${page.title}\n\n${page.description}\n\nThis page is a live DSX document (${site}${page.route}); it has no markdown source.\n`);
 }
-
-// ── the alpha note (data/stability.json): ONE stock warning Callout every alpha page's DocShell draws on top ──
-writeFileSync(join(generatedDir, "AlphaNote.dsx"), `<Callout tone="warning" title="Early alpha" message="${escapeForDsxAttr(STABILITY.callout.replace(/\*\*Early alpha\.\*\* /, ""))}"/>\n`);
-
-// ── the generated sidebars (DocNav + one per space) ───────────────────────────────────────
-// Every nav as static markup: every row a real SSR'd anchor, grouped under uppercase
-// micro-labels, nested groups under quieter sub-labels, the active row resolved from the
-// route attribute at render time. DocNav picks the space's sidebar (visible-if renders
-// nothing for the other three, so a page carries one sidebar, not four).
-const navComponentOf = (id) => "DocNav" + id.split("-").map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join("");
-// Each space's sidebar, Mintlify-shaped from stock parts: a section header (footnote text), the
-// section's pages as one stock list of rows (icon + label, real links), and every nested group as
-// a stock Accordion (DisclosureGroup) holding its own rows, open when it holds the page on screen
-// or declares defaultOpen. A modern page with no icon of its own takes its section's.
-const containsRoute = (items, route) => items.some((i) => (i.group !== undefined ? containsRoute(i.items, route) : i.route === route));
-function navMarkup(items, sectionIcon, depth, vars) {
-  // inside a stock sidebar list: a run of pages is ONE repeated row template (keyed by route, so
-  // `selection=` marks the page on screen); a nested group is a row holding a stock Accordion whose
-  // body is a nested sidebar list
-  const out = [];
-  let run = [];
-  const pad = "  ".repeat(depth + 2);
-  const flush = () => {
-    if (run.length === 0) return;
-    // a run whose pages carry no icon of their own shows none: thirty copies of the section's icon
-    // (or the generic page glyph) down a column is noise, not wayfinding (polish pass 2026-10-03)
-    // every row wears its own icon (data/icons.json): the reader scans by shape as much as by word
-    const ownIcons = true;
-    const rows = run.map((i) => ({ route: i.route, label: i.label, icon: i.icon ?? sectionIcon ?? "doc.text", soon: i.soon === true, ...(i.alpha ? { alpha: true } : {}) }));
-    const n = vars.push(`    <variable as="r${vars.length}">return JSON.parse(${jseStringLiteral(JSON.stringify(rows))})</variable>`) - 1;
-    out.push(`${pad}<pressable repeat="dsx.variable.r${n}" key="route" href="{{ dsx.this.route }}">
-${ownIcons ? `${pad}  <image style="font-size: 15px" icon="{{ dsx.this.icon }}" a11yHidden="true"/>\n` : ""}${pad}  <text value="{{ dsx.this.label }}" lineLimit="2"/>
-${pad}  <chip label="Soon" class="doc-nav-soon" visible-if="dsx.this.soon"/>
-
-${pad}</pressable>`);
-    run = [];
-  };
-  for (const item of items) {
-    if (item.group === undefined) { run.push(item); continue; }
-    flush();
-    const routes = JSON.stringify(flatItems(item.items).map((i) => i.route)).replace(/"/g, "'");
-    out.push(`${pad}<row>
-${pad}  <Accordion title="${escapeForDsxAttr(item.group)}" icon="${escapeForDsxAttr(item.icon ?? sectionIcon ?? "folder")}" open="${item.defaultOpen ? "true" : `{{ ${routes}.includes(dsx.attribute.route) }}`}">
-${pad}    <list style="appearance: none" selection="dsx.variable.current" scroll="false">
-${navMarkup(item.items, item.icon ?? sectionIcon, depth + 2, vars)}
-${pad}    </list>
-${pad}  </Accordion>
-${pad}</row>`);
-  }
-  flush();
-  return out.join("\n");
-}
-// Each space's sidebar, the console's: stock SidebarSections of SidebarItems inside DocShell's SidebarList (selection is
-// the page's route). A nested group (Legacy's docs.json groups) is its own collapsible section, open when it holds the
-// page on screen. Rows are data: one variable per section, one repeated SidebarItem.
-function navSections(sections) {
-  const out = [];
-  for (const section of sections) {
-    const loose = section.items.filter((i) => i.group === undefined);
-    if (loose.length > 0) out.push({ name: section.name, collapsible: section.collapsible === true, rows: loose });
-    for (const g of section.items.filter((i) => i.group !== undefined)) out.push({ name: g.group, collapsible: true, rows: flatItems(g.items), icon: g.icon });
-  }
-  return out;
-}
-for (const s of SPACES) {
-  const vars = [];
-  const body = navSections(navBySpace[s.id] ?? []).map((sec) => {
-    const rows = sec.rows.map((i) => ({ route: i.route, label: i.label, icon: i.icon ?? sec.icon ?? "doc.text", ...(i.soon ? { badge: "Soon" } : {}) }));
-    const n = vars.push(`    <variable as="r${vars.length}">return JSON.parse(${jseStringLiteral(JSON.stringify(rows))})</variable>`) - 1;
-    const routes = JSON.stringify(rows.map((r) => r.route)).replace(/"/g, "'");
-    const fold = sec.collapsible ? ` collapsible="true" expanded="{{ ${routes}.includes(dsx.attribute.route) }}"` : "";
-    return `  <SidebarSection title="${escapeForDsxAttr(sec.name)}"${fold}>
-    <SidebarItem repeat="dsx.variable.r${n}" key="route" value="{{ dsx.this.route }}" icon="{{ dsx.this.icon }}" title="{{ dsx.this.label }}" badge="{{ dsx.this.badge || '' }}"/>
-  </SidebarSection>`;
-  }).join("\n");
-  writeFileSync(join(generatedDir, `${navComponentOf(s.id)}.dsx`), `<stack class="doc-nav doc-nav-${s.id}">
-  <head>
-    <!-- GENERATED by scripts/compile.mjs (the ${s.label} nav model, data/nav.json) - edit the IA, not this file. -->
-    <attribute as="route" default="''"/>
-${vars.join("\n")}
-  </head>
-${body}
-</stack>
-`);
-}
-writeFileSync(join(generatedDir, "DocNav.dsx"), `<stack class="doc-nav-host">
-  <head>
-    <!-- GENERATED by scripts/compile.mjs: the sidebar of the page's space. -->
-    <attribute as="route" default="''"/>
-    <attribute as="space" default="'modern'"/>
-  </head>
-${SPACES.map((s) => `  <${navComponentOf(s.id)} visible-if="dsx.attribute.space === '${s.id}'" route="{{ dsx.attribute.route }}"/>`).join("\n")}
-</stack>
-`);
-
-// ── the generated /system card wall (SystemCards) ─────────────────────────────────────────
-const cardRoleFor = (description) => {
-  const clause = String(description).replace(/\.\s*$/, "").split(": ")[0].trim();
-  return clause.charAt(0).toUpperCase() + clause.slice(1);
-};
-const cardRows = entries.filter((p) => p.route.startsWith("/components/")).map((p) =>
-  `  <Card title="${escapeForDsxAttr(componentLabel(p.route, p.title))}" href="${p.route}">
-    <text value="${escapeForDsxAttr(cardRoleFor(p.description))}" type="footnote"/>
-  </Card>`).join("\n");
-writeFileSync(join(generatedDir, "SystemCards.dsx"), `<grid class="doc-cardwall">
-  <head>
-    <!-- GENERATED by scripts/compile.mjs (the component reference as a card grid). -->
-  </head>
-${cardRows}
-</grid>
-`);
 
 // ── the route table ───────────────────────────────────────────────────────────────────────
 const config = JSON.parse(readFileSync(join(root, "dsx.config.json"), "utf8"));
@@ -1830,4 +1619,4 @@ if (liveOf.size > 0) {
   for (const [name, why] of broken) console.log(`  ${liveOf.get(name).component}: ${why}`);
 }
 if (onFallback.length > 0) console.log(`[docs.compile] ${onFallback.length} page(s) on the fallback icon (add a data/icons.json row): ${onFallback.slice(0, 12).join(" ")}`);
-console.log(`[docs.compile] ${entries.length} route(s) (${counts}) → Components/pages (+ DocNav per space, SystemCards), routes, nav, search index, md siblings, llms per space, sitemap`);
+console.log(`[docs.compile] ${entries.length} route(s) (${counts}) → Components/pages, routes, nav, search index, md siblings, llms per space, sitemap`);

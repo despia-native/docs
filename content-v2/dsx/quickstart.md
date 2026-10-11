@@ -116,5 +116,5 @@ A release build needs your App Store Connect key or Google Play service account.
 - [Pages and components](/dsx/documents) {doc.plaintext} What a document is made of.
 - [Data and state](/dsx/data) {curlybraces} Variables, formulas, actions and lists.
 - [Styling is CSS](/dsx/styling) {paintbrush} Classes, sheets and design tokens.
-- [Use Despia with your AI agent](/dsx/agents) {sparkles} Let your agent build with you.
+- [Use your AI agent](/dsx/agents) {sparkles} Let your agent build with you.
 :::

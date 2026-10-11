@@ -36,7 +36,7 @@ test("rendered pages meet the visual rules", { skip: origin === "" ? "set DOCS_O
         const canvas = wantDark ? { r: 0, g: 0, b: 0 } : { r: 255, g: 255, b: 255 };
         const bgOf = (el) => { for (let e = el; e; e = e.parentElement) { const c = rgb(getComputedStyle(e).backgroundColor); if (c && c.a > 0.5) return c; } return canvas; };
         // scheme
-        for (const sel of [".dsx-scaffold-sidebar", ".dsx-sidebar-list", ".doc-page"]) {
+        for (const sel of [".dsx-scaffold-sidebar", ".dsx-sidebar-list", ".doc-article"]) {
           const el = document.querySelector(sel);
           if (!el) continue;
           const dark = lum(bgOf(el)) < 0.2;
@@ -64,7 +64,7 @@ test("rendered pages meet the visual rules", { skip: origin === "" ? "set DOCS_O
         if (document.body.innerText.includes("[object Object]")) out.push("[object Object] on the page");
         for (const img of document.querySelectorAll("img")) if (img.complete && img.naturalWidth === 0) out.push(`broken image ${img.getAttribute("src")}`);
         // rhythm: content blocks never touch
-        const col = document.querySelector(".doc-page");
+        const col = document.querySelector(".doc-article");
         if (col) {
           const kids = [...col.children].filter((k) => k.getBoundingClientRect().height > 0);
           for (let i = 1; i < kids.length; i += 1) {

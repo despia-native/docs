@@ -1,4 +1,5 @@
 ---
+label: Tracking (ATT)
 title: App Tracking Transparency
 description: Tracking a user across other companies' apps and websites needs the App Tracking Transparency prompt first, the choice must be respected, and the App Store privacy labels must match.
 guideline: 5.1.2

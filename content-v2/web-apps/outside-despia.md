@@ -1,5 +1,5 @@
 ---
-title: If your site also runs outside Despia
+title: Outside Despia
 description: When the same site also runs in normal browsers, write window.dsx?. for the calls that run in both places. This is the only page where that form appears.
 ---
 

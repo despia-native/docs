@@ -112,7 +112,7 @@
       "path": "/dsx/agents",
       "component": "docs.V2Dsx_Agents",
       "meta": {
-        "title": "Use Despia with your AI agent",
+        "title": "Use your AI agent",
         "description": "Connect your coding agent to Despia's hosted MCP server and to the CLI's own MCP server, install the agent skills, and give it the checks that keep its changes safe."
       }
     },
@@ -152,7 +152,7 @@
       "path": "/web-apps",
       "component": "docs.V2WebApps",
       "meta": {
-        "title": "Your web app in a Despia app",
+        "title": "Web app quickstart",
         "description": "Put the React, Next.js, Vue, Svelte or plain JavaScript app you already have inside an iOS and Android app, then call your first native feature from its own code."
       }
     },
@@ -184,7 +184,7 @@
       "path": "/web-apps/outside-despia",
       "component": "docs.V2WebApps_OutsideDespia",
       "meta": {
-        "title": "If your site also runs outside Despia",
+        "title": "Outside Despia",
         "description": "When the same site also runs in normal browsers, write window.dsx?. for the calls that run in both places. This is the only page where that form appears."
       }
     },
@@ -232,7 +232,7 @@
       "path": "/ship/google-play",
       "component": "docs.V2Ship_GooglePlay",
       "meta": {
-        "title": "Google Play service account",
+        "title": "Play service account",
         "description": "Create the Google Cloud service account Despia uses to upload your Android app to Google Play, give it access in Play Console, and connect it once for your workspace."
       }
     },
@@ -670,6 +670,14 @@
       "meta": {
         "title": "Browser",
         "description": "Open web links in the system's in-app browser tab."
+      }
+    },
+    {
+      "path": "/packages/browserext",
+      "component": "docs.V2Packages_Browserext",
+      "meta": {
+        "title": "Browser extension",
+        "description": "Build a Chrome extension with DSX: messaging, wakes, storage, notices, side panel and tabs behind one typed API."
       }
     },
     {
@@ -1953,11 +1961,27 @@
       }
     },
     {
+      "path": "/packages/studio",
+      "component": "docs.V2Packages_Studio",
+      "meta": {
+        "title": "Audio studio engine",
+        "description": "Record, edit and mix multitrack audio with live vocal tuning inside your app."
+      }
+    },
+    {
       "path": "/packages/supabase",
       "component": "docs.V2Packages_Supabase",
       "meta": {
         "title": "Supabase Auth",
         "description": "Give every visitor an account from first launch with Supabase and keep it when they sign in."
+      }
+    },
+    {
+      "path": "/packages/swiftygif",
+      "component": "docs.V2Packages_Swiftygif",
+      "meta": {
+        "title": "Animated GIFs",
+        "description": "Add the SwiftyGif library so iOS apps can play animated GIF images."
       }
     },
     {
@@ -2141,8 +2165,8 @@
       "path": "/migrate",
       "component": "docs.PageMigrate",
       "meta": {
-        "title": "Migrating from v3",
-        "description": "Move a Despia v3 app (despia-native, URL-scheme calls) to Despia v4 and DSX, one page at a time."
+        "title": "Migrating from V3",
+        "description": "Move a Despia V3 app (despia-native, URL-scheme calls) to Despia V4 and DSX, one page at a time."
       },
       "tabRoot": true
     },
@@ -2168,8 +2192,8 @@
       "path": "/migrate/map",
       "component": "docs.PageMigrate_Map",
       "meta": {
-        "title": "v3 to v4 feature map",
-        "description": "Every Despia v3 feature and the v4 package or API it moves to, generated from the legacy navigation and the framework's own names."
+        "title": "V3 to V4 feature map",
+        "description": "Every Despia V3 feature and the V4 package or API it moves to, generated from the legacy navigation and the framework's own names."
       },
       "tabRoot": true
     },
@@ -2186,7 +2210,7 @@
       "path": "/troubleshooting/ota-updates-not-arriving",
       "component": "docs.PageTroubleshooting_OtaUpdatesNotArriving",
       "meta": {
-        "title": "OTA updates never reach the app",
+        "title": "OTA updates missing",
         "description": "Changes deployed to production do not appear in the native app, even after force-closing it."
       },
       "tabRoot": true
@@ -2204,7 +2228,7 @@
       "path": "/troubleshooting/white-screen-on-launch",
       "component": "docs.PageTroubleshooting_WhiteScreenOnLaunch",
       "meta": {
-        "title": "White screen on launch, no splash screen",
+        "title": "White screen on launch",
         "description": "The app opens to a blank white screen and the splash logo never appears."
       },
       "tabRoot": true
@@ -2222,7 +2246,7 @@
       "path": "/troubleshooting/logged-out-after-reopen",
       "component": "docs.PageTroubleshooting_LoggedOutAfterReopen",
       "meta": {
-        "title": "Users are logged out when they reopen the app",
+        "title": "Logged out on reopen",
         "description": "Users close the app and land on the login page again when they reopen it."
       },
       "tabRoot": true
@@ -2249,7 +2273,7 @@
       "path": "/app-review/apple-5-1-1-data-minimization",
       "component": "docs.PageAppReview_Apple511DataMinimization",
       "meta": {
-        "title": "Collecting data the app does not need",
+        "title": "Data minimization",
         "description": "Only ask for personal data the app's features need; anything optional must be clearly optional and explained."
       },
       "tabRoot": true
@@ -2267,7 +2291,7 @@
       "path": "/app-review/apple-5-1-2-ai-data-sharing",
       "component": "docs.PageAppReview_Apple512AiDataSharing",
       "meta": {
-        "title": "Sharing personal data with AI services",
+        "title": "AI data sharing",
         "description": "Before personal data is sent to a third-party AI service, the app must say so clearly and get the user's permission."
       },
       "tabRoot": true

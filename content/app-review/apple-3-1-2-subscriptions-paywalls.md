@@ -1,4 +1,5 @@
 ---
+label: Subscriptions, paywalls
 title: Subscriptions and paywalls
 description: A paywall must state what is bought, the price and billing period, and the trial terms clearly, be easy to dismiss, and never trick the user into a purchase.
 guideline: 3.1.2

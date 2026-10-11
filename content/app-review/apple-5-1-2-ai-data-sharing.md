@@ -1,5 +1,5 @@
 ---
-title: Sharing personal data with AI services
+title: AI data sharing
 description: Before personal data is sent to a third-party AI service, the app must say so clearly and get the user's permission.
 guideline: 5.1.2
 store: Apple
