@@ -147,5 +147,5 @@ the Mini.
 - Phase B done on the branch: every page in the tree written and fact-checked (219 whole .dsx samples compiled with the
   framework's `despia lint`, 0 errors; every dsx.module call checked against the catalog; every attribute checked against
   the framework reference: site/check-samples.mjs), 301s for every moved page (redirects/v2-moves.json, one hop), the
-  docs MCP removed (/mcp 301/308 to https://mcp.despia.com/mcp), the DSX build wired (site/dsx-compile.mjs).
+  docs MCP removed (/mcp 301/308 to https://mcp.despia.com/beta/mcp), the DSX build wired (site/dsx-compile.mjs).
 - Next: full-build timing and the build profile, layout audit at every width, owner review of the DSX shots.

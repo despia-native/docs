@@ -6,7 +6,7 @@
 //    · the docs handlers (search, page fetch, sections) the site's own pages and the console's docs
 //      panel call; the retrieval core is worker/search.ts (hybrid, cached, lexical fast path).
 //      There is NO MCP server here (owner 2026-10-10): agents use the general Despia MCP at
-//      https://mcp.despia.com/mcp, whose docs tools read this build's docs-index.json export;
+//      https://mcp.despia.com/beta/mcp, whose docs tools read this build's docs-index.json export;
 //      /mcp on this host 301s there (redirects/v2-moves.json).
 //  One site, five spaces (modern, legacy, migrate, troubleshooting, app-review), and the old docs
 //  root keeps its v3 links: a v3 path asked of this host

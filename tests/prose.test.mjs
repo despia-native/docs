@@ -2,7 +2,8 @@
 // on what must never reach a reader, and on tables with no rows.
 //   Never in public docs: proposal or decision references, internal doc file paths in prose, PROPOSED / retired lint
 //   names, constitution articles, lane or coordinator notes.
-// Scope: every public content page except the Legacy (V3) port, which is the V3 docs as they were.
+// Scope: every public content page (content/ and the Despia V4 pages in content-v2/) except the Legacy (V3) port, which is
+// the V3 docs as they were.
 // Allow-list: `.md` is fine inside code and inside a link target (the markdown twins are a feature); "lane" inside a
 // longer word (e.g. "plane") never matches the word boundary.
 import { test } from "node:test";
@@ -14,7 +15,10 @@ import { fileURLToPath } from "node:url";
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const contentDir = join(root, "content");
 const walk = (dir) => readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(join(dir, e.name)) : e.name.endsWith(".md") ? [join(dir, e.name)] : []));
-const pages = walk(contentDir).filter((f) => !relative(contentDir, f).split(sep).join("/").startsWith("legacy/"));
+const pages = [
+  ...walk(contentDir).filter((f) => !relative(contentDir, f).split(sep).join("/").startsWith("legacy/")),
+  ...walk(join(root, "content-v2")),
+];
 
 /** prose only: fenced code, inline code and link targets are not prose */
 const prose = (text) => text.replace(/^---\n[\s\S]*?\n---/, "").replace(/```[\s\S]*?```/g, "").replace(/`[^`\n]*`/g, "")
@@ -36,6 +40,17 @@ test("public pages follow the writing standard", () => {
     const text = prose(readFileSync(f, "utf8"));
     text.split("\n").forEach((line, i) => {
       for (const [re, why] of BANNED) if (re.test(line)) problems.push(`${relative(root, f)}: ${why}: ${line.trim().slice(0, 100)}`);
+    });
+  }
+  assert.deepEqual(problems, []);
+});
+
+// Package-facing prose has no em or en dash anywhere, front matter and code included: a title or description is prose too.
+test("no em or en dash on a public page", () => {
+  const problems = [];
+  for (const f of pages) {
+    readFileSync(f, "utf8").split("\n").forEach((line, i) => {
+      if (/[\u2013\u2014]/.test(line)) problems.push(`${relative(root, f)}:${i + 1}: ${line.trim().slice(0, 100)}`);
     });
   }
   assert.deepEqual(problems, []);

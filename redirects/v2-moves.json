@@ -17,11 +17,17 @@
     "/deploying": "/ship",
     "/deploying#the-store-listing": "/ship#before-you-submit",
     "/native-ui": "/dsx/native-ui",
-    "/mcp": "https://mcp.despia.com/mcp",
+    "/mcp": "https://mcp.despia.com/beta/mcp",
     "/convert/native-features": "/web-apps/native-features",
     "/convert/react": "/web-apps/frameworks",
     "/convert/detect": "/web-apps/outside-despia",
-    "/migrate/guide": "/convert/from-v3"
+    "/migrate/guide": "/convert/from-v3",
+    "/framework/modules": "/packages",
+    "/framework/guides/api/overview": "/ship/api",
+    "/framework/guides/files-and-storage": "/packages/files",
+    "/framework/guides/secure-biometrics": "/packages/identityvault",
+    "/framework/skills/offline-best-practices": "/web-apps/hosted-and-bundled",
+    "/guides/local-https-cdn": "/web-apps/hosted-and-bundled#bundled-the-app-ships-your-build"
   },
   "prefixes": {
     "/agents/skills/": "/dsx/agents/skills"

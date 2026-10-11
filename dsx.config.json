@@ -93,6 +93,30 @@
       }
     },
     {
+      "path": "/dsx/auth",
+      "component": "docs.V2Dsx_Auth",
+      "meta": {
+        "title": "Sign-in",
+        "description": "One auth API for every sign-in provider. Pick the provider in configuration; your pages call dsx.module.auth the same way."
+      }
+    },
+    {
+      "path": "/dsx/payments",
+      "component": "docs.V2Dsx_Payments",
+      "meta": {
+        "title": "Payments",
+        "description": "One payments API for cards, Apple Pay, Google Pay and bank payments. The provider is a setting; your pages call dsx.module.payments."
+      }
+    },
+    {
+      "path": "/dsx/providers",
+      "component": "docs.V2Dsx_Providers",
+      "meta": {
+        "title": "Providers",
+        "description": "Packages like auth, payments, maps and analytics have one API and several providers. You choose the provider in dsx.config.json; your pages never change."
+      }
+    },
+    {
       "path": "/dsx/cli",
       "component": "docs.V2Dsx_Cli",
       "meta": {
@@ -125,6 +149,14 @@
       }
     },
     {
+      "path": "/dsx-css/errors",
+      "component": "docs.V2DsxCss_Errors",
+      "meta": {
+        "title": "CSS error codes",
+        "description": "Every code despia lint reports for a style attribute or a style sheet, what it means and what to write instead."
+      }
+    },
+    {
       "path": "/convert",
       "component": "docs.V2Convert",
       "meta": {
@@ -146,6 +178,14 @@
       "meta": {
         "title": "Moving from Despia V3",
         "description": "Bring a Despia V3 app to Despia V4. The move is free, your V3 calls can keep working, and you replace them one at a time."
+      }
+    },
+    {
+      "path": "/convert/legacy-files",
+      "component": "docs.V2Convert_LegacyFiles",
+      "meta": {
+        "title": "Legacy Files",
+        "description": "Your Despia V3 apps, kept as encrypted archives you can download from the console."
       }
     },
     {
@@ -237,6 +277,14 @@
       }
     },
     {
+      "path": "/ship/licences",
+      "component": "docs.V2Ship_Licences",
+      "meta": {
+        "title": "Plans and licences",
+        "description": "What is free, what a licence adds, and how build credits work."
+      }
+    },
+    {
       "path": "/ship/builds",
       "component": "docs.V2Ship_Builds",
       "meta": {
@@ -250,6 +298,22 @@
       "meta": {
         "title": "Releases",
         "description": "Send a build to TestFlight or a Google Play testing track, invite testers, submit for review and release, from the console or the CLI."
+      }
+    },
+    {
+      "path": "/ship/store-rejections",
+      "component": "docs.V2Ship_StoreRejections",
+      "meta": {
+        "title": "Store rejections",
+        "description": "The App Store and Google Play rejections apps run into most, and the Despia command that fixes each one."
+      }
+    },
+    {
+      "path": "/ship/api",
+      "component": "docs.V2Ship_Api",
+      "meta": {
+        "title": "Despia API",
+        "description": "Automate projects, builds and store releases from CI with api.despia.com and a scoped workspace token."
       }
     },
     {

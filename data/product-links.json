@@ -1,0 +1,708 @@
+{
+ "_": "Docs addresses the framework source emits, read by scripts/check-product-links.mjs --sync.",
+ "framework": "03d72917d0",
+ "links": [
+  {
+   "url": "https://despia.com/docs",
+   "from": [
+    "ClosedSource/DSX/Modules/Mandatory/Foundation/Components/Core/LinkCard.dsx",
+    "ClosedSource/Registry/StackComponents.generated.swift",
+    "ClosedSource/RuntimeAndroid/app/src/generated/kotlin/despia/registry/StackComponents.generated.kt",
+    "OpenSource/Conformance/markdown/lowering.json",
+    "OpenSource/Engine/TypeScript/packages/dom/oracle/components-browser.ts"
+   ]
+  },
+  {
+   "url": "https://despia.com/docs/dsx-css/errors",
+   "from": [
+    "ClosedSource/scripts/lint_dsx_css.rb",
+    "OpenSource/Engine/TypeScript/packages/compiler/src/dsxcss/validate.ts",
+    "OpenSource/Engine/TypeScript/support/public-api-v1.json"
+   ]
+  },
+  {
+   "url": "https://despia.com/docs/dsx/auth#signin",
+   "from": [
+    "ClosedSource/DSX/Modules/Core/Auth/Supabase/dsx.json",
+    "OpenSource/Engine/TypeScript/packages/project/src/package-docs-data.generated.ts"
+   ]
+  },
+  {
+   "url": "https://despia.com/docs/dsx/payments#provider",
+   "from": [
+    "ClosedSource/CapabilityManifest.json",
+    "ClosedSource/Cloud/mcp/src/generated/packages.generated.ts",
+    "ClosedSource/DSX/Modules/Core/Payments/config.json",
+    "ClosedSource/PackageCatalog.json",
+    "OpenSource/Engine/TypeScript/packages/project/src/package-docs-data.generated.ts"
+   ]
+  },
+  {
+   "url": "https://despia.com/docs/dsx/providers#renamed-keys",
+   "from": [
+    "ClosedSource/CapabilityManifest.json",
+    "ClosedSource/DSX/Modules/Core/Growth/config.json",
+    "ClosedSource/DSX/Modules/Core/Maps/config.json",
+    "ClosedSource/DSX/Modules/Core/Telemetry/config.json",
+    "ClosedSource/PackageCatalog.json",
+    "OpenSource/Engine/TypeScript/packages/project/src/package-docs-data.generated.ts",
+    "OpenSource/Services/flags-client/config.json"
+   ]
+  },
+  {
+   "url": "https://docs.despia.com",
+   "from": [
+    "ClosedSource/Cloud/api/scripts/docs-links.json",
+    "ClosedSource/Cloud/api/src/help/content.ts",
+    "ClosedSource/Cloud/api/src/waitlist/routes.ts",
+    "ClosedSource/scripts/check_docs_ai_ready.rb",
+    "ClosedSource/scripts/generate_agent_skills.rb",
+    "ClosedSource/scripts/generate_component_docs.rb",
+    "OpenSource/Engine/TypeScript/packages/create-despia/src/templates.ts",
+    "OpenSource/Engine/TypeScript/packages/project/src/package-docs-view.ts"
+   ]
+  },
+  {
+   "url": "https://docs.despia.com/app-review/apple-4-2-minimum-functionality",
+   "from": [
+    "OpenSource/Templates/templates.json"
+   ]
+  },
+  {
+   "url": "https://docs.despia.com/framework/guides/api/overview",
+   "from": [
+    "ClosedSource/Cloud/api/openapi/base.mjs",
+    "ClosedSource/Cloud/api/openapi/openapi.json"
+   ]
+  },
+  {
+   "url": "https://docs.despia.com/framework/guides/files-and-storage",
+   "from": [
+    "OpenSource/Templates/templates.json"
+   ]
+  },
+  {
+   "url": "https://docs.despia.com/framework/guides/secure-biometrics",
+   "from": [
+    "ClosedSource/DSX/Modules/Core/Legacy/dsx.json",
+    "OpenSource/Engine/TypeScript/packages/project/src/package-docs-data.generated.ts",
+    "OpenSource/Templates/templates.json"
+   ]
+  },
+  {
+   "url": "https://docs.despia.com/framework/modules",
+   "from": [
+    "OpenSource/Templates/templates.json"
+   ]
+  },
+  {
+   "url": "https://docs.despia.com/framework/skills/offline-best-practices",
+   "from": [
+    "OpenSource/Templates/templates.json"
+   ]
+  },
+  {
+   "url": "https://docs.despia.com/guides/local-https-cdn",
+   "from": [
+    "OpenSource/Templates/templates.json"
+   ]
+  },
+  {
+   "url": "https://docs.despia.com/legacy/native-features/haptic-feedback",
+   "from": [
+    "OpenSource/Templates/templates.json"
+   ]
+  },
+  {
+   "url": "https://docs.despia.com/legacy/native-features/onesignal/introduction",
+   "from": [
+    "OpenSource/Templates/templates.json"
+   ]
+  },
+  {
+   "url": "https://docs.despia.com/legacy/payments/revenuecat/introduction",
+   "from": [
+    "OpenSource/Templates/templates.json"
+   ]
+  },
+  {
+   "url": "https://docs.despia.com/legacy/payments/stripe/introduction",
+   "from": [
+    "OpenSource/Templates/templates.json"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com",
+   "from": [
+    "ClosedSource/Cloud/mcp/scripts/build-data.mjs",
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts",
+    "ClosedSource/Website/Components/SitePage.dsx",
+    "ClosedSource/Website/Components/SiteTerms.dsx",
+    "ClosedSource/Websites/despia-com-v3/Components/SitePage.dsx",
+    "ClosedSource/Websites/despia-com-v3/Components/SiteTerms.dsx"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/introduction",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/mcp",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/mcp-server",
+   "from": [
+    "ClosedSource/RuntimeParityTests/VisibilityTests.swift",
+    "ClosedSource/Website/Components/SiteHeader.dsx",
+    "ClosedSource/Websites/despia-com-v3/Components/SiteHeader.dsx"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/mcp/base44",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/mcp/bolt",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/mcp/build-web-view-app",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/mcp/chatgpt",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/mcp/claude",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/mcp/claude-code",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/mcp/codex",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/mcp/cursor",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/mcp/lovable",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/mcp/other-tools",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/mcp/overview",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/mcp/replit",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/mcp/troubleshooting",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/mcp/vscode",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/mcp/windsurf",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/actionsheet",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/add-a-package",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/ageassurance",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/ai-tools",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/apprating",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/appsflyer",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/apptracking",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/biometric",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/bluetooth",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/broadcasts",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/browser",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/camera",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/clerk",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/clipboard",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/concepts",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/contacts",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/device",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/filesharing",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/fileupload",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/fileviewer",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/firebase",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/flashlight",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/frameworks/angular",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/frameworks/astro",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/frameworks/html",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/frameworks/lit",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/frameworks/nextjs",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/frameworks/nuxt",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/frameworks/overview",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/frameworks/preact",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/frameworks/qwik",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/frameworks/react",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/frameworks/react-router",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/frameworks/solid",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/frameworks/svelte",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/frameworks/sveltekit",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/frameworks/tanstack",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/frameworks/vue",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/haptic",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/health",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/identityvault",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/legacy-map",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/migrate-from-v3",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/motion",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/nearby",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/nfc",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/notify",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/oauth",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/onesignal",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/overview",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/payments",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/posthog",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/preventdefault",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/print",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/pulltorefresh",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/push-notifications",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/pushwoosh",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/quickactions",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/revenuecat",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/scanner",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/settings",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/share",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/speechrecognition",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/speechsynthesis",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/spinner",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/storage",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/store",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/store-listing",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/systembars",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/terra",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/uuid",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/wallet",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/packages/websocket",
+   "from": [
+    "ClosedSource/Cloud/mcp/src/generated/docs.generated.ts"
+   ]
+  },
+  {
+   "url": "https://setup.despia.com/store-rejections/introduction",
+   "from": [
+    "ClosedSource/Cloud/api/scripts/docs-links.json",
+    "ClosedSource/Cloud/api/src/observe/catalog.ts",
+    "ClosedSource/Cloud/api/src/projects/diagnosis/index.ts"
+   ]
+  },
+  {
+   "url": "https://www.despia.com/docs",
+   "from": [
+    "OpenSource/Conformance/components/linkcard.json"
+   ]
+  }
+ ]
+}

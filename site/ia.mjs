@@ -24,12 +24,18 @@ export const SECTIONS = [
         ["/dsx/navigation", "Navigation", "Routes, tabs, stacks, sheets and deep links."],
         ["/dsx/packages", "Native features", "Add a package and call dsx.module from any page."],
         ["/dsx/platforms", "iOS, Android and web", "What each platform renders and how one document adapts to it."],
+        ["/dsx/auth", "Sign-in", "One auth API for every sign-in provider: password, code, passkey and accounts."],
+        ["/dsx/payments", "Payments", "Take card, wallet and bank payments with one API."],
+        ["/dsx/providers", "Providers", "Choose the vendor behind auth, payments, maps and analytics in configuration."],
       ] },
       { title: "Tools", pages: [
         ["/dsx/cli", "The despia CLI", "Create, run, lint, build and ship from the terminal."],
         ["/dsx/console", "The console", "Projects, builds, store connections and your team."],
         ["/dsx/agents", "Use your AI agent", "Connect mcp.despia.com or the local MCP server, and install the skills."],
         ["/dsx/agents/skills", "Agent skills", "The skills that teach a coding agent to write DSX."],
+      ] },
+      { title: "Reference", pages: [
+        ["/dsx-css/errors", "CSS error codes", "Every code despia lint reports for CSS, and what to write instead."],
       ] },
     ],
   },
@@ -42,6 +48,7 @@ export const SECTIONS = [
       ] },
       { title: "Moving over", pages: [
         ["/convert/from-v3", "Moving from Despia V3", "Your V3 calls keep working. Move each one when you are ready."],
+        ["/convert/legacy-files", "Legacy Files", "Download your Despia V3 apps as encrypted archives."],
       ] },
     ],
   },
@@ -79,11 +86,16 @@ export const SECTIONS = [
         ["/ship", "Shipping overview", "From a project to the App Store and Google Play."],
         ["/ship/app-store-connect", "App Store Connect key", "Create the API key Despia uses to sign and upload iOS builds."],
         ["/ship/google-play", "Play service account", "Create the service account Despia uses to upload Android builds."],
+        ["/ship/licences", "Plans and licences", "What is free, what a licence adds, and how build credits work."],
       ] },
       { title: "Builds and releases", pages: [
         ["/ship/builds", "Builds", "Start a build, follow it, and download what it made."],
         ["/ship/releases", "Releases", "TestFlight, internal testing and store review."],
         ["/app-review", "App Review", "The App Store and Google Play rules apps run into, and how to pass them."],
+        ["/ship/store-rejections", "Store rejections", "Each rejection the stores send most, and the command that fixes it."],
+      ] },
+      { title: "Automate", pages: [
+        ["/ship/api", "Despia API", "Builds and store releases from CI, with a scoped workspace token."],
       ] },
     ],
   },

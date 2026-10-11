@@ -472,7 +472,7 @@
  "/deploying.md": "/ship.md",
  "/native-ui": "/dsx/native-ui",
  "/native-ui.md": "/dsx/native-ui.md",
- "/mcp": "https://mcp.despia.com/mcp",
+ "/mcp": "https://mcp.despia.com/beta/mcp",
  "/convert/native-features": "/web-apps/native-features",
  "/convert/native-features.md": "/web-apps/native-features.md",
  "/convert/react": "/web-apps/frameworks",
@@ -480,5 +480,17 @@
  "/convert/detect": "/web-apps/outside-despia",
  "/convert/detect.md": "/web-apps/outside-despia.md",
  "/migrate/guide": "/convert/from-v3",
- "/migrate/guide.md": "/convert/from-v3.md"
+ "/migrate/guide.md": "/convert/from-v3.md",
+ "/framework/modules": "/packages",
+ "/framework/modules.md": "/packages.md",
+ "/framework/guides/api/overview": "/ship/api",
+ "/framework/guides/api/overview.md": "/ship/api.md",
+ "/framework/guides/files-and-storage": "/packages/files",
+ "/framework/guides/files-and-storage.md": "/packages/files.md",
+ "/framework/guides/secure-biometrics": "/packages/identityvault",
+ "/framework/guides/secure-biometrics.md": "/packages/identityvault.md",
+ "/framework/skills/offline-best-practices": "/web-apps/hosted-and-bundled",
+ "/framework/skills/offline-best-practices.md": "/web-apps/hosted-and-bundled.md",
+ "/guides/local-https-cdn": "/web-apps/hosted-and-bundled#bundled-the-app-ships-your-build",
+ "/guides/local-https-cdn.md": "/web-apps/hosted-and-bundled#bundled-the-app-ships-your-build.md"
 }
