@@ -130,8 +130,7 @@
       "meta": {
         "title": "Convert overview",
         "description": "Convert puts the web app you already have into a native iOS and Android app, and lets it call native features from its own JavaScript. Available today."
-      },
-      "tabRoot": true
+      }
     },
     {
       "path": "/convert/quickstart",
@@ -155,8 +154,7 @@
       "meta": {
         "title": "Your web app in a Despia app",
         "description": "Put the React, Next.js, Vue, Svelte or plain JavaScript app you already have inside an iOS and Android app, then call your first native feature from its own code."
-      },
-      "tabRoot": true
+      }
     },
     {
       "path": "/web-apps/native-features",
@@ -220,8 +218,7 @@
       "meta": {
         "title": "Shipping overview",
         "description": "From a project to the App Store and Google Play: connect your store accounts once, build on Despia Cloud, test, submit and release."
-      },
-      "tabRoot": true
+      }
     },
     {
       "path": "/ship/app-store-connect",
@@ -261,6 +258,16 @@
       "meta": {
         "title": "Despia docs",
         "description": "Build real native apps for iOS, Android and the web from one document, or convert the web app you already have. AI agents can read, change and check the whole app."
+      },
+      "tabRoot": true
+    },
+    {
+      "path": "/guides",
+      "component": "docs.V2Guides",
+      "meta": {
+        "title": "Guides",
+        "description": "Convert a web app, run one inside Despia, and ship to the App Store and Google Play.",
+        "navigationTitle": "Guides"
       },
       "tabRoot": true
     },
