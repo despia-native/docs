@@ -8,8 +8,9 @@
 //  sections; the tab bar on a phone), its page header (NavBar large with a description), its notices (Callout), its
 //  cards (ItemCard in adaptive grids), its package explorer (searchbar, scopeBar, a ListGroup header per category),
 //  its product page (ProductHeader, ListGroups), its search (CommandPalette, cmd+K) and its long form (<markdown>, the
-//  way the console's Help reads an article). Nothing here restyles a stock component; Components/DocsShell.css only
-//  sets the reading width of an article.
+//  way the console's Help reads an article). Nothing here restyles a stock component; Components/DocsShell.css holds
+//  the reading column (its measure, its type and spacing scales, set through the framework's own tokens and knobs) and
+//  the page outline.
 //
 //    node site/dsx-compile.mjs            # writes Components/v2/*.dsx and merges the routes into dsx.config.json
 //    node site/dsx-compile.mjs --only a,b # only these routes (fast iteration builds); the rest of the config untouched
@@ -192,7 +193,7 @@ function shell() {
     </variable>
     <variable as="tocRows" computed="true">
       const rows = JSON.parse(String(dsx.attribute.toc || '[]'))
-      return rows.map(r => ({ id: r.id, title: r.title, href: dsx.attribute.route + '#' + r.id }))
+      return rows.map(r => ({ id: r.id, title: r.title, level: r.level || 2, href: '#' + r.id }))
     </variable>
     <variable as="groups" computed="true">return dsx.variable.nav.groups.filter(g => g.section == dsx.attribute.area)</variable>
     <variable as="areaPath" computed="true">
@@ -239,14 +240,26 @@ function shell() {
     <slot/>
   </scroll>
 
-  <!-- On this page: the scaffold's own inspector column on a wide window, a ListGroup of the page's sections -->
+  <!-- ON THIS PAGE: the scaffold's inspector column on a wide window (a phone has the page menu's "On this page" rows).
+       A navigation landmark over the page's ## and ### headings, plain links on a hairline track. Each link is an
+       in-page link (href="#id"), so the runtime moves the page to its section and marks the link of the section being
+       read aria-current="location"; DocsShell.css draws that as the accent ink and the track's accent segment. -->
   <scroll pane="inspector">
-    <ListGroup header="On this page" visible-if="dsx.variable.tocRows.length &gt;= 2">
-      <SettingsRow repeat="dsx.variable.tocRows" key="id" title="{{ dsx.this.title }}" lines="2" tappable="true" on:tap="dsx.module.route.push({ path: dsx.this.href })"/>
-    </ListGroup>
-    <ListGroup header="This page" visible-if="dsx.attribute.md != ''">
-      <SettingsRow icon="sparkles" title="Use with your agent" chevron="true" tappable="true" on:tap="dsx.module.route.push({ path: '/dsx/agents' })"/>
-    </ListGroup>
+    <vstack class="doc-outline" role="navigation" aria-label="On this page" visible-if="dsx.variable.tocRows.length &gt;= 2">
+      <text class="doc-outline-title" type="footnote" value="On this page" aria-hidden="true"/>
+      <vstack class="doc-outline-list" role="list">
+        <hstack repeat="dsx.variable.tocRows" key="id" class="doc-outline-item" class:doc-outline-sub="dsx.this.level == 3" role="listitem">
+          <stack class="doc-outline-mark" aria-hidden="true"/>
+          <pressable class="doc-outline-link" href="{{ dsx.this.href }}">
+            <text type="callout" value="{{ dsx.this.title }}"/>
+          </pressable>
+        </hstack>
+      </vstack>
+    </vstack>
+    <pressable class="doc-outline-aside" href="/dsx/agents" visible-if="dsx.attribute.md != ''">
+      <image icon="sparkles" a11yHidden="true"/>
+      <text type="callout" value="Use with your agent"/>
+    </pressable>
   </scroll>
 
   <CommandPalette present="dsx.global.docsSearch" commands="dsx.variable.nav.palette" label="Search the docs"/>
@@ -255,13 +268,18 @@ function shell() {
 }
 
 // ── a page ──────────────────────────────────────────────────────────────────────────────────────────
-function pageMenu(md) {
+function pageMenu(md, toc = []) {
   const ask = encodeURIComponent(`Read ${SITE}${md} so I can ask questions about it.`);
-  return `[{ header: true, title: 'This page' }, { title: 'View as Markdown', icon: 'doc.plaintext', href: '${md}' }, { separator: true }, { header: true, title: 'Ask about it in' }, { title: 'Claude', icon: 'sparkles', href: 'https://claude.ai/new?q=${ask}' }, { title: 'ChatGPT', icon: 'bubble.left', href: 'https://chatgpt.com/?q=${ask}' }]`;
+  const quote = (t) => t.replace(/\\/g, "\\\\").replace(/'/g, "\\'");
+  const outline = toc.filter((t) => t.level === 2);
+  const rows = outline.length >= 2
+    ? `{ header: true, title: 'On this page' }, ${outline.map((t) => `{ title: '${attr(quote(t.title))}', href: '#${t.id}' }`).join(", ")}, { separator: true }, `
+    : "";
+  return `[${rows}{ header: true, title: 'This page' }, { title: 'View as Markdown', icon: 'doc.plaintext', href: '${md}' }, { separator: true }, { header: true, title: 'Ask about it in' }, { title: 'Claude', icon: 'sparkles', href: 'https://claude.ai/new?q=${ask}' }, { title: 'ChatGPT', icon: 'bubble.left', href: 'https://chatgpt.com/?q=${ask}' }]`;
 }
-const navBar = ({ title, description, md, large = true, copy = false }) => `  <NavBar title="${attr(title)}"${large ? ` large="true" description="${attr(description)}"` : ""}>
+const navBar = ({ title, description, md, large = true, copy = false, toc = [] }) => `  <NavBar title="${attr(title)}"${large ? ` large="true" description="${attr(description)}"` : ""}>
     <button slot="trailing" icon="magnifyingglass" a11yLabel="Search the docs" shortcut="cmd+k" on:tap="dsx.action.search()"/>
-${copy ? `    <CopyButton slot="trailing" value="{{ dsx.variable.pageText }}" label="Copy page"/>\n` : ""}    <menu slot="trailing" menu="{{ ${pageMenu(md)} }}">
+${copy ? `    <CopyButton slot="trailing" value="{{ dsx.variable.pageText }}" label="Copy page"/>\n` : ""}    <menu slot="trailing" menu="{{ ${pageMenu(md, toc)} }}">
       <button icon="ellipsis.circle" a11yLabel="Page options"/>
     </menu>
   </NavBar>`;
@@ -280,7 +298,7 @@ function page({ route, area, title, description, md, body, head = "", noticeFor 
   <head>
 ${noticeFor ? `    <variable as="notify">return false</variable>\n` : ""}${head}${sections.length ? pageTextVar(title, sections) : ""}    <action as="search">dsx.global.docsSearch = true</action>
   </head>
-${navBar({ title, description, md, large, copy: sections.length > 0 })}
+${navBar({ title, description, md, large, copy: sections.length > 0, toc })}
 ${noticeFor ? notice(...noticeFor) + "\n" : ""}${body}
 </DocsShell>
 `;
@@ -291,34 +309,198 @@ const article = (name) => `  <vstack class="doc-article">
   </vstack>`;
 const mdVar = (name, md) => `    <variable as="${name}">return ${jsLiteral(md)}</variable>\n`;
 
-// a long page split at its ## headings: each section is its own <markdown> in a stack carrying the heading's id, so
-// "On this page" links to it (#id) and the browser's own find and anchors work
+// a long page split at its ## and ### headings: each is its own <markdown> in a stack carrying the heading's id (a ###
+// stack inside its ## stack), so "On this page" links to it (#id), the outline knows which one is being read, and the
+// browser's own find and anchors work
 function sectioned(md) {
-  const lines = md.split("\n");
-  const parts = [{ id: "", title: "", lines: [] }];
+  const parts = [{ id: "", title: "", level: 0, lines: [] }];
   let fence = null;
-  for (const line of lines) {
-    const f = /^(\s*)(```+|::::+)/.exec(line);
+  for (const line of md.split("\n")) {
     if (fence === null && /^```/.test(line.trim())) fence = line.trim().match(/^`+/)[0];
     else if (fence !== null && line.trim().startsWith(fence)) fence = null;
-    const h = fence === null ? /^##\s+(.+?)\s*$/.exec(line) : null;
-    if (h && !line.startsWith("###")) parts.push({ id: slugify(h[1]), title: h[1].replace(/`/g, ""), lines: [line] });
+    const h = fence === null ? /^(#{2,3})\s+(.+?)\s*$/.exec(line) : null;
+    if (h) parts.push({ id: slugify(h[2]), title: h[2].replace(/`/g, ""), level: h[1].length, lines: [line] });
     else parts[parts.length - 1].lines.push(line);
   }
   const used = new Set();
   for (const p of parts) { let id = p.id, n = 2; while (id && used.has(id)) id = `${p.id}-${n++}`; p.id = id; used.add(id); }
+  // a ### before any ## has no section to sit in: it reads as a section of its own
+  let inSection = false;
+  for (const p of parts) { if (p.level === 2) inSection = true; else if (p.level === 3 && !inSection) p.level = 2; }
   const live = parts.filter((p) => p.lines.join("").trim() !== "");
+  const md_ = (i) => `<markdown bind="dsx.variable.md${i}" copyCode="true" externalLinks="true"/>`;
+  const out = [];
+  let open = false;
+  live.forEach((p, i) => {
+    if (p.level === 2) {
+      if (open) out.push(`    </vstack>`);
+      out.push(`    <vstack id="${p.id}" class="doc-section">`, `      ${md_(i)}`);
+      open = true;
+    } else if (p.level === 3) {
+      out.push(`      <vstack id="${p.id}" class="doc-subsection">`, `        ${md_(i)}`, `      </vstack>`);
+    } else out.push(`    ${md_(i)}`);
+  });
+  if (open) out.push(`    </vstack>`);
   return {
     head: live.map((p, i) => mdVar(`md${i}`, p.lines.join("\n"))).join(""),
-    body: `  <vstack class="doc-article">\n` + live.map((p, i) => p.id
-      ? `    <vstack id="${p.id}" class="doc-section">\n      <markdown bind="dsx.variable.md${i}" copyCode="true" externalLinks="true"/>\n    </vstack>`
-      : `    <markdown bind="dsx.variable.md${i}" copyCode="true" externalLinks="true"/>`).join("\n") + `\n  </vstack>`,
-    toc: live.filter((p) => p.id).map((p) => ({ id: p.id, title: p.title })),
+    body: `  <vstack class="doc-article">\n${out.join("\n")}\n  </vstack>`,
+    toc: live.filter((p) => p.id).map((p) => ({ id: p.id, title: p.title, level: p.level })),
     sections: live.map((_, i) => `md${i}`),
   };
 }
 
 const DSX_NOTICE = ["dsx", "Research preview", "DSX is available for research purposes. The production and commercial release is coming soon.", "Register interest"];
+
+// THE DOCS STYLESHEET (Components/DocsShell.css). Every value is a token below or a framework token or knob.
+const DOCS_CSS = `/*
+  DocsShell: the reading column of a docs page and its outline. Everything else on a docs page is the console's own
+  components, unstyled. Every length below is a step of the two scales or a framework token, never a one-off number.
+  GENERATED by site/dsx-compile.mjs: edit the generator.
+*/
+
+/* THE SCALES. Spacing is a 4px grid. The type scale keeps the framework's reading face and body (--dsx-type-reading-*)
+   and widens the heading steps a long page needs (h2 1.5x the body, h3 1.1875x), all through the framework's own type
+   tokens on the heading itself. The measure keeps prose at 60 to 80 characters per line. */
+body:has([data-dsx-owner~="DocsShell"]) {
+  --doc-space-1: 0.25rem;
+  --doc-space-2: 0.5rem;
+  --doc-space-3: 0.75rem;
+  --doc-space-4: 1rem;
+  --doc-space-5: 1.5rem;
+  --doc-space-6: 2rem;
+  --doc-space-7: 3rem;
+  --doc-measure: 36rem;
+  --doc-column: 46rem;
+  --doc-h2-size: 1.5rem;
+  --doc-h2-leading: 1.3333;
+  --doc-h3-size: 1.1875rem;
+  --doc-h3-leading: 1.3684;
+  --dsx-page-header-padding-end: var(--doc-space-4);
+  --dsx-markdown-list-gap: var(--doc-space-2);
+}
+
+/* THE COLUMN. Code, tables and cards take the whole column (they line up with the page's cards and list groups);
+   running text stops at the measure (36rem of the reading face: 72 to 78 characters a line). A <markdown> block is not on the page's content inset yet (the framework's prose
+   layout), so the article stands on the inset the console's cards and list groups use. */
+.doc-article {
+  align-items: stretch;
+  max-width: var(--doc-column);
+  margin-inline: var(--dsx-grid-inset-inline, 20px);
+  gap: 0;
+}
+.doc-article .dsx-markdown > :is(.dsx-text, .dsx-markdown-list) { max-width: var(--doc-measure); }
+/* a compact window's cards, notices and headers stand on the list inset: the article lines up with them */
+@media (max-width: 47.99rem) {
+  .doc-article { margin-inline: var(--dsx-list-inset-inline, 16px); }
+}
+
+/* THE RHYTHM. Blocks sit one --doc-space-4 apart. A ## section opens --doc-space-7 below what came before and a ###
+   subsection --doc-space-6 below it, so a heading always has more room above it than below it (--doc-space-3).
+   Code, tables, callouts and a run of cards take --doc-space-2 more on each side. A section that is reached by a link
+   lands --doc-space-5 under the bar. */
+.doc-article .dsx-markdown { gap: var(--doc-space-4); }
+.doc-section { gap: 0; margin-block-start: var(--doc-space-7); scroll-margin-top: var(--doc-space-5); }
+.doc-article > .doc-section:first-child { margin-block-start: 0; }
+.doc-subsection { gap: 0; margin-block-start: var(--doc-space-6); scroll-margin-top: var(--doc-space-5); }
+.doc-article .dsx-markdown > [role="heading"] { margin-block-end: calc(var(--doc-space-3) - var(--doc-space-4)); }
+.doc-article .dsx-markdown > [role="heading"]:not(:first-child) { margin-block-start: var(--doc-space-2); }
+.doc-article .dsx-markdown > [role="heading"][aria-level="2"] {
+  --dsx-type-title2-size: var(--doc-h2-size);
+  --dsx-type-title2-leading: var(--doc-h2-leading);
+}
+.doc-article .dsx-markdown > [role="heading"][aria-level="3"] {
+  --dsx-type-title3-size: var(--doc-h3-size);
+  --dsx-type-title3-leading: var(--doc-h3-leading);
+}
+.doc-article .dsx-markdown > :is(.dsx-codeblock, .dsx-markdown-table, .dsx-callout, .dsx-image) { margin-block: var(--doc-space-2); }
+.doc-article .dsx-markdown > :not(.dsx-link-card) + .dsx-link-card { margin-block-start: var(--doc-space-2); }
+.doc-article .dsx-markdown > :first-child { margin-block-start: 0; }
+.doc-article .dsx-markdown > :last-child { margin-block-end: 0; }
+
+/* THE PAGE HEADER LINE: a product page's header (icon, title, tagline) closes with the same divider, padding and
+   spacing as every other page header (the NavBar's page header knobs, --dsx-page-header-*), the line on the platters'
+   edges, and the content starts --dsx-page-header-spacing under the divider. */
+.dsx-product-header {
+  margin-inline: var(--dsx-list-inset-inline, 16px);
+  padding-inline: 0;
+  padding-block-end: var(--dsx-page-header-padding-end, 1rem);
+  margin-block-end: var(--dsx-page-header-spacing, 1.5rem);
+  border-bottom: var(--dsx-page-header-divider, var(--dsx-hairline, 1px) solid var(--dsx-separator));
+}
+/* The section grid under a product header (About, At a Glance) is not a System list group directly under a page header,
+   so it keeps the list's whole leading section space. The divider is the section break: the grid keeps only what is
+   left of the header gap once the section header's own top padding is counted. */
+.dsx-product-header + .dsx-grid[data-dsx-adaptive] {
+  padding-block-start: calc(var(--dsx-list-header-gap, 17.5px) - var(--dsx-list-header-pad-top, 10.33px));
+}
+.doc-spaced { margin-block: var(--dsx-page-header-spacing, 1.5rem); }
+
+/* THE CONSOLE'S OWN PAGE RHYTHM (despia-native/platform Components/HelpSheet.css): a notice in the page's flow keeps the
+   page's spacing token from what follows it; a list group brings its own section spacing. */
+.page-notice:not(:has(+ .dsx-list-group)) { margin-block-end: var(--dsx-page-header-spacing, 1.5rem); }
+
+/* CODE COLOURS: the CodeBlock's public knobs (--dsx-codeblock-*) set to the Despia editor themes
+   (OpenSource/CodeEditor/src/theme.js, despia-light / despia-dark), so a .dsx sample reads as markup, CSS and
+   JavaScript in one block. The tokens are the kernel's own highlight(); only the palette is the docs'. */
+.dsx-codeblock, .dsx-codeblock-sheet {
+  --dsx-codeblock-keyword: light-dark(#6d28d9, #a78bfa);
+  --dsx-codeblock-tag: light-dark(#6d28d9, #a78bfa);
+  --dsx-codeblock-string: light-dark(#047857, #34d399);
+  --dsx-codeblock-regex: light-dark(#047857, #34d399);
+  --dsx-codeblock-number: light-dark(#1d4ed8, #60a5fa);
+  --dsx-codeblock-call: light-dark(#1d4ed8, #60a5fa);
+  --dsx-codeblock-attribute: light-dark(#1d4ed8, #60a5fa);
+  --dsx-codeblock-type: light-dark(#1d4ed8, #60a5fa);
+  --dsx-codeblock-literal: light-dark(#4c1d95, #c4b5fd);
+  --dsx-codeblock-meta: light-dark(#4c1d95, #c4b5fd);
+  --dsx-codeblock-comment: light-dark(#737373, #8a8a8a);
+}
+
+/* ON THIS PAGE. Plain links on a hairline track down the outline's leading edge, no card. The link of the section
+   being read (aria-current="location", set by the runtime) takes the accent ink, and its piece of the track turns
+   accent: the outgoing piece drains toward the incoming one and the incoming one fills from the side it came from, so
+   the indicator reads as one line sliding as the page scrolls. ### rows sit one step in. */
+.doc-outline { gap: var(--doc-space-3); padding: var(--doc-space-6) var(--doc-space-5) var(--doc-space-5) var(--doc-space-2); }
+.doc-outline-title { color: var(--dsx-label); --dsx-type-footnote-weight: 600; }
+.doc-outline-list { gap: 0; border-left: var(--dsx-hairline, 1px) solid var(--dsx-separator); }
+.doc-outline-item { align-items: stretch; gap: 0; }
+.doc-outline-mark {
+  width: 2px;
+  margin-left: -1.5px;
+  background: var(--dsx-accent);
+  transform: scaleY(0);
+  transform-origin: top;
+  transition: transform var(--dsx-dur-base, 200ms) var(--dsx-ease, ease);
+}
+.doc-outline-item:has(~ .doc-outline-item > .doc-outline-link[aria-current="location"]) > .doc-outline-mark { transform-origin: bottom; }
+.doc-outline-item:has(> .doc-outline-link[aria-current="location"]) > .doc-outline-mark { transform: scaleY(1); }
+.doc-outline-link {
+  flex: 1;
+  padding: var(--doc-space-1) 0 var(--doc-space-1) var(--doc-space-3);
+  color: var(--dsx-secondary-label);
+  text-decoration: none;
+  transition: color var(--dsx-dur-fast, 150ms) var(--dsx-ease, ease);
+}
+.doc-outline-sub > .doc-outline-link { padding-left: var(--doc-space-6); }
+.doc-outline-link[aria-current="location"] { color: var(--dsx-accent); }
+.doc-outline-aside {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--doc-space-2);
+  margin: 0 var(--doc-space-5) 0 var(--doc-space-2);
+  padding: var(--doc-space-4) 0 0 var(--doc-space-3);
+  border-top: var(--dsx-hairline, 1px) solid var(--dsx-separator);
+  color: var(--dsx-secondary-label);
+  text-decoration: none;
+}
+@media (hover: hover) {
+  .doc-outline-link:hover, .doc-outline-aside:hover { color: var(--dsx-label); }
+  .doc-outline-link[aria-current="location"]:hover { color: var(--dsx-accent); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .doc-outline-mark, .doc-outline-link { transition: none; }
+}
+`;
 
 // ── write ───────────────────────────────────────────────────────────────────────────────────────────
 rmSync(OUT, { recursive: true, force: true });
@@ -510,59 +692,7 @@ writeFileSync(cfgPath, JSON.stringify(cfg, null, 2) + "\n");
   for (const r of routes) rows.push(`  <url><loc>${SITE + (r.path === "/" ? "" : r.path)}</loc><lastmod>${lastCommit.get(sourceOf(r.path)) ?? now}</lastmod></url>`);
   writeFileSync(sitemapFile, [`<?xml version="1.0" encoding="UTF-8"?>`, `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`, ...rows, `</urlset>`, ""].join("\n"));
 }
-writeFileSync(join(repo, "Components", "DocsShell.css"), `/*
-  DocsShell: the one rule the console has no screen for: a long-form article keeps a reading width. Everything else on a
-  docs page is the console's own components, unstyled.
-*/
-.doc-article { align-items: stretch; max-width: 46rem; }
-
-/* THE PAGE HEADER LINE: a product page's header (icon, title, tagline) closes with the same divider, padding and
-   spacing as every other page header (the NavBar's page header knobs, --dsx-page-header-*), the line on the platters'
-   edges. Every docs page header, this one and the NavBar's, keeps 1rem between its last line and the divider at every
-   width, and the content starts --dsx-page-header-spacing under the divider. */
-body:has([data-dsx-owner~="DocsShell"]) { --dsx-page-header-padding-end: 1rem; }
-.dsx-product-header {
-  margin-inline: var(--dsx-list-inset-inline, 16px);
-  padding-inline: 0;
-  padding-block-end: var(--dsx-page-header-padding-end, 1rem);
-  margin-block-end: var(--dsx-page-header-spacing, 1.5rem);
-  border-bottom: var(--dsx-page-header-divider, var(--dsx-hairline, 1px) solid var(--dsx-separator));
-}
-/* The section grid under a product header (About, At a Glance) is not a System list group directly under a page header,
-   so it keeps the list's whole leading section space. The divider is the section break: the grid keeps only what is
-   left of the header gap once the section header's own top padding is counted, so the first section title's text sits
-   --dsx-page-header-spacing under the divider, as the first line of a DSX or Convert page does. */
-.dsx-product-header + .dsx-grid[data-dsx-adaptive] {
-  padding-block-start: calc(var(--dsx-list-header-gap, 17.5px) - var(--dsx-list-header-pad-top, 10.33px));
-}
-.doc-spaced { margin-block: var(--dsx-page-header-spacing, 1.5rem); }
-
-/* THE CONSOLE'S OWN PAGE RHYTHM (despia-native/platform Components/HelpSheet.css, owner 2026-10-10): a notice in the
-   page's flow keeps the page's spacing token from what follows it; a list group brings its own section spacing. */
-.page-notice:not(:has(+ .dsx-list-group)) { margin-block-end: var(--dsx-page-header-spacing, 1.5rem); }
-
-/* CODE COLOURS: the CodeBlock's public knobs (--dsx-codeblock-*, guides/markdown.md "Code blocks") set to the Despia
-   editor themes (OpenSource/CodeEditor/src/theme.js, despia-light / despia-dark), so a .dsx sample reads as markup, CSS
-   and JavaScript in one block. The tokens are the kernel's own highlight(); only the palette is the docs'. */
-.dsx-codeblock, .dsx-codeblock-sheet {
-  --dsx-codeblock-keyword: light-dark(#6d28d9, #a78bfa);
-  --dsx-codeblock-tag: light-dark(#6d28d9, #a78bfa);
-  --dsx-codeblock-string: light-dark(#047857, #34d399);
-  --dsx-codeblock-regex: light-dark(#047857, #34d399);
-  --dsx-codeblock-number: light-dark(#1d4ed8, #60a5fa);
-  --dsx-codeblock-call: light-dark(#1d4ed8, #60a5fa);
-  --dsx-codeblock-attribute: light-dark(#1d4ed8, #60a5fa);
-  --dsx-codeblock-type: light-dark(#1d4ed8, #60a5fa);
-  --dsx-codeblock-literal: light-dark(#4c1d95, #c4b5fd);
-  --dsx-codeblock-meta: light-dark(#4c1d95, #c4b5fd);
-  --dsx-codeblock-comment: light-dark(#737373, #8a8a8a);
-}
-
-/* WORKAROUND, delete when the framework's prose layout lands (wip/claude/dsx-web-desktop-polish: "the missing prose /
-   long-form layout rules"): a <markdown> block is not on the page's content inset yet, so the article takes the inset
-   the console's cards and list groups stand on. */
-.doc-article { margin-inline: var(--dsx-grid-inset-inline, 20px); }
-`);
+writeFileSync(join(repo, "Components", "DocsShell.css"), DOCS_CSS);
 // ── the renderer-independent outputs, from the same sources (site/build.mjs writes them; this copies them into public/,
 //    which the build folds into dist): docs-index.json (the export the general Despia MCP reads), llms.txt, and the
 //    Markdown twin of every v2 page at <route>.md and /md/<route>.md (the worker's page fetch reads the latter).

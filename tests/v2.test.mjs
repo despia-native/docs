@@ -74,7 +74,7 @@ test("sidebar labels fit the sidebar, area titles fit the phone tab bar", () => 
 test("the docs CSS is the generated DocsShell.css plus the legacy shell's, and holds only its allowed rules", () => {
   const css = readFileSync(join(root, "Components", "DocsShell.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
   const selectors = [...css.matchAll(/([^{}]+)\{/g)].map((m) => m[1].trim());
-  const ALLOWED = /^(\.doc-article|\.doc-spaced|\.page-notice:not\(:has\(\+ \.dsx-list-group\)\)|\.dsx-codeblock, \.dsx-codeblock-sheet|\.doc-article > \.dsx-markdown|\.doc-article \.dsx-markdown|\.doc-section|body:has\(\[data-dsx-owner~="DocsShell"\]\)|\.dsx-product-header|@media \(min-width: 48rem\)|\}\s*\.dsx-product-header)/;
+  const ALLOWED = /^(\.doc-[a-z-]+|\.doc-article \.dsx-markdown|\.doc-article > \.doc-section|\.doc-outline-[a-z-]+|\.page-notice:not\(:has\(\+ \.dsx-list-group\)\)|\.dsx-codeblock, \.dsx-codeblock-sheet|body:has\(\[data-dsx-owner~="DocsShell"\]\)|\.dsx-product-header|@media \((hover: hover|prefers-reduced-motion: reduce|max-width: 47\.99rem)\))/;
   for (const s of selectors) assert.match(s, ALLOWED, `DocsShell.css: unexpected rule ${s}`);
   assert.ok(!/\b(font-size|font-weight|letter-spacing|text-transform|font-family)\s*:/.test(css), "type styling in DocsShell.css");
 });
