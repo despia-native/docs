@@ -518,7 +518,9 @@ writeFileSync(join(repo, "Components", "DocsShell.css"), `/*
 
 /* THE PAGE HEADER LINE: a product page's header (icon, title, tagline) closes with the same divider, padding and
    spacing as every other page header (the NavBar's page header knobs, --dsx-page-header-*), the line on the platters'
-   edges. */
+   edges. Every docs page header, this one and the NavBar's, keeps 1rem between its last line and the divider at every
+   width, and the content starts --dsx-page-header-spacing under the divider. */
+body:has([data-dsx-owner~="DocsShell"]) { --dsx-page-header-padding-end: 1rem; }
 .dsx-product-header {
   margin-inline: var(--dsx-list-inset-inline, 16px);
   padding-inline: 0;
@@ -526,8 +528,12 @@ writeFileSync(join(repo, "Components", "DocsShell.css"), `/*
   margin-block-end: var(--dsx-page-header-spacing, 1.5rem);
   border-bottom: var(--dsx-page-header-divider, var(--dsx-hairline, 1px) solid var(--dsx-separator));
 }
-@media (min-width: 48rem) {
-  .dsx-product-header { padding-block-end: var(--dsx-page-header-padding-end, 1.25rem); }
+/* The section grid under a product header (About, At a Glance) is not a System list group directly under a page header,
+   so it keeps the list's whole leading section space. The divider is the section break: the grid keeps only what is
+   left of the header gap once the section header's own top padding is counted, so the first section title's text sits
+   --dsx-page-header-spacing under the divider, as the first line of a DSX or Convert page does. */
+.dsx-product-header + .dsx-grid[data-dsx-adaptive] {
+  padding-block-start: calc(var(--dsx-list-header-gap, 17.5px) - var(--dsx-list-header-pad-top, 10.33px));
 }
 .doc-spaced { margin-block: var(--dsx-page-header-spacing, 1.5rem); }
 
