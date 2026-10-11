@@ -156,8 +156,11 @@ const navData = {
     ? GROUP_ORDER.map((g) => ({ id: `packages-${g}`, section: "packages", title: g,
       rows: pkgs.filter((p) => p.published && groupOf(p) === g).sort((a, b) => titleOf(a).localeCompare(titleOf(b)))
         .map((p) => ({ id: p.url, title: titleOf(p), icon: GROUP_ICON(g), path: p.url })) })).filter((g) => g.rows.length)
+    // an area's root page is already its own row (Docs or Guides), so a group never repeats it: one destination, one
+    // row, one selection
     : s.groups.map((g) => ({ id: `${s.id}-${g.title}`, section: s.id, title: g.title,
-      rows: g.pages.map(([route, title]) => ({ id: route, title, icon: PAGE_ICON[route] ?? "doc.text", path: route })) }))),
+      rows: g.pages.filter(([route]) => route !== s.href).map(([route, title]) => ({ id: route, title, icon: PAGE_ICON[route] ?? "doc.text", path: route })) }))
+      .filter((g) => g.rows.length > 0)),
   palette: allPages().map((p) => ({ id: p.route, title: p.title, subtitle: p.description, icon: PAGE_ICON[p.route] ?? "doc.text",
     group: SECTIONS.find((s) => s.id === p.section).label, keywords: [p.group], path: p.route }))
     .concat(pkgs.map((p) => ({ id: p.url, title: titleOf(p), subtitle: p.summary, icon: "shippingbox", group: "Packages", keywords: [p.command], path: p.url }))),
@@ -417,6 +420,12 @@ body:has([data-dsx-owner~="DocsShell"]) {
   --dsx-type-title3-leading: var(--doc-h3-leading);
 }
 .doc-article .dsx-markdown > :is(.dsx-codeblock, .dsx-markdown-table, .dsx-callout, .dsx-image) { margin-block: var(--doc-space-2); }
+/* Code and tables scroll sideways on a narrow window; the edge that continues fades over --doc-space-7 (the
+   framework's horizontal-scroll mask, widened), so a cut line reads as "more this way". */
+.doc-article :is(.dsx-codeblock-body, .dsx-markdown-table) {
+  --dsx-rail-lead: min(var(--doc-space-7), var(--scroll-x-px, 0px));
+  --dsx-rail-trail: min(var(--doc-space-7), var(--scroll-remaining-x-px, 0px));
+}
 /* two such blocks in a row are one --doc-space-5 apart, not two margins and a gap */
 .doc-article .dsx-markdown > :is(.dsx-codeblock, .dsx-markdown-table, .dsx-callout, .dsx-image) + :is(.dsx-codeblock, .dsx-markdown-table, .dsx-callout, .dsx-image) { margin-block-start: 0; }
 .doc-article .dsx-markdown > :not(.dsx-link-card) + .dsx-link-card { margin-block-start: var(--doc-space-2); }
