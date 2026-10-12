@@ -441,6 +441,7 @@ body:has([data-dsx-owner~="DocsShell"]) {
   --dsx-type-title3-leading: var(--doc-h3-leading);
 }
 .doc-article .dsx-markdown > :is(.dsx-codeblock, .dsx-markdown-table, .dsx-callout, .dsx-image) { margin-block: var(--doc-space-2); }
+.doc-article > .doc-cards { margin-block: calc(var(--doc-space-4) + var(--doc-space-2)); }
 /* Code and tables scroll sideways on a narrow window; the edge that continues fades over --doc-space-7 (the
    framework's horizontal-scroll mask, widened), so a cut line reads as "more this way". */
 .doc-article :is(.dsx-codeblock-body, .dsx-markdown-table) {
