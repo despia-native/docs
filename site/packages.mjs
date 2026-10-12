@@ -145,13 +145,17 @@ function setupMarkdown(p) {
   const l = linksOf(p);
   const where = l.console ? `[${p.title}'s page in the console](${l.console})` : "the package's page in the console (Packages)";
   // a package's server half (Modules/Backend, Modules/Http) runs on the backend, not in the app: no build sentence for it
-  const md = ["## Set it up", "", SERVER_HALF.test(p.path) ? `${p.title} runs on the backend, beside the app. Add it on ${where}.`
+  const md = ["## Add it to your app", "", SERVER_HALF.test(p.path) ? `${p.title} runs on the backend, beside the app. Add it on ${where}.`
     : `Adding ${p.title} changes the native app, so it needs a new app build. Add it on ${where}, then build.`, ""];
   const config = p.config ?? [];
   if (!config.length) return [...md, "There is nothing to set: once it is added and the app is built, your pages can call it.", ""];
-  md.push(`The settings, also on ${where}. A secret is typed into a secure field there and is never shown again.`, "",
-    "| Setting | What it does | Value | Takes effect |", "| :-- | :-- | :-- | :-- |");
-  for (const c of config) md.push(`| ${cell(c.label ?? c.key)} | ${cell(c.description)} | ${cell(kindOf(c))} | ${UPDATES[c.updates] ?? UPDATES.build} |`);
+  // when every setting changes at the same moment, the sentence says it once and the table stays narrow enough for a phone
+  const when = (c) => UPDATES[c.updates] ?? UPDATES.build;
+  const same = config.every((c) => when(c) === when(config[0]));
+  const sameLine = { [UPDATES.build]: " Every setting takes effect with your next app build.", [UPDATES.store]: " Every setting reaches people with your next store release.", [UPDATES.instant]: " Every setting takes effect right away, no new build needed." };
+  md.push(`The settings, also on ${where}. A secret is typed into a secure field there and is never shown again.${same ? sameLine[when(config[0])] : ""}`, "",
+    same ? "| Setting | What it does | Value |" : "| Setting | What it does | Value | Takes effect |", same ? "| :-- | :-- | :-- |" : "| :-- | :-- | :-- | :-- |");
+  for (const c of config) md.push(`| ${cell(c.label ?? c.key)} | ${cell(c.description)} | ${cell(kindOf(c))} |${same ? "" : ` ${when(c)} |`}`);
   return [...md, ""];
 }
 
