@@ -34,6 +34,15 @@ Despia MCP reads.
 | No page teaches the retired style attribute dialect | framework `check_docs_dialect_free.rb` with `DSX_DOCS_DIALECT_SELFTEST=1 DSX_DOCS_DIALECT_ROOT=<docs>/content-v2` |
 | The whole suite | `node --test tests/*.test.mjs` |
 
+## Before go-live: one framework fix
+
+The framework's server bootloaders (Workers and Node) strip a `/dsx` mount prefix from every request path
+(`OpenSource/Engine/TypeScript/packages/server/src/bootloader-deno.ts` `MOUNT_PREFIXES`, applied in
+`bootloader-workers.ts` and `bootloader-node.ts`). Served through the docs Worker, `/dsx` answers the home page and every
+`/dsx/...` page answers 404, although `dist/dsx/**` holds them. The static build is correct; the strip has to stop taking
+paths the site's own route table serves. Until that lands in the framework the docs must not go live: the whole DSX
+section, and the `despia.com/docs/dsx/...` addresses the product emits, would be broken.
+
 ## Go-live steps (owner)
 
 1. Deploy the docs Worker and route it:
@@ -51,7 +60,9 @@ Despia MCP reads.
      `ClosedSource/Cloud/api/openapi/base.mjs` externalDocs to `https://despia.com/docs/ship/api`, the store rejection
      diagnoses to `https://despia.com/docs/ship/store-rejections`, and `OpenSource/Templates/templates.json` links.
 5. Verify: `node scripts/check-product-links.mjs --sync` against the framework at the deployed commit, then open
-   https://despia.com/docs, https://docs.despia.com/packages/haptic and https://setup.despia.com/introduction.
+   https://despia.com/docs, https://despia.com/docs/dsx/data (the page "Data and state", HTTP 200),
+   https://despia.com/docs/no-such-page (HTTP 404), https://docs.despia.com/packages/haptic and
+   https://setup.despia.com/introduction.
 
 ## Rollback
 
