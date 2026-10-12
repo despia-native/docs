@@ -79,6 +79,9 @@ errors, text cut by an ellipsis, a focus ring at rest, an alert above the page h
 ## Known framework items (not docs changes)
 
 - The `/dsx` mount strip above: it blocks go-live.
+- On the web, following the reading position re-ran itself on every frame (a forced layout per frame on every page with
+  section links; the longest V3 pages froze for minutes). Fixed on framework branch `wip/claude/reading-position-loop`;
+  it should land before go-live.
 - A large page title on a page with a parent sits 20px in from its own description (top bar lead).
 - Sidebar rows fade in over a few seconds after load.
 - A Markdown tab bar cuts its labels on a phone (the V3 local server reference).
