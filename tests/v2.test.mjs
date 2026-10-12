@@ -95,3 +95,9 @@ test("the package explorer lists the console's catalog: one row per capability o
   assert.match(src, new RegExp(`placeholder="Search ${catalog.length} packages"`));
   assert.ok(catalog.length >= 100, `${catalog.length} catalog packages`);
 });
+
+test("an address no route matches opens the docs' own not-found page, which is no route", () => {
+  assert.equal(config.notFound, "docs.V2NotFound");
+  assert.ok(existsSync(join(root, "Components", "v2", "V2NotFound.dsx")));
+  assert.ok(!config.routes.some((r) => r.component === config.notFound), "the not-found page is not a route");
+});
