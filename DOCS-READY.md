@@ -71,4 +71,16 @@ Nordcraft site and the V3 docs answer again as before; set `DOCS_SITE_LIVE = fal
 
 ## Screenshots
 
-2x shots, desktop 1440x900 and phone 390x844, light and dark: see the lane report for their folder.
+Every page (486) at 2x, desktop 1440x900 and phone 390x844, light and dark: 1,944 shots, one folder per form and scheme,
+file name = the page address with `/` as `_` (`home.png` is `/`). `report.json` beside them lists, per page, page
+errors, text cut by an ellipsis, a focus ring at rest, an alert above the page header and a missing title.
+`visual-test.txt` is `tests/visual.test.mjs` against the same build (scheme, contrast, rhythm, broken words).
+
+## Known framework items (not docs changes)
+
+- The `/dsx` mount strip above: it blocks go-live.
+- A large page title on a page with a parent sits 20px in from its own description (top bar lead).
+- Sidebar rows fade in over a few seconds after load.
+- A Markdown tab bar cuts its labels on a phone (the V3 local server reference).
+- `despia lint` reports the `notFound` component as unreached, and a build's `jse_budget_exhausted` refusal names no
+  component.
