@@ -17,6 +17,7 @@ public/migrate/
 public/troubleshooting/
 public/troubleshooting.json
 public/canonical.json
+public/jsonld.json
 public/sitemap.xml
 public/migrate-map.json
 public/**/*.md

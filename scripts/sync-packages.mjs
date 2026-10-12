@@ -48,6 +48,34 @@ try {
   // package a customer adds.
   const capabilities = JSON.parse(git("show", `${commit}:OpenSource/Documentation/reference/capabilities.json`));
   const catalogPaths = new Set(capabilities.options.map((o) => o.primary ?? o.footprint?.modules?.[0] ?? o.id));
+  // The console's package page (/explore/<id>) for each package: the first capability option whose primary package it is, the
+  // same reading as the API's PACKAGE_LISTING_IDS (ClosedSource/Cloud/api/scripts/build-package-catalog.mjs).
+  const listingIds = {};
+  for (const o of capabilities.options ?? []) {
+    const p = o.primary ?? o.footprint?.modules?.[0] ?? null;
+    if (typeof p === "string" && typeof o.id === "string" && !(p in listingIds)) listingIds[p] = o.id;
+  }
+  // A setting's secret rule and update class, read the way project-core reads config.json (package.ts fieldsOfConfig): a
+  // `secret` type or flag, a credential-like key name (project-core's own NAME_RULE, read from its source) unless the reviewed
+  // overrides say otherwise; a secret, or a key that declares no class, changes only with a new build.
+  const ruleSrc = /export const NAME_RULE = \/(.+)\/([a-z]*);/.exec(git("show", `${commit}:OpenSource/Engine/TypeScript/packages/project-core/src/package.ts`));
+  if (ruleSrc === null) throw new Error("project-core NAME_RULE not found: the secret rule moved");
+  const NAME_RULE = new RegExp(ruleSrc[1], ruleSrc[2]);
+  const { _note: _overridesNote, ...secretOverrides } = JSON.parse(git("show", `${commit}:ClosedSource/Cloud/api/scripts/secret-overrides.json`));
+  const configOf = (path) => {
+    // a package without settings has no config.json: that is an empty schema, not an error worth a line
+    try { return JSON.parse(execFileSync("git", ["-C", repo, "show", `${commit}:ClosedSource/DSX/Modules/${path}/config.json`], { encoding: "utf8", maxBuffer: 16 << 20, stdio: ["ignore", "pipe", "ignore"] })); } catch { return {}; }
+  };
+  const settingOf = (path, raw, c) => {
+    const spec = raw[c.key] !== null && typeof raw[c.key] === "object" ? raw[c.key] : {};
+    const type = typeof spec.type === "string" ? spec.type : c.type;
+    const override = secretOverrides[`${path}:${c.key}`];
+    let secret = type === "secret" || spec.secret === true || (NAME_RULE.test(c.key) && override !== false);
+    if (override !== undefined) secret = override;
+    const updates = secret || spec.updates === undefined ? "build" : spec.updates;
+    return { key: c.key, label: c.label, description: c.description, type: c.type, secret, updates,
+      ...(Array.isArray(spec.options) ? { options: spec.options.map((o) => (o !== null && typeof o === "object" ? o.value ?? o.label : o)) } : {}) };
+  };
   const packages = [];
   for (const src of PACKAGE_SOURCES) {
     const command = typeof src.manifest.command === "string" && src.manifest.command !== "" ? src.manifest.command : null;
@@ -102,7 +130,8 @@ try {
       }),
       events: d.events.map((e) => ({ name: e.name, description: e.description, payload: e.payload.map(keepParam) })),
       errors: d.errors.map((e) => ({ code: e.code, message: e.message, description: e.description, whatToDo: e.whatToDo })),
-      config: d.config.filter((c) => c.editable).map((c) => ({ key: c.key, label: c.label, description: c.description, type: c.type })),
+      listingId: listingIds[src.path] ?? null,
+      config: ((raw) => d.config.filter((c) => c.editable).map((c) => settingOf(src.path, raw, c)))(configOf(src.path)),
       permissions: d.permissions,
     });
   }
@@ -117,7 +146,7 @@ try {
     const icon = listing.icon ?? {};
     packages.push({
       command: typeof raw.command === "string" && raw.command !== "" ? raw.command : null,
-      slug, url: `/packages/${slug}`, listed: true, catalog: true,
+      slug, url: `/packages/${slug}`, listed: true, catalog: true, listingId: listingIds[path] ?? null,
       icon: { symbol: icon.symbol ?? null, tint: icon.tint ?? null, brand: icon.brand ?? null },
       path, title: listing.title ?? option?.title ?? raw.name, summary: listing.summary ?? "", description: listing.description ?? raw.description ?? "",
       category: listing.category ?? null, maturity: typeof raw.maturity === "string" ? raw.maturity : "unrated", published: raw.published === true,

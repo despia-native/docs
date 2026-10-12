@@ -45,6 +45,10 @@ for (const name of readdirSync(pub)) {
 // same deployable-tree pass as docs.js.
 const canonicalFile = join(pub, "canonical.json");
 const canonical = existsSync(canonicalFile) ? JSON.parse(readFileSync(canonicalFile, "utf8")) : {};
+// structured data per page (public/jsonld.json, written by site/dsx-compile.mjs for the package pages): one
+// <script type="application/ld+json"> in the head, its "<" escaped so the JSON can never close the element
+const jsonLdFile = join(pub, "jsonld.json");
+const jsonLd = existsSync(jsonLdFile) ? JSON.parse(readFileSync(jsonLdFile, "utf8")) : {};
 // A strict Content-Security-Policy per page (PLAN-O O3): every inline <script> the SSR wrote is
 // allowed by its own sha256, nothing else inline runs; scripts from this origin and the Support
 // widget origin only; no plugins, no base or form hijack. frame-src admits the v3 pages' YouTube
@@ -86,6 +90,9 @@ const injectDocsScript = (dir) => {
       const md = key === "/" ? "/index.md" : `${key}.md`;
       html = html.replace("</head>", `<link rel="canonical" href="${canonical[key]}">\n<link rel="alternate" type="text/markdown" href="${md}">\n</head>`);
       stamped += 1;
+    }
+    if (jsonLd[key] !== undefined && !html.includes('type="application/ld+json"') && html.includes("</head>")) {
+      html = html.replace("</head>", `<script type="application/ld+json">${JSON.stringify(jsonLd[key]).replace(/</g, "\\u003c")}</script>\n</head>`);
     }
     if (!html.includes("/docs.js") && html.includes("</body>")) {
       html = html.replace("</body>", `<script defer src="/docs.js"></script>\n</body>`);

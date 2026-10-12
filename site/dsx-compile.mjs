@@ -683,7 +683,8 @@ if (want("/packages")) {
 }
 
 // one page per package: the console's product page arrangement (ProductHeader, About | At a Glance, then the reference)
-const { packageMarkdownFor } = await import("./packages.mjs");
+const { packageMarkdownFor, needsBuild, linksOf: packageLinksOf } = await import("./packages.mjs");
+const jsonLd = {};
 for (const p of allPkgs) {
   if (!want(p.url) && !(ONLY && ONLY.has("/packages/*"))) continue;
   const glance = [
@@ -691,6 +692,8 @@ for (const p of allPkgs) {
     { id: "platforms", icon: "iphone", title: "Platforms", value: (p.targets ?? []).map((t) => ({ ios: "iOS", android: "Android", web: "Web", macos: "macOS" })[t] ?? t).join(", ") },
     ...(p.command ? [{ id: "call", icon: "curlybraces", title: "Call", value: `dsx.module.${p.command}` }] : []),
     { id: "group", icon: GROUP_ICON(groupOf(p)), title: "Category", value: groupOf(p) },
+    { id: "build", icon: "hammer", title: "New app build", value: needsBuild(p) },
+    { id: "setup", icon: "slider.horizontal.3", title: "Setup", value: p.config?.length ? `${p.config.length} setting${p.config.length === 1 ? "" : "s"}` : "Nothing to set" },
   ];
   const md = packageMarkdownFor(p);
   const sec = sectioned(toDsxMarkdown(p.description && md.startsWith(p.description) ? md.slice(p.description.length).trimStart() : md));
@@ -705,6 +708,14 @@ for (const p of allPkgs) {
     </ListGroup>
   </grid>
 ${sec.body}`;
+  // structured data for search engines: the page is a TechArticle about the package's code (SoftwareSourceCode), stamped into
+  // the page head by scripts/assemble.mjs from public/jsonld.json (the same seam as the canonical link)
+  jsonLd[p.url] = { "@context": "https://schema.org", "@type": "TechArticle", headline: `${titleOf(p)}: Despia package`, name: titleOf(p), description: p.summary,
+    url: packageLinksOf(p).page, inLanguage: "en", articleSection: groupOf(p),
+    isPartOf: { "@type": "WebSite", name: "Despia docs", url: SITE },
+    publisher: { "@type": "Organization", name: "Despia", url: SITE_CFG.origin },
+    about: { "@type": "SoftwareSourceCode", name: `dsx.module.${p.command ?? p.slug}`, programmingLanguage: "JavaScript", codeSampleType: "code snippet",
+      runtimePlatform: (p.targets ?? []).map((t) => ({ ios: "iOS", android: "Android", web: "Web", macos: "macOS" })[t] ?? t) } };
   emit(p.url, page({ route: p.url, area: "packages", title: titleOf(p), description: p.summary, md: `${p.url}.md`, head, body, large: false, toc: sec.toc, sections: sec.sections,
     noticeFor: p.published ? null : [p.slug, "Coming soon", "This package is not available yet. Leave your email and we will tell you when it is.", "Get notified"] }), { title: titleOf(p), description: p.summary });
 }
@@ -743,6 +754,11 @@ writeFileSync(cfgPath, JSON.stringify(cfg, null, 2) + "\n");
   const canonical = existsSync(canonicalFile) ? JSON.parse(readFileSync(canonicalFile, "utf8")) : {};
   for (const r of routes) canonical[r.path] = SITE + (r.path === "/" ? "" : r.path);
   writeFileSync(canonicalFile, JSON.stringify(canonical) + "\n");
+  // each package page's structured data, dated by its source's last commit
+  const ldFile = join(repo, "public", "jsonld.json");
+  const ld = existsSync(ldFile) ? JSON.parse(readFileSync(ldFile, "utf8")) : {};
+  for (const [route, doc] of Object.entries(jsonLd)) ld[route] = { ...doc, dateModified: lastCommit.get(sourceOf(route)) ?? now };
+  writeFileSync(ldFile, JSON.stringify(ld) + "\n");
   const sitemapFile = join(repo, "public", "sitemap.xml");
   const prior = existsSync(sitemapFile) ? readFileSync(sitemapFile, "utf8") : "";
   const rows = (prior.match(/  <url>.*<\/url>/g) ?? []).filter((row) => !routes.some((r) => row.includes(`<loc>${SITE + (r.path === "/" ? "" : r.path)}</loc>`)));

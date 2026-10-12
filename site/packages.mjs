@@ -15,6 +15,9 @@ import { icon, hasIcon } from "./icons.mjs";
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const ICONS = JSON.parse(readFileSync(join(repo, "data", "icons.json"), "utf8"));
 const PLATFORM = { ios: "iOS", android: "Android", web: "Web", macos: "macOS" };
+// where the docs, the console and the public API live (data/site.json): every absolute link a package page writes
+const SITE_CFG = JSON.parse(readFileSync(join(repo, "data", "site.json"), "utf8"));
+const SITE = `${SITE_CFG.origin}${SITE_CFG.base}`;
 
 // a sub-package (Core/Store/Modules/RevenueCat) is named with its parent so two "RevenueCat" rows never look alike;
 // the server halves of a package (Modules/Backend, Modules/Http) are not app features: they keep their pages but
@@ -95,15 +98,79 @@ export function leadActionOf(p) {
 
 export function packageMarkdownFor(p) { return packageMarkdown(p); }
 
+// ── the links of a package, all from the catalog: the console's package page (its explorer id, the API's PACKAGE_LISTING_IDS
+//    reading), this site's page and llms.txt, and the public recipe the API serves to anyone. A link the catalog cannot back is
+//    absent, never guessed (the Agent's linksOf, ClosedSource/Cloud/api/src/copilot/features.ts, reads the same facts).
+export function linksOf(p) {
+  return {
+    page: `${SITE}${p.url}`,
+    console: p.listingId ? `${SITE_CFG.console}/explore/${encodeURIComponent(p.listingId)}` : null,
+    llms: p.command ? `${SITE}/modules/${encodeURIComponent(p.command)}/llms.txt` : null,
+    recipe: p.command ? `${SITE_CFG.api}/v1/package-docs/${encodeURIComponent(p.command)}?format=markdown` : null,
+  };
+}
+
+// adding a native package always changes the native layer (project-core release.ts: every package change needs a native
+// build), the line the Agent's feature card says too
+export const needsBuild = (p) => (SERVER_HALF.test(p.path) ? "Not needed" : "Needed to add it");
+const UPDATES = { build: "Next app build", store: "Next store release", instant: "Right away" };
+const KIND = { boolean: "On or off", number: "Number", color: "Colour", url: "Web address", multiline: "Text", list: "List", json: "JSON", string: "Text" };
+const kindOf = (c) => c.secret ? "Secret" : c.options?.length ? `One of: ${c.options.map((o) => `\`${o}\``).join(", ")}` : KIND[c.type] ?? "Text";
+const cell = (s) => String(s ?? "").replace(/\|/g, "\\|").replace(/\n+/g, " ");
+const platformWords = (p) => {
+  const words = (p.targets ?? []).map((t) => ({ ios: "iPhone", android: "Android" })[t]).filter(Boolean);
+  return words.length ? words.join(" and ") : "iPhone and Android";
+};
+
+// the prompt for the reader's own AI tool, in the shape of the Agent's prompt card (features.ts featurePrompt) with the facts a
+// page knows: no app name, no chosen settings. The call line uses the docs' one form, `await dsx.module.<package>.<action>()`.
+export function promptFor(p, lead = leadActionOf(p)) {
+  const l = linksOf(p);
+  return [
+    `In my app, add the code that uses Despia's ${p.title} feature (${p.path}). Despia already added the native part; my app only needs to call it from its own code.`,
+    "",
+    `What it does: ${p.summary}`,
+    `Platforms: ${platformWords(p)}.`,
+    "",
+    "Read these first and follow them exactly (they are the source of truth for the API):",
+    ...(l.recipe ? [`- Recipe (the full package documentation): ${l.recipe}`] : []),
+    ...(l.llms ? [`- Docs: ${l.llms}`] : []),
+    ...(l.console ? [`- Package page in the Despia console: ${l.console}`] : []),
+    "",
+    `Call it with await dsx.module.${p.command}.${lead?.name ?? "<action>"}(...) as the docs show. Handle the case where the app runs in a normal browser and the feature is not available. Do not add any other SDK for this feature.`,
+  ].join("\n");
+}
+
+function setupMarkdown(p) {
+  const l = linksOf(p);
+  const where = l.console ? `[${p.title}'s page in the console](${l.console})` : "the package's page in the console (Packages)";
+  // a package's server half (Modules/Backend, Modules/Http) runs on the backend, not in the app: no build sentence for it
+  const md = ["## Set it up", "", SERVER_HALF.test(p.path) ? `${p.title} runs on the backend, beside the app. Add it on ${where}.`
+    : `Adding ${p.title} changes the native app, so it needs a new app build. Add it on ${where}, then build.`, ""];
+  const config = p.config ?? [];
+  if (!config.length) return [...md, "There is nothing to set: once it is added and the app is built, your pages can call it.", ""];
+  md.push(`The settings, also on ${where}. A secret is typed into a secure field there and is never shown again.`, "",
+    "| Setting | What it does | Value | Takes effect |", "| :-- | :-- | :-- | :-- |");
+  for (const c of config) md.push(`| ${cell(c.label ?? c.key)} | ${cell(c.description)} | ${cell(kindOf(c))} | ${UPDATES[c.updates] ?? UPDATES.build} |`);
+  return [...md, ""];
+}
+
 function packageMarkdown(p) {
   const actions = (p.actions ?? []).filter((a) => a.reach === null || (Array.isArray(a.reach) && a.reach.length));
   const lead = leadActionOf(p);
+  const links = linksOf(p);
   const md = [];
   if (p.description) md.push(p.description, "");
+  md.push(...setupMarkdown(p));
   if (lead) {
     const s = samples(p, lead);
-    md.push("## Use it", "", "One call, the same in a DSX app (inside an action) and in any web app inside Despia.", "",
+    md.push("## Use it in your app", "", "One call, the same in a DSX app (inside an action) and in any web app inside Despia.", "",
       "```js", s.js, "```", "");
+    if (links.recipe) md.push(`Every action, parameter, result and error is in the [public recipe](${links.recipe}), Markdown for people and AI tools.`, "");
+  }
+  if (p.published && p.command) {
+    md.push("## Copy prompt for your AI tool", "", "Paste this into Claude Code, Cursor, Lovable or any AI tool that writes your app's code. It points the tool at the real API, so it does not guess.", "",
+      "```text", promptFor(p, lead), "```", "");
   }
   if (p.whenToUse || p.nativeValue) {
     md.push("## When to use it", "");
