@@ -1,6 +1,6 @@
 {
  "_": "Docs addresses the framework source emits, read by scripts/check-product-links.mjs --sync.",
- "framework": "855eb2a103",
+ "framework": "70b5f167bb",
  "links": [
   {
    "url": "https://despia.com/docs",
