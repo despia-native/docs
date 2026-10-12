@@ -415,6 +415,8 @@ body:has([data-dsx-owner~="DocsShell"]) {
   gap: 0;
 }
 .doc-article .dsx-markdown > :is(.dsx-text, .dsx-markdown-list) { max-width: var(--doc-measure); }
+/* the article already stands on the grid inset, so the framework's page-prose inset is not added again to a <markdown> in it */
+.doc-article > .dsx-markdown { --dsx-grid-inset-inline: 0px; }
 /* a compact window's cards, notices and headers stand on the list inset: the article lines up with them */
 @media (max-width: 47.99rem) {
   .doc-article { margin-inline: var(--dsx-list-inset-inline, 16px); }
