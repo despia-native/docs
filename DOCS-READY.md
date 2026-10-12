@@ -1,0 +1,63 @@
+# Despia docs: ready, not published
+
+The Despia V4 docs are complete and previewable. Nothing is deployed: no Worker route, no DNS, nothing on despia.com,
+docs.despia.com or setup.despia.com. The site serves under https://despia.com/docs once the owner switches it on.
+
+## Pages
+
+Built from `site/ia.mjs` and `content-v2/` (V4 pages) plus the kept spaces (`content/`, ported V3 docs).
+
+| Area | Pages |
+| :-- | :-- |
+| Home, Guides | `/`, `/guides` |
+| DSX | `/dsx`, quickstart, project, documents, data, styling, attributes, native-ui, navigation, packages, platforms, auth, payments, providers, cli, console, agents, agents/skills, `/dsx-css/errors` |
+| Convert | `/convert`, quickstart, from-v3, legacy-files |
+| Web apps | `/web-apps`, native-features, frameworks, typescript, outside-despia, hosted-and-bundled, preview, packages |
+| Packages | `/packages` (the console's catalog) and one page per package |
+| Build and ship | `/ship`, app-store-connect, google-play, licences, builds, releases, store-rejections, api, `/app-review` and its guideline pages |
+| Kept spaces | `/legacy/**` (V3), `/migrate`, `/troubleshooting`, `/releases` |
+| Not found | any other address: the docs' Page not found page, served with HTTP 404 (`dsx.config.json` `notFound`) |
+
+Every page has a Markdown twin (`<page>.md`), `llms.txt` lists them, and `docs-index.json` is the export the general
+Despia MCP reads.
+
+## Checks
+
+| Check | Command |
+| :-- | :-- |
+| Full DSX build, lint of every page | `npm run build` |
+| Samples call real packages, real attributes, awaited | `node site/check-samples.mjs --cli <framework cli>` |
+| Writing standard, no em or en dash, no empty table | `node --test tests/prose.test.mjs` |
+| Every docs address the product emits lands on a page | `node scripts/check-product-links.mjs` (re-read from the framework with `--sync`) |
+| Every V3 page redirects in one 301 | `node scripts/redirects.mjs && node scripts/setup-parity.mjs` |
+| The catalog matches the framework's manifests | `DESPIA_FRAMEWORK=<framework> node scripts/sync-packages.mjs --check` |
+| No page teaches the retired style attribute dialect | framework `check_docs_dialect_free.rb` with `DSX_DOCS_DIALECT_SELFTEST=1 DSX_DOCS_DIALECT_ROOT=<docs>/content-v2` |
+| The whole suite | `node --test tests/*.test.mjs` |
+
+## Go-live steps (owner)
+
+1. Deploy the docs Worker and route it:
+   ```sh
+   npm run build && npx wrangler deploy
+   ```
+   Then add the routes `despia.com/docs*` and `docs.despia.com/*` to the `despia-docs` Worker in the Cloudflare dashboard.
+2. Redirect setup.despia.com: deploy `redirects/setup-worker` (`cd redirects/setup-worker && npx wrangler deploy`, route
+   `setup.despia.com/*`), or import `redirects/setup.despia.com.csv` as a Bulk Redirect list.
+3. Add `Sitemap: https://despia.com/docs/sitemap.xml` to https://despia.com/robots.txt.
+4. In the framework, switch the product to the live site:
+   - `ClosedSource/Cloud/mcp/src/links.ts`: `DOCS_SITE_LIVE = true`, and the MCP docs bundle's site to `https://despia.com/docs`.
+   - `ClosedSource/Cloud/api/scripts/docs-links.json`: mark the despia.com/docs addresses `live`.
+   - Point the remaining old addresses at the new site (they redirect correctly already, this removes the hop):
+     `ClosedSource/Cloud/api/openapi/base.mjs` externalDocs to `https://despia.com/docs/ship/api`, the store rejection
+     diagnoses to `https://despia.com/docs/ship/store-rejections`, and `OpenSource/Templates/templates.json` links.
+5. Verify: `node scripts/check-product-links.mjs --sync` against the framework at the deployed commit, then open
+   https://despia.com/docs, https://docs.despia.com/packages/haptic and https://setup.despia.com/introduction.
+
+## Rollback
+
+Remove the `despia.com/docs*`, `docs.despia.com/*` and `setup.despia.com/*` routes in the Cloudflare dashboard. The
+Nordcraft site and the V3 docs answer again as before; set `DOCS_SITE_LIVE = false` again if it was switched.
+
+## Screenshots
+
+2x shots, desktop 1440x900 and phone 390x844, light and dark: see the lane report for their folder.
