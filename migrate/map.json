@@ -33,12 +33,12 @@
    "status": "mapped",
    "v4": {
     "package": null,
-    "api": "https://docs.despia.com/mcp (tools: search, fetch-page, list-sections; each takes space)",
-    "docs": null
+    "api": "https://mcp.despia.com/beta/mcp (tools: docs_search, docs_get)",
+    "docs": "/dsx/agents"
    },
-   "note": "The docs site runs its own MCP server over streamable HTTP; v4, legacy, migration and troubleshooting docs are one server with a space argument.",
+   "note": "The general Despia MCP server answers the docs: docs_search and docs_get cover the V4, legacy, migration and troubleshooting pages.",
    "evidence": [
-    "worker/index.ts (despia-docs)"
+    "ClosedSource/Cloud/mcp/src/server.ts"
    ]
   },
   {
@@ -2882,7 +2882,7 @@
   {
    "legacyPath": "/extensions/introduction",
    "legacyTitle": "Introduction",
-   "group": "(orphan) Extensions",
+   "group": "Extensions",
    "status": "partial",
    "v4": {
     "package": null,
@@ -2898,7 +2898,7 @@
   {
    "legacyPath": "/authentication/payments/test",
    "legacyTitle": "Test",
-   "group": "(orphan)",
+   "group": "Payments",
    "status": "not-applicable",
    "v4": null,
    "note": "Placeholder test page with no content.",
@@ -2907,7 +2907,7 @@
   {
    "legacyPath": "/refernce",
    "legacyTitle": "Reference",
-   "group": "(orphan) Local CDN",
+   "group": "Local CDN",
    "status": "partial",
    "v4": {
     "package": "Core/Legacy/Modules/ContentServer",
