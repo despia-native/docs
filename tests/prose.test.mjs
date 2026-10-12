@@ -48,7 +48,7 @@ test("public pages follow the writing standard", () => {
 // Package-facing prose has no em or en dash anywhere, front matter and code included: a title or description is prose too.
 test("no em or en dash on a public page", () => {
   const problems = [];
-  for (const f of pages) {
+  for (const f of [...pages, ...walk(join(contentDir, "legacy"))]) {
     readFileSync(f, "utf8").split("\n").forEach((line, i) => {
       if (/[\u2013\u2014]/.test(line)) problems.push(`${relative(root, f)}:${i + 1}: ${line.trim().slice(0, 100)}`);
     });

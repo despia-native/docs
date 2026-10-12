@@ -507,6 +507,9 @@ rmSync(out, { recursive: true, force: true });
 mkdirSync(out, { recursive: true });
 
 const orderOf = new Map(navOrder.map((n, i) => [n.path, i]));
+// Published prose carries no em or en dash: a spaced dash reads as a comma, a range (2–5) keeps a hyphen.
+const undash = (text) => text.replace(/\s+[\u2013\u2014]\s+/g, ", ").replace(/[\u2013\u2014]/g, "-");
+
 const problems = [];
 let ported = 0;
 for (const path of correctionOf.keys()) if (!allPaths.includes(path)) problems.push(`legacy/corrections.json: ${path} is not a v3 page`);
@@ -545,7 +548,7 @@ for (const path of allPaths) {
   const h1 = /^#\s/m.test(converted.split("\n").find((l) => l.trim() !== "") ?? "") ? "" : `# ${title}\n\n`;
   const dest = join(out, ...(path.slice(1) + ".md").split("/"));
   mkdirSync(dirname(dest), { recursive: true });
-  writeFileSync(dest, `${fm}${h1}${converted}\n`);
+  writeFileSync(dest, undash(`${fm}${h1}${converted}\n`));
   ported += 1;
 }
 
