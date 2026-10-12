@@ -52,7 +52,7 @@ description: Every native feature your web app can call today, with its lead cal
 
 ## Interface
 
-- [Share sheet](/packages/share#use-it): `await dsx.module.share.url(…)`. Let people share text, links and files from your app through the phone's share sheet.
+- [Share sheet](/packages/share#use-it): `await dsx.module.share.present(…)`. Let people share text, links and files from your app through the phone's share sheet.
 
 ## Health
 

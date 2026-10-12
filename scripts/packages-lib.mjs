@@ -64,8 +64,15 @@ function fieldTable(fields) {
 }
 const jsValue = (v) => JSON.stringify(v, null, 2).replace(/"([A-Za-z_$][A-Za-z0-9_$]*)":/g, "$1:");
 
+/** A required argument the manifest gives no example for is shown as a placeholder of its type, never left out. */
+const PLACEHOLDER = (f) => (/^(number|integer|int)$/.test(f.type) ? 0 : f.type === "boolean" ? true : /^array/.test(f.type) ? [] : f.type === "object" ? {} : `<${f.name}>`);
+const requiredArgs = (action) => {
+  const req = action.params.filter((f) => !f.optional && !f.name.includes("."));
+  return req.length > 0 ? Object.fromEntries(req.map((f) => [f.name, PLACEHOLDER(f)])) : undefined;
+};
+
 /** One call written the way the docs teach it: bare `dsx`, awaited. */
-export function callSample(pkg, action, args) {
+export function callSample(pkg, action, args = requiredArgs(action)) {
   const a = args !== undefined && args !== null && Object.keys(args).length > 0 ? jsValue(args) : "";
   return `${action.result.length > 0 ? "const result = " : ""}await dsx.module.${pkg.command}.${action.name}(${a})`;
 }

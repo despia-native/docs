@@ -16,10 +16,10 @@
    "status": "partial",
    "v4": {
     "package": "Core/Legacy",
-    "api": "despia init --from-v3; window.dsx.module.<command>.<action>()",
+    "api": "despia init --from-v3; await dsx.module.<command>.<action>()",
     "docs": "/convert/from-v3"
    },
-   "note": "v3 despia() calls keep working through the optional Core/Legacy polyfill; new code calls window.dsx.",
+   "note": "v3 despia() calls keep working through the optional Core/Legacy polyfill; new code calls `await dsx.module`.",
    "evidence": [
     "OpenSource/Documentation/guides/from-v3.md:16",
     "ClosedSource/DSX/Modules/Core/Legacy/README.md:3",
@@ -383,14 +383,15 @@
    "status": "mapped",
    "v4": {
     "package": "Core/Clerk",
-    "api": "dsx.module.clerk.configure() / authview() / userprofile() / signout() / token() / status()",
+    "api": "dsx.module.clerk.configure() / authView() / userProfile() / signOut() / token() / status()",
     "docs": null
    },
    "note": "Every clerk:// host has a Legacy row; onClerkEvent and clerkJWT are re-delivered.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:60",
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:174",
-    "ClosedSource/DSX/Modules/Core/Clerk/dsx.json:5"
+    "ClosedSource/DSX/Modules/Core/Clerk/dsx.json:5",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -400,14 +401,15 @@
    "status": "mapped",
    "v4": {
     "package": "Core/Clerk",
-    "api": "dsx.module.clerk.configure() / authview() / userprofile() / signout() / token() / status()",
+    "api": "dsx.module.clerk.configure() / authView() / userProfile() / signOut() / token() / status()",
     "docs": null
    },
    "note": "Every clerk:// host has a Legacy row; onClerkEvent and clerkJWT are re-delivered.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:60",
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:174",
-    "ClosedSource/DSX/Modules/Core/Clerk/dsx.json:5"
+    "ClosedSource/DSX/Modules/Core/Clerk/dsx.json:5",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -417,14 +419,15 @@
    "status": "mapped",
    "v4": {
     "package": "Core/Clerk",
-    "api": "dsx.module.clerk.configure() / authview() / userprofile() / signout() / token() / status()",
+    "api": "dsx.module.clerk.configure() / authView() / userProfile() / signOut() / token() / status()",
     "docs": null
    },
    "note": "Every clerk:// host has a Legacy row; onClerkEvent and clerkJWT are re-delivered.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:60",
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:174",
-    "ClosedSource/DSX/Modules/Core/Clerk/dsx.json:5"
+    "ClosedSource/DSX/Modules/Core/Clerk/dsx.json:5",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -434,14 +437,15 @@
    "status": "mapped",
    "v4": {
     "package": "Core/Clerk",
-    "api": "dsx.module.clerk.configure() / authview() / userprofile() / signout() / token() / status()",
+    "api": "dsx.module.clerk.configure() / authView() / userProfile() / signOut() / token() / status()",
     "docs": null
    },
    "note": "Every clerk:// host has a Legacy row; onClerkEvent and clerkJWT are re-delivered.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:60",
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:174",
-    "ClosedSource/DSX/Modules/Core/Clerk/dsx.json:5"
+    "ClosedSource/DSX/Modules/Core/Clerk/dsx.json:5",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -467,14 +471,15 @@
    "status": "mapped",
    "v4": {
     "package": "Core/Clerk",
-    "api": "dsx.module.clerk.configure() / authview() / userprofile() / signout() / token() / status()",
+    "api": "dsx.module.clerk.configure() / authView() / userProfile() / signOut() / token() / status()",
     "docs": null
    },
    "note": "Every clerk:// host has a Legacy row; onClerkEvent and clerkJWT are re-delivered.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:60",
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:174",
-    "ClosedSource/DSX/Modules/Core/Clerk/dsx.json:5"
+    "ClosedSource/DSX/Modules/Core/Clerk/dsx.json:5",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -587,14 +592,15 @@
    "status": "mapped",
    "v4": {
     "package": "Core/AppsFlyer",
-    "api": "dsx.module.appsflyer.log_event() / set_user_id() / get_uid() / get_attribution() / set_consent() / log_ad_revenue()",
+    "api": "dsx.module.appsflyer.logEvent() / setUserId() / uid() / attribution() / setConsent() / logAdRevenue()",
     "docs": null
    },
-   "note": "Every appsflyer:// host has a Legacy row with the same verb names; appsFlyerUID/Attribution/Referrer globals kept.",
+   "note": "Every appsflyer:// host has a Legacy row. The V4 actions are camelCase (log_event is logEvent, get_uid is uid). appsFlyerUID/Attribution/Referrer globals kept.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:143",
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:235",
-    "ClosedSource/DSX/Modules/Core/AppsFlyer/dsx.json:6"
+    "ClosedSource/DSX/Modules/Core/AppsFlyer/dsx.json:6",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -604,14 +610,15 @@
    "status": "mapped",
    "v4": {
     "package": "Core/AppsFlyer",
-    "api": "dsx.module.appsflyer.log_event() / set_user_id() / get_uid() / get_attribution() / set_consent() / log_ad_revenue()",
+    "api": "dsx.module.appsflyer.logEvent() / setUserId() / uid() / attribution() / setConsent() / logAdRevenue()",
     "docs": null
    },
-   "note": "Every appsflyer:// host has a Legacy row with the same verb names; appsFlyerUID/Attribution/Referrer globals kept.",
+   "note": "Every appsflyer:// host has a Legacy row. The V4 actions are camelCase (log_event is logEvent, get_uid is uid). appsFlyerUID/Attribution/Referrer globals kept.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:143",
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:235",
-    "ClosedSource/DSX/Modules/Core/AppsFlyer/dsx.json:6"
+    "ClosedSource/DSX/Modules/Core/AppsFlyer/dsx.json:6",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -621,13 +628,14 @@
    "status": "mapped",
    "v4": {
     "package": "Core/AppsFlyer",
-    "api": "dsx.module.appsflyer.set_user_id() / set_email() / set_phone() / get_uid()",
+    "api": "dsx.module.appsflyer.setUserId() / setEmail() / setPhone() / uid()",
     "docs": null
    },
    "note": "Identity hosts map 1:1 onto AppsFlyer actions.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:144",
-    "ClosedSource/DSX/Modules/Core/AppsFlyer/dsx.json:6"
+    "ClosedSource/DSX/Modules/Core/AppsFlyer/dsx.json:6",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -637,13 +645,14 @@
    "status": "mapped",
    "v4": {
     "package": "Core/AppsFlyer",
-    "api": "dsx.module.appsflyer.get_attribution() (window.appsFlyerAttribution)",
+    "api": "dsx.module.appsflyer.attribution() (window.appsFlyerAttribution)",
     "docs": null
    },
-   "note": "get_attribution maps 1:1; attribution/referrer globals seeded by Legacy.",
+   "note": "get_attribution maps to attribution; attribution/referrer globals seeded by Legacy.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:149",
-    "ClosedSource/DSX/Modules/Core/AppsFlyer/dsx.json:6"
+    "ClosedSource/DSX/Modules/Core/AppsFlyer/dsx.json:6",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -669,13 +678,14 @@
    "status": "mapped",
    "v4": {
     "package": "Core/AppsFlyer",
-    "api": "dsx.module.appsflyer.get_attribution()",
+    "api": "dsx.module.appsflyer.attribution()",
     "docs": null
    },
    "note": "Campaign data is read through attribution; campaign setup itself is AppsFlyer dashboard work.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:149",
-    "ClosedSource/DSX/Modules/Core/AppsFlyer/dsx.json:6"
+    "ClosedSource/DSX/Modules/Core/AppsFlyer/dsx.json:6",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -685,13 +695,14 @@
    "status": "mapped",
    "v4": {
     "package": "Core/AppsFlyer",
-    "api": "dsx.module.appsflyer.log_event({ event_name, ... })",
+    "api": "dsx.module.appsflyer.logEvent({ name, values })",
     "docs": null
    },
-   "note": "log_event maps 1:1.",
+   "note": "log_event maps to logEvent.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:143",
-    "ClosedSource/DSX/Modules/Core/AppsFlyer/dsx.json:6"
+    "ClosedSource/DSX/Modules/Core/AppsFlyer/dsx.json:6",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -701,13 +712,14 @@
    "status": "mapped",
    "v4": {
     "package": "Core/AppsFlyer",
-    "api": "dsx.module.appsflyer.log_ad_revenue()",
+    "api": "dsx.module.appsflyer.logAdRevenue()",
     "docs": null
    },
-   "note": "log_ad_revenue maps 1:1.",
+   "note": "log_ad_revenue maps to logAdRevenue.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:148",
-    "ClosedSource/DSX/Modules/Core/AppsFlyer/dsx.json:6"
+    "ClosedSource/DSX/Modules/Core/AppsFlyer/dsx.json:6",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -717,13 +729,14 @@
    "status": "mapped",
    "v4": {
     "package": "Core/AppsFlyer",
-    "api": "dsx.module.appsflyer.set_consent()",
+    "api": "dsx.module.appsflyer.setConsent({ isGdpr, hasConsent })",
     "docs": null
    },
-   "note": "set_consent maps 1:1.",
+   "note": "set_consent maps to setConsent.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:150",
-    "ClosedSource/DSX/Modules/Core/AppsFlyer/dsx.json:6"
+    "ClosedSource/DSX/Modules/Core/AppsFlyer/dsx.json:6",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -883,10 +896,10 @@
    "status": "partial",
    "v4": {
     "package": "Core/Dom",
-    "api": "Dom config useragent_iphone / useragent_ipad / useragent_android; window.dsx.has(name)",
+    "api": "Dom config useragent_iphone / useragent_ipad / useragent_android; dsx.has(name)",
     "docs": "/web-apps/outside-despia"
    },
-   "note": "Custom user agent strings are Dom config; feature detection in v4 is window.dsx.has().",
+   "note": "Custom user agent strings are Dom config; feature detection in v4 is dsx.has().",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Dom/config.json:93",
     "OpenSource/Documentation/guides/despia-api.md:76"
@@ -899,15 +912,16 @@
    "status": "mapped",
    "v4": {
     "package": "Core/OneSignal",
-    "api": "dsx.module.onesignal.login({ user_id }) / onesignal.id(); dsx.module.notify.permission.request()",
+    "api": "dsx.module.onesignal.login({ externalId }) / subscription.get(); dsx.module.notify.permission.request()",
     "docs": null
    },
-   "note": "setonesignalplayerid maps to onesignal.login, registerpush to notify.permission.request; window.onesignalplayerid is still seeded by Legacy.",
+   "note": "setonesignalplayerid maps to onesignal.login, getonesignalplayerid to onesignal.subscription.get, registerpush to notify.permission.request; window.onesignalplayerid is still seeded by Legacy.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:29",
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:30",
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:28",
-    "ClosedSource/DSX/Modules/Core/OneSignal/dsx.json:5"
+    "ClosedSource/DSX/Modules/Core/OneSignal/dsx.json:5",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -917,15 +931,16 @@
    "status": "mapped",
    "v4": {
     "package": "Core/OneSignal",
-    "api": "dsx.module.onesignal.login({ user_id }) / onesignal.id(); dsx.module.notify.permission.request()",
+    "api": "dsx.module.onesignal.login({ externalId }) / subscription.get(); dsx.module.notify.permission.request()",
     "docs": null
    },
-   "note": "setonesignalplayerid maps to onesignal.login, registerpush to notify.permission.request; window.onesignalplayerid is still seeded by Legacy.",
+   "note": "setonesignalplayerid maps to onesignal.login, getonesignalplayerid to onesignal.subscription.get, registerpush to notify.permission.request; window.onesignalplayerid is still seeded by Legacy.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:29",
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:30",
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:28",
-    "ClosedSource/DSX/Modules/Core/OneSignal/dsx.json:5"
+    "ClosedSource/DSX/Modules/Core/OneSignal/dsx.json:5",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -1184,17 +1199,18 @@
    "group": "Native Features",
    "status": "mapped",
    "v4": {
-    "package": "Core/Basics/Location",
-    "api": "dsx.module.location.start() / stop() / current(); background.on() / background.off()",
+    "package": "Core/Legacy/Modules/Location",
+    "api": "dsx.module.legacy.location.start() / stop() / background.on() / background.off(); modern: dsx.module.geo.current() / watch()",
     "docs": null
    },
-   "note": "location://, stoplocation:// and backgroundlocationon/off have Legacy rows; Core/Geo is the full modern geo package.",
+   "note": "location://, stoplocation:// and backgroundlocationon/off are answered by the optional Legacy Location package; Core/Geo is the full modern geo package.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:51",
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:25",
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:49",
     "ClosedSource/DSX/Modules/Core/Basics/Location/dsx.json:5",
-    "ClosedSource/DSX/Modules/Core/Geo/dsx.json:5"
+    "ClosedSource/DSX/Modules/Core/Geo/dsx.json:5",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -1239,13 +1255,14 @@
    "status": "mapped",
    "v4": {
     "package": "Core/AdMob",
-    "api": "dsx.module.admob.interstitial()",
+    "api": "dsx.module.admob.show({ format: 'interstitial' }); v3 route: dsx.module.legacy.interstitial()",
     "docs": null
    },
-   "note": "admob://interstitial maps to admob.interstitial.",
+   "note": "admob://interstitial is answered by Legacy, which calls admob.show.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:142",
-    "ClosedSource/DSX/Modules/Core/AdMob/dsx.json:6"
+    "ClosedSource/DSX/Modules/Core/AdMob/dsx.json:6",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -1255,13 +1272,14 @@
    "status": "partial",
    "v4": {
     "package": "Core/AdMob",
-    "api": "dsx.module.admob.banner()",
+    "api": "<admob.Banner key size> component",
     "docs": null
    },
-   "note": "v3 bridged ad tags into the DOM; v4 AdMob declares a banner action but no Legacy row translates the v3 inline setup.",
+   "note": "v3 bridged ad tags into the DOM; in V4 a banner is the admob.Banner component placed in a screen, with no Legacy route.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/AdMob/dsx.json:251",
-    "ClosedSource/DSX/Modules/Core/AdMob/dsx.json:6"
+    "ClosedSource/DSX/Modules/Core/AdMob/dsx.json:6",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -1271,14 +1289,15 @@
    "status": "mapped",
    "v4": {
     "package": "Core/AdMob",
-    "api": "dsx.module.admob.rewarded() (earned broadcast -> window.updateRewardedStatus)",
+    "api": "dsx.module.admob.show({ format: 'rewarded' }) (earned event -> window.updateRewardedStatus)",
     "docs": null
    },
-   "note": "displayrewardedad:// maps to admob.rewarded; the earned event is re-delivered as updateRewardedStatus.",
+   "note": "displayrewardedad:// is answered by Legacy, which calls admob.show; the earned event is re-delivered as updateRewardedStatus.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:116",
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:164",
-    "ClosedSource/DSX/Modules/Core/AdMob/dsx.json:6"
+    "ClosedSource/DSX/Modules/Core/AdMob/dsx.json:6",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -1372,7 +1391,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/HealthKit",
-    "api": "dsx.module.healthkit.read() / write() / observe() / workouts()",
+    "api": "dsx.module.health.read() / write() / observe() / workouts()",
     "docs": null
    },
    "note": "readhealthkit://, writehealthkit:// and healthkit://observe|unobserve|workouts have Legacy rows.",
@@ -1380,7 +1399,8 @@
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:34",
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:35",
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:153",
-    "ClosedSource/DSX/Modules/Core/HealthKit/dsx.json:5"
+    "ClosedSource/DSX/Modules/Core/HealthKit/dsx.json:5",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -1390,7 +1410,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/HealthKit",
-    "api": "dsx.module.healthkit.read() / write() / observe() / workouts()",
+    "api": "dsx.module.health.read() / write() / observe() / workouts()",
     "docs": null
    },
    "note": "readhealthkit://, writehealthkit:// and healthkit://observe|unobserve|workouts have Legacy rows.",
@@ -1398,7 +1418,8 @@
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:34",
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:35",
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:153",
-    "ClosedSource/DSX/Modules/Core/HealthKit/dsx.json:5"
+    "ClosedSource/DSX/Modules/Core/HealthKit/dsx.json:5",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -1408,13 +1429,14 @@
    "status": "partial",
    "v4": {
     "package": "Core/HealthKit",
-    "api": "dsx.module.healthkit.read() / write() (Android facet on Health Connect)",
+    "api": "dsx.module.health.read() / write() (Android facet on Health Connect)",
     "docs": null
    },
    "note": "v3 page was a coming-soon stub; v4 HealthKit package maps reads/writes onto Health Connect on Android.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/HealthKit/README.md:3",
-    "ClosedSource/DSX/Modules/Core/HealthKit/dsx.json:5"
+    "ClosedSource/DSX/Modules/Core/HealthKit/dsx.json:5",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -1441,14 +1463,15 @@
    "status": "mapped",
    "v4": {
     "package": "Core/Biometric",
-    "api": "dsx.module.biometric.authenticate({ reason }) / supported()",
+    "api": "dsx.module.biometric.authenticate({ reason })",
     "docs": null
    },
    "note": "bioauth:// maps to biometric.authenticate; onBioAuthSuccess/Failure/Unavailable callbacks kept by Legacy.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:52",
     "ClosedSource/DSX/Modules/Core/Legacy/README.md:107",
-    "ClosedSource/DSX/Modules/Core/Biometric/dsx.json:5"
+    "ClosedSource/DSX/Modules/Core/Biometric/dsx.json:5",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -1556,14 +1579,15 @@
    "group": "Native Features",
    "status": "mapped",
    "v4": {
-    "package": "Core/CameraRoll",
-    "api": "dsx.module.gallery.save({ url })",
+    "package": "Core/Media",
+    "api": "dsx.module.media.save({ urls }); v3 route: dsx.module.legacy.saveImage({ url })",
     "docs": null
    },
-   "note": "savethisimage:// maps to gallery.save.",
+   "note": "savethisimage:// is answered by Legacy's saveImage; Core/Media is the modern package.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:126",
-    "ClosedSource/DSX/Modules/Core/CameraRoll/dsx.json:5"
+    "ClosedSource/DSX/Modules/Core/CameraRoll/dsx.json:5",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -1671,13 +1695,14 @@
    "status": "mapped",
    "v4": {
     "package": "Core/ScreenBrightness",
-    "api": "dsx.module.brightness.enable() / disable() / auto() / set()",
+    "api": "dsx.module.brightness.set() / restore() / get(); v3 route: dsx.module.legacy.scanningMode({ mode })",
     "docs": null
    },
-   "note": "scanningmode://on|off|auto map to brightness.enable/disable/auto.",
+   "note": "scanningmode://on|off|auto is answered by Legacy's scanningMode; brightness.set and restore are the modern calls.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:122",
-    "ClosedSource/DSX/Modules/Core/ScreenBrightness/dsx.json:5"
+    "ClosedSource/DSX/Modules/Core/ScreenBrightness/dsx.json:5",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -1687,13 +1712,14 @@
    "status": "mapped",
    "v4": {
     "package": "Core/SocialShare",
-    "api": "dsx.module.share.url({ message, url })",
+    "api": "dsx.module.share.present({ text, url })",
     "docs": null
    },
-   "note": "shareapp:// maps to share.url.",
+   "note": "shareapp:// maps to share.present; its message becomes text.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:115",
-    "ClosedSource/DSX/Modules/Core/SocialShare/dsx.json:5"
+    "ClosedSource/DSX/Modules/Core/SocialShare/dsx.json:5",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -1800,14 +1826,15 @@
    "group": "Native Features",
    "status": "mapped",
    "v4": {
-    "package": "Core/Basics/Screenshot",
-    "api": "dsx.module.screenshot.save(); v3 route: dsx.module.legacy.takeScreenshot()",
+    "package": "Core/Legacy",
+    "api": "dsx.module.legacy.takeScreenshot()",
     "docs": null
    },
-   "note": "takescreenshot:// is answered by Legacy's takeScreenshot; Core/Basics/Screenshot is the modern package.",
+   "note": "takescreenshot:// is answered by Legacy's takeScreenshot.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:135",
-    "ClosedSource/DSX/Modules/Core/Basics/Screenshot/dsx.json:5"
+    "ClosedSource/DSX/Modules/Core/Basics/Screenshot/dsx.json:5",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -2041,7 +2068,7 @@
    "status": "partial",
    "v4": {
     "package": "Core/Legacy",
-    "api": "Core/Legacy polyfill answers window.despia; new code uses window.dsx",
+    "api": "Core/Legacy polyfill answers window.despia; new code uses `await dsx.module`",
     "docs": "/convert/from-v3"
    },
    "note": "The window.despia setups this page warns about are what the optional Legacy package polyfills.",
@@ -2230,10 +2257,10 @@
    "status": "partial",
    "v4": {
     "package": "Core/Legacy",
-    "api": "window.dsx.module.<command>.<action>(); Legacy answers old despia() calls",
+    "api": "await dsx.module.<command>.<action>(); Legacy answers old despia() calls",
     "docs": "/web-apps"
    },
-   "note": "The despia-native URL-scheme model becomes window.dsx module calls; Legacy keeps old calls working.",
+   "note": "The despia-native URL-scheme model becomes `await dsx.module` calls; Legacy keeps old calls working.",
    "evidence": [
     "OpenSource/Documentation/guides/despia-api.md:14",
     "ClosedSource/DSX/Modules/Core/Legacy/README.md:3"
@@ -2246,10 +2273,10 @@
    "status": "partial",
    "v4": {
     "package": "Core/Dom",
-    "api": "Dom config useragent_iphone / useragent_ipad / useragent_android; window.dsx.has(name)",
+    "api": "Dom config useragent_iphone / useragent_ipad / useragent_android; dsx.has(name)",
     "docs": "/web-apps/outside-despia"
    },
-   "note": "Custom user agent strings are Dom config; feature detection in v4 is window.dsx.has().",
+   "note": "Custom user agent strings are Dom config; feature detection in v4 is dsx.has().",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Dom/config.json:93",
     "OpenSource/Documentation/guides/despia-api.md:76"
@@ -2262,15 +2289,16 @@
    "status": "mapped",
    "v4": {
     "package": "Core/OneSignal",
-    "api": "dsx.module.onesignal.login({ user_id }) / onesignal.id(); dsx.module.notify.permission.request()",
+    "api": "dsx.module.onesignal.login({ externalId }) / subscription.get(); dsx.module.notify.permission.request()",
     "docs": null
    },
-   "note": "setonesignalplayerid maps to onesignal.login, registerpush to notify.permission.request; window.onesignalplayerid is still seeded by Legacy.",
+   "note": "setonesignalplayerid maps to onesignal.login, getonesignalplayerid to onesignal.subscription.get, registerpush to notify.permission.request; window.onesignalplayerid is still seeded by Legacy.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:29",
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:30",
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:28",
-    "ClosedSource/DSX/Modules/Core/OneSignal/dsx.json:5"
+    "ClosedSource/DSX/Modules/Core/OneSignal/dsx.json:5",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -2397,17 +2425,18 @@
    "group": "Lovable > Native Features",
    "status": "mapped",
    "v4": {
-    "package": "Core/Basics/Location",
-    "api": "dsx.module.location.start() / stop() / current(); background.on() / background.off()",
+    "package": "Core/Legacy/Modules/Location",
+    "api": "dsx.module.legacy.location.start() / stop() / background.on() / background.off(); modern: dsx.module.geo.current() / watch()",
     "docs": null
    },
-   "note": "location://, stoplocation:// and backgroundlocationon/off have Legacy rows; Core/Geo is the full modern geo package.",
+   "note": "location://, stoplocation:// and backgroundlocationon/off are answered by the optional Legacy Location package; Core/Geo is the full modern geo package.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:51",
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:25",
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:49",
     "ClosedSource/DSX/Modules/Core/Basics/Location/dsx.json:5",
-    "ClosedSource/DSX/Modules/Core/Geo/dsx.json:5"
+    "ClosedSource/DSX/Modules/Core/Geo/dsx.json:5",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -2417,14 +2446,15 @@
    "status": "mapped",
    "v4": {
     "package": "Core/AdMob",
-    "api": "dsx.module.admob.rewarded() (earned broadcast -> window.updateRewardedStatus)",
+    "api": "dsx.module.admob.show({ format: 'rewarded' }) (earned event -> window.updateRewardedStatus)",
     "docs": null
    },
-   "note": "displayrewardedad:// maps to admob.rewarded; the earned event is re-delivered as updateRewardedStatus.",
+   "note": "displayrewardedad:// is answered by Legacy, which calls admob.show; the earned event is re-delivered as updateRewardedStatus.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:116",
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:164",
-    "ClosedSource/DSX/Modules/Core/AdMob/dsx.json:6"
+    "ClosedSource/DSX/Modules/Core/AdMob/dsx.json:6",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -2502,7 +2532,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/HealthKit",
-    "api": "dsx.module.healthkit.read() / write() / observe() / workouts()",
+    "api": "dsx.module.health.read() / write() / observe() / workouts()",
     "docs": null
    },
    "note": "readhealthkit://, writehealthkit:// and healthkit://observe|unobserve|workouts have Legacy rows.",
@@ -2510,7 +2540,8 @@
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:34",
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:35",
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:153",
-    "ClosedSource/DSX/Modules/Core/HealthKit/dsx.json:5"
+    "ClosedSource/DSX/Modules/Core/HealthKit/dsx.json:5",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -2537,14 +2568,15 @@
    "status": "mapped",
    "v4": {
     "package": "Core/Biometric",
-    "api": "dsx.module.biometric.authenticate({ reason }) / supported()",
+    "api": "dsx.module.biometric.authenticate({ reason })",
     "docs": null
    },
    "note": "bioauth:// maps to biometric.authenticate; onBioAuthSuccess/Failure/Unavailable callbacks kept by Legacy.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:52",
     "ClosedSource/DSX/Modules/Core/Legacy/README.md:107",
-    "ClosedSource/DSX/Modules/Core/Biometric/dsx.json:5"
+    "ClosedSource/DSX/Modules/Core/Biometric/dsx.json:5",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -2587,14 +2619,15 @@
    "group": "Lovable > Native Features",
    "status": "mapped",
    "v4": {
-    "package": "Core/CameraRoll",
-    "api": "dsx.module.gallery.save({ url })",
+    "package": "Core/Media",
+    "api": "dsx.module.media.save({ urls }); v3 route: dsx.module.legacy.saveImage({ url })",
     "docs": null
    },
-   "note": "savethisimage:// maps to gallery.save.",
+   "note": "savethisimage:// is answered by Legacy's saveImage; Core/Media is the modern package.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:126",
-    "ClosedSource/DSX/Modules/Core/CameraRoll/dsx.json:5"
+    "ClosedSource/DSX/Modules/Core/CameraRoll/dsx.json:5",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -2670,13 +2703,14 @@
    "status": "mapped",
    "v4": {
     "package": "Core/ScreenBrightness",
-    "api": "dsx.module.brightness.enable() / disable() / auto() / set()",
+    "api": "dsx.module.brightness.set() / restore() / get(); v3 route: dsx.module.legacy.scanningMode({ mode })",
     "docs": null
    },
-   "note": "scanningmode://on|off|auto map to brightness.enable/disable/auto.",
+   "note": "scanningmode://on|off|auto is answered by Legacy's scanningMode; brightness.set and restore are the modern calls.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:122",
-    "ClosedSource/DSX/Modules/Core/ScreenBrightness/dsx.json:5"
+    "ClosedSource/DSX/Modules/Core/ScreenBrightness/dsx.json:5",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -2686,13 +2720,14 @@
    "status": "mapped",
    "v4": {
     "package": "Core/SocialShare",
-    "api": "dsx.module.share.url({ message, url })",
+    "api": "dsx.module.share.present({ text, url })",
     "docs": null
    },
-   "note": "shareapp:// maps to share.url.",
+   "note": "shareapp:// maps to share.present; its message becomes text.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:115",
-    "ClosedSource/DSX/Modules/Core/SocialShare/dsx.json:5"
+    "ClosedSource/DSX/Modules/Core/SocialShare/dsx.json:5",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -2799,14 +2834,15 @@
    "group": "Lovable > Native Features",
    "status": "mapped",
    "v4": {
-    "package": "Core/Basics/Screenshot",
-    "api": "dsx.module.screenshot.save(); v3 route: dsx.module.legacy.takeScreenshot()",
+    "package": "Core/Legacy",
+    "api": "dsx.module.legacy.takeScreenshot()",
     "docs": null
    },
-   "note": "takescreenshot:// is answered by Legacy's takeScreenshot; Core/Basics/Screenshot is the modern package.",
+   "note": "takescreenshot:// is answered by Legacy's takeScreenshot.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:135",
-    "ClosedSource/DSX/Modules/Core/Basics/Screenshot/dsx.json:5"
+    "ClosedSource/DSX/Modules/Core/Basics/Screenshot/dsx.json:5",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
@@ -2816,14 +2852,14 @@
    "status": "mapped",
    "v4": {
     "package": "Core/OneSignal",
-    "api": "dsx.module.onesignal.id() (window.onesignalplayerid page global)",
+    "api": "dsx.module.onesignal.subscription.get() (window.onesignalplayerid page global)",
     "docs": null
    },
-   "note": "Legacy page row seeds window.onesignalplayerid from onesignal.id(); getonesignalplayerid:// also mapped.",
+   "note": "A Legacy page row seeds window.onesignalplayerid from onesignal.subscription.get(); getonesignalplayerid:// is also mapped.",
    "evidence": [
     "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:28",
-    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json:28",
-    "ClosedSource/DSX/Modules/Core/OneSignal/dsx.json:5"
+    "ClosedSource/DSX/Modules/Core/OneSignal/dsx.json:5",
+    "ClosedSource/DSX/Modules/Core/Legacy/legacy-map.json"
    ]
   },
   {
