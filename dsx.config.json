@@ -4047,7 +4047,13 @@
           "content": "https://support.despia.com"
         }
       }
-    ]
+    ],
+    "offline": {
+      "precache": "shell",
+      "shellRoutes": [
+        "/"
+      ]
+    }
   },
   "owner": {
     "workspace": "despia"
