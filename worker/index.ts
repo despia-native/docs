@@ -206,6 +206,16 @@ export default {
     if (typeof env["SITE_ORIGIN"] === "string" && env["SITE_ORIGIN"] !== "") siteOrigin = String(env["SITE_ORIGIN"]).replace(/\/+$/, "");
     const binding = env["ASSETS"];
     if (assets === null && typeof binding === "object" && binding !== null) assets = binding as AssetsBinding;
+    //  THE DSX SECTION'S OWN PAGES (/dsx, /dsx/styling, ...). The site handler takes /dsx off a path before it routes (the
+    //  function mount prefix a DSX backend answers under), so every page of the DSX section answered 404 and /dsx the home
+    //  page. Those pages are built files in the asset tree: a read of one is served from there as built, before the
+    //  handler sees the path; a path under /dsx that is not a built file still goes to the handler.
+    if (assets !== null && (request.method === "GET" || request.method === "HEAD") && (url.pathname === "/dsx" || url.pathname.startsWith("/dsx/"))) {
+      const page = assets;
+      return page.fetch(request).then((res) => res.status === 404
+        ? handler.fetch(request, env, ctx).then((r) => readable(url.pathname, secure(r, noindex)))
+        : readable(url.pathname, secure(res, noindex)));
+    }
     return handler.fetch(request, env, ctx).then((res) => readable(url.pathname, secure(res, noindex)));
   },
   scheduled: handler.scheduled,
