@@ -10,7 +10,7 @@ Repo despia-native/docs, branch `wip/claude/docs-v2` (from 5097c09). Worktree `/
 - **The shipping site is DSX** (`npm run build`: compile -> `node site/build.mjs` (export + twins) -> `node
   site/dsx-compile.mjs` -> `despia build` -> assemble). site/dsx-compile.mjs writes Components/DocsShell.dsx and
   Components/v2/*.dsx in the CONSOLE's design language (owner: "do NOT port v2 1:1"; use the console's own components
-  and arrangement): DocsShell = the console's Shell (scaffold shell="automatic" collapse="tabs", SidebarList with the
+  and arrangement): DocsShell = the console's Shell (scaffold shell="automatic" collapse="tabs" style="--dsx-sidebar-compact: tabs", SidebarList with the
   switcher pinned on top and Appearance at the foot, SidebarSections, the phone tab bar, CommandPalette on cmd+K); a
   page = NavBar large + description, Callout notice, the article as <markdown> sections (the console's Help article),
   "On this page" in the scaffold's inspector column; /packages = the console's Package Explorer (searchbar, scopeBar,

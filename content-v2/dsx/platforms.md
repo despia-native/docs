@@ -43,6 +43,33 @@ DSX adapts by size class, the way the platforms do: a compact width (a phone), a
 </scaffold>
 ```
 
+On a phone the sidebar can become the bottom tab bar instead (SwiftUI's sidebar-adaptable tab view). Mark the sections that are tabs on the sidebar, and choose the phone form with the `--dsx-sidebar-compact` property on the scaffold's style: `stack` (the default, one column with a Back to the sidebar), `tabs`, or `hidden`. Write `collapse` with the same word too, which the native renderers read today:
+
+```dsx title="Components/Shell.dsx"
+<scaffold shell="automatic" collapse="tabs" style="--dsx-sidebar-compact: tabs" sidebarLabel="Library" contentLabel="Page">
+  <head>
+    <attribute as="route" default="'/albums'"/>
+    <action as="open" input:path="dsx.this.value">
+      await dsx.module.route.reset({ path: path });
+    </action>
+  </head>
+  <SidebarList pane="sidebar" value="{{ dsx.attribute.route }}" on:change="dsx.action.open()">
+    <SidebarSection title="Library" tab="items">
+      <SidebarItem value="/albums" icon="square.stack" title="Albums"/>
+      <SidebarItem value="/artists" icon="music.mic" title="Artists"/>
+    </SidebarSection>
+    <SidebarSection title="Settings" tab="Settings" tabIcon="gearshape" root="/settings">
+      <SidebarItem value="/account" icon="person" title="Account"/>
+    </SidebarSection>
+  </SidebarList>
+  <scroll pane="content">
+    <slot/>
+  </scroll>
+</scaffold>
+```
+
+The column sizes are properties on the style as well (`--dsx-sidebar-min`, `--dsx-sidebar-ideal`, `--dsx-sidebar-max`, `--dsx-window-medium` for the phone breakpoint). `npx despia lint` refuses a `collapse` or size attribute written without its property, because the web would draw the default instead.
+
 For your own layouts, use CSS media queries on width in your sheets, or a container that measures itself.
 
 ## Safe areas and edge to edge
