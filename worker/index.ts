@@ -8,10 +8,8 @@
 //      There is NO MCP server here (owner 2026-10-10): agents use the general Despia MCP at
 //      https://mcp.despia.com/mcp, whose docs tools read this build's docs-index.json export;
 //      /mcp on this host 301s there (redirects/v2-moves.json).
-//  One site, five spaces (modern, legacy, migrate, troubleshooting, app-review), and the old docs
-//  root keeps its v3 links: a v3 path asked of this host
-//  (it used to bounce to setup.despia.com) 301s once to /legacy/... (redirects/docs-root.json,
-//  generated; a path a modern page owns is never in it).
+//  The docs are Despia V4 only (the V4 pages, App Review, Releases); an old docs path asked of this host 301s once to
+//  its V4 page (redirects/docs-root.json).
 //
 //  The search index and the nav model are BUILD ARTIFACTS imported into the bundle (the
 //  worker deploys after `npm run build`, so wrangler inlines the exact tree it serves);
@@ -26,7 +24,6 @@ import searchIndex from "../public/search-index.json";
 import nav from "../public/nav.json";
 import knowledge from "../public/knowledge/version.json";
 import appReview from "../public/app-review.json";
-import troubleshooting from "../public/troubleshooting.json";
 import integrations from "../public/integrations.json";
 import versions from "../public/versions.json";
 import rootRedirects from "../redirects/docs-root.json";
@@ -87,7 +84,7 @@ const tools = createTools({
   contentVersion: knowledge.contentVersion,
   pages: searchIndex.pages as IndexPage[],
   appReview: appReview as never,
-  troubleshooting: troubleshooting as never,
+  troubleshooting: { articles: [] },
   integrations: integrations as never,
   vector: (q, space, limit) => supportSearch(q, space, limit),
   resolutions: (q, filters, limit) => supportSearch(q, "resolutions", limit, filters),
@@ -124,7 +121,6 @@ const handler = createWorkersHandler(
         docsSearch: (args) => tools.docs_search(args),
         docsFetch: (args) => fetchPage(args),
         resolutionsSearch: (args) => tools.resolutions_search(args),
-        troubleshootingSearch: (args) => tools.troubleshooting_search(args),
         appReviewSearch: (args) => tools.app_review_search(args),
         integrationsList: (args) => tools.integrations_list(args),
         integrationGet: (args) => tools.integration_get(args),
@@ -176,9 +172,28 @@ function readable(path: string, res: Response): Response {
   return out;
 }
 
+//  The docs are an online site: no service worker. The framework's offline worker was served with the site's non-HTML policy
+//  (default-src 'none', server site-security.ts), and a worker runs under its own script's policy: every fetch it made was
+//  refused, so scripts and styles failed (ERR_FAILED) and, once its caches could not answer, the page itself (iOS Safari:
+//  "Not allowed by ContentSecurityPolicy"). This worker
+//  replaces it at the same address: it drops every cache and unregisters itself. No fetch handler, so nothing is ever
+//  intercepted, and it never navigates a page itself (iOS Safari answered a worker-driven reload with its own "Not allowed
+//  by ContentSecurityPolicy" error page): the page a visitor has open keeps working and the next load is plain network.
+//  RETIRE_SW = "0" serves the build's own worker file instead (a test deploy that installs the old worker first).
+const SW_RETIRE = `self.addEventListener("install", () => self.skipWaiting());
+self.addEventListener("activate", (event) => event.waitUntil((async () => {
+  const keys = await caches.keys();
+  await Promise.all(keys.map((k) => caches.delete(k)));
+  await self.registration.unregister();
+})()));
+`;
+
 export default {
   fetch(incoming: Request, env: WorkersEnv, ctx: WorkersExecutionContext): Promise<Response> {
     const original = new URL(incoming.url);
+    if (original.pathname.endsWith("/dsx-sw.js") && env["RETIRE_SW"] !== "0") {
+      return Promise.resolve(new Response(SW_RETIRE, { headers: { "content-type": "text/javascript; charset=utf-8", "cache-control": "no-store" } }));
+    }
     // the old host: every path to the same page under despia.com/docs (one hop: the root table is applied first)
     if (original.hostname === "docs.despia.com") {
       const path = original.pathname.length > 1 ? original.pathname.replace(/\/+$/, "") : original.pathname;

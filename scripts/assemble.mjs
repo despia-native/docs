@@ -75,6 +75,7 @@ function cspFor(html) {
     "form-action 'self'",
   ].join("; ");
 }
+const SECTION_NAMES = { dsx: "DSX", packages: "Packages", "web-apps": "Web apps", ship: "Build and ship", convert: "Convert", "app-review": "App Review", releases: "Releases" };
 let enhanced = 0;
 let stamped = 0;
 let secured = 0;
@@ -91,8 +92,30 @@ const injectDocsScript = (dir) => {
       html = html.replace("</head>", `<link rel="canonical" href="${canonical[key]}">\n<link rel="alternate" type="text/markdown" href="${md}">\n</head>`);
       stamped += 1;
     }
-    if (jsonLd[key] !== undefined && !html.includes('type="application/ld+json"') && html.includes("</head>")) {
-      html = html.replace("</head>", `<script type="application/ld+json">${JSON.stringify(jsonLd[key]).replace(/</g, "\\u003c")}</script>\n</head>`);
+    // the Markdown twin, for agents (the SSR head already carries the canonical link, so this is stamped on its own)
+    if (canonical[key] !== undefined && !html.includes('type="text/markdown"') && html.includes("</head>")) {
+      html = html.replace("</head>", `<link rel="alternate" type="text/markdown" href="${key === "/" ? "/index.md" : `${key}.md`}">\n</head>`);
+    }
+    // social cards: the SSR head writes og:title, og:description and og:url; the type, the site and the Twitter rows join here
+    if (canonical[key] !== undefined && !html.includes('property="og:type"') && html.includes("</head>")) {
+      const og = (name) => (html.match(new RegExp(`<meta property="og:${name}" content="([^"]*)"`)) ?? [])[1] ?? "";
+      html = html.replace("</head>", [`<meta property="og:type" content="${key === "/" ? "website" : "article"}">`, `<meta property="og:site_name" content="Despia Docs">`,
+        `<meta name="twitter:card" content="summary">`, `<meta name="twitter:title" content="${og("title")}">`, `<meta name="twitter:description" content="${og("description")}">`, "</head>"].join("\n"));
+    }
+    // structured data: every page is a TechArticle in the docs WebSite with its breadcrumb trail (a package page keeps its own
+    // richer TechArticle from public/jsonld.json)
+    if (canonical[key] !== undefined && !html.includes('type="application/ld+json"') && html.includes("</head>")) {
+      const og = (name) => (html.match(new RegExp(`<meta property="og:${name}" content="([^"]*)"`)) ?? [])[1] ?? "";
+      const home = canonical["/"] ?? canonical[key].replace(/\/[^/]*$/, "");
+      const seg = key.split("/").filter(Boolean);
+      const crumbs = [{ name: "Docs", url: home }];
+      if (seg.length > 1 && canonical[`/${seg[0]}`] !== undefined) crumbs.push({ name: SECTION_NAMES[seg[0]] ?? seg[0], url: canonical[`/${seg[0]}`] });
+      if (key !== "/") crumbs.push({ name: og("title") || key, url: canonical[key] });
+      const article = jsonLd[key] ?? { "@type": key === "/" ? "WebPage" : "TechArticle", headline: og("title"), description: og("description"), url: canonical[key], inLanguage: "en",
+        isPartOf: { "@type": "WebSite", name: "Despia Docs", url: home }, publisher: { "@type": "Organization", name: "Despia", url: "https://despia.com" } };
+      const { "@context": _, ...main } = article;
+      const doc = { "@context": "https://schema.org", "@graph": [main, { "@type": "BreadcrumbList", itemListElement: crumbs.map((c, i) => ({ "@type": "ListItem", position: i + 1, name: c.name, item: c.url })) }] };
+      html = html.replace("</head>", `<script type="application/ld+json">${JSON.stringify(doc).replace(/</g, "\\u003c")}</script>\n</head>`);
     }
     if (!html.includes("/docs.js") && html.includes("</body>")) {
       html = html.replace("</body>", `<script defer src="/docs.js"></script>\n</body>`);
