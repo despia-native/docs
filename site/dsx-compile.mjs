@@ -323,6 +323,7 @@ function page({ route, area, title, description, md, body, head = "", noticeFor 
 ${noticeFor ? `    <variable as="notify">return false</variable>\n` : ""}${pageMenuVar(md, toc)}${head}${sections.length ? pageTextVar(title, sections) : ""}    <action as="search">dsx.global.docsSearch = true</action>
   </head>
 ${navBar({ title, description, md, large, copy: sections.length > 0, toc })}
+  <RedirectNotice/>
 ${noticeFor ? notice(...noticeFor) + "\n" : ""}${body}
 </DocsShell>
 `;

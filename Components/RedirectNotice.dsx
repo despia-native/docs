@@ -1,0 +1,28 @@
+<!-- RedirectNotice: the note a page shows when an old documentation link brought the reader here. The old hosts' redirect
+     Worker adds ?notice=<rule id> only for a rule that has a notice; this reads it once, removes it from the address bar
+     (the page's canonical link already names the clean URL), and draws the notice the API holds for that rule: the stock
+     Callout, its markdown body, and a secondary action to the legacy page. No ?notice, no request and nothing drawn.
+     Placed by site/dsx-compile.mjs under each page's NavBar (header first, notices below). -->
+<vstack class="doc-redirect-notice" visible-if="dsx.variable.shown != null" on:appear="dsx.action.boot()">
+  <head>
+    <attribute as="api" default="'https://api.despia.com'"/>
+    <variable as="id">return ''</variable>
+    <variable as="shown">return null</variable>
+    <!-- the app's routes are root-relative; the API names pages under the public /docs base -->
+    <formula as="legacy">return dsx.variable.shown ? String(dsx.variable.shown.legacyUrl || '').replace(/^\/docs(?=\/|$)/, '') || '/' : '/'</formula>
+    <formula as="body">return dsx.variable.shown ? String(dsx.variable.shown.body || '').replaceAll('](/docs/', '](/') : ''</formula>
+    <api as="notice" url="{{ dsx.attribute.api }}/v1/docs-redirects/notice/{{ dsx.variable.id }}" auto="false"/>
+    <action as="boot">
+      const id = String(dsx.query.notice || '')
+      if (!/^[1-9][0-9]{0,15}$/.test(id) || dsx.variable.id === id) { return }
+      dsx.variable.id = id
+      await dsx.module.route.replace({ path: dsx.route.path })
+      const r = await dsx.api.notice()
+      if (r &amp;&amp; r.ok &amp;&amp; r.data &amp;&amp; r.data.title) { dsx.variable.shown = r.data }
+    </action>
+  </head>
+  <Callout tone="info" title="{{ dsx.variable.shown ? dsx.variable.shown.title : '' }}" action="Legacy docs" href="{{ dsx.formula.legacy }}"
+           dismissible="true" on:dismiss="dsx.variable.shown = null">
+    <markdown bind="dsx.formula.body"/>
+  </Callout>
+</vstack>
