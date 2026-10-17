@@ -118,8 +118,9 @@ const injectDocsScript = (dir) => {
       html = html.replace("</head>", `<script type="application/ld+json">${JSON.stringify(doc).replace(/</g, "\\u003c")}</script>\n</head>`);
     }
     // the runtime starts after load (web.boot "after-load"): its module graph is not preloaded, so the page's own bytes (HTML,
-    // CSS, the body font) have the connection to themselves until the page is drawn
-    html = html.replace(/<link rel="modulepreload"[^>]*>\n?/g, "").replace(/<link rel="preload"[^>]*data-dsx-registry="[^"]*"[^>]*>\n?/g, "");
+    // CSS, the body font) have the connection to themselves until the page is drawn. The registry slice rows stay: they are
+    // how the boot reads this page's slice instead of the whole site's registry.json.
+    html = html.replace(/<link rel="modulepreload"[^>]*>\n?/g, "");
     if (!html.includes("/docs.js") && html.includes("</body>")) {
       html = html.replace("</body>", `<script defer src="/docs.js"></script>\n</body>`);
       enhanced += 1;

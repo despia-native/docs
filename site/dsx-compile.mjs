@@ -488,8 +488,8 @@ body:has([data-dsx-owner~="DocsShell"]) {
 .doc-tool-logos > * { width: 1.75rem; height: 1.75rem; font-size: 1.75rem; }
 
 /* THE COLUMN. Code, tables and cards take the whole column (they line up with the page's cards and list groups);
-   running text stops at the measure (36rem of the reading face: 72 to 78 characters a line). A <markdown> block is not on the page's content inset yet (the framework's prose
-   layout), so the article stands on the inset the console's cards and list groups use. */
+   running text stops at the measure (36rem of the reading face: 72 to 78 characters a line). The article stands on the
+   page header's inset (--dsx-grid-inset-inline), so its text lines up with the title, tagline and notices at every width. */
 .doc-article {
   align-items: stretch;
   max-width: var(--doc-column);
@@ -497,10 +497,6 @@ body:has([data-dsx-owner~="DocsShell"]) {
   gap: 0;
 }
 .doc-article .dsx-markdown > :is(.dsx-text, .dsx-markdown-list) { max-width: var(--doc-measure); }
-/* a compact window's cards, notices and headers stand on the list inset: the article lines up with them */
-@media (max-width: 47.99rem) {
-  .doc-article { margin-inline: var(--dsx-list-inset-inline, 16px); }
-}
 
 /* THE RHYTHM. Blocks sit one --doc-space-4 apart. A ## section opens --doc-space-7 below what came before and a ###
    subsection --doc-space-6 below it, so a heading always has more room above it than below it (--doc-space-3).
@@ -562,8 +558,9 @@ body:has([data-dsx-owner~="DocsShell"]) {
 .dsx-scaffold-pane:not([data-dsx-ground="grouped"]) .doc-cards { --dsx-item-card-background: var(--dsx-secondary-background); }
 
 /* THE CONSOLE'S OWN PAGE RHYTHM (despia-native/platform Components/HelpSheet.css): a notice in the page's flow keeps the
-   page's spacing token from what follows it; a list group brings its own section spacing. */
-.page-notice:not(:has(+ .dsx-list-group)) { margin-block-end: var(--dsx-page-header-spacing, 1.5rem); }
+   page's spacing token from what follows it; a list group brings its own section spacing.
+   An article page's notice is one page gap from the article, as it is from the header (no second spacing). */
+.page-notice:not(:has(+ .dsx-list-group)):not(:has(~ .doc-article)) { margin-block-end: var(--dsx-page-header-spacing, 1.5rem); }
 
 /* CODE COLOURS: the CodeBlock's public knobs (--dsx-codeblock-*) set to the Despia editor themes
    (OpenSource/CodeEditor/src/theme.js, despia-light / despia-dark), so a .dsx sample reads as markup, CSS and
