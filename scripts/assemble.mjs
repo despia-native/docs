@@ -77,9 +77,12 @@ function cspFor(html) {
 }
 const SECTION_NAMES = { dsx: "DSX", packages: "Packages", "web-apps": "Web apps", ship: "Build and ship", convert: "Convert", "app-review": "App Review", releases: "Releases" };
 let enhanced = 0;
+// the link preview every page shares (public/og.png, rendered by the framework's social-cards tool from a real capture of
+// the docs home; spec evidence/docs-site/og/docs-og.json in the workspace)
+const OG_IMAGE = "https://despia.com/docs/og.png";
 // the framework's after-load start (server page-render.ts bootScript), and the idle start the docs use in its place
 const BOOT_ON_LOAD = "const later=()=>requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(go,0)));";
-const BOOT_WHEN_IDLE = "const later=()=>setTimeout(()=>(window.requestIdleCallback||setTimeout)(go,{timeout:2000}),3000);";
+const bootWhenIdle = (graph) => `const later=()=>{for(const h of ${JSON.stringify(graph).replace(/</g, "\\u003c")}){const l=document.createElement("link");l.rel="modulepreload";l.href=h;document.head.appendChild(l)}setTimeout(()=>(window.requestIdleCallback||setTimeout)(go,{timeout:2000}),3000)};`;
 let idleBoot = 0;
 let stamped = 0;
 let secured = 0;
@@ -104,7 +107,8 @@ const injectDocsScript = (dir) => {
     if (canonical[key] !== undefined && !html.includes('property="og:type"') && html.includes("</head>")) {
       const og = (name) => (html.match(new RegExp(`<meta property="og:${name}" content="([^"]*)"`)) ?? [])[1] ?? "";
       html = html.replace("</head>", [`<meta property="og:type" content="${key === "/" ? "website" : "article"}">`, `<meta property="og:site_name" content="Despia Docs">`,
-        `<meta name="twitter:card" content="summary">`, `<meta name="twitter:title" content="${og("title")}">`, `<meta name="twitter:description" content="${og("description")}">`, "</head>"].join("\n"));
+        `<meta property="og:image" content="${OG_IMAGE}">`, `<meta property="og:image:width" content="1200">`, `<meta property="og:image:height" content="630">`,
+        `<meta property="og:image:alt" content="Despia docs. Build and ship your app.">`, `<meta name="twitter:card" content="summary_large_image">`, `<meta name="twitter:image" content="${OG_IMAGE}">`, `<meta name="twitter:title" content="${og("title")}">`, `<meta name="twitter:description" content="${og("description")}">`, "</head>"].join("\n"));
     }
     // structured data: every page is a TechArticle in the docs WebSite with its breadcrumb trail (a package page keeps its own
     // richer TechArticle from public/jsonld.json)
@@ -121,13 +125,13 @@ const injectDocsScript = (dir) => {
       const doc = { "@context": "https://schema.org", "@graph": [main, { "@type": "BreadcrumbList", itemListElement: crumbs.map((c, i) => ({ "@type": "ListItem", position: i + 1, name: c.name, item: c.url })) }] };
       html = html.replace("</head>", `<script type="application/ld+json">${JSON.stringify(doc).replace(/</g, "\\u003c")}</script>\n</head>`);
     }
-    // the runtime starts after load (web.boot "after-load"): its module graph is not preloaded, so the page's own bytes (HTML,
-    // CSS, the body font) have the connection to themselves until the page is drawn. The registry slice rows stay: they are
-    // how the boot reads this page's slice instead of the whole site's registry.json.
+    // a docs page reads without its runtime. Its module graph is not preloaded by the head, so the page's own bytes (HTML,
+    // CSS, the body font) have the connection to themselves until the page is drawn; once it has loaded the graph is
+    // preloaded, and the runtime starts on the reader's first press or key (the framework's own early start) or once the
+    // page has been idle a few seconds. The registry slice rows stay: they are how the boot reads this page's slice.
+    const graph = [...html.matchAll(/<link rel="modulepreload" href="([^"]+)"[^>]*>/g)].map((m) => m[1]);
     html = html.replace(/<link rel="modulepreload"[^>]*>\n?/g, "");
-    // a docs page reads without its runtime: the runtime starts on the reader's first press or key (the framework's own
-    // early start), or once the page has been idle a few seconds after load, so reading starts on a free main thread
-    if (html.includes(BOOT_ON_LOAD)) { html = html.replace(BOOT_ON_LOAD, BOOT_WHEN_IDLE); idleBoot += 1; }
+    if (html.includes(BOOT_ON_LOAD)) { html = html.replace(BOOT_ON_LOAD, bootWhenIdle(graph)); idleBoot += 1; }
     if (!html.includes("/docs.js") && html.includes("</body>")) {
       html = html.replace("</body>", `<script defer src="/docs.js"></script>\n</body>`);
       enhanced += 1;
