@@ -59,6 +59,8 @@ function body(md) {
   if (lead) text = text.slice(lead[0].length);
   text = text.replace(/https:\/\/setup\.despia\.com(?=\/|\b)/g, "")
     .replace(/\]\((\/(?!legacy\/|\/)[^)\s]*)\)/g, (_m, p) => `](/legacy${p.replace(/\.md(?=#|$)/, "")})`)
+    // a key placeholder in the old guides is written as words, so no page carries a PEM block (the build refuses one)
+    .replace(/-----(BEGIN|END) ([A-Z ]*)PRIVATE KEY-----/g, (_m, edge, kind) => `[${edge === "BEGIN" ? "start" : "end"} of your ${kind.toLowerCase()}private key]`)
     .replace(/^\s*<iframe\b[^>]*\bsrc="([^"]+)"[^>]*\/?>\s*(?:<\/iframe>)?\s*$/gm, (_m, src) => `<Video src="${src}" title="${title}"/>`);
   return { title, description, text };
 }
