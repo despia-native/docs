@@ -231,7 +231,9 @@ export default {
         ? handler.fetch(request, env, ctx).then((r) => readable(url.pathname, secure(r, noindex)))
         : readable(url.pathname, secure(res, noindex)));
     }
-    return handler.fetch(request, env, ctx).then((res) => readable(url.pathname, secure(res, noindex)));
+    //  the legacy archive is for readers who follow an old link, never for search engines
+    const legacy = url.pathname === "/legacy" || url.pathname.startsWith("/legacy/");
+    return handler.fetch(request, env, ctx).then((res) => readable(url.pathname, secure(res, noindex || legacy)));
   },
   scheduled: handler.scheduled,
 };
