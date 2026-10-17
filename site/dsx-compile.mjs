@@ -485,7 +485,7 @@ body:has([data-dsx-owner~="DocsShell"]) {
 
 /* THE TOOL LOGOS on the AI coding tool card: the vendors' own marks, one optical size, no tiles */
 .doc-tool-logos { gap: var(--doc-space-3); align-items: center; }
-.doc-tool-logos > * { width: 1.5rem; height: 1.5rem; font-size: 1.5rem; }
+.doc-tool-logos > * { width: 1.75rem; height: 1.75rem; font-size: 1.75rem; }
 
 /* THE COLUMN. Code, tables and cards take the whole column (they line up with the page's cards and list groups);
    running text stops at the measure (36rem of the reading face: 72 to 78 characters a line). A <markdown> block is not on the page's content inset yet (the framework's prose
@@ -693,7 +693,7 @@ if (want("/")) {
       { id: "asc", title: "App Store Connect Key", summary: "The API key Despia uses to sign and upload iOS builds.", brand: "appstore.logo", icon: "", path: "/ship/app-store-connect" },
       { id: "play", title: "Google Play Service Account", summary: "The Service Account Despia uses to upload Android builds.", brand: "google.play.logo", icon: "", path: "/ship/google-play" },
       { id: "cli", title: "Despia CLI", summary: "Create, run, lint, build and ship from the terminal.", brand: "despia.logo", icon: "", path: "/dsx/cli" },
-      { id: "agents", title: "Build with your AI coding tool", summary: "Connect the Despia MCP and install the Despia skills in Claude Code, Codex, Cursor and more.", brand: "despia.logo", icon: "", tools: true, path: "/dsx/agents" },
+      { id: "agents", title: "Build with your AI coding tool", summary: "Connect the Despia MCP and install the Despia skills in Claude Code, Codex, Cursor and more.", brand: "", icon: "agent.mark", tint: "purple", tools: true, path: "/dsx/agents" },
     ])}</variable>\n`;
   // a card's sentence is its slot text in the card's summary style, so it wraps instead of ending in an ellipsis
   const body = `  <grid bind="dsx.variable.routes" key="id" columns="adaptive" minimum="300" scroll="false" class="doc-cards">
@@ -713,13 +713,14 @@ if (want("/")) {
   </ListGroup>
   <ListGroup header="Build and ship"/>
   <grid bind="dsx.variable.ship" key="id" columns="adaptive" minimum="300" scroll="false" class="doc-cards">
-    <ItemCard title="{{ dsx.this.title }}" brand="{{ dsx.this.brand }}" icon="{{ dsx.this.icon }}" href="{{ dsx.this.path }}">
-      <text class="dsx-item-card-summary" value="{{ dsx.this.summary }}"/>
-      <hstack class="doc-tool-logos" visible-if="dsx.this.tools" aria-label="Claude Code, Codex and Cursor">
+    <ItemCard title="{{ dsx.this.title }}" brand="{{ dsx.this.brand }}" icon="{{ dsx.this.icon }}" tint="{{ dsx.this.tint }}" href="{{ dsx.this.path }}">
+      <!-- the coding tools' own marks on the card's top edge, beside its tile -->
+      <hstack slot="accessory" class="doc-tool-logos" visible-if="dsx.this.tools" role="img" aria-label="Claude Code, Codex and Cursor">
         <image icon="claude.logo" aria-hidden="true"/>
         <image icon="codex.logo" aria-hidden="true"/>
         <image icon="cursor.logo" aria-hidden="true"/>
       </hstack>
+      <text class="dsx-item-card-summary" value="{{ dsx.this.summary }}"/>
     </ItemCard>
   </grid>`;
   const title = "Despia V4";

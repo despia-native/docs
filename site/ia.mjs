@@ -28,7 +28,7 @@ export const SECTIONS = [
       ] },
       { title: "Tools", pages: [
         ["/dsx/cli", "Despia CLI", "Create, run, lint, build and ship from the terminal."],
-        ["/dsx/console", "The Despia Console", "Projects, builds, store connections and your team."],
+        ["/dsx/console", "Despia Console", "Projects, builds, store connections and your team."],
         ["/dsx/agents", "Use your AI agent", "Connect mcp.despia.com or the local MCP server, and install the skills."],
         ["/dsx/agents/skills", "Agent skills", "The skills that teach a coding agent to write DSX."],
       ] },
