@@ -3,6 +3,7 @@ package-lock.json
 dist/
 dist-worker/
 Components/pages/
+Components/legacy/
 content/framework/
 public/md/
 public/nav.json
