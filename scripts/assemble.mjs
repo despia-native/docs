@@ -77,6 +77,10 @@ function cspFor(html) {
 }
 const SECTION_NAMES = { dsx: "DSX", packages: "Packages", "web-apps": "Web apps", ship: "Build and ship", convert: "Convert", "app-review": "App Review", releases: "Releases" };
 let enhanced = 0;
+// the framework's after-load start (server page-render.ts bootScript), and the idle start the docs use in its place
+const BOOT_ON_LOAD = "const later=()=>requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(go,0)));";
+const BOOT_WHEN_IDLE = "const later=()=>setTimeout(()=>(window.requestIdleCallback||setTimeout)(go,{timeout:2000}),3000);";
+let idleBoot = 0;
 let stamped = 0;
 let secured = 0;
 const injectDocsScript = (dir) => {
@@ -118,8 +122,12 @@ const injectDocsScript = (dir) => {
       html = html.replace("</head>", `<script type="application/ld+json">${JSON.stringify(doc).replace(/</g, "\\u003c")}</script>\n</head>`);
     }
     // the runtime starts after load (web.boot "after-load"): its module graph is not preloaded, so the page's own bytes (HTML,
-    // CSS, the body font) have the connection to themselves until the page is drawn
-    html = html.replace(/<link rel="modulepreload"[^>]*>\n?/g, "").replace(/<link rel="preload"[^>]*data-dsx-registry="[^"]*"[^>]*>\n?/g, "");
+    // CSS, the body font) have the connection to themselves until the page is drawn. The registry slice rows stay: they are
+    // how the boot reads this page's slice instead of the whole site's registry.json.
+    html = html.replace(/<link rel="modulepreload"[^>]*>\n?/g, "");
+    // a docs page reads without its runtime: the runtime starts on the reader's first press or key (the framework's own
+    // early start), or once the page has been idle a few seconds after load, so reading starts on a free main thread
+    if (html.includes(BOOT_ON_LOAD)) { html = html.replace(BOOT_ON_LOAD, BOOT_WHEN_IDLE); idleBoot += 1; }
     if (!html.includes("/docs.js") && html.includes("</body>")) {
       html = html.replace("</body>", `<script defer src="/docs.js"></script>\n</body>`);
       enhanced += 1;
@@ -132,5 +140,6 @@ const injectDocsScript = (dir) => {
   }
 };
 injectDocsScript(dist);
+if (idleBoot === 0) throw new Error("[docs.assemble] no page carries the framework's after-load start: the idle start was not applied (did page-render bootScript change?)");
 console.log(`[docs.assemble] public/ artifacts folded into dist/ — one servable tree (${enhanced} page(s) carry docs.js, ${stamped} canonical + markdown alternate, ${secured} strict CSP)`);
 
