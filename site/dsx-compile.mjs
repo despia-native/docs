@@ -738,7 +738,7 @@ if (want(GUIDES_ROOT)) {
     <action as="search">dsx.global.docsSearch = true</action>
   </head>
   <NavBar title="${title}" large="true">
-    <button slot="trailing" icon="magnifyingglass" aria-label="Search the docs" shortcut="cmd+k" on:tap="dsx.action.search()"/>
+    <button slot="trailing" icon="magnifyingglass" aria-label="Search the docs" on:tap="dsx.action.search()"/>
   </NavBar>
 </DocsShell>
 `);

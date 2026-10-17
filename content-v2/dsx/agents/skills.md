@@ -28,7 +28,7 @@ The pack installs into your agent's skills folder. Run the same command again to
 | [Reviewing DSX apps](/skills/reviewing-dsx-apps/SKILL.md) | The loop to run before and after every change to a DSX project. |
 | [Structuring DSX apps](/skills/structuring-dsx-apps/SKILL.md) | Where DSX state goes and when one document has become two. |
 | [Thinking in DSX](/skills/thinking-in-dsx/SKILL.md) | The React and React Native to DSX translation table. |
-| [Using the despia CLI](/skills/using-the-despia-cli/SKILL.md) | The whole despia command surface, structural verbs first. |
+| [Using the Despia CLI](/skills/using-the-despia-cli/SKILL.md) | The whole despia command surface, structural verbs first. |
 | [Writing DSX apps](/skills/writing-dsx-apps/SKILL.md) | Write correct DSX app markup. |
 
 Three skills are in the installable pack today: **Designing DSX apps**, **Thinking in DSX** and **Writing DSX apps**. The others are published here so you can read them now, and join the pack with DSX's production release. Each link opens the skill's own `SKILL.md`, which you can also copy into your agent by hand.

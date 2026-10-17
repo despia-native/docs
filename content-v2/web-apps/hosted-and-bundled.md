@@ -15,7 +15,7 @@ A Despia app shows your web app in one of two ways. The Dom package's `web_sourc
 
 ## Hosted: the app loads your address
 
-This is what **New app** in the console sets up. Your site keeps its hosting and its deploys; the app always opens the current version. Use it for server-rendered apps (Next.js with a server, Remix, SvelteKit with a server), for apps that change daily, and whenever you are not sure.
+This is what **New app** in the Despia Console sets up. Your site keeps its hosting and its deploys; the app always opens the current version. Use it for server-rendered apps (Next.js with a server, Remix, SvelteKit with a server), for apps that change daily, and whenever you are not sure.
 
 ## Bundled: the app ships your build
 

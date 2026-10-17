@@ -9,7 +9,7 @@ You need a web app at a public HTTPS address and a Despia account. You do not ne
 
 ### Create the app
 
-Open the [Despia console](https://console.despia.com), choose **New app**, and enter your web app's address. The console makes the iOS and Android app around it.
+Open the [Despia Console](https://console.despia.com), choose **New app**, and enter your web app's address. The Despia Console makes the iOS and Android app around it.
 
 From a terminal, the same step is:
 
@@ -34,15 +34,15 @@ Deploy your web app as usual. The app loads it from your address, so the change 
 
 ### Build and try it
 
-Press **Build** in the console, or from a terminal:
+Press **Build** in the Despia Console, or from a terminal:
 
 ```sh
 npx @despia-native/cli build ios --cloud --project <project-id> --wait
 ```
 
-`<project-id>` is the id `account create` printed, or the one in the app's settings in the console.
+`<project-id>` is the id `account create` printed, or the one in the app's settings in the Despia Console.
 
-Install the build on your phone from the link it gives you, tap your button, and feel the haptic. A release build for the stores needs your store credentials: see [App Store Connect key](/ship/app-store-connect) and [Google Play service account](/ship/google-play).
+Install the build on your phone from the link it gives you, tap your button, and feel the haptic. A release build for the stores needs your store credentials: see [App Store Connect Key](/ship/app-store-connect) and [Google Play Service Account](/ship/google-play).
 
 :::
 

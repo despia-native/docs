@@ -1,9 +1,9 @@
 ---
-title: App Store Connect key
+title: App Store Connect Key
 description: Create the App Store Connect API key Despia uses to sign your iOS app and upload it to TestFlight and the App Store, and connect it once for your workspace.
 ---
 
-Despia signs and uploads your iOS builds with an App Store Connect API key from your own Apple developer account. You create it once and connect it to your workspace; every app in the workspace can use it.
+Despia signs and uploads your iOS builds with an App Store Connect API key from your own Apple Developer Account. You create it once and connect it to your workspace; every app in the workspace can use it.
 
 You need an [Apple Developer Program](https://developer.apple.com/programs/) membership, and the Account Holder or an Admin of that account to create the key.
 
@@ -32,13 +32,13 @@ npx @despia-native/cli stores add asc --file ./AuthKey.p8 --issuer-id <issuer-id
 npx @despia-native/cli stores add asc --file ./AuthKey.p8 --issuer-id <issuer-id> --key-id <key-id> --apply
 ```
 
-The first command checks everything and shows what it would do; `--apply` connects the key. `stores link asc` prints a short-lived link to upload the file in the console instead.
+The first command checks everything and shows what it would do; `--apply` connects the key. `stores link asc` prints a short-lived link to upload the file in the Despia Console instead.
 
 :::
 
 ## What Despia checks
 
-Before it saves the key, Despia tests it with Apple and checks its role. Nothing is stored if the test fails, and the console shows the steps to fix it. The key is stored encrypted and never shown again.
+Before it saves the key, Despia tests it with Apple and checks its role. Nothing is stored if the test fails, and the Despia Console shows the steps to fix it. The key is stored encrypted and never shown again.
 
 ```sh
 npx @despia-native/cli stores list

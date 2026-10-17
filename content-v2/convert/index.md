@@ -45,7 +45,7 @@ Add packages to the app, then call them from your code. See [Native features fro
 
 ### Build and ship
 
-Connect your App Store Connect key and Google Play service account once, build, send the build to testers, and submit. See [Build and ship](/ship).
+Connect your App Store Connect Key and Google Play Service Account once, build, send the build to testers, and submit. See [Build and ship](/ship).
 
 :::
 

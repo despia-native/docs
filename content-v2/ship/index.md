@@ -3,17 +3,17 @@ title: Shipping overview
 description: From a project to the App Store and Google Play: connect your store accounts once, build on Despia Cloud, test, submit and release.
 ---
 
-Shipping works the same for a DSX app and a converted web app. Despia builds and signs the app on Despia Cloud with your own store credentials, and every step can run from the console, the CLI or your agent.
+Shipping works the same for a DSX app and a converted web app. Despia builds and signs the app on Despia Cloud with your own store credentials, and every step can run from the Despia Console, the CLI or your agent.
 
 ::: steps
 
 ### Connect your store accounts
 
-Once per workspace: an [App Store Connect key](/ship/app-store-connect) for iOS and a [Google Play service account](/ship/google-play) for Android. Despia tests each one before it saves it.
+Once per workspace: an [App Store Connect Key](/ship/app-store-connect) for iOS and a [Google Play Service Account](/ship/google-play) for Android. Despia tests each one before it saves it.
 
 ### Build
 
-Press **Build** in the console, or run `despia build ios --cloud` and `despia build android --cloud`. See [Builds](/ship/builds).
+Press **Build** in the Despia Console, or run `despia build ios --cloud` and `despia build android --cloud`. See [Builds](/ship/builds).
 
 ### Test
 
@@ -41,8 +41,8 @@ Submit the build for review. When the store approves it, release it, all at once
 - **App Review.** [App Review](/app-review) explains the guidelines apps run into and how to pass them.
 
 ::: cards
-- [App Store Connect key](/ship/app-store-connect) {key} Connect iOS once.
-- [Google Play service account](/ship/google-play) {key} Connect Android once.
+- [App Store Connect Key](/ship/app-store-connect) {key} Connect iOS once.
+- [Google Play Service Account](/ship/google-play) {key} Connect Android once.
 - [Builds](/ship/builds) {hammer} Start, follow and download builds.
 - [Releases](/ship/releases) {iphone} TestFlight, testing tracks and review.
 :::

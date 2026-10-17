@@ -1,9 +1,9 @@
 ---
-title: The console
+title: The Despia Console
 description: console.despia.com is where your team creates apps, builds them, connects the stores and ships. Everything in it also works from the CLI.
 ---
 
-The [Despia console](https://console.despia.com) is the browser side of Despia. Use it to create apps, start and follow builds, connect your store accounts and manage your team. Every action in it has a CLI command too, so anything you do here can also run in CI.
+The [Despia Console](https://console.despia.com) is the browser side of Despia. Use it to create apps, start and follow builds, connect your store accounts and manage your team. Every action in it has a CLI command too, so anything you do here can also run in CI.
 
 ## Workspace pages
 
@@ -26,14 +26,14 @@ Each app has its own pages: its builds, store submissions and releases, the pack
 
 Store connections belong to the workspace, so you add them once and every app can use them. You need:
 
-- for iOS, an **App Store Connect API key**: the `.p8` file, its Key ID and your Issuer ID. See [App Store Connect key](/ship/app-store-connect).
-- for Android, a **Google Play service account**: its JSON key file. See [Google Play service account](/ship/google-play).
+- for iOS, an **App Store Connect API key**: the `.p8` file, its Key ID and your Issuer ID. See [App Store Connect Key](/ship/app-store-connect).
+- for Android, a **Google Play Service Account**: its JSON key file. See [Google Play Service Account](/ship/google-play).
 
-The console tests a key with the store before it saves it, checks that it has the role it needs, and stores it encrypted. Nothing is saved if the test fails.
+The Despia Console tests a key with the store before it saves it, checks that it has the role it needs, and stores it encrypted. Nothing is saved if the test fails.
 
 ## The same from the terminal
 
-| In the console | In the CLI |
+| In the Despia Console | In the CLI |
 | :-- | :-- |
 | Apps, New app | `despia account create --web https://your-app.com` |
 | Builds, Build | `despia build ios --cloud` |
@@ -42,4 +42,4 @@ The console tests a key with the store before it saves it, checks that it has th
 | Access Tokens | `despia workspace tokens` |
 | Plan and Credits | `despia workspace credits` |
 
-`despia stores link asc` prints a short-lived link that opens the console's upload page, for when you would rather pick the key file in a browser.
+`despia stores link asc` prints a short-lived link that opens the Despia Console's upload page, for when you would rather pick the key file in a browser.

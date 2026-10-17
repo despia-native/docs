@@ -1,6 +1,6 @@
 ---
 title: Releases
-description: Send a build to TestFlight or a Google Play testing track, invite testers, submit for review and release, from the console or the CLI.
+description: Send a build to TestFlight or a Google Play testing track, invite testers, submit for review and release, from the Despia Console or the CLI.
 ---
 
 After a build, the path to the stores is the same every time: testers first, then review, then release.
@@ -48,7 +48,7 @@ Despia attaches the message to the submission and prints the fixes that match it
 
 ## Release
 
-When a version is approved, release it from the console or with `despia publish release`. A rollout below 100 percent releases to a share of your users first: a phased release on iOS, a staged rollout on Android. A rollout of 0 halts an Android rollout.
+When a version is approved, release it from the Despia Console or with `despia publish release`. A rollout below 100 percent releases to a share of your users first: a phased release on iOS, a staged rollout on Android. A rollout of 0 halts an Android rollout.
 
 ## The next version
 

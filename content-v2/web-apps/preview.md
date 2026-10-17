@@ -34,7 +34,7 @@ For every web-view address the project names (the Dom `host`, `webview_url` and 
 What answers a call:
 
 - A package the browser can run, runs for real: `haptic` vibrates where the browser can, `clipboard` uses the browser clipboard, `share` opens the browser's share sheet.
-- A package the browser cannot run (Sign in with Apple, biometrics, the keychain) answers with a **simulated** result: `data.simulated` is `true`, `data.note` says why, the console warns, and an orange "Simulated in preview" note shows over the preview.
+- A package the browser cannot run (Sign in with Apple, biometrics, the keychain) answers with a **simulated** result: `data.simulated` is `true`, `data.note` says why, the Despia Console warns, and an orange "Simulated in preview" note shows over the preview.
 
 An address the project does not name loads as itself, without the bridge. Production builds carry none of this.
 

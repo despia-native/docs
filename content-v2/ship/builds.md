@@ -7,7 +7,7 @@ A build turns your project into a signed app: an `.ipa` for iOS and an `.aab` fo
 
 ## Start a build
 
-In the console, open your app and press **Build**. From a terminal:
+In the Despia Console, open your app and press **Build**. From a terminal:
 
 ```sh
 npx despia build ios --cloud --plan
@@ -24,7 +24,7 @@ despia build ios --cloud (release): revision r7, 9 file(s), com.acme.app
   cost 5 credits, balance 12
 ```
 
-Each failing row names the command or the console page that fixes it.
+Each failing row names the command or the Despia Console page that fixes it.
 
 | Flag | Meaning |
 | :-- | :-- |
@@ -43,7 +43,7 @@ npx despia builds show <build-id> --wait
 npx despia builds logs <build-id> --follow
 ```
 
-A build moves through fetch, packages, compile, sign and upload. `builds logs` prints the log with secrets removed, and for a failure it adds the diagnosis of the cause. The console also explains a failure in plain words.
+A build moves through fetch, packages, compile, sign and upload. `builds logs` prints the log with secrets removed, and for a failure it adds the diagnosis of the cause. The Despia Console also explains a failure in plain words.
 
 ## Credits
 

@@ -15,7 +15,7 @@ There is nothing to install in your web app. Despia defines `dsx` before your pa
 
 ### Create the app
 
-Open the [Despia console](https://console.despia.com), choose **New app**, and enter your web app's HTTPS address. Or, from a terminal:
+Open the [Despia Console](https://console.despia.com), choose **New app**, and enter your web app's HTTPS address. Or, from a terminal:
 
 ```sh
 npx @despia-native/cli login
@@ -43,13 +43,13 @@ Deploy your site as usual. A hosted app loads your address, so the change is liv
 
 ### Build and try it
 
-Press **Build** in the console, or:
+Press **Build** in the Despia Console, or:
 
 ```sh
 npx @despia-native/cli build ios --cloud --project <project-id> --wait
 ```
 
-`<project-id>` is the id `account create` printed, also shown in the app's settings in the console. Install the build from the link it gives you and tap your button.
+`<project-id>` is the id `account create` printed, also shown in the app's settings in the Despia Console. Install the build from the link it gives you and tap your button.
 
 :::
 

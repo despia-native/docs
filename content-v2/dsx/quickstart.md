@@ -106,7 +106,7 @@ npx despia login
 npx despia build ios --cloud
 ```
 
-A release build needs your App Store Connect key or Google Play service account. See [Build and ship](/ship).
+A release build needs your App Store Connect Key or Google Play Service Account. See [Build and ship](/ship).
 
 :::
 

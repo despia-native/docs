@@ -1,5 +1,5 @@
 ---
-title: The despia CLI
+title: Despia CLI
 description: Create, run, check, build and ship a DSX app from the terminal. The commands you use most, grouped by what you are doing.
 ---
 
@@ -55,7 +55,7 @@ despia --help
 | `despia login` | Sign in once on this machine |
 | `despia build ios --cloud` | Build the iOS app on Despia Cloud (`android` for Android) |
 | `despia builds` | List, follow, read the log of, cancel or download a cloud build |
-| `despia stores add` | Connect an App Store Connect key or a Google Play service account |
+| `despia stores add` | Connect an App Store Connect Key or a Google Play Service Account |
 | `despia testers add` | Invite a TestFlight tester, or open a Play testing track |
 | `despia publish` | Upload to TestFlight or Play internal testing, then promote and release |
 | `despia submit` | Submit a build for store review |

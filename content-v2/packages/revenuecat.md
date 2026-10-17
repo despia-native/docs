@@ -7,7 +7,7 @@ also: Core/Store/Modules/RevenueCat
 
 RevenueCat can attribute installs and purchases to your Apple Ads campaigns, from Apple's AdServices token. AdServices is not tracking, so it needs no App Tracking Transparency prompt. It is off by default.
 
-Turn it on for every launch with the `apple_ads_attribution` setting of the RevenueCat package (`true`). In the console it is in the package's settings; in a DSX project it is in `dsx.config.json`:
+Turn it on for every launch with the `apple_ads_attribution` setting of the RevenueCat package (`true`). In the Despia Console it is in the package's settings; in a DSX project it is in `dsx.config.json`:
 
 ```json title="dsx.config.json"
 {
