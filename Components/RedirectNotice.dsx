@@ -6,12 +6,12 @@
 <vstack class="doc-redirect-notice" visible-if="dsx.variable.shown != null" on:appear="dsx.action.boot()">
   <head>
     <attribute as="api" default="'https://api.despia.com'"/>
+    <api as="notice" url="{{ dsx.attribute.api }}/v1/docs-redirects/notice/{{ dsx.variable.id }}" auto="false"/>
     <variable as="id">return ''</variable>
     <variable as="shown">return null</variable>
     <!-- the app's routes are root-relative; the API names pages under the public /docs base -->
     <formula as="legacy">return dsx.variable.shown ? String(dsx.variable.shown.legacyUrl || '').replace(/^\/docs(?=\/|$)/, '') || '/' : '/'</formula>
     <formula as="body">return dsx.variable.shown ? String(dsx.variable.shown.body || '').replaceAll('](/docs/', '](/') : ''</formula>
-    <api as="notice" url="{{ dsx.attribute.api }}/v1/docs-redirects/notice/{{ dsx.variable.id }}" auto="false"/>
     <action as="boot">
       const id = String(dsx.query.notice || '')
       if (!/^[1-9][0-9]{0,15}$/.test(id) || dsx.variable.id === id) { return }
