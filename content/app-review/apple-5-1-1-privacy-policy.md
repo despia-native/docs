@@ -4,9 +4,8 @@ description: Every app that collects or shares data needs a reachable privacy po
 guideline: 5.1.1
 store: Apple, Google
 category: privacy
-platform: v4, legacy
+platform: v4
 official: https://developer.apple.com/app-store/review/guidelines/#data-collection-and-storage
-legacySource: /legacy/store-rejections/common-rejection/privacy-policy
 cases: 0
 order: 50
 ---
@@ -25,9 +24,8 @@ Analytics, crash reporting, push and payment SDKs all collect data; policies are
 
 ## How to fix it
 
-**Despia V4 (DSX).** List every package the app adds (analytics, push, payments) in the policy; link it from the app's settings screen and from App Store Connect.
+List every package the app adds (analytics, push, payments) in the policy; link it from the app's settings screen and from App Store Connect.
 
-**Despia V3 (legacy).** The full walkthrough, with code: [Privacy policy in the legacy docs](/legacy/store-rejections/common-rejection/privacy-policy).
 
 ## Reply to the reviewer
 

@@ -4,7 +4,7 @@ description: The name, description, screenshots and previews must show the app a
 guideline: 2.3
 store: Apple, Google
 category: metadata
-platform: v4, legacy
+platform: v4
 official: https://developer.apple.com/app-store/review/guidelines/#accurate-metadata
 cases: 0
 order: 120
@@ -24,9 +24,8 @@ Store screenshots made from the website or a design file instead of the shipped 
 
 ## How to fix it
 
-**Despia V4 (DSX).** The fix is in the app's content and store listing, not in an API.
+The fix is in the app's content and store listing, not in an API.
 
-**Despia V3 (legacy).** The same fix applies; see [Store rejections](/legacy/store-rejections/introduction) for how to resubmit.
 
 ## Reply to the reviewer
 

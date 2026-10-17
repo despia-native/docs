@@ -4,9 +4,8 @@ description: Before personal data is sent to a third-party AI service, the app m
 guideline: 5.1.2
 store: Apple
 category: privacy
-platform: v4, legacy
+platform: v4
 official: https://developer.apple.com/app-store/review/guidelines/#data-use-and-sharing
-legacySource: /legacy/store-rejections/common-rejection/ai-processing
 cases: 0
 order: 80
 ---
@@ -25,9 +24,8 @@ Chat and AI features post user content to model APIs with the disclosure only in
 
 ## How to fix it
 
-**Despia V4 (DSX).** Ask with a native confirm before the first AI call, say which service receives the data, and store the answer (for example with `await dsx.module.identityvault.write(...)`, from the [Identity Vault package](/packages/identityvault)).
+Ask with a native confirm before the first AI call, say which service receives the data, and store the answer (for example with `await dsx.module.identityvault.write(...)`, from the [Identity Vault package](/packages/identityvault)).
 
-**Despia V3 (legacy).** The full walkthrough, with code: [Sharing personal data with AI services in the legacy docs](/legacy/store-rejections/common-rejection/ai-processing).
 
 ## Reply to the reviewer
 

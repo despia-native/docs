@@ -472,7 +472,7 @@
  "/deploying.md": "/ship.md",
  "/native-ui": "/dsx/native-ui",
  "/native-ui.md": "/dsx/native-ui.md",
- "/mcp": "https://mcp.despia.com/mcp",
+ "/mcp": "https://mcp.despia.com/beta/mcp",
  "/convert/native-features": "/web-apps/native-features",
  "/convert/native-features.md": "/web-apps/native-features.md",
  "/convert/react": "/web-apps/frameworks",

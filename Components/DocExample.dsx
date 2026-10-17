@@ -18,11 +18,11 @@
       <spacer/>
       <CopyButton value="{{ dsx.attribute.code }}" label="Copy the example's code"/>
       <button icon="{{ dsx.variable.expanded ? 'arrow.down.right.and.arrow.up.left' : 'arrow.up.left.and.arrow.down.right' }}" variant="plain"
-              a11yLabel="{{ dsx.variable.expanded ? 'Collapse the example' : 'Expand the example' }}" class="doc-example-expand"
+              aria-label="{{ dsx.variable.expanded ? 'Collapse the example' : 'Expand the example' }}" class="doc-example-expand"
               on:tap="dsx.variable.expanded = !dsx.variable.expanded"/>
     </hstack>
     <stack class="{{ 'doc-example-stage' + (dsx.variable.expanded ? ' doc-example-open' : '') }}">
-      <stack class="{{ 'doc-example-preview' + (dsx.variable.tab === 'Preview' ? '' : ' doc-example-away') }}" role="figure" a11yLabel="Live example">
+      <stack class="{{ 'doc-example-preview' + (dsx.variable.tab === 'Preview' ? '' : ' doc-example-away') }}" role="figure" aria-label="Live example">
         <slot/>
       </stack>
       <stack class="{{ 'doc-example-code' + (dsx.variable.tab === 'Code' ? '' : ' doc-example-away') }}">

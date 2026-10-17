@@ -599,7 +599,7 @@ const WAITLIST_URL = process.env.DOCS_WAITLIST_URL ?? "";
 function comingSoonBlock(node, indent) {
   const topic = attrValue(node.attrs, "topic") ?? "";
   const chips = (attrValue(node.attrs, "chips") ?? "").split(",").filter(Boolean);
-  return `${indent}<hstack role="group" a11yLabel="Planned for">
+  return `${indent}<hstack role="group" aria-label="Planned for">
 ${chips.map((c) => `${indent}  <chip label="${escapeForDsxAttr(c)}"/>`).join("\n")}
 ${indent}</hstack>
 ${indent}<NotifyForm topic="${escapeForDsxAttr(topic)}"${WAITLIST_URL ? ` endpoint="${escapeForDsxAttr(WAITLIST_URL)}"` : ""}/>`;
@@ -649,9 +649,6 @@ function compileBody(page, lines, startLine, indent) {
 // its own llms.txt pair and an MCP `space` value. Modern keeps every path it ever had.
 const SPACES = [
   { id: "modern", label: "Despia V4", prefix: "", home: "/", blurb: "Despia V4 and DSX" },
-  { id: "legacy", label: "Legacy (V3)", prefix: "/legacy", home: "/legacy/introduction", blurb: "despia-native and the V3 runtime" },
-  { id: "migrate", label: "Migration", prefix: "/migrate", home: "/migrate", blurb: "Move a V3 app to Despia V4" },
-  { id: "troubleshooting", label: "Troubleshooting", prefix: "/troubleshooting", home: "/troubleshooting", blurb: "Symptom, cause, fix" },
   { id: "releases", label: "Releases", prefix: "/releases", home: "/releases", blurb: "Release notes per DSX release and per package version" },
   { id: "app-review", label: "App Review", prefix: "/app-review", home: "/app-review", blurb: "Apple and Google review guidelines, and how Despia apps pass them" },
 ];
@@ -826,6 +823,10 @@ if (fromV3 !== undefined) {
   pages.push({ ...fromV3, route: "/migrate/guide", space: "migrate", section: "Move to Despia V4", order: 2,
     label: "Step-by-step guide", component: componentNameFor("/migrate/guide"), meta: { ...fromV3.meta, canonicalOf: fromV3.route } });
 }
+// The docs are Despia V4 only: the V3 pages (/legacy, /migrate and the framework's from-v3 guide) are not built; their old
+// links 301 to the matching V4 page through the docs redirect table, which can show a notice there.
+const V3_ROUTE = /^\/(legacy|migrate|troubleshooting)(\/|$)|\/from-v3$/;
+for (let i = pages.length - 1; i >= 0; i--) if (V3_ROUTE.test(pages[i].route)) pages.splice(i, 1);
 pages.sort((a, b) => a.order - b.order || (a.route < b.route ? -1 : 1));
 
 /** Hand-authored pages: real DSX documents at the Components root (never generated —
@@ -870,17 +871,7 @@ const generatedPages = [
     description: "Every native feature you can add to a Despia app, from the package catalog. Shipped packages work today; the rest are coming soon.",
     search: "packages catalog native features " + loadPackages().packages.filter((x) => x.listed).map((x) => `${x.title} ${x.summary ?? ""}`).join(" "),
   },
-  {
-    route: "/troubleshooting",
-    component: "PageTroubleshooting",
-    title: "Troubleshooting",
-    label: "All articles",
-    space: "troubleshooting",
-    section: "",
-    order: 1,
-    description: "Symptom, cause and fix for the problems Despia developers actually hit, on Despia V4 and on the V3 runtime.",
-    search: "troubleshooting symptom cause fix " + tsArticles.map((p) => `${p.title} ${p.meta.symptom ?? ""}`).join(" "),
-  },
+
 ];
 
 // The App Review index is generated the same way: a filterable database of guideline entries.
@@ -893,7 +884,7 @@ generatedPages.push({
   space: "app-review",
   section: "",
   order: 1,
-  description: "Apple App Review guidelines and Google Play policies that Despia apps run into: what each means, why apps hit it, how to fix it on Despia V4 and V3, and a reply for the reviewer.",
+  description: "Apple App Review guidelines and Google Play policies that Despia apps run into: what each means, why apps hit it, how to fix it on Despia V4, and a reply for the reviewer.",
   search: "app review store rejection guideline apple google play " + arEntries.map((p) => `${p.meta.guideline ?? ""} ${p.title} ${p.meta.category ?? ""}`).join(" "),
 });
 
@@ -1190,82 +1181,6 @@ for (const page of pages) {
   writeMd(page.route, page.mdSource ?? defang(readFileSync(page.file, "utf8")));
 }
 
-// ── the generated Troubleshooting index ───────────────────────────────────────────────────
-{
-  const page = generatedPages.find((p) => p.route === "/troubleshooting");
-  const fmtUtc = (iso) => {
-    const d = new Date(iso);
-    return Number.isNaN(d.getTime()) ? "" : `${d.toISOString().slice(0, 10)} ${d.toISOString().slice(11, 16)} UTC`;
-  };
-  const span = (a, b) => {
-    const ms = new Date(b).getTime() - new Date(a).getTime();
-    if (!(ms >= 0)) return "";
-    const h = Math.floor(ms / 3600000);
-    const m = Math.round((ms % 3600000) / 60000);
-    const days = Math.floor(h / 24);
-    const sameDay = new Date(a).toISOString().slice(0, 10) === new Date(b).toISOString().slice(0, 10);
-    const clock = days >= 1 ? `${days} d ${h % 24} h` : `${h} h ${m} min`;
-    return `${clock}${sameDay ? ", same day" : ""}`;
-  };
-  const items = tsArticles.map((p) => {
-    const packages = String(p.meta.packages ?? "").split(",").map((s) => s.trim()).filter(Boolean);
-    // CMS schema v1 (collections/troubleshooting.json): platform v4 | legacy | both; reportedAt,
-    // workaroundAt, resolvedAt (+ resolvedIn, releaseNote). fixedAt / releasedAt are read as aliases.
-    const platform = p.meta.platform === "legacy" ? "Legacy" : p.meta.platform === "both" ? "V4 · Legacy" : "V4";
-    const reported = p.meta.reportedAt ?? "";
-    const released = p.meta.resolvedAt ?? p.meta.releasedAt ?? p.meta.fixedAt ?? "";
-    return {
-      id: p.route, route: p.route, title: p.title, symptom: p.meta.symptom ?? p.description,
-      platform, packages, packagesLabel: packages.join(" · "),
-      fixed: reported !== "" && released !== "",
-      reportedLabel: reported !== "" ? fmtUtc(reported) : "",
-      releasedLabel: released !== "" ? fmtUtc(released) : "",
-      timeToFix: reported !== "" && released !== "" ? span(reported, released) : "",
-      issueUrl: p.meta.issueUrl ?? "",
-      status: p.meta.status ?? "", resolvedIn: p.meta.resolvedIn ?? "", releaseNote: p.meta.releaseNote ?? "",
-    };
-  });
-  const packageOptions = ["All packages", ...[...new Set(items.flatMap((i) => i.packages))].sort()];
-  page.body = [
-    `# Troubleshooting`, "", page.description, "",
-    ...items.map((i) => `- [${i.title}](${site}${mdSibling(i.route)}) (${i.platform}${i.packagesLabel ? `; ${i.packagesLabel}` : ""}): ${i.symptom}`),
-    "",
-  ].join("\n");
-  page.mdVars = [];
-  page.attrVars = [];
-  const intro = pushMdVar(page, "Every article is one symptom, its cause and the fix, with the platform it applies to. Filter by platform or by package.");
-  const itemsVar = page.attrVars.push(JSON.stringify(items)) - 1;
-  // the variables carry JSON text; the formulas parse it once
-  const head = [
-    `    <variable as="platformFilter">return 'All'</variable>`,
-    `    <variable as="pkg">return 'All packages'</variable>`,
-    `    <formula as="items" input:raw="dsx.variable.a${itemsVar}">return JSON.parse(raw)</formula>`,
-    `    <formula as="shown" input:items="dsx.formula.items" input:wantPlatform="dsx.variable.platformFilter" input:pkg="dsx.variable.pkg">`,
-    `      return items.filter((i) => (wantPlatform === 'All' || i.platform.includes(wantPlatform)) &amp;&amp; (pkg === 'All packages' || i.packages.includes(pkg)))`,
-    `    </formula>`,
-    `    <formula as="fixed" input:items="dsx.formula.items">return items.filter((i) => i.fixed).map((i) => ({ ...i, line: 'Reported ' + i.reportedLabel + ', fixed in ' + i.timeToFix }))</formula>`,
-  ];
-  const lead = `    <markdown bind="dsx.variable.md${intro}"/>`;
-  const body = [
-    `    <ListGroup header="Filter">`,
-    `      <SettingsRow icon="iphone" title="Platform"><picker aria-label="Platform" bind="dsx.variable.platformFilter" options="All,V4,Legacy"/></SettingsRow>`,
-    `      <SettingsRow icon="shippingbox" title="Package"><picker aria-label="Package" bind="dsx.variable.pkg" options="${escapeForDsxAttr(packageOptions.join(","))}"/></SettingsRow>`,
-    `    </ListGroup>`,
-    `    <ListGroup header="Fixed fast" visible-if="dsx.formula.fixed.length &gt; 0">`,
-    `      <SettingsRow repeat="dsx.formula.fixed" key="id" icon="checkmark.circle" title="{{ dsx.this.title }}" subtitle="{{ dsx.this.line }}" chevron="true" tappable="true" on:tap="dsx.module.route.push({ path: dsx.this.route })"/>`,
-    `    </ListGroup>`,
-    `    <ListGroup header="Articles" visible-if="dsx.formula.shown.length &gt; 0">`,
-    `      <SettingsRow repeat="dsx.formula.shown" key="id" icon="wrench.and.screwdriver" title="{{ dsx.this.title }}" subtitle="{{ dsx.this.symptom }}" value="{{ dsx.this.platform }}" chevron="true" tappable="true" on:tap="dsx.module.route.push({ path: dsx.this.route })"/>`,
-    `    </ListGroup>`,
-    `    <ListGroup visible-if="dsx.formula.shown.length === 0">`,
-    `      <SettingsRow icon="magnifyingglass" title="No article matches" subtitle="Try another platform or package."/>`,
-    `    </ListGroup>`,
-  ].join("\n");
-  writeFileSync(join(generatedDir, `${page.component}.dsx`), pageFrame(page, head, lead, [], body.replace(/^  /gm, "")));
-  writeMd(page.route, page.body);
-  writeFileSync(join(publicDir, "troubleshooting.json"), JSON.stringify({ articles: items }, null, 1) + "\n");
-}
-
 // ── the generated App Review database ─────────────────────────────────────────────────────
 {
   const page = generatedPages.find((p) => p.route === "/app-review");
@@ -1318,7 +1233,6 @@ for (const page of pages) {
     `    <searchbar bind="dsx.variable.q" placeholder="Search guidelines"/>`,
     `    <ListGroup header="Filter">`,
     `      <SettingsRow icon="bag" title="Store"><picker aria-label="Store" bind="dsx.variable.store" options="All,Apple,Google"/></SettingsRow>`,
-    `      <SettingsRow icon="iphone" title="Platform"><picker aria-label="Platform" bind="dsx.variable.platformFilter" options="All,V4,Legacy"/></SettingsRow>`,
     `      <SettingsRow icon="square.grid.2x2" title="Category"><picker aria-label="Category" bind="dsx.variable.category" options="${escapeForDsxAttr(categories.join(","))}"/></SettingsRow>`,
     `    </ListGroup>`,
     `    <ListGroup header="{{ dsx.formula.countLabel }}" visible-if="dsx.formula.shown.length &gt; 0">`,
@@ -1399,13 +1313,11 @@ for (const page of pages) {
 {
   const file = join(root, "data", "integrations.json");
   const catalog = existsSync(file) ? JSON.parse(readFileSync(file, "utf8")).packages : [];
-  const mapRows = existsSync(join(root, "migrate", "map.json")) ? JSON.parse(readFileSync(join(root, "migrate", "map.json"), "utf8")).entries : [];
   const mentions = (p, m) => p.body !== undefined && (p.body.includes(`dsx.module.${m.command}.`) || p.body.includes(m.package) || (p.meta?.packages ?? "").split(",").map((x) => x.trim()).includes(m.package));
   const index = [];
   for (const m of catalog) {
     const docs = entries.filter((p) => mentions(p, m));
-    const v3 = mapRows.filter((r) => r.v4 && r.v4.package === m.package);
-    index.push({ ...m, docs: docs.map((p) => ({ route: p.route, title: p.title, space: p.space })), legacy: v3.map((r) => `/legacy${r.legacyPath}`) });
+    index.push({ ...m, docs: docs.map((p) => ({ route: p.route, title: p.title, space: p.space })) });
     const dir = join(publicDir, "modules", m.command);
     mkdirSync(dir, { recursive: true });
     writeFileSync(join(dir, "llms.txt"), [
@@ -1417,7 +1329,6 @@ for (const page of pages) {
       ...(m.actions.length > 0 ? [`- Actions: ${m.actions.map((a) => `\`${a}\``).join(", ")}`] : []),
       "", "## Docs", "",
       ...(docs.length > 0 ? docs.map((p) => `- [${p.title}](${site}${mdSibling(p.route)}) (${p.space})`) : ["- No page mentions this package yet."]),
-      ...(v3.length > 0 ? ["", "## Moving from v3", "", ...v3.map((r) => `- [${r.legacyTitle}](${site}/legacy${r.legacyPath}.md): ${r.note}`)] : []),
       "",
     ].join("\n"));
   }
@@ -1521,7 +1432,6 @@ writeFileSync(join(publicDir, "llms.txt"), [
   ...SPACES.map((s) => s.id === "modern"
     ? `- [Modern](${site}/llms.txt): this file; full text at ${site}/llms-full.txt`
     : `- [${s.label}](${site}${s.prefix}/llms.txt): ${s.blurb}; full text at ${site}${s.prefix}/llms-full.txt`),
-  `- [Migration map (JSON)](${site}/migrate-map.json): every v3 feature and its v4 package or API`,
   `- [Packages](${site}/modules/llms.txt): one llms.txt per package (API, licence, platforms, the docs that use it)`,
   "",
   ...llmsList("modern"),

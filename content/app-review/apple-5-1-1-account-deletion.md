@@ -4,7 +4,7 @@ description: An app that lets people create an account must also let them start 
 guideline: 5.1.1
 store: Apple, Google
 category: privacy
-platform: v4, legacy
+platform: v4
 official: https://developer.apple.com/app-store/review/guidelines/#data-collection-and-storage
 cases: 0
 order: 130
@@ -24,9 +24,8 @@ The web app handles deletion by email or in a web dashboard only.
 
 ## How to fix it
 
-**Despia V4 (DSX).** The fix is in the app's content and store listing, not in an API.
+The fix is in the app's content and store listing, not in an API.
 
-**Despia V3 (legacy).** The same fix applies; see [Store rejections](/legacy/store-rejections/introduction) for how to resubmit.
 
 ## Reply to the reviewer
 

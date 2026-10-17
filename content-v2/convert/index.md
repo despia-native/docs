@@ -53,5 +53,4 @@ Connect your App Store Connect key and Google Play service account once, build, 
 - [Quickstart](/convert/quickstart) {bolt} From your web app's address to a build on your phone.
 - [Native features from JavaScript](/web-apps/native-features) {shippingbox} Calls, results, errors and events.
 - [Running inside Despia](/web-apps/outside-despia) {globe} Keep one site working in the app and in a browser.
-- [Moving from Despia V3](/convert/from-v3) {book} Bring a V3 app over.
 :::

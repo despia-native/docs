@@ -9,43 +9,42 @@ There are three ways to connect an agent. Most people use all three.
 
 | Way in | What it gives the agent |
 | :-- | :-- |
-| The hosted MCP server, `https://mcp.despia.com/mcp` | The docs, the package catalog and every package's actions, with nothing to install |
+| The hosted MCP server, `https://mcp.despia.com/beta/mcp` | The docs, the package catalog and every package's actions, with nothing to install |
 | The local MCP server, `npx despia mcp` | Every `despia` command for the project on your machine |
 | Agent skills | How to write, structure and review DSX apps |
 
 ## The hosted MCP server
 
-The hosted server answers over HTTP. Its tools search and read these docs, list packages, read one package's actions and arguments, and look up a Despia V3 call's Despia V4 equivalent.
+The hosted server answers over HTTP. Its tools search and read these docs, list packages, and read one package's actions and arguments. It is in beta.
 
 ::: code-group
 ```sh title="Claude Code"
-claude mcp add --transport http despia https://mcp.despia.com/mcp
+claude mcp add --transport http despia https://mcp.despia.com/beta/mcp
 ```
 ```json title="Cursor"
 {
   "mcpServers": {
-    "despia": { "url": "https://mcp.despia.com/mcp" }
+    "despia": { "url": "https://mcp.despia.com/beta/mcp" }
   }
 }
 ```
 ```toml title="Codex"
 [mcp_servers.despia]
-url = "https://mcp.despia.com/mcp"
+url = "https://mcp.despia.com/beta/mcp"
 ```
 :::
 
 | Tool | What it does |
 | :-- | :-- |
-| `docs_search`, `docs_get` | Search the docs and read one page as Markdown |
-| `packages_list`, `packages_get` | The package catalog, and one package's page |
-| `packages_action` | One action: its call, arguments, result and errors |
-| `migration_guide`, `legacy_lookup` | Move a Despia V3 call to its Despia V4 equivalent |
-| `env_check`, `webview_setup` | Check a converted web app's setup |
+| `docsSearch`, `docsGet` | Search the docs and read one page as Markdown |
+| `packagesList`, `packagesGet` | The package catalog, and one package's page |
+| `packagesAction` | One action: its call, arguments, result and errors |
+| `envCheck`, `webviewSetup` | Check a converted web app's setup |
 
-`/mcp` is public and read-only: the docs and package tools need no sign-in. A second address, `https://mcp.despia.com/mcp/account`, adds the Despia commands that act on one workspace, such as builds, testers and store releases. Your agent's MCP client signs you in to it with OAuth the first time it connects.
+`/beta/mcp` is public and read-only: the docs and package tools need no sign-in. A second address, `https://mcp.despia.com/beta/mcp/account`, adds the Despia commands that act on one workspace, such as builds, testers and store releases. Your agent's MCP client signs you in to it with OAuth the first time it connects.
 
 ```sh
-claude mcp add --transport http despia-account https://mcp.despia.com/mcp/account
+claude mcp add --transport http despia-account https://mcp.despia.com/beta/mcp/account
 ```
 
 ## The local MCP server

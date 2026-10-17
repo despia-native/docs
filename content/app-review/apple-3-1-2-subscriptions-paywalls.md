@@ -5,9 +5,8 @@ description: A paywall must state what is bought, the price and billing period, 
 guideline: 3.1.2
 store: Apple, Google
 category: payments
-platform: v4, legacy
+platform: v4
 official: https://developer.apple.com/app-store/review/guidelines/#subscriptions
-legacySource: /legacy/store-rejections/common-rejection/deceptive-paywalls
 cases: 0
 order: 40
 ---
@@ -26,9 +25,8 @@ Conversion-optimised web paywalls carry dark patterns: tiny prices, the most exp
 
 ## How to fix it
 
-**Despia V4 (DSX).** Present store products with `await dsx.module.revenuecat.paywall()` (the store's own terms and prices), keep a visible close control, and show price, period and trial end next to the purchase button.
+Present store products with `await dsx.module.revenuecat.paywall()` (the store's own terms and prices), keep a visible close control, and show price, period and trial end next to the purchase button.
 
-**Despia V3 (legacy).** The full walkthrough, with code: [Subscriptions and paywalls in the legacy docs](/legacy/store-rejections/common-rejection/deceptive-paywalls).
 
 ## Reply to the reviewer
 

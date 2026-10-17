@@ -7,7 +7,7 @@ A `.dsx` document is executed by three kernels: Swift on iOS, Kotlin on Android 
 
 ## What runs where today
 
-| | Status in Despia V4 0.0.2 |
+| | Status in Despia V4 |
 | :-- | :-- |
 | Web (DSX DOM) | Production |
 | iOS and Android app, drawn by DSX DOM | Production |

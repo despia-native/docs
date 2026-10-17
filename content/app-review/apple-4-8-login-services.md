@@ -4,9 +4,8 @@ description: An app that offers third-party or social login (Google, Facebook an
 guideline: 4.8
 store: Apple
 category: login
-platform: v4, legacy
+platform: v4
 official: https://developer.apple.com/app-store/review/guidelines/#login-services
-legacySource: /legacy/store-rejections/common-rejection/social-login-options
 cases: 0
 order: 90
 ---
@@ -25,9 +24,8 @@ Apps add Google login first (it is what the web app had) and ship to iOS without
 
 ## How to fix it
 
-**Despia V4 (DSX).** Add Sign in with Apple beside the other providers: `await dsx.module.appleauth.signIn()` from the [Sign in with Apple package](/packages/appleauth), and the [OAuth package](/packages/oauth) for web-based providers.
+Add Sign in with Apple beside the other providers: `await dsx.module.appleauth.signIn()` from the [Sign in with Apple package](/packages/appleauth), and the [OAuth package](/packages/oauth) for web-based providers.
 
-**Despia V3 (legacy).** The full walkthrough, with code: [Login services in the legacy docs](/legacy/store-rejections/common-rejection/social-login-options).
 
 ## Reply to the reviewer
 

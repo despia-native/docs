@@ -4,9 +4,8 @@ description: Digital goods and services sold inside the app go through Apple's i
 guideline: 3.1.1
 store: Apple, Google
 category: payments
-platform: v4, legacy
+platform: v4
 official: https://developer.apple.com/app-store/review/guidelines/#in-app-purchase
-legacySource: /legacy/store-rejections/common-rejection/in-app-purchases
 cases: 0
 order: 30
 ---
@@ -25,9 +24,8 @@ Web apps often already sell through Stripe or a web checkout, link out to it, or
 
 ## How to fix it
 
-**Despia V4 (DSX).** Use the [RevenueCat package](/packages/revenuecat): `await dsx.module.revenuecat.paywall()`, `purchase()` and `customer()`; configure the products in App Store Connect and Google Play Console first.
+Use the [RevenueCat package](/packages/revenuecat): `await dsx.module.revenuecat.paywall()`, `purchase()` and `customer()`; configure the products in App Store Connect and Google Play Console first.
 
-**Despia V3 (legacy).** The full walkthrough, with code: [In-app purchase in the legacy docs](/legacy/store-rejections/common-rejection/in-app-purchases).
 
 ## Reply to the reviewer
 

@@ -86,4 +86,4 @@ Accessibility is ARIA. `role`, `aria-label`, `aria-hidden` and `aria-live` work 
 
 ## How it is drawn today
 
-In Despia V4 0.0.2, DSX documents are drawn by the DSX DOM renderer on iOS, Android and the web. Drawing with SwiftUI and Jetpack Compose (DSX View) is in alpha and reaches production with DSX 1.0.0. Your documents do not change between the two. See [iOS, Android and web](/dsx/platforms).
+In Despia V4, DSX documents are drawn by the DSX DOM renderer on iOS, Android and the web. Drawing with SwiftUI and Jetpack Compose (DSX View) is in alpha and reaches production with DSX 1.0.0. Your documents do not change between the two. See [iOS, Android and web](/dsx/platforms).

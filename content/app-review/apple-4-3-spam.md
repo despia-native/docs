@@ -4,9 +4,8 @@ description: Apps that duplicate others already on the store, or that ship many 
 guideline: 4.3
 store: Apple, Google
 category: minimum functionality
-platform: v4, legacy
+platform: v4
 official: https://developer.apple.com/app-store/review/guidelines/#spam
-legacySource: /legacy/store-rejections/common-rejection/spam-and-copies
 cases: 0
 order: 110
 ---
@@ -25,9 +24,8 @@ Generic to-do, notes, calculator or AI-chat wrappers without a distinct audience
 
 ## How to fix it
 
-**Despia V4 (DSX).** The fix is in the app's content and store listing, not in an API.
+The fix is in the app's content and store listing, not in an API.
 
-**Despia V3 (legacy).** The full walkthrough, with code: [Spam and copies in the legacy docs](/legacy/store-rejections/common-rejection/spam-and-copies).
 
 ## Reply to the reviewer
 

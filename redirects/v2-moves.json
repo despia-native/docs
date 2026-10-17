@@ -17,7 +17,7 @@
     "/deploying": "/ship",
     "/deploying#the-store-listing": "/ship#before-you-submit",
     "/native-ui": "/dsx/native-ui",
-    "/mcp": "https://mcp.despia.com/mcp",
+    "/mcp": "https://mcp.despia.com/beta/mcp",
     "/convert/native-features": "/web-apps/native-features",
     "/convert/react": "/web-apps/frameworks",
     "/convert/detect": "/web-apps/outside-despia",

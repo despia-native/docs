@@ -5,9 +5,8 @@ description: Reviewers reject flows that show blank or white screens or look unr
 guideline: 2.1
 store: Apple
 category: login
-platform: v4, legacy
+platform: v4
 official: https://developer.apple.com/app-store/review/guidelines/#app-completeness
-legacySource: /legacy/store-rejections/common-rejection/blank-screen-redirects
 cases: 0
 order: 100
 ---
@@ -26,9 +25,8 @@ Redirect-based OAuth leaves the app's web view on an empty page while the provid
 
 ## How to fix it
 
-**Despia V4 (DSX).** Run sign-in in the system browser session with `await dsx.module.oauth.start({ url, callback: "https" })` (the [OAuth package](/packages/oauth)) so the app never shows the redirect pages.
+Run sign-in in the system browser session with `await dsx.module.oauth.start({ url, callback: "https" })` (the [OAuth package](/packages/oauth)) so the app never shows the redirect pages.
 
-**Despia V3 (legacy).** The full walkthrough, with code: [Blank screens during login in the legacy docs](/legacy/store-rejections/common-rejection/blank-screen-redirects).
 
 ## Reply to the reviewer
 

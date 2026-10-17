@@ -4,9 +4,8 @@ description: The app has to be more than a website or a brochure in an app shell
 guideline: 4.2
 store: Apple
 category: minimum functionality
-platform: v4, legacy
+platform: v4
 official: https://developer.apple.com/app-store/review/guidelines/#minimum-functionality
-legacySource: /legacy/store-rejections/common-rejection/minimum-functionality
 cases: 0
 order: 10
 ---
@@ -25,9 +24,8 @@ Shipping from web code is fast, so landing pages, single-screen apps and website
 
 ## How to fix it
 
-**Despia V4 (DSX).** Build screens with DSX's native defaults (tab bar, navigation stack, native controls) rather than a web layout, and use native capabilities where they serve the app (push, haptics, offline).
+Build screens with DSX's native defaults (tab bar, navigation stack, native controls) rather than a web layout, and use native capabilities where they serve the app (push, haptics, offline).
 
-**Despia V3 (legacy).** The full walkthrough, with code: [Minimum functionality in the legacy docs](/legacy/store-rejections/common-rejection/minimum-functionality).
 
 ## Reply to the reviewer
 

@@ -57,7 +57,7 @@ await dsx.module.haptic.success();
 ```
 
 ::: note Where DSX is today
-Despia V4 0.0.2 renders DSX documents with the DSX DOM on iOS, Android and the web. Rendering with the platform's own UI toolkits (SwiftUI and Jetpack Compose) is in alpha and reaches production with DSX 1.0.0.
+Despia V4 renders DSX documents with the DSX DOM on iOS, Android and the web. Rendering with the platform's own UI toolkits (SwiftUI and Jetpack Compose) is in alpha and reaches production with DSX 1.0.0.
 :::
 
 ## Built for AI agents

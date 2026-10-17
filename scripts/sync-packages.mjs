@@ -55,13 +55,9 @@ try {
     const p = o.primary ?? o.footprint?.modules?.[0] ?? null;
     if (typeof p === "string" && typeof o.id === "string" && !(p in listingIds)) listingIds[p] = o.id;
   }
-  // A setting's secret rule and update class, read the way project-core reads config.json (package.ts fieldsOfConfig): a
-  // `secret` type or flag, a credential-like key name (project-core's own NAME_RULE, read from its source) unless the reviewed
-  // overrides say otherwise; a secret, or a key that declares no class, changes only with a new build.
-  const ruleSrc = /export const NAME_RULE = \/(.+)\/([a-z]*);/.exec(git("show", `${commit}:OpenSource/Engine/TypeScript/packages/project-core/src/package.ts`));
-  if (ruleSrc === null) throw new Error("project-core NAME_RULE not found: the secret rule moved");
-  const NAME_RULE = new RegExp(ruleSrc[1], ruleSrc[2]);
-  const { _note: _overridesNote, ...secretOverrides } = JSON.parse(git("show", `${commit}:ClosedSource/Cloud/api/scripts/secret-overrides.json`));
+  // A setting's secret kind and update class, read the way project-core reads config.json (package.ts fieldsOfConfig): a
+  // setting is a secret only when its descriptor declares one (`type: "secret"` or `secret: true`), never by its name; a secret,
+  // or a key that declares no class, changes only with a new build.
   const configOf = (path) => {
     // a package without settings has no config.json: that is an empty schema, not an error worth a line
     try { return JSON.parse(execFileSync("git", ["-C", repo, "show", `${commit}:ClosedSource/DSX/Modules/${path}/config.json`], { encoding: "utf8", maxBuffer: 16 << 20, stdio: ["ignore", "pipe", "ignore"] })); } catch { return {}; }
@@ -69,9 +65,7 @@ try {
   const settingOf = (path, raw, c) => {
     const spec = raw[c.key] !== null && typeof raw[c.key] === "object" ? raw[c.key] : {};
     const type = typeof spec.type === "string" ? spec.type : c.type;
-    const override = secretOverrides[`${path}:${c.key}`];
-    let secret = type === "secret" || spec.secret === true || (NAME_RULE.test(c.key) && override !== false);
-    if (override !== undefined) secret = override;
+    const secret = type === "secret" || spec.secret === true;
     const updates = secret || spec.updates === undefined ? "build" : spec.updates;
     return { key: c.key, label: c.label, description: c.description, type: c.type, secret, updates,
       ...(Array.isArray(spec.options) ? { options: spec.options.map((o) => (o !== null && typeof o === "object" ? o.value ?? o.label : o)) } : {}) };

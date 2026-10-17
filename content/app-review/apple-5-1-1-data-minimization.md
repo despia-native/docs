@@ -4,9 +4,8 @@ description: Only ask for personal data the app's features need; anything option
 guideline: 5.1.1
 store: Apple, Google
 category: privacy
-platform: v4, legacy
+platform: v4
 official: https://developer.apple.com/app-store/review/guidelines/#data-collection-and-storage
-legacySource: /legacy/store-rejections/common-rejection/user-specific-data
 cases: 0
 order: 60
 ---
@@ -25,9 +24,8 @@ Sign-up forms copied from the web ask for gender, birthday or phone number that 
 
 ## How to fix it
 
-**Despia V4 (DSX).** Remove fields no feature reads; mark the rest optional with the reason next to the field.
+Remove fields no feature reads; mark the rest optional with the reason next to the field.
 
-**Despia V3 (legacy).** The full walkthrough, with code: [Collecting data the app does not need in the legacy docs](/legacy/store-rejections/common-rejection/user-specific-data).
 
 ## Reply to the reviewer
 

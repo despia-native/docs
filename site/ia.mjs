@@ -41,7 +41,6 @@ export const SECTIONS = [
         ["/convert/quickstart", "Quickstart", "From your web app's URL to a build on your phone."],
       ] },
       { title: "Moving over", pages: [
-        ["/convert/from-v3", "Moving from Despia V3", "Your V3 calls keep working. Move each one when you are ready."],
       ] },
     ],
   },

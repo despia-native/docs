@@ -5,9 +5,8 @@ description: Tracking a user across other companies' apps and websites needs the
 guideline: 5.1.2
 store: Apple
 category: privacy
-platform: v4, legacy
+platform: v4
 official: https://developer.apple.com/app-store/review/guidelines/#data-use-and-sharing
-legacySource: /legacy/store-rejections/common-rejection/tracking-transparency
 cases: 0
 order: 70
 ---
@@ -26,9 +25,8 @@ Ad and attribution SDKs, or web tracking added later through an over-the-air upd
 
 ## How to fix it
 
-**Despia V4 (DSX).** Request permission with `await dsx.module.apptracking.permission.request()` from the [App Tracking package](/packages/apptracking) before any tracking SDK starts, and keep the privacy labels in step with every package that tracks.
+Request permission with `await dsx.module.apptracking.permission.request()` from the [App Tracking package](/packages/apptracking) before any tracking SDK starts, and keep the privacy labels in step with every package that tracks.
 
-**Despia V3 (legacy).** The full walkthrough, with code: [App Tracking Transparency in the legacy docs](/legacy/store-rejections/common-rejection/tracking-transparency).
 
 ## Reply to the reviewer
 
