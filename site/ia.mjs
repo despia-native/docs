@@ -18,6 +18,7 @@ export const SECTIONS = [
         ["/dsx/data", "Data and state", "Variables, formulas, actions and APIs: state that drives the screen."],
         ["/dsx/styling", "Styling is CSS", "Standard CSS in style= and <style> sheets. No styling attributes."],
         ["/dsx/attributes", "Attributes are data", "Attributes carry data into a component; presentation never rides on them."],
+        ["/dsx/naming", "Naming rules", "Markup is kebab-case like HTML, JavaScript and API names are camelCase, CSS is kebab-case, and every name has one spelling."],
       ] },
       { title: "Building", pages: [
         ["/dsx/native-ui", "Native UI", "The built-in elements and components, drawn natively on each platform."],

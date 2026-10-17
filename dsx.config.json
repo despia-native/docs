@@ -61,6 +61,14 @@
       }
     },
     {
+      "path": "/dsx/naming",
+      "component": "docs.V2Dsx_Naming",
+      "meta": {
+        "title": "Naming rules",
+        "description": "Markup is kebab-case like HTML, JavaScript and API names are camelCase, CSS is kebab-case, and every name has one spelling."
+      }
+    },
+    {
       "path": "/dsx/native-ui",
       "component": "docs.V2Dsx_NativeUi",
       "meta": {
