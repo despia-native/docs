@@ -21,7 +21,7 @@ export function pageMenu(md, toc = []) {
   const rows = outline.length >= 2
     ? `{ header: true, title: 'On this page' }, ${outline.map((t) => `{ title: '${attr(quote(t.title))}', href: '#${t.id}' }`).join(", ")}, { separator: true }, `
     : "";
-  return `[${rows}{ header: true, title: 'This page' }, { title: 'View as Markdown', icon: 'doc.plaintext', href: '${md}' }, { separator: true }, { header: true, title: 'Ask about it in' }, { title: 'Claude', icon: 'sparkles', href: 'https://claude.ai/new?q=${ask}' }, { title: 'ChatGPT', icon: 'bubble.left', href: 'https://chatgpt.com/?q=${ask}' }]`;
+  return `[${rows}{ header: true, title: 'This page' }, { title: 'View as Markdown', icon: 'doc.plaintext', href: '${md}' }, { separator: true }, { header: true, title: 'Ask about it in' }, { title: 'Claude', icon: 'text.bubble', href: 'https://claude.ai/new?q=${ask}' }, { title: 'ChatGPT', icon: 'bubble.left', href: 'https://chatgpt.com/?q=${ask}' }]`;
 }
 
 // the page menu's rows as a head variable: a heading's own punctuation (a question mark, a colon) is string data there,
@@ -32,10 +32,10 @@ export const pageMenuVar = (md, toc = []) => (md !== "" ? `    <variable as="pag
 export const navBar = ({ title, description = "", md = "", large = true, copy = false, toc = [] }) => {
   const text = (v) => (/^\{\{ .* \}\}$/.test(v) ? v : attr(v));
   const menu = md !== "" ? `    <menu slot="trailing" menu="{{ dsx.variable.pageMenu }}">
-      <button icon="ellipsis.circle" a11yLabel="Page options"/>
+      <button icon="ellipsis.circle" aria-label="Page options"/>
     </menu>
 ` : "";
   return `  <NavBar title="${text(title)}"${large ? ` large="true"${description !== "" ? ` description="${text(description)}"` : ""}` : ""}>
-    <button slot="trailing" icon="magnifyingglass" a11yLabel="Search the docs" shortcut="cmd+k" on:tap="dsx.action.search()"/>
+    <button slot="trailing" icon="magnifyingglass" aria-label="Search the docs" shortcut="cmd+k" on:tap="dsx.action.search()"/>
 ${copy ? `    <CopyButton slot="trailing" value="{{ dsx.variable.pageText }}" label="Copy page"/>\n` : ""}${menu}  </NavBar>`;
 };

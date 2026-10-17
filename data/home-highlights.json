@@ -1,0 +1,4 @@
+{
+  "_note": "The packages the docs home leads with, in order: catalog paths (data/packages.json `path`). The build refuses one that is not published in the catalog.",
+  "packages": ["Core/RevenueCat", "Core/OneSignal", "Core/Clerk", "Core/Auth/AppleAuth", "Core/Notify", "Core/Biometric", "Core/Growth/Modules/PostHog"]
+}
