@@ -117,6 +117,9 @@ const injectDocsScript = (dir) => {
       const doc = { "@context": "https://schema.org", "@graph": [main, { "@type": "BreadcrumbList", itemListElement: crumbs.map((c, i) => ({ "@type": "ListItem", position: i + 1, name: c.name, item: c.url })) }] };
       html = html.replace("</head>", `<script type="application/ld+json">${JSON.stringify(doc).replace(/</g, "\\u003c")}</script>\n</head>`);
     }
+    // the runtime starts after load (web.boot "after-load"): its module graph is not preloaded, so the page's own bytes (HTML,
+    // CSS, the body font) have the connection to themselves until the page is drawn
+    html = html.replace(/<link rel="modulepreload"[^>]*>\n?/g, "").replace(/<link rel="preload"[^>]*data-dsx-registry="[^"]*"[^>]*>\n?/g, "");
     if (!html.includes("/docs.js") && html.includes("</body>")) {
       html = html.replace("</body>", `<script defer src="/docs.js"></script>\n</body>`);
       enhanced += 1;
