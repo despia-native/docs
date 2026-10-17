@@ -843,6 +843,8 @@ cfg.entry = "V2Home";
 cfg.notFound = "docs.V2NotFound";
 // the console's route motion (framework router): a push slides on a phone, a fade and small rise on a wide window, tabs cross-fade
 cfg.router = { ...(cfg.router ?? {}), transition: "dsx" };
+// a docs page is its server-rendered HTML: the runtime starts once the page has loaded, or on the reader's first press or key
+cfg.web = { ...(cfg.web ?? {}), boot: "after-load" };
 cfg.siteUrl = SITE;
 writeFileSync(cfgPath, JSON.stringify(cfg, null, 2) + "\n");
 
