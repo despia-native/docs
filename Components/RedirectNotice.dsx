@@ -10,7 +10,7 @@
     <variable as="id">return ''</variable>
     <variable as="shown">return null</variable>
     <!-- the app's routes are root-relative; the API names pages under the public /docs base -->
-    <formula as="legacy">return dsx.variable.shown ? String(dsx.variable.shown.legacyUrl || '').replace(/^\/docs(?=\/|$)/, '') || '/' : '/'</formula>
+    <formula as="legacy">return dsx.variable.shown ? String(dsx.variable.shown.legacyUrl || '').replace(/^\/docs(?=\/|$)/, '') || '/legacy' : '/legacy'</formula>
     <formula as="body">return dsx.variable.shown ? String(dsx.variable.shown.body || '').replaceAll('](/docs/', '](/') : ''</formula>
     <action as="boot">
       const id = String(dsx.query.notice || '')
