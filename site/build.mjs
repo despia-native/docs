@@ -68,7 +68,7 @@ function overlays(section, route) {
 }
 
 function foot() {
-  return `<footer class="site-foot"><span>© ${new Date().getFullYear()} Despia · Despia V4 ${escapeHtml(RELEASE.version ?? "")}</span>
+  return `<footer class="site-foot"><span>© ${new Date().getFullYear()} Despia LLC-FZ · Despia V4 ${escapeHtml(RELEASE.version ?? "")}</span>
 <nav><a href="/llms.txt">llms.txt</a><a href="https://despia.com">despia.com</a><a href="${CONSOLE}">Console</a><a href="https://github.com/despia-native">GitHub</a></nav></footer>`;
 }
 
