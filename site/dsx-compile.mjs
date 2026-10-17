@@ -121,6 +121,7 @@ export function toDsxMarkdown(md) {
 const compName = (route) => "V2" + (route === "/" ? "Home" : route.split("/").filter(Boolean)
   .map((s) => s.replace(/(^|[-_])(\w)/g, (_, __, c) => c.toUpperCase())).join("_"));
 
+const SUGGESTED = ["/convert/quickstart", "/dsx/quickstart", "/web-apps/native-features", "/packages", "/ship/builds", "/ship/app-store-connect"];
 // ── the frame's data: sections, rows, the search palette ──────────────────────────────────────────────
 // the server halves of a package (Modules/Backend, Modules/Http) keep their pages, out of the catalog, search and home
 const allPkgs = loadPackages().packages.filter((p) => p.listed !== false);
@@ -197,7 +198,10 @@ const navData = {
     group: SECTIONS.find((s) => s.id === p.section).label, keywords: [p.group], path: p.route }))
     .concat(pkgs.map((p) => ({ id: p.url, title: titleOf(p), subtitle: p.summary, icon: "shippingbox", group: "Packages", keywords: [p.command ?? p.slug], path: p.url })))
     .concat(moreAreas.flatMap((a) => spaceGroups(a).flatMap((g) => g.rows.map((r) => ({ id: r.path, title: r.title, subtitle: g.title, icon: r.icon, group: a.space.label, keywords: [], path: r.path })))))
-    .filter((row, i, all) => all.findIndex((x) => x.id === row.id) === i),
+    .filter((row, i, all) => all.findIndex((x) => x.id === row.id) === i)
+    // an empty search opens on a few suggested pages (after the reader's own Recent), then every page by area
+    .map((row) => SUGGESTED.includes(row.path) ? { ...row, group: "Suggested" } : row)
+    .sort((a, b) => (SUGGESTED.indexOf(a.path) + 1 || 1e9) - (SUGGESTED.indexOf(b.path) + 1 || 1e9)),
 };
 
 function shell() {
