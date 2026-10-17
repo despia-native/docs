@@ -485,7 +485,7 @@ body:has([data-dsx-owner~="DocsShell"]) {
 
 /* THE TOOL LOGOS on the AI coding tool card: the vendors' own marks, one optical size, no tiles */
 .doc-tool-logos { gap: var(--doc-space-3); align-items: center; }
-.doc-tool-logos .dsx-image { width: 1.25rem; height: 1.25rem; }
+.doc-tool-logos > * { width: 1.5rem; height: 1.5rem; font-size: 1.5rem; }
 
 /* THE COLUMN. Code, tables and cards take the whole column (they line up with the page's cards and list groups);
    running text stops at the measure (36rem of the reading face: 72 to 78 characters a line). A <markdown> block is not on the page's content inset yet (the framework's prose
@@ -681,7 +681,7 @@ if (want("/")) {
     if (p === undefined || !p.published || !p.catalog) throw new Error(`data/home-highlights.json: ${path} is not a published catalog package`);
     return p;
   });
-  const card = (p) => ({ id: p.url, title: titleOf(p), summary: p.summary, brand: p.icon?.brand ?? "", icon: p.icon?.symbol ?? GROUP_ICON(groupOf(p)), tint: p.icon?.tint ?? "", path: p.url });
+  const card = (p) => ({ id: p.url, title: p.title ?? titleOf(p), summary: p.summary, brand: p.icon?.brand ?? "", icon: p.icon?.symbol ?? GROUP_ICON(groupOf(p)), tint: p.icon?.tint ?? "", path: p.url });
   const sample = "## One document, three languages\n\nA screen is one `.dsx` file: markup for the structure, a `<style>` sheet in standard CSS, and JavaScript in its actions and holes. The same document runs on iOS, Android and the web.\n\n```dsx title=\"Components/Counter.dsx\"\n" + HOME_SAMPLE + "\n```";
   const head = mdVar("sample", sample)
     + `    <variable as="routes">return ${jsLiteral([
