@@ -1,5 +1,5 @@
 {
-  "note": "Pages whose feature must be enabled in the dashboard so the build includes it (App Review guideline 2.5.19). `features` is id -> dashboard label, copied from d-ios scripts/native_features.json (staging-dynamic 5bdf3dd); `pages` maps a v3 page to a feature id (or a list). scripts/port-legacy.mjs adds `template` as a callout at the top of each page, with {feature} replaced by the label(s). The wording lives only here; the overview page is content/app-review/apple-2-5-19-native-features.md.",
+  "note": "Pages whose feature must be enabled in the dashboard so the build includes it (App Review guideline 2.5.19). `features` is id -> dashboard label, copied from d-ios scripts/native_features.json (staging-dynamic 3b0078f); `pages` maps a v3 page to a feature id (or a list). scripts/port-legacy.mjs adds `template` as a callout at the top of each page, with {feature} replaced by the label(s). The wording lives only here; the overview page is content/app-review/apple-2-5-19-native-features.md.",
   "template": "**Include {feature} in your app.** Apple requires each native feature to be declared in the build (App Review guideline 2.5.19). To include {feature}, enable it in the dashboard: **Builder > Native features > {feature} > Enable**, then publish. If {feature} is new to this app, pick a new version in the popup. The dashboard detects features from your web code, so most apps need nothing. [How it works](/app-review/apple-2-5-19-native-features)",
   "pages": {
     "/analytics/appsflyer/ad-revenue": "appsflyer",
@@ -47,6 +47,8 @@
     "/lovable/native-features/siri-shortcuts": "siri",
     "/lovable/native-features/storage-vault": "vault",
     "/lovable/native-features/store-location": "iap",
+    "/machine-learning/vision/ocr": "vision",
+    "/machine-learning/voice/speech-recognition": "speech",
     "/native-features/admob/Iinterstitial": "ads",
     "/native-features/admob/inline-ads": "ads",
     "/native-features/admob/rewarded-ads": "ads",
@@ -128,6 +130,7 @@
     "vault": "Secure vault",
     "wallet": "Apple Wallet passes",
     "websocket": "Native WebSocket",
-    "widget": "Home screen widget"
+    "widget": "Home screen widget",
+    "vision": "Vision (text and object recognition)"
   }
 }

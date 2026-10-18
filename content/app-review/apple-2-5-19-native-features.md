@@ -20,7 +20,7 @@ An app declares the native features it ships. Despia builds your app with the na
 
 ## Detection
 
-Every native feature has its own URL scheme named after its API, such as `revenuecat://`, `onesignal://`, `lighthaptic://` or `bluetooth://`, and the `despia-native` npm package calls the same features. Despia scans your web app in the background for those calls and for SDK usage, and shows the result under **Builder > Native features**. A feature your code uses is included in the next build. When your app uses a feature that isn't imported yet, the dashboard suggests **Import all**. Most apps need nothing here.
+Every native feature has its own URL scheme named after its API, such as `revenuecat://`, `onesignal://`, `lighthaptic://` or `bluetooth://`, and the `despia-native` npm package calls the same features. Despia scans your web app in the background for those calls and for SDK usage, and shows the result under **Builder > Native features**. A feature your code uses is included in the next build. When your app uses a feature that isn't imported yet, the dashboard suggests **Import all**. Features used through standard browser APIs, such as camera, microphone and location, are detected too. Most apps need nothing here.
 
 ## Import at deploy
 
