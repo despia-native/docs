@@ -65,6 +65,9 @@ if (existsSync(correctionsFile)) {
   for (const row of doc.pages ?? []) correctionOf.set(row.path, row);
   for (const row of doc.patterns ?? []) { patterns.push(row); patternHits.set(row.id, 0); }
 }
+// ── native-feature notes (legacy/native-feature-notes.json): one wording, a callout on each feature page ─────
+const featureNotes = existsSync(join(root, "legacy", "native-feature-notes.json"))
+  ? JSON.parse(readFileSync(join(root, "legacy", "native-feature-notes.json"), "utf8")) : { template: "", pages: {} };
 /** Applies a page's corrections to its source; every `find` must still be there (else the fact moved). */
 function correct(path, body, problems) {
   let text = body;
@@ -85,6 +88,8 @@ function correct(path, body, problems) {
     }
     if (hit) { notes.push(pattern.callout); patternHits.set(pattern.id, patternHits.get(pattern.id) + 1); }
   }
+  const feature = featureNotes.pages[path];
+  if (feature !== undefined) notes.push(featureNotes.template.split("{feature}").join(feature));
   return notes.length === 0 ? text : `${notes.map((n) => `<Note>\n${n}\n</Note>`).join("\n\n")}\n\n${text}`;
 }
 
@@ -152,7 +157,7 @@ function rewriteHref(href, pagePath) {
   const setup = /^https?:\/\/setup\.despia\.com(\/[^\s]*)?$/.exec(h);
   if (setup !== null) h = setup[1] ?? "/introduction";
   if (h.startsWith("./") || h.startsWith("../")) h = posix.normalize(posix.join(posix.dirname(pagePath), h));
-  if (!h.startsWith("/") || h.startsWith("//") || h.startsWith(LEGACY + "/")) return h;
+  if (!h.startsWith("/") || h.startsWith("//") || h.startsWith(LEGACY + "/") || h.startsWith("/app-review/")) return h;
   if (h.startsWith("/images/") || h.startsWith("/logo/")) return LEGACY + h;
   const [pathPart, hash = ""] = h.split("#");
   let clean = pathPart.replace(/\/$/, "") || "/introduction";
@@ -509,6 +514,7 @@ mkdirSync(out, { recursive: true });
 const orderOf = new Map(navOrder.map((n, i) => [n.path, i]));
 const problems = [];
 let ported = 0;
+for (const path of Object.keys(featureNotes.pages)) if (!allPaths.includes(path)) problems.push(`legacy/native-feature-notes.json: ${path} is not a v3 page`);
 for (const path of correctionOf.keys()) if (!allPaths.includes(path)) problems.push(`legacy/corrections.json: ${path} is not a v3 page`);
 for (const path of allPaths) {
   const file = join(src, ...(path.slice(1) + ".mdx").split("/"));

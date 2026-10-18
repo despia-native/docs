@@ -1,0 +1,43 @@
+---
+title: Native features and guideline 2.5.19
+description: Apple requires each native feature to be declared in the build. Despia includes a feature when your web code uses it or when you enable it in the dashboard.
+guideline: 2.5.19
+store: Apple
+category: native features
+platform: legacy
+official: https://developer.apple.com/app-store/review/guidelines/#software-requirements
+cases: 0
+order: 95
+---
+
+# Native features and guideline 2.5.19
+
+**Apple App Review Guideline 2.5.19** · Read the official text: [App Review Guidelines](https://developer.apple.com/app-store/review/guidelines/#software-requirements).
+
+## What it means
+
+An app declares the native features it ships. Despia builds your app with the native features and SDKs it needs, so the review sees what your app uses.
+
+## Detection
+
+Despia scans your web app for `despia://` calls and SDK usage and shows the result under **Builder > Native features**. A feature your code uses is included in the next build. Most apps need nothing here.
+
+## Enable a feature
+
+1. Open your app in the dashboard and go to **Builder > Native features**.
+2. Find the feature and switch it to **Enable**.
+3. Publish. If the feature is new to this app, a popup asks for a new version. Pick the next minor, the next major, or a custom number.
+
+## Overrides
+
+| Setting | Result |
+| --- | --- |
+| Auto | Included when your web code uses it. |
+| Force on | Always included. |
+| Force off | Never included. |
+
+Use **Force on** for features your web code loads at runtime in a way the scan cannot see.
+
+## Versions
+
+A published version keeps the feature set it was built with. Adding a feature needs a new version, which is why the popup appears on Publish. Removing a feature needs no new version.
