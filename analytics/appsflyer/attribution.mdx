@@ -4,6 +4,10 @@ description: "Read where every user came from across TikTok, Meta, Google, affil
 icon: "bullseye-arrow"
 ---
 
+import NativeFeatureEnable from "/snippets/native-feature-enable.mdx"
+
+<NativeFeatureEnable feature="AppsFlyer attribution" />
+
 Despia resolves attribution natively through the AppsFlyer SDK, caches it on the device, and injects it into your web layer on every page load. It is also re-injected the moment attribution resolves or updates (first install conversion, re-engagement, deep link click), so the values stay current without any polling.
 
 ## Installation

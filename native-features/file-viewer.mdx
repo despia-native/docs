@@ -4,6 +4,10 @@ description: "Open a remote file in a native previewer with consistent render fi
 icon: "file-magnifying-glass"
 ---
 
+import NativeFeatureEnable from "/snippets/native-feature-enable.mdx"
+
+<NativeFeatureEnable feature="Files and image save" />
+
 `fileviewer://` opens any remote file in a native previewer without forcing the user out of your app. iOS renders the file through QuickLook; Android renders it through Despia's in-app file viewer, built to match QuickLook's fidelity so output stays consistent regardless of what apps the user has installed.
 
 Useful for invoices, statements, contracts, exported reports, generated PDFs, and any other case where you would otherwise navigate the user to a hosted file URL and lose your app's context.

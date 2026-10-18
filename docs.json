@@ -420,6 +420,7 @@
         "icon": "brake-warning",
         "pages": [
           "store-rejections/introduction",
+          "store-rejections/guideline-2-5-19",
           {
             "group": "Common Rejection",
             "icon": "message-dots",

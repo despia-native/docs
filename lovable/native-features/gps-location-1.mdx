@@ -4,6 +4,10 @@ icon: "location-arrow"
 description: "Track and retrieve a user's real-time location data with configurable intervals using the Despia SDK."
 ---
 
+import NativeFeatureEnable from "/snippets/native-feature-enable.mdx"
+
+<NativeFeatureEnable feature="Location" />
+
 <Note>
   This is the second version of background location tracking in Despia. This version utilizes the real native system’s background task capabilities to send network requests while the app is closed. This ensures reliable background location tracking for GPS-based applications like taxi apps, delivery apps, and so on. Unlike the previous version, this version does not inherit any WebView GPS limitations because it uses real native modules.
 </Note>

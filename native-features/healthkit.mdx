@@ -5,6 +5,10 @@ description: "Read and write Apple HealthKit data including steps, heart rate, s
 hidden: true
 ---
 
+import NativeFeatureEnable from "/snippets/native-feature-enable.mdx"
+
+<NativeFeatureEnable feature="Health data" />
+
 The Despia native bridge gives your web app direct access to Apple HealthKit, covering quantity types, category types (including sleep), workouts, and characteristics. Data is returned as JSON via the `despia()` call.
 
 <Info>

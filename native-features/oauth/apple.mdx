@@ -4,6 +4,10 @@ description: "Sign In with Apple, platform-aware. Native Face ID on iOS, Chrome 
 icon: "apple"
 ---
 
+import NativeFeatureEnable from "/snippets/native-feature-enable.mdx"
+
+<NativeFeatureEnable feature="OAuth sign-in bridge" />
+
 Sign In with Apple using the Apple JS SDK in three flavors. iOS uses the SDK's native popup mode to surface the Face ID / Apple ID sheet directly inside the WebView. Android cannot trigger that sheet, so the flow goes through Chrome Custom Tabs and a deeplink bridge. Web uses the standard SDK popup.
 
 <Info>

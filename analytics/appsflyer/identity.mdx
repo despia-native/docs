@@ -4,6 +4,10 @@ description: "Tie attribution and events to your own user IDs, pass hashed email
 icon: "fingerprint"
 ---
 
+import NativeFeatureEnable from "/snippets/native-feature-enable.mdx"
+
+<NativeFeatureEnable feature="AppsFlyer attribution" />
+
 Identity commands connect AppsFlyer's device-level attribution to your own user model. Everything here is forwarded to the native SDK. Email and phone are SHA256-hashed on the device before transmission, so raw PII never leaves the app.
 
 ## Installation

@@ -4,6 +4,10 @@ description: "Encrypted persistent storage backed by iCloud Key Value Store on i
 icon: "vault"
 ---
 
+import NativeFeatureEnable from "/snippets/native-feature-enable.mdx"
+
+<NativeFeatureEnable feature="Secure vault" />
+
 Encrypted key-value storage fully bridged to your web layer. Data survives app restarts, updates, and full uninstall/reinstall cycles. Lock any value behind Face ID or Touch ID by setting `locked=true`, reading it back triggers the biometric prompt.
 
 <Info>

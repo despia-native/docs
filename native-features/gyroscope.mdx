@@ -4,6 +4,10 @@ icon: "compass"
 description: "Read live angular velocity from the device's gyroscope plus magnetic heading from the compass on a single channel, with a magnitude threshold for filtering low-motion noise."
 ---
 
+import NativeFeatureEnable from "/snippets/native-feature-enable.mdx"
+
+<NativeFeatureEnable feature="Motion sensors" />
+
 Read the device's gyroscope alongside its magnetic compass on a single channel. Every gyro reading carries the latest cached heading, so the same callback drives motion-driven UI, shake-to-action gestures, AR overlays, fitness apps, and compass or Qibla needles. Pass a magnitude threshold to filter out low-motion noise, or pass `0` to receive every sample. No permission prompt, no setup.
 
 ---

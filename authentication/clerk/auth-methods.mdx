@@ -4,6 +4,10 @@ icon: "arrow-right-from-bracket"
 description: "Auth Sheet, email/username/phone password, OAuth, Apple, email and phone OTP, passkeys, MFA, Enterprise SSO, password reset, and magic-link tickets."
 ---
 
+import NativeFeatureEnable from "/snippets/native-feature-enable.mdx"
+
+<NativeFeatureEnable feature="Clerk sign-in" />
+
 Present Clerk's prebuilt sheet, or drive each flow from your own UI. Both produce the same session and emit through `window.onClerkEvent`. [Configure](/authentication/clerk/introduction#configure) first.
 
 Successful sign-in flows emit:

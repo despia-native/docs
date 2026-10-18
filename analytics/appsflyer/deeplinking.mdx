@@ -4,6 +4,10 @@ description: "Carry campaign, affiliate, invite, and content metadata from a lin
 icon: "link"
 ---
 
+import NativeFeatureEnable from "/snippets/native-feature-enable.mdx"
+
+<NativeFeatureEnable feature="AppsFlyer attribution" />
+
 Deep linking carries the context of a click into your app. When someone taps your ad, a creator's affiliate link, an invite, or a share of a specific product or episode, the data you attached to that link (a product ID, a creator code, an invite code, an episode ID, an offer) is delivered to your app when it opens. This is the whole point of deferred deep linking: the user does not have the app yet, taps the link, gets sent to the App Store or Play Store, installs, and opens, and the original context still arrives on that first launch. Instead of dumping them on a generic home screen, you open the exact product, creator page, episode, or offer they came for.
 
 <Info>

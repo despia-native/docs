@@ -5,6 +5,10 @@ icon: "circle-info"
 sidebarTitle: "Introduction"
 ---
 
+import NativeFeatureEnable from "/snippets/native-feature-enable.mdx"
+
+<NativeFeatureEnable feature="Clerk sign-in" />
+
 Native Clerk authentication for iOS and Android. The host app embeds Clerk's native SDK, your web app drives it from JavaScript through `despia()` calls and two global hooks. Optional, for apps that need Keychain or Keystore backed sessions, native Sign in with Apple, offline cold-launch, or zero-config server-side auth. Web auth providers like Supabase, Firebase, NextAuth, Auth0, or Clerk's own web SDK work in Despia out of the box without this.
 
 <Info>

@@ -4,6 +4,10 @@ description: "Stream audio with a real native player, lock-screen controls, and 
 icon: "headphones"
 ---
 
+import NativeFeatureEnable from "/snippets/native-feature-enable.mdx"
+
+<NativeFeatureEnable feature="Native audio" />
+
 Play a queue or a paginated feed of audio through a real native player that keeps running in the background, drives the lock screen and Control Center, and survives page reloads. The operating system owns playback end to end, so audio continues after the screen locks or the web view suspends, and every remote control, interruption, and route change stays in sync with your web app. Your page never touches an `<audio>` element, it hands the native player a track list and reacts to the events that come back.
 
 <Info>

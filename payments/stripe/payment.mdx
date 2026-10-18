@@ -4,6 +4,10 @@ description: "Show the native Stripe Payment Sheet from your web app and receive
 icon: "credit-card"
 ---
 
+import NativeFeatureEnable from "/snippets/native-feature-enable.mdx"
+
+<NativeFeatureEnable feature="Stripe payments" />
+
 Call `despia('stripe://payment?...')` to show the native Stripe Payment Sheet with a publishable key and a Payment Intent client secret. The sheet handles card entry, 3DS, Link, and any other payment methods enabled on the Payment Intent, then the Despia runtime fires `window.stripeEvent` once with the outcome.
 
 A second action, `despia('stripe://manage?...')`, opens Stripe's native CustomerSheet so signed-in customers can add, remove, and pick a default among their saved payment methods. Both actions share the same `window.stripeEvent` callback. See [Manage saved cards](#manage-saved-cards).

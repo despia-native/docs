@@ -4,6 +4,10 @@ description: "Route every file upload to the correct native picker based on the 
 icon: "paperclip"
 ---
 
+import NativeFeatureEnable from "/snippets/native-feature-enable.mdx"
+
+<NativeFeatureEnable feature="Native camera" />
+
 Give users a native picker that matches what your upload actually accepts. Photo and video inputs open the system photo picker, audio and document inputs open the Files or Documents picker scoped to those exact formats, and camera inputs go straight to the lens. Selected files arrive in the input as ordinary `File` objects backed by a URL, so a large recording or video uploads without being copied through memory first.
 
 <Info>

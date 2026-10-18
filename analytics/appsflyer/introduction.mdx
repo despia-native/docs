@@ -4,6 +4,10 @@ description: "Native AppsFlyer attribution, deep linking, events, identity, cons
 icon: "circle-info"
 ---
 
+import NativeFeatureEnable from "/snippets/native-feature-enable.mdx"
+
+<NativeFeatureEnable feature="AppsFlyer attribution" />
+
 Despia embeds the native AppsFlyer SDK in your iOS and Android builds and manages its entire lifecycle for you: initialization at launch, session tracking on every foreground, attribution resolution, deep link handling, and local caching. Your web layer never touches the SDK directly. It reads injected variables and sends commands through the `appsflyer://` scheme.
 
 <Info>

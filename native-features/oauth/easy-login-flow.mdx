@@ -4,6 +4,10 @@ description: "Finish social sign-in on your own domain, with the provider's redi
 icon: "key"
 ---
 
+import NativeFeatureEnable from "/snippets/native-feature-enable.mdx"
+
+<NativeFeatureEnable feature="OAuth sign-in bridge" />
+
 Social sign-in runs inside a secure browser session that is isolated from your app by design, and something has to carry the result back across that isolation. This feature ends the session the moment the provider redirects to your own domain, then loads that exact URL in your app, so the session cookie is written by your app on the first real request. There is no intermediate callback page, no custom URL scheme, and no path to configure: any redirect to your host finishes the login.
 
 <Info>

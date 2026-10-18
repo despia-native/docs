@@ -4,6 +4,10 @@ description: "Repoint a compiled app at a test environment at runtime without re
 icon: "flask"
 ---
 
+import NativeFeatureEnable from "/snippets/native-feature-enable.mdx"
+
+<NativeFeatureEnable feature="Sandbox" />
+
 Repoint a compiled app at a test environment at runtime, without rebuilding. Testers can redirect the running app from its production host to a staging host and start URL, run QA against the test backend, then restore the production app when they are done. Every switch, and every launch that starts in a test environment, shows a native alert so it is always clear which environment is live, and the behaviour is identical on iOS and Android.
 
 <Info>

@@ -4,6 +4,10 @@ icon: "circle-info"
 title: "Introduction"
 ---
 
+import NativeFeatureEnable from "/snippets/native-feature-enable.mdx"
+
+<NativeFeatureEnable feature="OAuth sign-in bridge" />
+
 Native apps cannot handle OAuth redirects the way browsers do. Despia solves this with two URL protocols that together handle opening a secure browser session, returning the user to your app, and passing tokens back to your WebView, without any native code changes on your part.
 
 ---

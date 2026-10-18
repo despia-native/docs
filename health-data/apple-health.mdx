@@ -4,6 +4,10 @@ icon: "apple"
 description: "Read and write Apple HealthKit data including steps, heart rate, sleep, workouts, and more within your Despia app."
 ---
 
+import NativeFeatureEnable from "/snippets/native-feature-enable.mdx"
+
+<NativeFeatureEnable feature="Health data" />
+
 Access Apple HealthKit from your web app through the Despia native bridge. Despia gives you three ways to work with health data: read historical records on demand, write new samples back to HealthKit, and subscribe to live updates via server webhooks. All three work from JavaScript with no native code required.
 
 <Info>

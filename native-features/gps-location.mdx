@@ -4,6 +4,10 @@ description: "Track a user's real-time location with configurable time intervals
 icon: "location-dot"
 ---
 
+import NativeFeatureEnable from "/snippets/native-feature-enable.mdx"
+
+<NativeFeatureEnable feature="Location" />
+
 Track and retrieve a user's real-time location using the device's native GPS. Supports live updates to your frontend as the user moves, chronological replay on app reopen, optional server delivery on each point, one-off single reads, and distance-based triggers for high-accuracy use cases like running or navigation apps. A coarse long-range mode keeps recording while the app is backgrounded and survives the app being force-killed, which suits delivery tracking, trip logging, and region-crossing detection.
 
 <Info>

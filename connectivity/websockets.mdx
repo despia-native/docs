@@ -4,6 +4,10 @@ description: "WebSocket connection owned by the native runtime, with durable mes
 icon: "signal-stream"
 ---
 
+import NativeFeatureEnable from "/snippets/native-feature-enable.mdx"
+
+<NativeFeatureEnable feature="Native WebSocket" />
+
 Open and manage WebSocket connections through the native runtime rather than the WebView. Connections stay alive across reloads, backgrounding, and network loss, with durable storage for both inbound messages and outbound sends.
 
 <Info>
