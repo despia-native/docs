@@ -4,6 +4,10 @@ description: "Run native optical character recognition on any image on iOS and A
 icon: "barcode-scan"
 ---
 
+import NativeFeatureEnable from "/snippets/native-feature-enable.mdx"
+
+<NativeFeatureEnable feature="Vision (text and object recognition)" />
+
 Run optical character recognition on any image using the device's native on-device text engine, returning the extracted text straight to your web app. Read from a hosted image, a photo the user picks, a multi-page document scan, or raw image bytes already held in memory. Recognition runs entirely on-device, so it works offline and never sends image data anywhere. Useful for receipts, invoices, business cards, ID capture, handwritten notes, and any flow where you would otherwise ship an image to a cloud OCR service.
 
 <Info>
