@@ -22,6 +22,10 @@ An app declares the native features it ships. Despia builds your app with the na
 
 Despia scans your web app for `despia://` calls and SDK usage and shows the result under **Builder > Native features**. A feature your code uses is included in the next build. Most apps need nothing here.
 
+## Import at deploy
+
+When you deploy and your app uses a native feature it hasn't imported yet, Despia tells you which one and offers to import it. Choose **Import** and the feature is included in that build.
+
 ## Enable a feature
 
 1. Open your app in the dashboard and go to **Builder > Native features**.

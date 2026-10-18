@@ -67,7 +67,7 @@ if (existsSync(correctionsFile)) {
 }
 // ── native-feature notes (legacy/native-feature-notes.json): one wording, a callout on each feature page ─────
 const featureNotes = existsSync(join(root, "legacy", "native-feature-notes.json"))
-  ? JSON.parse(readFileSync(join(root, "legacy", "native-feature-notes.json"), "utf8")) : { template: "", pages: {} };
+  ? JSON.parse(readFileSync(join(root, "legacy", "native-feature-notes.json"), "utf8")) : { template: "", features: {}, pages: {} };
 /** Applies a page's corrections to its source; every `find` must still be there (else the fact moved). */
 function correct(path, body, problems) {
   let text = body;
@@ -88,8 +88,8 @@ function correct(path, body, problems) {
     }
     if (hit) { notes.push(pattern.callout); patternHits.set(pattern.id, patternHits.get(pattern.id) + 1); }
   }
-  const feature = featureNotes.pages[path];
-  if (feature !== undefined) notes.push(featureNotes.template.split("{feature}").join(feature));
+  const ids = featureNotes.pages[path];
+  if (ids !== undefined) notes.push(featureNotes.template.split("{feature}").join([ids].flat().map((id) => featureNotes.features[id]).join(" or ")));
   return notes.length === 0 ? text : `${notes.map((n) => `<Note>\n${n}\n</Note>`).join("\n\n")}\n\n${text}`;
 }
 
@@ -514,7 +514,10 @@ mkdirSync(out, { recursive: true });
 const orderOf = new Map(navOrder.map((n, i) => [n.path, i]));
 const problems = [];
 let ported = 0;
-for (const path of Object.keys(featureNotes.pages)) if (!allPaths.includes(path)) problems.push(`legacy/native-feature-notes.json: ${path} is not a v3 page`);
+for (const [path, ids] of Object.entries(featureNotes.pages)) {
+  if (!allPaths.includes(path)) problems.push(`legacy/native-feature-notes.json: ${path} is not a v3 page`);
+  for (const id of [ids].flat()) if (featureNotes.features[id] === undefined) problems.push(`legacy/native-feature-notes.json: ${path} names unknown feature ${id}`);
+}
 for (const path of correctionOf.keys()) if (!allPaths.includes(path)) problems.push(`legacy/corrections.json: ${path} is not a v3 page`);
 for (const path of allPaths) {
   const file = join(src, ...(path.slice(1) + ".mdx").split("/"));
