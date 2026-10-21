@@ -9,7 +9,6 @@ icon: "database"
 
   - [**Storage Vault**](/native-features/storage-vault) for small encrypted values that need to survive uninstall and sync across devices on the same Apple ID or Google account. Backed by iCloud Key Value Store on iOS and Android Key/Value Backup on Android, with optional biometric gating.
   - [**IndexedDB**](https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API) (built into the WebView, no Despia SDK needed) for general-purpose structured local storage with multiple object stores, indexes, and transactions. Works in any browser and inside the Despia runtime.
-  - [**PowerSync**](/local-database/reference) for a full SQLite database that stays in sync with your backend in real time. Best for apps with non-trivial offline state, multi-device sync, or relational data.
 
   Simple Storage only stores a single string slot per app and has no encryption, no sync, and no structure. The schemes below remain supported for apps already using them, but anything new is better served by one of the alternatives above.
 </Danger>
@@ -221,7 +220,4 @@ Both paths return the same shape, so the rest of your app does not need to know 
     Encrypted, synced, biometric-gated alternative
   </Card>
 
-  <Card title="PowerSync" icon="database" href="/local-database/reference">
-    Full SQLite local database with backend sync
-  </Card>
 </CardGroup>
