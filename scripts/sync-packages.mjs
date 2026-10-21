@@ -15,7 +15,7 @@
 //
 
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -34,13 +34,23 @@ const SRC = "OpenSource/Engine/TypeScript/packages/project/src";
 
 const tmp = mkdtempSync(join(tmpdir(), "despia-pkgdocs-"));
 try {
-  for (const f of ["package-docs.ts", "package-docs-data.generated.ts", "article.ts"]) writeFileSync(join(tmp, f), git("show", `${commit}:${SRC}/${f}`));
+  const files = git("ls-tree", "-r", "--name-only", commit, `${SRC}/`).trim().split("\n").filter((f) => f.startsWith(`${SRC}/`) && f.endsWith(".ts"));
+  for (const file of files) {
+    const target = join(tmp, file.slice(SRC.length + 1));
+    mkdirSync(dirname(target), { recursive: true });
+    writeFileSync(target, git("show", `${commit}:${file}`));
+  }
   const { PACKAGE_SOURCES } = await import(pathToFileURL(join(tmp, "package-docs-data.generated.ts")).href);
   const { buildPackageDocs } = await import(pathToFileURL(join(tmp, "package-docs.ts")).href);
 
   // The generated data drops `maturity` and `published` (catalog facts, not reference facts); read them from each dsx.json.
+  const manifestCache = new Map();
   const manifestOf = (path) => {
-    try { return JSON.parse(git("show", `${commit}:ClosedSource/DSX/Modules/${path}/dsx.json`)); } catch { return {}; }
+    if (manifestCache.has(path)) return manifestCache.get(path);
+    let value;
+    try { value = JSON.parse(git("show", `${commit}:ClosedSource/DSX/Modules/${path}/dsx.json`)); } catch { value = {}; }
+    manifestCache.set(path, value);
+    return value;
   };
   const keepParam = (p) => ({ name: p.name, type: p.type, optional: p.optional, description: p.description });
   // The catalog the console's package explorer lists: one row per capability option, named by its primary package
@@ -48,6 +58,11 @@ try {
   // package a customer adds.
   const capabilities = JSON.parse(git("show", `${commit}:OpenSource/Documentation/reference/capabilities.json`));
   const catalogPaths = new Set(capabilities.options.map((o) => o.primary ?? o.footprint?.modules?.[0] ?? o.id));
+  const moduleRoot = "ClosedSource/DSX/Modules/";
+  const manifestPaths = git("ls-tree", "-r", "--name-only", commit, moduleRoot).trim().split("\n")
+    .filter((p) => p.startsWith(moduleRoot) && p.endsWith("/dsx.json"))
+    .map((p) => p.slice(moduleRoot.length, -"/dsx.json".length));
+  const commandSources = manifestPaths.map((path) => ({ path, tier: path.split("/")[0], manifest: manifestOf(path), implementedOn: [] }));
   // The console's package page (/explore/<id>) for each package: the first capability option whose primary package it is, the
   // same reading as the API's PACKAGE_LISTING_IDS (ClosedSource/Cloud/api/scripts/build-package-catalog.mjs).
   const listingIds = {};
@@ -71,16 +86,22 @@ try {
       ...(Array.isArray(spec.options) ? { options: spec.options.map((o) => (o !== null && typeof o === "object" ? o.value ?? o.label : o)) } : {}) };
   };
   const packages = [];
+  const addPackage = (row) => {
+    const collision = packages.find((p) => p.slug === row.slug && p.path !== row.path);
+    if (collision !== undefined) throw new Error(`[docs.sync-packages] slug ${row.slug} collides between ${collision.path} and ${row.path}`);
+    packages.push(row);
+  };
   for (const src of PACKAGE_SOURCES) {
     const command = typeof src.manifest.command === "string" && src.manifest.command !== "" ? src.manifest.command : null;
     if (command === null && !catalogPaths.has(src.path)) continue;
     const d = buildPackageDocs(src, { all: PACKAGE_SOURCES });
     const raw = manifestOf(src.path);
+    if (raw.listed === false) continue;
     const rawActions = src.manifest.actions ?? {};
     const implemented = d.targets.filter((t) => t.implemented).map((t) => t.target);
     const icon = raw.listing?.icon ?? {};
-    packages.push({
-      command,
+    addPackage({
+      command: d.command,
       // the catalog address (package-docs.ts packageSlugs: the last word, unique across the catalog) and its page
       slug: d.slug,
       url: d.url,
@@ -131,16 +152,22 @@ try {
   }
   // A catalog package the reference generator leaves out (a commercial package) still has its store listing: its page is
   // that listing, with no reference.
-  for (const path of [...catalogPaths].filter((x) => !packages.some((p) => p.path === x))) {
+  for (const path of [...new Set([...catalogPaths, ...manifestPaths])].filter((x) => !packages.some((p) => p.path === x))) {
     const raw = manifestOf(path);
     const listing = raw.listing ?? null;
+    if (raw.listed === false) continue;
+    const localCommand = typeof raw.command === "string" && raw.command !== "" ? raw.command : null;
+    if (localCommand === null && !catalogPaths.has(path)) continue;
     const option = capabilities.options.find((o) => (o.primary ?? o.footprint?.modules?.[0] ?? o.id) === path);
-    const slug = String(raw.command ?? path.split("/").pop()).toLowerCase();
-    if (listing === null || packages.some((p) => p.slug === slug)) { console.warn(`[docs.sync-packages] catalog option ${path} has no listing or a taken slug: left out`); continue; }
+    if (listing === null) { console.warn(`[docs.sync-packages] package ${path} has no listing: left out`); continue; }
+    const d = buildPackageDocs({ path, tier: path.split("/")[0], manifest: raw, implementedOn: [] }, { all: commandSources });
+    const slug = d.slug;
     const icon = listing.icon ?? {};
-    packages.push({
-      command: typeof raw.command === "string" && raw.command !== "" ? raw.command : null,
-      slug, url: `/packages/${slug}`, listed: true, catalog: true, listingId: listingIds[path] ?? null,
+    const command = typeof raw.command === "string" && raw.command !== ""
+      ? d.command : null;
+    addPackage({
+      command,
+      slug, url: `/packages/${slug}`, listed: true, catalog: catalogPaths.has(path), listingId: listingIds[path] ?? null,
       icon: { symbol: icon.symbol ?? null, tint: icon.tint ?? null, brand: icon.brand ?? null },
       path, title: listing.title ?? option?.title ?? raw.name, summary: listing.summary ?? "", description: listing.description ?? raw.description ?? "",
       category: listing.category ?? null, maturity: typeof raw.maturity === "string" ? raw.maturity : "unrated", published: raw.published === true,
