@@ -8,6 +8,10 @@ Call `despia('stripe://payment?...')` to show the native Stripe Payment Sheet wi
 
 A second action, `despia('stripe://manage?...')`, opens Stripe's native CustomerSheet so signed-in customers can add, remove, and pick a default among their saved payment methods. Both actions share the same `window.stripeEvent` callback. See [Manage saved cards](#manage-saved-cards).
 
+<Note>
+  Stripe must be enabled in the Despia Editor under **App \> Settings \> Integrations \> Stripe**, followed by a fresh build. With the switch off, the Stripe SDK is left out of the app and `stripe://` calls answer with a `despia-feature-not-included` event. See [Stripe and Despia setup](/payments/stripe/introduction#stripe-and-despia-setup).
+</Note>
+
 <Danger>
   **Do not use this for digital goods inside mobile apps.** Credits, coins, in-app currency, memberships, subscriptions, premium tiers, ad removal, unlocking levels, and any virtual content consumed inside the app must use [RevenueCat](/native-features/revenuecat/introduction), the store-compliant native in-app purchase path backed by Apple StoreKit and Google Play Billing. Apple and Google will reject your app on submission if you accept payment for digital goods through Stripe or any other external payment system. See [in-app purchase rejections](/store-rejections/common-rejection/in-app-purchases) for the full policy and rejection language.
 
