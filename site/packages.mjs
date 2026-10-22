@@ -106,13 +106,13 @@ export function linksOf(p) {
     page: `${SITE}${p.url}`,
     console: p.listingId ? `${SITE_CFG.console}/explore/${encodeURIComponent(p.listingId)}` : null,
     llms: p.command ? `${SITE}/modules/${encodeURIComponent(p.command)}/llms.txt` : null,
-    recipe: p.command ? `${SITE_CFG.api}/v1/package-docs/${encodeURIComponent(p.command)}?format=markdown` : null,
+    recipe: available(p) && p.command ? `${SITE_CFG.api}/v1/package-docs/${encodeURIComponent(p.command)}?format=markdown` : null,
   };
 }
 
 // adding a native package always changes the native layer (project-core release.ts: every package change needs a native
 // build), the line the Agent's feature card says too
-export const needsBuild = (p) => (SERVER_HALF.test(p.path) ? "Not needed" : "Needed to add it");
+export const needsBuild = (p) => (!available(p) ? "Not available yet" : SERVER_HALF.test(p.path) ? "Not needed" : "Needed to add it");
 const UPDATES = { build: "Next app build", store: "Next store release", instant: "Right away" };
 const KIND = { boolean: "On or off", number: "Number", color: "Colour", url: "Web address", multiline: "Text", list: "List", json: "JSON", string: "Text" };
 const kindOf = (c) => c.secret ? "Secret" : c.options?.length ? `One of: ${c.options.map((o) => `\`${o}\``).join(", ")}` : KIND[c.type] ?? "Text";
@@ -145,15 +145,19 @@ function setupMarkdown(p) {
   const l = linksOf(p);
   const where = l.console ? `[${p.title}'s page in the console](${l.console})` : "the package's page in the console (Packages)";
   // a package's server half (Modules/Backend, Modules/Http) runs on the backend, not in the app: no build sentence for it
-  const md = ["## Add it to your app", "", SERVER_HALF.test(p.path) ? `${p.title} runs on the backend, beside the app. Add it on ${where}.`
-    : `Adding ${p.title} changes the native app, so it needs a new app build. Add it on ${where}, then build.`, ""];
+  const md = available(p)
+    ? ["## Add it to your app", "", SERVER_HALF.test(p.path) ? `${p.title} runs on the backend, beside the app. Add it on ${where}.`
+      : `Adding ${p.title} changes the native app, so it needs a new app build. Add it on ${where}, then build.`, ""]
+    : ["## Availability", "", `${p.title} is not currently offered for adding to apps. This page describes its current API for reference; it does not make the package available in the console.${p.maturity === "unrated" ? " It has not yet been rated for release." : ""}`, ""];
   const config = p.config ?? [];
-  if (!config.length) return [...md, "There is nothing to set: once it is added and the app is built, your pages can call it.", ""];
+  if (!config.length) return available(p) ? [...md, "There is nothing to set: once it is added and the app is built, your pages can call it.", ""] : md;
   // when every setting changes at the same moment, the sentence says it once and the table stays narrow enough for a phone
   const when = (c) => UPDATES[c.updates] ?? UPDATES.build;
   const same = config.every((c) => when(c) === when(config[0]));
   const sameLine = { [UPDATES.build]: " Every setting takes effect with your next app build.", [UPDATES.store]: " Every setting reaches people with your next store release.", [UPDATES.instant]: " Every setting takes effect right away, no new build needed." };
-  md.push(`The settings, also on ${where}. A secret is typed into a secure field there and is never shown again.${same ? sameLine[when(config[0])] : ""}`, "",
+  if (available(p)) md.push(`The settings, also on ${where}. A secret is typed into a secure field there and is never shown again.${same ? sameLine[when(config[0])] : ""}`, "");
+  else md.push("## Configuration reference", "", "These fields describe the current API. They are reference information, not setup instructions.", "");
+  md.push(
     same ? "| Setting | What it does | Value |" : "| Setting | What it does | Value | Takes effect |", same ? "| :-- | :-- | :-- |" : "| :-- | :-- | :-- | :-- |");
   for (const c of config) md.push(`| ${cell(c.label ?? c.key)} | ${cell(c.description)} | ${cell(kindOf(c))} |${same ? "" : ` ${when(c)} |`}`);
   return [...md, ""];
@@ -168,7 +172,9 @@ function packageMarkdown(p) {
   md.push(...setupMarkdown(p));
   if (lead) {
     const s = samples(p, lead);
-    md.push("## Use it in your app", "", "One call, the same in a DSX app (inside an action) and in any web app inside Despia.", "",
+    md.push(available(p) ? "## Use it in your app" : "## API example (reference only)", "",
+      available(p) ? "One call, the same in a DSX app (inside an action) and in any web app inside Despia."
+        : "This example documents the current API. The package is not currently offered for adding to apps.", "",
       "```js", s.js, "```", "");
     if (links.recipe) md.push(`Every action, parameter, result and error is in the [public recipe](${links.recipe}), Markdown for people and AI tools.`, "");
   }
