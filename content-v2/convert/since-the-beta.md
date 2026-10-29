@@ -17,7 +17,8 @@ Before the first public release, Despia's command line and development server se
 | `despia app verify` | `despia app check` |
 | `despia report verify` | `despia report check` |
 | `--platform`, `--lane` | `--target` |
-| `--project-id` | `--project` |
+| `--env` | `--conditions` (simulated device conditions) or `--environment` (the deployment environment) |
+| `--project-id` | `--project` (a Despia project id; a local folder is `--dir <path>`) |
 | `--revision` | `--rev` |
 | `--dry-run` | `--plan` |
 | `--expires` on `despia sandbox` | `--expires-in` |

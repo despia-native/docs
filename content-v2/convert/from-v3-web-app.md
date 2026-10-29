@@ -19,7 +19,7 @@ A Despia V3 app is a native shell around your own website. In V4 the shell is th
 | Features switched on in the dashboard | Packages added to the app |
 | Callbacks and window globals | Awaited results, typed errors and events |
 
-Every V3 page in the old docs has a V4 destination in the [feature map](/convert/v3-feature-map). Rows are marked as mapped, partial, not applicable or unknown; an unknown row means V4 has no equivalent yet, so ask support before you move that feature.
+Every V3 page in the old docs has a row in the [feature map](/convert/v3-feature-map). Rows are marked as mapped, partial, not applicable or unknown; an unknown row means V4 has no equivalent yet, so ask support before you move that feature.
 
 ## Move over, page by page
 
@@ -27,7 +27,7 @@ Every V3 page in the old docs has a V4 destination in the [feature map](/convert
 
 ### Keep the Legacy package while you move
 
-Leave `legacy` in the app's package list. A call that V4 answers through Legacy runs the modern package underneath. If a call needs a package the build does not include, Legacy does not fail silently: the old page gets a failure reply and the error ledger shows `package_missing` with the package to add.
+Leave `legacy` in the app's package list. A call that V4 answers through Legacy runs the modern package underneath. If a call needs a package the build does not include, Legacy does not fail silently: the old page gets the row's failure reply when it has one, and the error ledger shows `package_missing` with the package to add.
 
 ### Replace one call at a time
 

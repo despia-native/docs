@@ -25,7 +25,7 @@ Despia checks a screen before it counts as native: its component exists and a ro
 1. Ship the web-view app first, so users are never without an app.
 2. Rebuild the screens people use most, one per change. Lint, test and review each one before marking it native.
 3. Replace `despia('scheme://...')` calls with `dsx.module` calls as you go, using the [feature map](/convert/v3-feature-map).
-4. Remove the Web tab and the `legacy` package when nothing uses them.
+4. Remove the Web tab when nothing in it is left. The rebuild template does not include the `legacy` package, so old `despia()` calls are not answered inside screens that were rebuilt natively; replace them as you rebuild each screen.
 
 ## Next
 
