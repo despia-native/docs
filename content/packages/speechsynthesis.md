@@ -1,7 +1,7 @@
 ---
 title: SpeechSynthesis
 description: Speaks text aloud with the device voices, or turns text into audio files.
-package: Core/WebPlatform/SpeechSynthesis
+package: Core/SpeechSynthesis
 section: packages
 group: Speech
 icon: mic

@@ -1,7 +1,7 @@
 ---
 title: PullToRefresh
 description: Let people pull down on a web page in your app to reload it.
-package: Mandatory/PullToRefresh
+package: Core/Dom/Modules/PullToRefresh
 section: packages
 group: Device and system
 icon: arrow.left.arrow.right

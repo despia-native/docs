@@ -11,6 +11,7 @@
 import { existsSync, readFileSync, readdirSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { isHiddenPath } from "./hidden.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const fw = resolve(process.env.DESPIA_FRAMEWORK ?? join(root, "..", "wt-fleet2"));
@@ -45,6 +46,7 @@ for (const dir of manifests(modules)) {
   try { m = JSON.parse(readFileSync(join(dir, "dsx.json"), "utf8")); } catch { continue; }
   if (typeof m.command !== "string" || m.command === "") continue;
   const path = relative(modules, dir).split(sep).join("/");
+  if (isHiddenPath(path)) continue;
   const cat = byCommand.get(m.command) ?? {};
   const readme = existsSync(join(dir, "README.md")) ? readFileSync(join(dir, "README.md"), "utf8") : "";
   const actions = Array.isArray(m.actions) ? m.actions.map((a) => (typeof a === "string" ? a : a.name)).filter(Boolean)
@@ -71,6 +73,8 @@ mkdirSync(join(root, "data"), { recursive: true });
 writeFileSync(join(root, "data", "integrations.json"), JSON.stringify({
   source: "despia-native/despia ClosedSource/PackageCatalog.json + ClosedSource/DSX/Modules/**/dsx.json",
   catalogVersion: catalog.version ?? null,
+  // every module directory (with or without a command), so a docs check can tell "no such module" from "module without a command"
+  modulePaths: manifests(modules).map((d) => relative(modules, d).split(sep).join("/")).filter((p) => !isHiddenPath(p)).sort(),
   packages: dedup,
 }, null, 1) + "\n");
 console.log(`[docs.integrations] ${dedup.length} package(s) with a command -> data/integrations.json`);

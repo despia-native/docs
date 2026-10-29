@@ -1,7 +1,7 @@
 ---
 title: Sign in with Apple
 description: Apple's native sign-in sheet, returning an identity token your backend verifies.
-package: Core/Auth/AppleAuth
+package: Core/Auth/Auth/Modules/Apple
 section: packages
 group: Sign-in and identity
 icon: apple.logo

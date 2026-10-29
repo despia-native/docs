@@ -21,7 +21,7 @@
     "/convert/native-features": "/web-apps/native-features",
     "/convert/react": "/web-apps/frameworks",
     "/convert/detect": "/web-apps/outside-despia",
-    "/migrate/guide": "/convert/from-v3"
+    "/migrate/guide": "/convert/from-v3-web-app"
   },
   "prefixes": {
     "/agents/skills/": "/dsx/agents/skills"

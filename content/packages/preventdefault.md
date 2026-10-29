@@ -1,7 +1,7 @@
 ---
 title: PreventDefault
 description: Stop iOS from scrolling the page when the keyboard opens.
-package: Core/Basics/PreventDefault
+package: Core/Dom/Modules/PreventDefault
 section: packages
 group: Device and system
 icon: iphone

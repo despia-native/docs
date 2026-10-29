@@ -1,7 +1,7 @@
 ---
 title: Health
 description: Read and write Apple Health and Android Health Connect data.
-package: Core/HealthKit
+package: Core/Health
 section: packages
 group: Health
 icon: faceid

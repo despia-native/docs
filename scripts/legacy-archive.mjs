@@ -11,6 +11,7 @@
 //  Writes Components/legacy/ (generated) and owns every /legacy row of dsx.config.json. Runs after site/dsx-compile.mjs.
 //
 
+import { isHiddenLegacy } from "./hidden.mjs";
 import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
@@ -65,7 +66,7 @@ function body(md) {
   return { title, description, text };
 }
 
-const files = walk(pagesDir).sort();
+const files = walk(pagesDir).filter((f) => !isHiddenLegacy("/" + relative(pagesDir, f).split(sep).join("/").replace(/\.md$/, ""))).sort();
 const pages = files.map((file) => {
   const rel = relative(pagesDir, file).split(sep).join("/").replace(/\.md$/, "");
   const path = rel === "index" ? "/legacy/introduction-home" : `/legacy/${rel}`;

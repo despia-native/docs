@@ -21,6 +21,7 @@
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { isHiddenLegacy } from "./hidden.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const siteCfg = JSON.parse(readFileSync(join(root, "data", "site.json"), "utf8"));
@@ -42,7 +43,9 @@ function walk(dir) {
 const legacyPaths = walk(legacyDir).map((f) => "/" + relative(legacyDir, f).split(sep).join("/").replace(/\.md$/, "")).sort();
 const legacySet = new Set(legacyPaths);
 
-const missing = inventory.filter((p) => !legacySet.has(p));
+// pages that are not shown anywhere (hidden.mjs) still answer an old link: one 301 to the package catalog
+const hiddenInventory = inventory.filter((p) => isHiddenLegacy(p));
+const missing = inventory.filter((p) => !legacySet.has(p) && !isHiddenLegacy(p));
 if (missing.length > 0) {
   console.error(`[docs.redirects] ${missing.length} live setup.despia.com page(s) have no ported page: ${missing.join(", ")}`);
   process.exit(1);
@@ -56,6 +59,7 @@ for (const p of legacyPaths) {
   add(p, `${DOCS}/legacy${p}`);
   add(`${p}.md`, `${DOCS}/legacy${p}.md`);
 }
+for (const p of hiddenInventory) { add(p, `${DOCS}/packages`); add(`${p}.md`, `${DOCS}/packages.md`); }
 add("/llms.txt", `${DOCS}/legacy/llms.txt`);
 add("/llms-full.txt", `${DOCS}/legacy/llms-full.txt`);
 add("/sitemap.xml", `${DOCS}/sitemap.xml`);
@@ -115,6 +119,7 @@ for (const p of legacyPaths) {
   rootTable[p] = `/legacy${p}`;
   rootTable[`${p}.md`] = `/legacy${p}.md`;
 }
+for (const p of hiddenInventory) { rootTable[p] = "/packages"; rootTable[`${p}.md`] = "/packages.md"; }
 // Mintlify-era Modern API paths and the catalog aliases (redirects/modern-aliases.json): one 301 to the page that took
 // each over. A target must be a page of this build; a source must not be one.
 const aliases = JSON.parse(readFileSync(join(out, "modern-aliases.json"), "utf8")).aliases;

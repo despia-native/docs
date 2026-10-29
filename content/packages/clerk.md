@@ -1,7 +1,7 @@
 ---
 title: Clerk
 description: Add sign-in, sign-up and account screens to your app with Clerk.
-package: Core/Clerk
+package: Core/Auth/Auth/Modules/Clerk
 section: packages
 group: Sign-in and identity
 icon: person.crop.circle

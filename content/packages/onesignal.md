@@ -1,7 +1,7 @@
 ---
 title: OneSignal
 description: Send push notifications to your app's users through OneSignal.
-package: Core/OneSignal
+package: Core/Notify/Modules/OneSignal
 section: packages
 group: Notifications
 icon: bell

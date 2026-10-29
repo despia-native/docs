@@ -98,10 +98,6 @@ setup.despia.com/local-database/introduction,https://despia.com/docs/legacy/loca
 setup.despia.com/local-database/introduction.md,https://despia.com/docs/legacy/local-database/introduction.md,301,TRUE,FALSE,FALSE,FALSE
 setup.despia.com/local-database/reference,https://despia.com/docs/legacy/local-database/reference,301,TRUE,FALSE,FALSE,FALSE
 setup.despia.com/local-database/reference.md,https://despia.com/docs/legacy/local-database/reference.md,301,TRUE,FALSE,FALSE,FALSE
-setup.despia.com/local-intelligence/Introduction,https://despia.com/docs/legacy/local-intelligence/Introduction,301,TRUE,FALSE,FALSE,FALSE
-setup.despia.com/local-intelligence/Introduction.md,https://despia.com/docs/legacy/local-intelligence/Introduction.md,301,TRUE,FALSE,FALSE,FALSE
-setup.despia.com/local-intelligence/reference,https://despia.com/docs/legacy/local-intelligence/reference,301,TRUE,FALSE,FALSE,FALSE
-setup.despia.com/local-intelligence/reference.md,https://despia.com/docs/legacy/local-intelligence/reference.md,301,TRUE,FALSE,FALSE,FALSE
 setup.despia.com/local-server/introduction,https://despia.com/docs/legacy/local-server/introduction,301,TRUE,FALSE,FALSE,FALSE
 setup.despia.com/local-server/introduction.md,https://despia.com/docs/legacy/local-server/introduction.md,301,TRUE,FALSE,FALSE,FALSE
 setup.despia.com/local-server/reference,https://despia.com/docs/legacy/local-server/reference,301,TRUE,FALSE,FALSE,FALSE
@@ -378,6 +374,10 @@ setup.despia.com/store-rejections/introduction,https://despia.com/docs/legacy/st
 setup.despia.com/store-rejections/introduction.md,https://despia.com/docs/legacy/store-rejections/introduction.md,301,TRUE,FALSE,FALSE,FALSE
 setup.despia.com/wallet/pkpass,https://despia.com/docs/legacy/wallet/pkpass,301,TRUE,FALSE,FALSE,FALSE
 setup.despia.com/wallet/pkpass.md,https://despia.com/docs/legacy/wallet/pkpass.md,301,TRUE,FALSE,FALSE,FALSE
+setup.despia.com/local-intelligence/Introduction,https://despia.com/docs/packages,301,TRUE,FALSE,FALSE,FALSE
+setup.despia.com/local-intelligence/Introduction.md,https://despia.com/docs/packages.md,301,TRUE,FALSE,FALSE,FALSE
+setup.despia.com/local-intelligence/reference,https://despia.com/docs/packages,301,TRUE,FALSE,FALSE,FALSE
+setup.despia.com/local-intelligence/reference.md,https://despia.com/docs/packages.md,301,TRUE,FALSE,FALSE,FALSE
 setup.despia.com/llms.txt,https://despia.com/docs/legacy/llms.txt,301,TRUE,FALSE,FALSE,FALSE
 setup.despia.com/llms-full.txt,https://despia.com/docs/legacy/llms-full.txt,301,TRUE,FALSE,FALSE,FALSE
 setup.despia.com/sitemap.xml,https://despia.com/docs/sitemap.xml,301,TRUE,FALSE,FALSE,FALSE

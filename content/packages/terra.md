@@ -1,7 +1,7 @@
 ---
 title: Terra
 description: Pull Apple Health and wearable data into your app through Terra.
-package: Core/Health/Terra
+package: Core/Health/Modules/Terra
 section: packages
 group: Health
 icon: link

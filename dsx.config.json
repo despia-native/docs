@@ -104,7 +104,7 @@
       "path": "/dsx/cli",
       "component": "docs.V2Dsx_Cli",
       "meta": {
-        "title": "The despia CLI",
+        "title": "Despia CLI",
         "description": "Create, run, check, build and ship a DSX app from the terminal. The commands you use most, grouped by what you are doing."
       }
     },
@@ -112,7 +112,7 @@
       "path": "/dsx/console",
       "component": "docs.V2Dsx_Console",
       "meta": {
-        "title": "The console",
+        "title": "The Despia Console",
         "description": "console.despia.com is where your team creates apps, builds them, connects the stores and ships. Everything in it also works from the CLI."
       }
     },
@@ -149,11 +149,35 @@
       }
     },
     {
-      "path": "/convert/from-v3",
-      "component": "docs.V2Convert_FromV3",
+      "path": "/convert/from-v3-web-app",
+      "component": "docs.V2Convert_FromV3WebApp",
       "meta": {
-        "title": "Moving from Despia V3",
-        "description": "Bring a Despia V3 app to Despia V4. The move is free, your V3 calls can keep working, and you replace them one at a time."
+        "title": "V3 web app to V4",
+        "description": "Move a Despia V3 web app to V4. Your site keeps running, your old despia() calls keep working through the Legacy package, and you move to dsx.module one page at a time."
+      }
+    },
+    {
+      "path": "/convert/from-v3-native-rebuild",
+      "component": "docs.V2Convert_FromV3NativeRebuild",
+      "meta": {
+        "title": "V3 native rebuild",
+        "description": "Rebuild a V3 app's screens as native DSX screens, one at a time. Not yet available to start from the console."
+      }
+    },
+    {
+      "path": "/convert/v3-feature-map",
+      "component": "docs.V2Convert_V3FeatureMap",
+      "meta": {
+        "title": "V3 to V4 feature map",
+        "description": "Every Despia V3 feature and the V4 package or API it moves to, with the gaps marked."
+      }
+    },
+    {
+      "path": "/convert/since-the-beta",
+      "component": "docs.V2Convert_SinceTheBeta",
+      "meta": {
+        "title": "What changed since the V4 beta",
+        "description": "The spellings that were renamed before the first release, and what to use instead. Nothing has been deprecated, because no old spelling has shipped."
       }
     },
     {
@@ -232,7 +256,7 @@
       "path": "/ship/app-store-connect",
       "component": "docs.V2Ship_AppStoreConnect",
       "meta": {
-        "title": "App Store Connect key",
+        "title": "App Store Connect Key",
         "description": "Create the App Store Connect API key Despia uses to sign your iOS app and upload it to TestFlight and the App Store, and connect it once for your workspace."
       }
     },
@@ -240,7 +264,7 @@
       "path": "/ship/google-play",
       "component": "docs.V2Ship_GooglePlay",
       "meta": {
-        "title": "Play service account",
+        "title": "Google Play Service Account",
         "description": "Create the Google Cloud service account Despia uses to upload your Android app to Google Play, give it access in Play Console, and connect it once for your workspace."
       }
     },
@@ -257,7 +281,7 @@
       "component": "docs.V2Ship_Releases",
       "meta": {
         "title": "Releases",
-        "description": "Send a build to TestFlight or a Google Play testing track, invite testers, submit for review and release, from the console or the CLI."
+        "description": "Send a build to TestFlight or a Google Play testing track, invite testers, submit for review and release, from the Despia Console or the CLI."
       }
     },
     {
@@ -308,7 +332,7 @@
       "path": "/packages/admob",
       "component": "docs.V2Packages_Admob",
       "meta": {
-        "title": "Google AdMob",
+        "title": "Google AdMob (Growth)",
         "description": "Show banner, interstitial, rewarded and native ads from Google AdMob."
       }
     },
@@ -326,6 +350,14 @@
       "meta": {
         "title": "Airbridge",
         "description": "Attribute installs to ad campaigns and open deep links with Airbridge."
+      }
+    },
+    {
+      "path": "/packages/airbridgeevents",
+      "component": "docs.V2Packages_Airbridgeevents",
+      "meta": {
+        "title": "Airbridge server events (Growth)",
+        "description": "Send your app and web conversion events to Airbridge from your own server."
       }
     },
     {
@@ -353,14 +385,6 @@
       }
     },
     {
-      "path": "/packages/announcements",
-      "component": "docs.V2Packages_Announcements",
-      "meta": {
-        "title": "Announcements",
-        "description": "Show announcements in your app as a dismissible banner and a What's new list."
-      }
-    },
-    {
       "path": "/packages/appcheck",
       "component": "docs.V2Packages_Appcheck",
       "meta": {
@@ -369,67 +393,43 @@
       }
     },
     {
-      "path": "/packages/appclip",
-      "component": "docs.V2Packages_Appclip",
+      "path": "/packages/appgallery",
+      "component": "docs.V2Packages_Appgallery",
       "meta": {
-        "title": "AppClip",
-        "description": "Offer a small App Clip that loads part of your app without a full install."
+        "title": "AppGallery (AppRating)",
+        "description": "Asks for a Huawei AppGallery rating from inside the app."
       }
     },
     {
-      "path": "/packages/appearance",
-      "component": "docs.V2Packages_Appearance",
+      "path": "/packages/apple",
+      "component": "docs.V2Packages_Apple",
       "meta": {
-        "title": "Appearance",
-        "description": "Let people choose light, dark or the system look for the whole app."
-      }
-    },
-    {
-      "path": "/packages/appicon",
-      "component": "docs.V2Packages_Appicon",
-      "meta": {
-        "title": "AppIcon",
-        "description": "Let people choose the app icon shown on their home screen."
-      }
-    },
-    {
-      "path": "/packages/appleauth",
-      "component": "docs.V2Packages_Appleauth",
-      "meta": {
-        "title": "Sign in with Apple",
+        "title": "Sign in with Apple (Auth)",
         "description": "Let people sign in to your app with their Apple ID."
-      }
-    },
-    {
-      "path": "/packages/applock",
-      "component": "docs.V2Packages_Applock",
-      "meta": {
-        "title": "AppLock",
-        "description": "Lock your app behind Face ID, Touch ID or the device passcode."
       }
     },
     {
       "path": "/packages/apprating",
       "component": "docs.V2Packages_Apprating",
       "meta": {
-        "title": "AppRating",
+        "title": "App rating",
         "description": "Ask the system to show its in-app rating prompt."
-      }
-    },
-    {
-      "path": "/packages/apps",
-      "component": "docs.V2Packages_Apps",
-      "meta": {
-        "title": "Apps",
-        "description": "See which Despia app surfaces are on the screen right now."
       }
     },
     {
       "path": "/packages/appsflyer",
       "component": "docs.V2Packages_Appsflyer",
       "meta": {
-        "title": "AppsFlyer",
+        "title": "AppsFlyer (Growth)",
         "description": "Attribute installs and purchases to ad campaigns with AppsFlyer."
+      }
+    },
+    {
+      "path": "/packages/appsflyerevents",
+      "component": "docs.V2Packages_Appsflyerevents",
+      "meta": {
+        "title": "AppsFlyer server events (Growth)",
+        "description": "Send your app's conversion events to AppsFlyer from your own server."
       }
     },
     {
@@ -449,30 +449,6 @@
       }
     },
     {
-      "path": "/packages/ar",
-      "component": "docs.V2Packages_Ar",
-      "meta": {
-        "title": "AR",
-        "description": "Run an augmented reality session on the phone camera."
-      }
-    },
-    {
-      "path": "/packages/scene-modules-ar",
-      "component": "docs.V2Packages_SceneModulesAr",
-      "meta": {
-        "title": "SceneAR (Scene)",
-        "description": "Place 3D scene content on real surfaces seen through the camera."
-      }
-    },
-    {
-      "path": "/packages/assistants",
-      "component": "docs.V2Packages_Assistants",
-      "meta": {
-        "title": "Assistants",
-        "description": "Let Siri, Shortcuts, Spotlight and Gemini run actions from your app."
-      }
-    },
-    {
       "path": "/packages/audiencenetwork",
       "component": "docs.V2Packages_Audiencenetwork",
       "meta": {
@@ -486,14 +462,6 @@
       "meta": {
         "title": "Audio",
         "description": "Play music, podcasts and audiobooks with lock screen controls and background playback."
-      }
-    },
-    {
-      "path": "/packages/audioplayer",
-      "component": "docs.V2Packages_Audioplayer",
-      "meta": {
-        "title": "LegacyAudioPlayer (Legacy)",
-        "description": "Keeps the old audio:// player calls from version 3 pages working."
       }
     },
     {
@@ -521,91 +489,11 @@
       }
     },
     {
-      "path": "/packages/automotive",
-      "component": "docs.V2Packages_Automotive",
-      "meta": {
-        "title": "Automotive (Car)",
-        "description": "Run your app on cars that have Android built in, using Android Automotive OS."
-      }
-    },
-    {
-      "path": "/packages/calllivekit-modules-backend",
-      "component": "docs.V2Packages_CalllivekitModulesBackend",
-      "meta": {
-        "title": "Backend (CallLiveKit)",
-        "description": "The server side of LiveKit calls: it creates join tokens and receives LiveKit events."
-      }
-    },
-    {
-      "path": "/packages/calltwilio-modules-backend",
-      "component": "docs.V2Packages_CalltwilioModulesBackend",
-      "meta": {
-        "title": "Backend (CallTwilio)",
-        "description": "The server half of Twilio voice calls: hands out call tokens and answers Twilio's webhooks."
-      }
-    },
-    {
-      "path": "/packages/chatsendbird-modules-backend",
-      "component": "docs.V2Packages_ChatsendbirdModulesBackend",
-      "meta": {
-        "title": "Backend (ChatSendbird)",
-        "description": "Run the small server relay that lets your app chat through Sendbird without exposing your keys."
-      }
-    },
-    {
-      "path": "/packages/chatstream-modules-backend",
-      "component": "docs.V2Packages_ChatstreamModulesBackend",
-      "meta": {
-        "title": "Backend (ChatStream)",
-        "description": "The server half of Stream chat and video that keeps your Stream secret off devices."
-      }
-    },
-    {
-      "path": "/packages/files-modules-backend",
-      "component": "docs.V2Packages_FilesModulesBackend",
-      "meta": {
-        "title": "Backend (Files)",
-        "description": "Let devices upload files straight to your own storage bucket with short-lived signed links."
-      }
-    },
-    {
-      "path": "/packages/growth-modules-backend",
-      "component": "docs.V2Packages_GrowthModulesBackend",
-      "meta": {
-        "title": "Backend (Growth)",
-        "description": "Receive Apple ad postbacks and mint deep links on your own server."
-      }
-    },
-    {
-      "path": "/packages/integrity-modules-backend",
-      "component": "docs.V2Packages_IntegrityModulesBackend",
-      "meta": {
-        "title": "Backend (Integrity)",
-        "description": "Server-side half of device integrity: reads and writes per-device flags that survive reinstalls."
-      }
-    },
-    {
-      "path": "/packages/payments-modules-stripe-modules-backend",
-      "component": "docs.V2Packages_PaymentsModulesStripeModulesBackend",
+      "path": "/packages/backend",
+      "component": "docs.V2Packages_Backend",
       "meta": {
         "title": "Backend (Stripe)",
         "description": "The server side of Stripe: payments, checkout, Connect, Identity and Issuing."
-      }
-    },
-    {
-      "path": "/packages/store-modules-backend",
-      "component": "docs.V2Packages_StoreModulesBackend",
-      "meta": {
-        "title": "Backend (Store)",
-        "description": "The server side of App Store promotional offers."
-      }
-    },
-    {
-      "path": "/packages/background",
-      "component": "docs.V2Packages_Background",
-      "meta": {
-        "title": "Background",
-        "description": "Runs your app's declared tasks in the background and tells you honestly when they ran."
       }
     },
     {
@@ -614,14 +502,6 @@
       "meta": {
         "title": "Background Location (Geo)",
         "description": "Add the declarations an app needs to track location in the background."
-      }
-    },
-    {
-      "path": "/packages/base",
-      "component": "docs.V2Packages_Base",
-      "meta": {
-        "title": "Base",
-        "description": "A private on-device database for your app's own data, with documents, queries, backups and vector search."
       }
     },
     {
@@ -662,14 +542,6 @@
       "meta": {
         "title": "Braze (Growth)",
         "description": "Send events to Braze and show its push, content cards and in-app messages."
-      }
-    },
-    {
-      "path": "/packages/brightness",
-      "component": "docs.V2Packages_Brightness",
-      "meta": {
-        "title": "ScreenBrightness",
-        "description": "Raise or lower the screen brightness and put it back afterwards."
       }
     },
     {
@@ -740,24 +612,8 @@
       "path": "/packages/camera",
       "component": "docs.V2Packages_Camera",
       "meta": {
-        "title": "Camera burst",
-        "description": "Capture photos from the camera in code, with no preview screen."
-      }
-    },
-    {
-      "path": "/packages/capture",
-      "component": "docs.V2Packages_Capture",
-      "meta": {
-        "title": "Capture",
-        "description": "Turn any element or screen into an image, a PDF or a screen recording."
-      }
-    },
-    {
-      "path": "/packages/car",
-      "component": "docs.V2Packages_Car",
-      "meta": {
-        "title": "Car",
-        "description": "Show lists, grids and messages on the car's screen with CarPlay and Android Auto."
+        "title": "Camera",
+        "description": "Capture photos and video and control a live camera session."
       }
     },
     {
@@ -766,14 +622,6 @@
       "meta": {
         "title": "Cast to TV",
         "description": "Let users play your app's video and audio on a TV or speaker."
-      }
-    },
-    {
-      "path": "/packages/cdn",
-      "component": "docs.V2Packages_Cdn",
-      "meta": {
-        "title": "ContentServer (Legacy)",
-        "description": "Keeps the old local content server and file store working for apps converted from the previous Despia version."
       }
     },
     {
@@ -820,7 +668,7 @@
       "path": "/packages/clerk",
       "component": "docs.V2Packages_Clerk",
       "meta": {
-        "title": "Clerk",
+        "title": "Clerk (Auth)",
         "description": "Add sign-in, sign-up and account screens to your app with Clerk."
       }
     },
@@ -838,14 +686,6 @@
       "meta": {
         "title": "Despia Commerce (Store)",
         "description": "Verify purchases and keep entitlements on your own server, with no third party in between."
-      }
-    },
-    {
-      "path": "/packages/compose",
-      "component": "docs.V2Packages_Compose",
-      "meta": {
-        "title": "Compose",
-        "description": "Opens the system text message or email composer with your message filled in, for the user to send."
       }
     },
     {
@@ -868,7 +708,7 @@
       "path": "/packages/console",
       "component": "docs.V2Packages_Console",
       "meta": {
-        "title": "Console (Telemetry)",
+        "title": "Console (development) (Telemetry)",
         "description": "See what your telemetry would send, written to the log with nothing leaving the device."
       }
     },
@@ -889,27 +729,11 @@
       }
     },
     {
-      "path": "/packages/converse",
-      "component": "docs.V2Packages_Converse",
-      "meta": {
-        "title": "Converse (LocalAI)",
-        "description": "Hold a spoken conversation with an AI model entirely on the device, with no network."
-      }
-    },
-    {
       "path": "/packages/crashlytics",
       "component": "docs.V2Packages_Crashlytics",
       "meta": {
         "title": "Firebase Crashlytics (Firebase)",
         "description": "Report app crashes to Firebase Crashlytics."
-      }
-    },
-    {
-      "path": "/packages/crypto",
-      "component": "docs.V2Packages_Crypto",
-      "meta": {
-        "title": "Crypto",
-        "description": "Hash, sign, encrypt and generate random values with the phone's own crypto."
       }
     },
     {
@@ -921,27 +745,11 @@
       }
     },
     {
-      "path": "/packages/data",
-      "component": "docs.V2Packages_Data",
-      "meta": {
-        "title": "Data (Server)",
-        "description": "Declare the data tables your packages need, once, for any database you choose."
-      }
-    },
-    {
       "path": "/packages/datadog",
       "component": "docs.V2Packages_Datadog",
       "meta": {
         "title": "Datadog (Telemetry)",
         "description": "Send your app's error and event logs to Datadog through your own relay."
-      }
-    },
-    {
-      "path": "/packages/dev",
-      "component": "docs.V2Packages_Dev",
-      "meta": {
-        "title": "DevSettings",
-        "description": "A hidden developer panel for switching a test build between staging and production."
       }
     },
     {
@@ -953,59 +761,11 @@
       }
     },
     {
-      "path": "/packages/deviceusage",
-      "component": "docs.V2Packages_Deviceusage",
-      "meta": {
-        "title": "DeviceUsage",
-        "description": "Block chosen apps and websites for a set time, on a daily schedule, or after a daily limit is used up."
-      }
-    },
-    {
       "path": "/packages/dom",
       "component": "docs.V2Packages_Dom",
       "meta": {
         "title": "Dom",
         "description": "Control the web view that shows your web app: load pages, navigate, run scripts."
-      }
-    },
-    {
-      "path": "/packages/downloads",
-      "component": "docs.V2Packages_Downloads",
-      "meta": {
-        "title": "Downloads",
-        "description": "Watch file downloads as they start, progress and finish."
-      }
-    },
-    {
-      "path": "/packages/ecosystem",
-      "component": "docs.V2Packages_Ecosystem",
-      "meta": {
-        "title": "Ecosystem",
-        "description": "Remember a value across all of a person's own devices, with no sign-in."
-      }
-    },
-    {
-      "path": "/packages/edit",
-      "component": "docs.V2Packages_Edit",
-      "meta": {
-        "title": "Edit (Audio)",
-        "description": "Mixes an audio project down to a file, and measures loudness, peaks and silences in a file."
-      }
-    },
-    {
-      "path": "/packages/externalapps",
-      "component": "docs.V2Packages_Externalapps",
-      "meta": {
-        "title": "ExternalApps",
-        "description": "Hand a link to another app on the phone, such as Maps, Instagram or the phone dialer."
-      }
-    },
-    {
-      "path": "/packages/face",
-      "component": "docs.V2Packages_Face",
-      "meta": {
-        "title": "WatchFace (Watch)",
-        "description": "Show a short text and value on the watch face complication."
       }
     },
     {
@@ -1021,7 +781,7 @@
       "component": "docs.V2Packages_Filesharing",
       "meta": {
         "title": "FileSharing",
-        "description": "Send a file to other apps through the system share sheet."
+        "description": "Open a file from your app in another app."
       }
     },
     {
@@ -1073,35 +833,11 @@
       }
     },
     {
-      "path": "/packages/focus",
-      "component": "docs.V2Packages_Focus",
-      "meta": {
-        "title": "Focus",
-        "description": "Know when the app moves to the foreground or the background."
-      }
-    },
-    {
-      "path": "/packages/font",
-      "component": "docs.V2Packages_Font",
-      "meta": {
-        "title": "Fonts",
-        "description": "Use custom fonts in your app and measure text before it is drawn."
-      }
-    },
-    {
       "path": "/packages/geo",
       "component": "docs.V2Packages_Geo",
       "meta": {
         "title": "Location",
         "description": "Get the user's location, track movement and trigger geofences."
-      }
-    },
-    {
-      "path": "/packages/global",
-      "component": "docs.V2Packages_Global",
-      "meta": {
-        "title": "State",
-        "description": "Read, write and watch the app-wide shared store from your web page."
       }
     },
     {
@@ -1113,14 +849,6 @@
       }
     },
     {
-      "path": "/packages/googleadsconversions",
-      "component": "docs.V2Packages_Googleadsconversions",
-      "meta": {
-        "title": "GoogleAdsConversions (Growth)",
-        "description": "Send purchases and sign-ups to Google Ads as conversions, from your server."
-      }
-    },
-    {
       "path": "/packages/googlecast",
       "component": "docs.V2Packages_Googlecast",
       "meta": {
@@ -1129,27 +857,19 @@
       }
     },
     {
+      "path": "/packages/googlewalletapi",
+      "component": "docs.V2Packages_Googlewalletapi",
+      "meta": {
+        "title": "Google Wallet (Wallet)",
+        "description": "Google Wallet's save flow for Wallet on Android."
+      }
+    },
+    {
       "path": "/packages/growth",
       "component": "docs.V2Packages_Growth",
       "meta": {
         "title": "Product analytics",
-        "description": "Track what users do in your app and send it to the analytics tool you pick."
-      }
-    },
-    {
-      "path": "/packages/gyroscope",
-      "component": "docs.V2Packages_Gyroscope",
-      "meta": {
-        "title": "LegacyGyroscope (Legacy)",
-        "description": "Keeps old pages that read the gyroscope and compass heading working."
-      }
-    },
-    {
-      "path": "/packages/handoff",
-      "component": "docs.V2Packages_Handoff",
-      "meta": {
-        "title": "Handoff",
-        "description": "Let people start in your app on an iPhone and continue on a Mac or iPad."
+        "description": "Track what users do in your app and send it to every analytics and ad measurement tool you pick."
       }
     },
     {
@@ -1161,43 +881,27 @@
       }
     },
     {
-      "path": "/packages/extensions-watch-modules-health",
-      "component": "docs.V2Packages_ExtensionsWatchModulesHealth",
+      "path": "/packages/hce",
+      "component": "docs.V2Packages_Hce",
       "meta": {
-        "title": "WatchHealth (Watch)",
-        "description": "Read heart rate, steps, workouts and other health readings from the paired watch."
+        "title": "NFC card emulation (NFC)",
+        "description": "Let an Android phone answer NFC readers as a card."
       }
     },
     {
-      "path": "/packages/healthkit",
-      "component": "docs.V2Packages_Healthkit",
+      "path": "/packages/health",
+      "component": "docs.V2Packages_Health",
       "meta": {
         "title": "Health",
         "description": "Read and write Apple Health and Android Health Connect data."
       }
     },
     {
-      "path": "/packages/server-modules-http",
-      "component": "docs.V2Packages_ServerModulesHttp",
+      "path": "/packages/http",
+      "component": "docs.V2Packages_Http",
       "meta": {
-        "title": "Http (Server)",
-        "description": "Server routes for health checks, webhooks, live updates and a small notes example."
-      }
-    },
-    {
-      "path": "/packages/telemetry-modules-http",
-      "component": "docs.V2Packages_TelemetryModulesHttp",
-      "meta": {
-        "title": "Http (Telemetry)",
+        "title": "HTTP endpoint (Telemetry)",
         "description": "Sends your app's error and crash reports to a web address you control, with no outside service."
-      }
-    },
-    {
-      "path": "/packages/iap",
-      "component": "docs.V2Packages_Iap",
-      "meta": {
-        "title": "LegacyIAP (Legacy)",
-        "description": "Keeps old v1 and v2 in-app purchase links working by answering them with the store package."
       }
     },
     {
@@ -1217,43 +921,11 @@
       }
     },
     {
-      "path": "/packages/imessage",
-      "component": "docs.V2Packages_Imessage",
-      "meta": {
-        "title": "IMessage",
-        "description": "Add an iMessage app to your product that renders your own screens inside Messages."
-      }
-    },
-    {
-      "path": "/packages/import",
-      "component": "docs.V2Packages_Import",
-      "meta": {
-        "title": "Import (Server)",
-        "description": "Use an npm package from your backend code."
-      }
-    },
-    {
       "path": "/packages/integrity",
       "component": "docs.V2Packages_Integrity",
       "meta": {
         "title": "App integrity check",
         "description": "Prove to your server that a request comes from a genuine, unmodified copy of your app."
-      }
-    },
-    {
-      "path": "/packages/intelligence",
-      "component": "docs.V2Packages_Intelligence",
-      "meta": {
-        "title": "On-device AI",
-        "description": "Run a language model and speech-to-text directly on the user's device, with no server."
-      }
-    },
-    {
-      "path": "/packages/intents",
-      "component": "docs.V2Packages_Intents",
-      "meta": {
-        "title": "Intents",
-        "description": "Open Android system screens and other apps by intent, and check which apps can handle one."
       }
     },
     {
@@ -1273,51 +945,11 @@
       }
     },
     {
-      "path": "/packages/keepawake",
-      "component": "docs.V2Packages_Keepawake",
+      "path": "/packages/language",
+      "component": "docs.V2Packages_Language",
       "meta": {
-        "title": "KeepAwake",
-        "description": "Keep the screen from dimming or locking while something on screen needs to stay visible."
-      }
-    },
-    {
-      "path": "/packages/keyboard",
-      "component": "docs.V2Packages_Keyboard",
-      "meta": {
-        "title": "Keyboard",
-        "description": "Ship your own system-wide iOS keyboard, drawn from your own layout."
-      }
-    },
-    {
-      "path": "/packages/kiosk",
-      "component": "docs.V2Packages_Kiosk",
-      "meta": {
-        "title": "Kiosk",
-        "description": "Lock an Android device to your app so people cannot leave it, for shared or public devices."
-      }
-    },
-    {
-      "path": "/packages/legacy",
-      "component": "docs.V2Packages_Legacy",
-      "meta": {
-        "title": "V3 compatibility",
-        "description": "Keep the old window.despia calls from your V3 app working after you move to V4."
-      }
-    },
-    {
-      "path": "/packages/licensecheck",
-      "component": "docs.V2Packages_Licensecheck",
-      "meta": {
-        "title": "LicenseCheck",
-        "description": "Check your app's license on launch and show a blocking screen if it was revoked."
-      }
-    },
-    {
-      "path": "/packages/light",
-      "component": "docs.V2Packages_Light",
-      "meta": {
-        "title": "LightSensor",
-        "description": "Read the ambient light level around the device, in lux and in simple words like dark or sunlight."
+        "title": "Language",
+        "description": "Read and set the app language."
       }
     },
     {
@@ -1326,38 +958,6 @@
       "meta": {
         "title": "Live Activities",
         "description": "Show live progress on the iPhone Lock Screen and Dynamic Island, and as ongoing notifications on Android."
-      }
-    },
-    {
-      "path": "/packages/liveactivitypush",
-      "component": "docs.V2Packages_Liveactivitypush",
-      "meta": {
-        "title": "Live Activity updates via OneSignal",
-        "description": "Update a running iPhone Live Activity from your server through OneSignal."
-      }
-    },
-    {
-      "path": "/packages/livepreview",
-      "component": "docs.V2Packages_Livepreview",
-      "meta": {
-        "title": "LivePreview",
-        "description": "Shows a live, safe, working DSX example inside a document or page."
-      }
-    },
-    {
-      "path": "/packages/localpush",
-      "component": "docs.V2Packages_Localpush",
-      "meta": {
-        "title": "LegacyLocalPush (Legacy)",
-        "description": "Keeps the old local push calls working for web pages written for the previous Despia version."
-      }
-    },
-    {
-      "path": "/packages/legacy-modules-location",
-      "component": "docs.V2Packages_LegacyModulesLocation",
-      "meta": {
-        "title": "LegacyLocation (Legacy)",
-        "description": "Keeps old location tracking pages working on the new location package."
       }
     },
     {
@@ -1409,27 +1009,11 @@
       }
     },
     {
-      "path": "/packages/mcp",
-      "component": "docs.V2Packages_Mcp",
-      "meta": {
-        "title": "MCP",
-        "description": "Let AI agents call chosen actions of your app as Model Context Protocol tools."
-      }
-    },
-    {
       "path": "/packages/media",
       "component": "docs.V2Packages_Media",
       "meta": {
-        "title": "Photos and videos",
-        "description": "Let users pick, crop, save and upload photos and videos."
-      }
-    },
-    {
-      "path": "/packages/menubar",
-      "component": "docs.V2Packages_Menubar",
-      "meta": {
-        "title": "MenuBar",
-        "description": "A native bottom menu bar and a slide-over sidebar that your web page controls."
+        "title": "Photos and files",
+        "description": "Let users pick photos, videos and documents without any permission prompt."
       }
     },
     {
@@ -1444,16 +1028,8 @@
       "path": "/packages/metaads",
       "component": "docs.V2Packages_Metaads",
       "meta": {
-        "title": "Meta App Events",
+        "title": "Meta App Events (Growth)",
         "description": "Report app events and purchases to Meta ads, match them to people, and open Meta deferred app links."
-      }
-    },
-    {
-      "path": "/packages/metaconversions",
-      "component": "docs.V2Packages_Metaconversions",
-      "meta": {
-        "title": "MetaConversions (Growth)",
-        "description": "Send your app's conversion events to Meta ads from your own server."
       }
     },
     {
@@ -1473,14 +1049,6 @@
       }
     },
     {
-      "path": "/packages/mount",
-      "component": "docs.V2Packages_Mount",
-      "meta": {
-        "title": "Mount",
-        "description": "Places a component or a piece of markup over your screen or web page and tells you how much space it uses."
-      }
-    },
-    {
       "path": "/packages/mux",
       "component": "docs.V2Packages_Mux",
       "meta": {
@@ -1494,14 +1062,6 @@
       "meta": {
         "title": "Nearby",
         "description": "Connect two phones running your app directly and send them data, with no server."
-      }
-    },
-    {
-      "path": "/packages/net",
-      "component": "docs.V2Packages_Net",
-      "meta": {
-        "title": "Net",
-        "description": "Know what kind of connection the device has and whether your app can really reach the internet."
       }
     },
     {
@@ -1532,32 +1092,16 @@
       "path": "/packages/onesignal",
       "component": "docs.V2Packages_Onesignal",
       "meta": {
-        "title": "OneSignal",
+        "title": "OneSignal (Notify)",
         "description": "Send push notifications to your app's users through OneSignal."
       }
     },
     {
-      "path": "/packages/orientation",
-      "component": "docs.V2Packages_Orientation",
+      "path": "/packages/parentalconsent",
+      "component": "docs.V2Packages_Parentalconsent",
       "meta": {
-        "title": "Orientation",
-        "description": "Lock or unlock the screen orientation while the app runs."
-      }
-    },
-    {
-      "path": "/packages/passkeys",
-      "component": "docs.V2Packages_Passkeys",
-      "meta": {
-        "title": "Passkeys",
-        "description": "Sign people in with passkeys from the phone's own authenticator, with any backend."
-      }
-    },
-    {
-      "path": "/packages/pay",
-      "component": "docs.V2Packages_Pay",
-      "meta": {
-        "title": "Pay",
-        "description": "Take payments with the Apple Pay and Google Pay sheet."
+        "title": "Parental Consent (AgeAssurance)",
+        "description": "Ask a parent to approve a significant app update."
       }
     },
     {
@@ -1566,14 +1110,6 @@
       "meta": {
         "title": "Payments",
         "description": "Take payments in your app with one set of calls, whichever payment provider you use."
-      }
-    },
-    {
-      "path": "/packages/permissions",
-      "component": "docs.V2Packages_Permissions",
-      "meta": {
-        "title": "Permissions",
-        "description": "Find out which permissions your app build is allowed to ask for, so you can hide features it can never turn on."
       }
     },
     {
@@ -1593,19 +1129,11 @@
       }
     },
     {
-      "path": "/packages/platform",
-      "component": "docs.V2Packages_Platform",
+      "path": "/packages/playreview",
+      "component": "docs.V2Packages_Playreview",
       "meta": {
-        "title": "Platform",
-        "description": "Despia's own hosted platform backend, written in DSX, kept as a working example of a full server."
-      }
-    },
-    {
-      "path": "/packages/player",
-      "component": "docs.V2Packages_Player",
-      "meta": {
-        "title": "Player",
-        "description": "Play videos and streams in your app, with offline downloads."
+        "title": "Play review (AppRating)",
+        "description": "Google Play's in-app rating card for App rating on Android."
       }
     },
     {
@@ -1644,16 +1172,8 @@
       "path": "/packages/preventdefault",
       "component": "docs.V2Packages_Preventdefault",
       "meta": {
-        "title": "PreventDefault",
-        "description": "Stop iOS from scrolling the page when the keyboard opens."
-      }
-    },
-    {
-      "path": "/packages/preview",
-      "component": "docs.V2Packages_Preview",
-      "meta": {
-        "title": "Preview",
-        "description": "Turn a pasted web link into a preview card with title, description and picture."
+        "title": "PreventDefault (Dom)",
+        "description": "Control keyboard-driven layout adjustment."
       }
     },
     {
@@ -1662,6 +1182,14 @@
       "meta": {
         "title": "PrintDocuments",
         "description": "Print a PDF or other document through the system print sheet."
+      }
+    },
+    {
+      "path": "/packages/printcontent",
+      "component": "docs.V2Packages_Printcontent",
+      "meta": {
+        "title": "DomPrintDocuments (Dom)",
+        "description": "Optional HTML and text formatter for PrintDocuments."
       }
     },
     {
@@ -1676,24 +1204,8 @@
       "path": "/packages/pulltorefresh",
       "component": "docs.V2Packages_Pulltorefresh",
       "meta": {
-        "title": "PullToRefresh",
+        "title": "PullToRefresh (Dom)",
         "description": "Let people pull down on a web page in your app to reload it."
-      }
-    },
-    {
-      "path": "/packages/pushrouting",
-      "component": "docs.V2Packages_Pushrouting",
-      "meta": {
-        "title": "PushRouting",
-        "description": "Delivers the notification a user tapped to your app's pages once they are ready."
-      }
-    },
-    {
-      "path": "/packages/pushwoosh",
-      "component": "docs.V2Packages_Pushwoosh",
-      "meta": {
-        "title": "Pushwoosh",
-        "description": "Send push notifications to your app's users through Pushwoosh."
       }
     },
     {
@@ -1705,14 +1217,6 @@
       }
     },
     {
-      "path": "/packages/record",
-      "component": "docs.V2Packages_Record",
-      "meta": {
-        "title": "Record (Audio)",
-        "description": "Record a voice note or audio message and get the file back, with a live level meter."
-      }
-    },
-    {
       "path": "/packages/remoteconfig",
       "component": "docs.V2Packages_Remoteconfig",
       "meta": {
@@ -1721,24 +1225,8 @@
       }
     },
     {
-      "path": "/packages/remotehosts",
-      "component": "docs.V2Packages_Remotehosts",
-      "meta": {
-        "title": "RemoteHosts",
-        "description": "Move your app to a new domain without shipping a new app version."
-      }
-    },
-    {
       "path": "/packages/revenuecat",
       "component": "docs.V2Packages_Revenuecat",
-      "meta": {
-        "title": "RevenueCat",
-        "description": "Sell subscriptions and in-app purchases with RevenueCat."
-      }
-    },
-    {
-      "path": "/packages/store-modules-revenuecat",
-      "component": "docs.V2Packages_StoreModulesRevenuecat",
       "meta": {
         "title": "RevenueCat (Store)",
         "description": "Sell subscriptions and in-app purchases with RevenueCat."
@@ -1769,14 +1257,6 @@
       }
     },
     {
-      "path": "/packages/scene",
-      "component": "docs.V2Packages_Scene",
-      "meta": {
-        "title": "Scene",
-        "description": "Inspect and control the 3D scenes on screen from code, markup or an AI agent."
-      }
-    },
-    {
       "path": "/packages/scene3d",
       "component": "docs.V2Packages_Scene3d",
       "meta": {
@@ -1793,30 +1273,6 @@
       }
     },
     {
-      "path": "/packages/search",
-      "component": "docs.V2Packages_Search",
-      "meta": {
-        "title": "Spotlight",
-        "description": "Make your app's content findable from the phone's own search, and open the right screen when it is tapped."
-      }
-    },
-    {
-      "path": "/packages/security",
-      "component": "docs.V2Packages_Security",
-      "meta": {
-        "title": "Security",
-        "description": "Switch on app security policies such as blocking jailbroken devices and screenshots."
-      }
-    },
-    {
-      "path": "/packages/see",
-      "component": "docs.V2Packages_See",
-      "meta": {
-        "title": "See (LocalAI)",
-        "description": "Describe and understand images with an AI model that runs on the device."
-      }
-    },
-    {
       "path": "/packages/segment",
       "component": "docs.V2Packages_Segment",
       "meta": {
@@ -1830,14 +1286,6 @@
       "meta": {
         "title": "Sentry (Telemetry)",
         "description": "Send your app's errors and crash reports to your own Sentry project."
-      }
-    },
-    {
-      "path": "/packages/server",
-      "component": "docs.V2Packages_Server",
-      "meta": {
-        "title": "Server",
-        "description": "The backend settings for your app: sign-in, data, address and where it is deployed."
       }
     },
     {
@@ -1873,30 +1321,6 @@
       }
     },
     {
-      "path": "/packages/sharetarget",
-      "component": "docs.V2Packages_Sharetarget",
-      "meta": {
-        "title": "ShareExtension",
-        "description": "Lets people share text, links, photos and files into your app from the system share sheet."
-      }
-    },
-    {
-      "path": "/packages/siri",
-      "component": "docs.V2Packages_Siri",
-      "meta": {
-        "title": "LegacySiri (Legacy)",
-        "description": "Let people add a spoken Siri phrase that opens your app and tells it what to do."
-      }
-    },
-    {
-      "path": "/packages/snapconversions",
-      "component": "docs.V2Packages_Snapconversions",
-      "meta": {
-        "title": "SnapConversions (Growth)",
-        "description": "Send purchases and sign-ups to Snapchat as conversions, from your server."
-      }
-    },
-    {
       "path": "/packages/speechrecognition",
       "component": "docs.V2Packages_Speechrecognition",
       "meta": {
@@ -1917,15 +1341,7 @@
       "component": "docs.V2Packages_Spinner",
       "meta": {
         "title": "Spinner",
-        "description": "Show or hide the page-load activity indicator."
-      }
-    },
-    {
-      "path": "/packages/splash",
-      "component": "docs.V2Packages_Splash",
-      "meta": {
-        "title": "Splash",
-        "description": "The launch screen shown while your app starts, with your logo and background."
+        "description": "Show or hide an activity indicator over the app."
       }
     },
     {
@@ -1942,14 +1358,6 @@
       "meta": {
         "title": "In-app purchases and paywalls",
         "description": "Sell subscriptions and purchases with a native paywall and one simple way to check what a user owns."
-      }
-    },
-    {
-      "path": "/packages/devsettings-modules-livestream",
-      "component": "docs.V2Packages_DevsettingsModulesLivestream",
-      "meta": {
-        "title": "Stream (DevSettings)",
-        "description": "Watch your app's logs live from a test device on your own relay."
       }
     },
     {
@@ -1997,7 +1405,7 @@
       "component": "docs.V2Packages_Systembars",
       "meta": {
         "title": "SystemBars",
-        "description": "Control the status bar, the navigation bar and fullscreen mode from your screens."
+        "description": "Control the status bar and the navigation bar from your screens."
       }
     },
     {
@@ -2028,7 +1436,7 @@
       "path": "/packages/terra",
       "component": "docs.V2Packages_Terra",
       "meta": {
-        "title": "Terra Health",
+        "title": "Terra Health (Health)",
         "description": "Pull Apple Health and wearable data into your app through Terra."
       }
     },
@@ -2036,24 +1444,8 @@
       "path": "/packages/tiktokads",
       "component": "docs.V2Packages_Tiktokads",
       "meta": {
-        "title": "TikTok Ads",
+        "title": "TikTok Ads (Growth)",
         "description": "Measure which TikTok ads bring installs and sales, using the TikTok Business SDK."
-      }
-    },
-    {
-      "path": "/packages/tiktokevents",
-      "component": "docs.V2Packages_Tiktokevents",
-      "meta": {
-        "title": "TikTokEvents (Growth)",
-        "description": "Report purchases and sign-ups to TikTok from your server, only for people who agreed."
-      }
-    },
-    {
-      "path": "/packages/toast",
-      "component": "docs.V2Packages_Toast",
-      "meta": {
-        "title": "Toast",
-        "description": "Show short messages and undo bars that disappear on their own."
       }
     },
     {
@@ -2081,22 +1473,6 @@
       }
     },
     {
-      "path": "/packages/verticalplayer",
-      "component": "docs.V2Packages_Verticalplayer",
-      "meta": {
-        "title": "VerticalPlayerStack",
-        "description": "A full-screen vertical video player for short dramas, with paywalls, coins and offline downloads."
-      }
-    },
-    {
-      "path": "/packages/viewport",
-      "component": "docs.V2Packages_Viewport",
-      "meta": {
-        "title": "Viewport",
-        "description": "Keep chat boxes and footers visible when the on-screen keyboard opens."
-      }
-    },
-    {
       "path": "/packages/vision",
       "component": "docs.V2Packages_Vision",
       "meta": {
@@ -2105,35 +1481,11 @@
       }
     },
     {
-      "path": "/packages/voice",
-      "component": "docs.V2Packages_Voice",
-      "meta": {
-        "title": "Voice (LocalAI)",
-        "description": "Speak text aloud and list the available voices."
-      }
-    },
-    {
       "path": "/packages/wallet",
       "component": "docs.V2Packages_Wallet",
       "meta": {
         "title": "Wallet",
-        "description": "Let people add a boarding pass, ticket or card to Apple Wallet."
-      }
-    },
-    {
-      "path": "/packages/watch",
-      "component": "docs.V2Packages_Watch",
-      "meta": {
-        "title": "Watch",
-        "description": "Adds an Apple Watch and Wear OS companion to your app and lets the phone control it."
-      }
-    },
-    {
-      "path": "/packages/webextension",
-      "component": "docs.V2Packages_Webextension",
-      "meta": {
-        "title": "WebExtension",
-        "description": "Ship a Safari web extension with your app and share state and a sign-in with it."
+        "description": "Let people add a boarding pass, ticket or card to Apple Wallet or Google Wallet."
       }
     },
     {
@@ -2141,15 +1493,7 @@
       "component": "docs.V2Packages_Websocket",
       "meta": {
         "title": "WebSocket",
-        "description": "Keep a WebSocket connection open that reconnects by itself and never loses a message."
-      }
-    },
-    {
-      "path": "/packages/webview",
-      "component": "docs.V2Packages_Webview",
-      "meta": {
-        "title": "WebView",
-        "description": "Show any web page inside your app."
+        "description": "Connect to a WebSocket server and receive its messages as call events."
       }
     },
     {
@@ -2165,16 +1509,7 @@
       "component": "docs.PageAppReview",
       "meta": {
         "title": "App Review",
-        "description": "Apple App Review guidelines and Google Play policies that Despia apps run into: what each means, why apps hit it, how to fix it on Despia V4 and V3, and a reply for the reviewer."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/migrate",
-      "component": "docs.PageMigrate",
-      "meta": {
-        "title": "Migrating from V3",
-        "description": "Move a Despia V3 app (despia-native, URL-scheme calls) to Despia V4 and DSX, one page at a time."
+        "description": "Apple App Review guidelines and Google Play policies that Despia apps run into: what each means, why apps hit it, how to fix it on Despia V4, and a reply for the reviewer."
       },
       "tabRoot": true
     },
@@ -2188,38 +1523,11 @@
       "tabRoot": true
     },
     {
-      "path": "/troubleshooting",
-      "component": "docs.PageTroubleshooting",
-      "meta": {
-        "title": "Troubleshooting",
-        "description": "Symptom, cause and fix for the problems Despia developers actually hit, on Despia V4 and on the V3 runtime."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/migrate/map",
-      "component": "docs.PageMigrate_Map",
-      "meta": {
-        "title": "V3 to V4 feature map",
-        "description": "Every Despia V3 feature and the V4 package or API it moves to, generated from the legacy navigation and the framework's own names."
-      },
-      "tabRoot": true
-    },
-    {
       "path": "/app-review/apple-4-2-minimum-functionality",
       "component": "docs.PageAppReview_Apple42MinimumFunctionality",
       "meta": {
         "title": "Minimum functionality",
         "description": "The app has to be more than a website or a brochure in an app shell: real navigation, real depth, and features people expect from an app in its category. Reviewers judge perceived value, not the technology."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/troubleshooting/ota-updates-not-arriving",
-      "component": "docs.PageTroubleshooting_OtaUpdatesNotArriving",
-      "meta": {
-        "title": "OTA updates missing",
-        "description": "Changes deployed to production do not appear in the native app, even after force-closing it."
       },
       "tabRoot": true
     },
@@ -2233,29 +1541,11 @@
       "tabRoot": true
     },
     {
-      "path": "/troubleshooting/white-screen-on-launch",
-      "component": "docs.PageTroubleshooting_WhiteScreenOnLaunch",
-      "meta": {
-        "title": "White screen on launch",
-        "description": "The app opens to a blank white screen and the splash logo never appears."
-      },
-      "tabRoot": true
-    },
-    {
       "path": "/app-review/apple-3-1-1-in-app-purchase",
       "component": "docs.PageAppReview_Apple311InAppPurchase",
       "meta": {
         "title": "In-app purchase",
         "description": "Digital goods and services sold inside the app go through Apple's in-app purchase (and Google Play Billing on Android), with a working restore, and products that are configured and purchasable."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/troubleshooting/logged-out-after-reopen",
-      "component": "docs.PageTroubleshooting_LoggedOutAfterReopen",
-      "meta": {
-        "title": "Logged out on reopen",
-        "description": "Users close the app and land on the login page again when they reopen it."
       },
       "tabRoot": true
     },
@@ -2350,1700 +1640,1508 @@
       "tabRoot": true
     },
     {
-      "path": "/legacy/introduction",
-      "component": "docs.PageLegacy_Introduction",
+      "path": "/legacy",
+      "component": "docs.LegacyIndex",
       "meta": {
-        "title": "Introduction (Despia V3)",
-        "description": "Despia lets your web app call native device features and ship to iOS and Android - no Swift, no Java, no terminal."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/mcp-server",
-      "component": "docs.PageLegacy_McpServer",
-      "meta": {
-        "title": "MCP Server (Despia V3)",
-        "description": "Ship true native features for your web-native apps faster and with more precision using the Despia MCP."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/changelog",
-      "component": "docs.PageLegacy_Changelog",
-      "meta": {
-        "title": "Changelog (Despia V3)",
-        "description": "New features, improvements, and fixes across the Despia platform."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/deployment/apple-ios/automatic",
-      "component": "docs.PageLegacy_Deployment_AppleIos_Automatic",
-      "meta": {
-        "title": "Automatic (Despia V3)",
-        "description": "Complete guide for building and publishing iOS applications using Despia"
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/deployment/apple-ios/manual",
-      "component": "docs.PageLegacy_Deployment_AppleIos_Manual",
-      "meta": {
-        "title": "Manual (Despia V3)",
-        "description": "Complete guide for exporting and working with your Despia application as native Swift code."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/deployment/google-android/automatic",
-      "component": "docs.PageLegacy_Deployment_GoogleAndroid_Automatic",
-      "meta": {
-        "title": "Automatic (Despia V3)",
-        "description": "Complete guide for building and publishing Android applications using Despia."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/deployment/google-android/manual",
-      "component": "docs.PageLegacy_Deployment_GoogleAndroid_Manual",
-      "meta": {
-        "title": "Manual (Despia V3)",
-        "description": "Complete guide for exporting and working with your Despia application as native Android code."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/best-practices/frontend/structure",
-      "component": "docs.PageLegacy_BestPractices_Frontend_Structure",
-      "meta": {
-        "title": "Structure (Despia V3)",
-        "description": "Essential patterns for building production-ready mobile applications with Despia. Learn how to structure root frames, handle device boundaries, implement scroll containers, and optimize touch interactions for native performance."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/best-practices/frontend/performance",
-      "component": "docs.PageLegacy_BestPractices_Frontend_Performance",
-      "meta": {
-        "title": "Performance (Despia V3)",
-        "description": "Build applications optimized for 60fps performance that degrade gracefully under system constraints. This guide covers proven techniques for JavaScript execution, rendering optimization, memory management, and asset delivery."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/best-practices/frontend/animations",
-      "component": "docs.PageLegacy_BestPractices_Frontend_Animations",
-      "meta": {
-        "title": "Animations (Despia V3)",
-        "description": "CSS animation first. Scroll-driven CSS for drawers, sheets, parallax, and page transitions. JS fallback only where CSS is not supported."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/best-practices/backend/user-session",
-      "component": "docs.PageLegacy_BestPractices_Backend_UserSession",
-      "meta": {
-        "title": "User Session (Despia V3)",
-        "description": "This guide covers the general user identity management pattern for Despia apps. This system is the foundation that all SDK integrations (RevenueCat, OneSignal, Stripe, etc.) build upon."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/best-practices/backend/revenuecat/user-session",
-      "component": "docs.PageLegacy_BestPractices_Backend_Revenuecat_UserSession",
-      "meta": {
-        "title": "User Session (Despia V3)",
-        "description": "This guide covers user identity management for in-app purchases and subscriptions using RevenueCat in Despia apps."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/best-practices/backend/revenuecat/webhooks",
-      "component": "docs.PageLegacy_BestPractices_Backend_Revenuecat_Webhooks",
-      "meta": {
-        "title": "Webhooks (Despia V3)",
-        "description": "Complete implementation guide for processing RevenueCat webhooks with authorization validation, event type handling, and entitlement management."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/best-practices/backend/revenuecat/cron-jobs",
-      "component": "docs.PageLegacy_BestPractices_Backend_Revenuecat_CronJobs",
-      "meta": {
-        "title": "Cron Jobs (Despia V3)",
-        "description": "Implement a self-healing subscription sync system using scheduled cron jobs as a backup to webhooks. This ensures your database stays synchronized with RevenueCat even when webhooks fail or are delayed."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/best-practices/backend/one-signal/user-session",
-      "component": "docs.PageLegacy_BestPractices_Backend_OneSignal_UserSession",
-      "meta": {
-        "title": "User Session (Despia V3)",
-        "description": "This guide covers user identity management for push notifications using OneSignal in Despia apps."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/best-practices/updates/overview",
-      "component": "docs.PageLegacy_BestPractices_Updates_Overview",
-      "meta": {
-        "title": "Overview (Despia V3)",
-        "description": "Getting OTA updates right means your app stays fast, your users stay unblocked, and you never give a reviewer a reason to push back."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/best-practices/updates/interface",
-      "component": "docs.PageLegacy_BestPractices_Updates_Interface",
-      "meta": {
-        "title": "Interface (Despia V3)",
-        "description": "UI changes are the safest and most common use of OTA. They ship instantly, require no binary, and reach every user on the next app open."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/best-practices/updates/logic",
-      "component": "docs.PageLegacy_BestPractices_Updates_Logic",
-      "meta": {
-        "title": "Logic (Despia V3)",
-        "description": "Business rules, data handling, API integrations, state management, routing - all web layer. They ship via OTA, silently, with no review and no rebuild."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/best-practices/updates/editor",
-      "component": "docs.PageLegacy_BestPractices_Updates_Editor",
-      "meta": {
-        "title": "Editor (Despia V3)",
-        "description": "Changes made in the Despia editor affect the native binary. They require a rebuild and a new submission to the App Store and Google Play."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/local-server/introduction",
-      "component": "docs.PageLegacy_LocalServer_Introduction",
-      "meta": {
-        "title": "Introduction (Despia V3)",
-        "description": "Ship native iOS and Android apps that boot instantly and work completely offline by serving your web build from an on-device HTTP server."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/local-server/reference",
-      "component": "docs.PageLegacy_LocalServer_Reference",
-      "meta": {
-        "title": "Reference (Despia V3)",
-        "description": "Plugin installation, framework configuration, manifest schema, and troubleshooting for the Despia local server."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/local-intelligence/Introduction",
-      "component": "docs.PageLegacy_LocalIntelligence_Introduction",
-      "meta": {
-        "title": "Introduction (Despia V3)",
-        "description": "Run language models on-device in hybrid apps with one function call. Private by default, offline after first download, zero per-token cost."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/local-intelligence/reference",
-      "component": "docs.PageLegacy_LocalIntelligence_Reference",
-      "meta": {
-        "title": "Reference (Despia V3)",
-        "description": "Complete API reference for despia-intelligence: run, models, runtime, events, and error codes."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/local-database/introduction",
-      "component": "docs.PageLegacy_LocalDatabase_Introduction",
-      "meta": {
-        "title": "Introduction (Despia V3)",
-        "description": "Native local SQLite database with optional real-time backend sync for Despia apps."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/local-database/reference",
-      "component": "docs.PageLegacy_LocalDatabase_Reference",
-      "meta": {
-        "title": "Reference (Despia V3)",
-        "description": "Complete reference for @despia/powersync, init, query, write, watch, migrate, search, and sync."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/local-cdn/introduction",
-      "component": "docs.PageLegacy_LocalCdn_Introduction",
-      "meta": {
-        "title": "Introduction (Despia V3)",
-        "description": "Cache gigabytes of media on-device with O(1) memory usage and background downloads that continue after the app is closed."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/local-cdn/reference",
-      "component": "docs.PageLegacy_LocalCdn_Reference",
-      "meta": {
-        "title": "Reference (Despia V3)",
-        "description": "Complete API reference for localcdn:// commands, the contentServerChange callback, and the HTTP upload API."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/authentication/clerk/introduction",
-      "component": "docs.PageLegacy_Authentication_Clerk_Introduction",
-      "meta": {
-        "title": "Introduction (Despia V3)",
-        "description": "Drop-in authentication for your Despia app with email, OAuth, passkeys, and MFA handled by Clerk's native iOS SDK."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/authentication/clerk/reference",
-      "component": "docs.PageLegacy_Authentication_Clerk_Reference",
-      "meta": {
-        "title": "Reference (Despia V3)",
-        "description": "Payload envelope, event names, status values, error codes, quirks, and platform support."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/authentication/clerk/auth-methods",
-      "component": "docs.PageLegacy_Authentication_Clerk_AuthMethods",
-      "meta": {
-        "title": "Auth Methods (Despia V3)",
-        "description": "Auth Sheet, email/username/phone password, OAuth, Apple, email and phone OTP, passkeys, MFA, Enterprise SSO, password reset, and magic-link tickets."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/authentication/clerk/sessions",
-      "component": "docs.PageLegacy_Authentication_Clerk_Sessions",
-      "meta": {
-        "title": "Session (Despia V3)",
-        "description": "Check who's signed in, read the auto-refreshed JWT, and authenticate API calls."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/authentication/clerk/backend",
-      "component": "docs.PageLegacy_Authentication_Clerk_Backend",
-      "meta": {
-        "title": "Backend (Despia V3)",
-        "description": "Zero-config server-side authentication for Next.js, TanStack, and any framework via cookies and an optional header."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/authentication/clerk/account",
-      "component": "docs.PageLegacy_Authentication_Clerk_Account",
-      "meta": {
-        "title": "Account (Despia V3)",
-        "description": "User Profile sheet, sign-out, attribution sync, and multi-tenant switching."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/payments/introduction",
-      "component": "docs.PageLegacy_Payments_Introduction",
-      "meta": {
-        "title": "Introduction (Despia V3)",
-        "description": "App Store and Google Play billing via RevenueCat, plus Stripe for physical goods and real-world services."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/payments/revenuecat/introduction",
-      "component": "docs.PageLegacy_Payments_Revenuecat_Introduction",
-      "meta": {
-        "title": "Introduction (Despia V3)",
-        "description": "Native App Store and Google Play billing in your web app via the Despia SDK and RevenueCat."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/payments/revenuecat/reference",
-      "component": "docs.PageLegacy_Payments_Revenuecat_Reference",
-      "meta": {
-        "title": "Reference (Despia V3)",
-        "description": "Complete reference for all Despia in-app purchase schemes, parameters, callbacks, entitlement checks, and webhook handling."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/payments/stripe/introduction",
-      "component": "docs.PageLegacy_Payments_Stripe_Introduction",
-      "meta": {
-        "title": "Introduction (Despia V3)",
-        "description": "Native Stripe PaymentSheet and CustomerSheet in your web app via the Despia SDK."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/payments/stripe/payment",
-      "component": "docs.PageLegacy_Payments_Stripe_Payment",
-      "meta": {
-        "title": "Payment (Despia V3)",
-        "description": "Show the native Stripe Payment Sheet from your web app and receive the result through a single global callback."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/custom-code/extensions",
-      "component": "docs.PageLegacy_CustomCode_Extensions",
-      "meta": {
-        "title": "Extensions (Despia V3)",
-        "description": "Reference for building native iOS and Android plugins for Despia."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/analytics/appsflyer/introduction",
-      "component": "docs.PageLegacy_Analytics_Appsflyer_Introduction",
-      "meta": {
-        "title": "Introduction (Despia V3)",
-        "description": "Native AppsFlyer attribution, deep linking, events, identity, consent, and ad revenue, fully managed by Despia and controlled from your web layer."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/analytics/appsflyer/testing",
-      "component": "docs.PageLegacy_Analytics_Appsflyer_Testing",
-      "meta": {
-        "title": "Testing (Despia V3)",
-        "description": "Confirm your AppsFlyer setup is working before you launch. No coding tools required."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/analytics/appsflyer/identity",
-      "component": "docs.PageLegacy_Analytics_Appsflyer_Identity",
-      "meta": {
-        "title": "Identity (Despia V3)",
-        "description": "Tie attribution and events to your own user IDs, pass hashed email and phone for audience matching, and read the AppsFlyer device ID."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/analytics/appsflyer/attribution",
-      "component": "docs.PageLegacy_Analytics_Appsflyer_Attribution",
-      "meta": {
-        "title": "Attribution (Despia V3)",
-        "description": "Read where every user came from across TikTok, Meta, Google, affiliate, or organic using data injected by Despia on every page load."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/analytics/appsflyer/deeplinking",
-      "component": "docs.PageLegacy_Analytics_Appsflyer_Deeplinking",
-      "meta": {
-        "title": "Deep Linking (Despia V3)",
-        "description": "Carry campaign, affiliate, invite, and content metadata from a link into the app on first launch, even when the user installs from the store first."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/analytics/appsflyer/campaigns",
-      "component": "docs.PageLegacy_Analytics_Appsflyer_Campaigns",
-      "meta": {
-        "title": "Campaigns (Despia V3)",
-        "description": "Connect TikTok and Meta as integrated partners, create custom attribution links, and measure which campaigns drive the most valuable users."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/analytics/appsflyer/events",
-      "component": "docs.PageLegacy_Analytics_Appsflyer_Events",
-      "meta": {
-        "title": "Events (Despia V3)",
-        "description": "Log standard and custom in-app events from your web layer. Standard af_ events map automatically to Meta and TikTok conversion events."
-      },
-      "tabRoot": true
+        "title": "Legacy documentation",
+        "description": "The Despia V3 documentation, for legacy deployments."
+      }
     },
     {
       "path": "/legacy/analytics/appsflyer/ad-revenue",
-      "component": "docs.PageLegacy_Analytics_Appsflyer_AdRevenue",
+      "component": "docs.LegacyAnalyticsAppsflyerAdRevenue",
       "meta": {
-        "title": "Ad Revenue (Despia V3)",
+        "title": "Ad Revenue (legacy)",
         "description": "Report impression-level ad revenue per network to AppsFlyer for LTV and ROAS reporting per acquisition channel."
-      },
-      "tabRoot": true
+      }
+    },
+    {
+      "path": "/legacy/analytics/appsflyer/attribution",
+      "component": "docs.LegacyAnalyticsAppsflyerAttribution",
+      "meta": {
+        "title": "Attribution (legacy)",
+        "description": "Read where every user came from across TikTok, Meta, Google, affiliate, or organic using data injected by Despia on every page load."
+      }
+    },
+    {
+      "path": "/legacy/analytics/appsflyer/campaigns",
+      "component": "docs.LegacyAnalyticsAppsflyerCampaigns",
+      "meta": {
+        "title": "Campaigns (legacy)",
+        "description": "Connect TikTok and Meta as integrated partners, create custom attribution links, and measure which campaigns drive the most valuable users."
+      }
     },
     {
       "path": "/legacy/analytics/appsflyer/consent",
-      "component": "docs.PageLegacy_Analytics_Appsflyer_Consent",
+      "component": "docs.LegacyAnalyticsAppsflyerConsent",
       "meta": {
-        "title": "Consent (Despia V3)",
+        "title": "Consent (legacy)",
         "description": "Forward GDPR and DMA consent choices from your cookie banner to the native AppsFlyer SDK."
-      },
-      "tabRoot": true
+      }
+    },
+    {
+      "path": "/legacy/analytics/appsflyer/deeplinking",
+      "component": "docs.LegacyAnalyticsAppsflyerDeeplinking",
+      "meta": {
+        "title": "Deep Linking (legacy)",
+        "description": "Carry campaign, affiliate, invite, and content metadata from a link into the app on first launch, even when the user installs from the store first."
+      }
+    },
+    {
+      "path": "/legacy/analytics/appsflyer/events",
+      "component": "docs.LegacyAnalyticsAppsflyerEvents",
+      "meta": {
+        "title": "Events (legacy)",
+        "description": "Log standard and custom in-app events from your web layer. Standard af_ events map automatically to Meta and TikTok conversion events."
+      }
+    },
+    {
+      "path": "/legacy/analytics/appsflyer/identity",
+      "component": "docs.LegacyAnalyticsAppsflyerIdentity",
+      "meta": {
+        "title": "Identity (legacy)",
+        "description": "Tie attribution and events to your own user IDs, pass hashed email and phone for audience matching, and read the AppsFlyer device ID."
+      }
+    },
+    {
+      "path": "/legacy/analytics/appsflyer/introduction",
+      "component": "docs.LegacyAnalyticsAppsflyerIntroduction",
+      "meta": {
+        "title": "Introduction (legacy)",
+        "description": "Native AppsFlyer attribution, deep linking, events, identity, consent, and ad revenue, fully managed by Despia and controlled from your web layer."
+      }
+    },
+    {
+      "path": "/legacy/analytics/appsflyer/testing",
+      "component": "docs.LegacyAnalyticsAppsflyerTesting",
+      "meta": {
+        "title": "Testing (legacy)",
+        "description": "Confirm your AppsFlyer setup is working before you launch. No coding tools required."
+      }
     },
     {
       "path": "/legacy/analytics/posthog/introduction",
-      "component": "docs.PageLegacy_Analytics_Posthog_Introduction",
+      "component": "docs.LegacyAnalyticsPosthogIntroduction",
       "meta": {
-        "title": "Introduction (Despia V3)",
+        "title": "Introduction (legacy)",
         "description": "GDPR-compliant product analytics, feature flags, and user identification bridged to your web layer via the Despia PostHog integration."
-      },
-      "tabRoot": true
+      }
     },
     {
       "path": "/legacy/analytics/posthog/reference",
-      "component": "docs.PageLegacy_Analytics_Posthog_Reference",
+      "component": "docs.LegacyAnalyticsPosthogReference",
       "meta": {
-        "title": "Reference (Despia V3)",
+        "title": "Reference (legacy)",
         "description": "Complete reference for Despia PostHog analytics, schemes, parameters, injected globals, and feature flags."
-      },
-      "tabRoot": true
+      }
     },
     {
-      "path": "/legacy/connectivity/websockets",
-      "component": "docs.PageLegacy_Connectivity_Websockets",
+      "path": "/legacy/authentication/clerk/account",
+      "component": "docs.LegacyAuthenticationClerkAccount",
       "meta": {
-        "title": "WebSockets (Despia V3)",
-        "description": "WebSocket connection owned by the native runtime, with durable message delivery across WebView reloads, suspension, and relaunch."
-      },
-      "tabRoot": true
+        "title": "Account (legacy)",
+        "description": "User Profile sheet, sign-out, attribution sync, and multi-tenant switching."
+      }
     },
     {
-      "path": "/legacy/connectivity/nfc",
-      "component": "docs.PageLegacy_Connectivity_Nfc",
+      "path": "/legacy/authentication/clerk/auth-methods",
+      "component": "docs.LegacyAuthenticationClerkAuthMethods",
       "meta": {
-        "title": "NFC (Despia V3)",
-        "description": "Read from and write to NFC tags directly from your web app."
-      },
-      "tabRoot": true
+        "title": "Auth Methods (legacy)",
+        "description": "Auth Sheet, email/username/phone password, OAuth, Apple, email and phone OTP, passkeys, MFA, Enterprise SSO, password reset, and magic-link tickets."
+      }
     },
     {
-      "path": "/legacy/introduction-1",
-      "component": "docs.PageLegacy_Introduction1",
+      "path": "/legacy/authentication/clerk/backend",
+      "component": "docs.LegacyAuthenticationClerkBackend",
       "meta": {
-        "title": "Introduction (Despia V3)",
-        "description": "Read Apple Health and OAuth wearable data natively and deliver it to your backend or your web app on demand, using the native Terra SDK bundled at runtime."
-      },
-      "tabRoot": true
+        "title": "Backend (legacy)",
+        "description": "Zero-config server-side authentication for Next.js, TanStack, and any framework via cookies and an optional header."
+      }
     },
     {
-      "path": "/legacy/reference",
-      "component": "docs.PageLegacy_Reference",
+      "path": "/legacy/authentication/clerk/introduction",
+      "component": "docs.LegacyAuthenticationClerkIntroduction",
       "meta": {
-        "title": "Reference (Despia V3)",
-        "description": "Full API reference for Terra health data in Despia: client-side schemes, injected globals, event payloads, and backend responsibilities."
-      },
-      "tabRoot": true
+        "title": "Introduction (legacy)",
+        "description": "Drop-in authentication for your Despia app with email, OAuth, passkeys, and MFA handled by Clerk's native iOS SDK."
+      }
     },
     {
-      "path": "/legacy/machine-learning/vision/ocr",
-      "component": "docs.PageLegacy_MachineLearning_Vision_Ocr",
+      "path": "/legacy/authentication/clerk/reference",
+      "component": "docs.LegacyAuthenticationClerkReference",
       "meta": {
-        "title": "OCR (Despia V3)",
-        "description": "Run native optical character recognition on any image on iOS and Android, with no server round-trips and no third-party API keys."
-      },
-      "tabRoot": true
+        "title": "Reference (legacy)",
+        "description": "Payload envelope, event names, status values, error codes, quirks, and platform support."
+      }
     },
     {
-      "path": "/legacy/machine-learning/voice/speech-recognition",
-      "component": "docs.PageLegacy_MachineLearning_Voice_SpeechRecognition",
+      "path": "/legacy/authentication/clerk/sessions",
+      "component": "docs.LegacyAuthenticationClerkSessions",
       "meta": {
-        "title": "Speech Recognition (Despia V3)",
-        "description": "Convert spoken audio into text on-device using the native iOS speech recognition engine."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/wallet/pkpass",
-      "component": "docs.PageLegacy_Wallet_Pkpass",
-      "meta": {
-        "title": "PK Pass (Despia V3)",
-        "description": "Add passes to a user's device wallet directly from your web app."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/user-agent",
-      "component": "docs.PageLegacy_NativeFeatures_UserAgent",
-      "meta": {
-        "title": "User Agent (Despia V3)",
-        "description": "Detect whether your app is running in the Despia native runtime and identify the platform to conditionally render features like in-app purchases or native modules."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/onesignal/introduction",
-      "component": "docs.PageLegacy_NativeFeatures_Onesignal_Introduction",
-      "meta": {
-        "title": "Introduction (Despia V3)",
-        "description": "Send targeted push notifications to specific users even when your app is closed, using the native OneSignal SDK bundled at runtime."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/onesignal/reference",
-      "component": "docs.PageLegacy_NativeFeatures_Onesignal_Reference",
-      "meta": {
-        "title": "Reference (Despia V3)",
-        "description": "Full API reference for OneSignal push notifications in Despia: client-side schemes, backend payload options, deep linking fields, segmentation, and critical alerts."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/deeplinking",
-      "component": "docs.PageLegacy_NativeFeatures_Deeplinking",
-      "meta": {
-        "title": "Deeplinking (Despia V3)",
-        "description": "Configure universal links on iOS and app links on Android so URLs from your domain open directly inside your Despia app instead of the mobile browser."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/revenuecat/introduction",
-      "component": "docs.PageLegacy_NativeFeatures_Revenuecat_Introduction",
-      "meta": {
-        "title": "Introduction (Despia V3)",
-        "description": "Native App Store and Google Play billing in your web app via the Despia SDK and RevenueCat."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/revenuecat/reference",
-      "component": "docs.PageLegacy_NativeFeatures_Revenuecat_Reference",
-      "meta": {
-        "title": "Reference (Despia V3)",
-        "description": "Complete reference for all Despia in-app purchase schemes, parameters, callbacks, entitlement checks, and webhook handling."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/oauth/easy-login-flow",
-      "component": "docs.PageLegacy_NativeFeatures_Oauth_EasyLoginFlow",
-      "meta": {
-        "title": "Easy OAuth (Despia V3)",
-        "description": "Finish social sign-in on your own domain, with the provider's redirect landing directly in your app and no callback page to build."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/oauth/introduction",
-      "component": "docs.PageLegacy_NativeFeatures_Oauth_Introduction",
-      "meta": {
-        "title": "Introduction (Despia V3)",
-        "description": "How OAuth authentication works in Despia apps. Provider-agnostic, the same flow works for Google, Apple, TikTok, GitHub, or any OAuth 2.0 provider."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/oauth/apple",
-      "component": "docs.PageLegacy_NativeFeatures_Oauth_Apple",
-      "meta": {
-        "title": "Apple Auth (Despia V3)",
-        "description": "Sign In with Apple, platform-aware. Native Face ID on iOS, Chrome Custom Tabs on Android, popup on web."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/oauth/google",
-      "component": "docs.PageLegacy_NativeFeatures_Oauth_Google",
-      "meta": {
-        "title": "Google Auth (Despia V3)",
-        "description": "Sign In with Google using the Despia OAuth bridge. Opens ASWebAuthenticationSession on iOS and Chrome Custom Tabs on Android, with a standard popup on web."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/oauth/tiktok",
-      "component": "docs.PageLegacy_NativeFeatures_Oauth_Tiktok",
-      "meta": {
-        "title": "TikTok Auth (Despia V3)",
-        "description": "Sign In with TikTok using the Despia OAuth bridge. Opens ASWebAuthenticationSession on iOS and Chrome Custom Tabs on Android, with a standard redirect on web."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/purchases",
-      "component": "docs.PageLegacy_NativeFeatures_Purchases",
-      "meta": {
-        "title": "Purchases (Despia V3)",
-        "description": "Purchase a specific product directly using RevenueCat through Apple App Store and Google Play billing."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/paywalls",
-      "component": "docs.PageLegacy_NativeFeatures_Paywalls",
-      "meta": {
-        "title": "Paywalls (Despia V3)",
-        "description": "Monetize your app with seamless payment processing through Apple and Google's native billing systems using RevenueCat Paywalls."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/restore-purchase",
-      "component": "docs.PageLegacy_NativeFeatures_RestorePurchase",
-      "meta": {
-        "title": "Restore Purchase (Despia V3)",
-        "description": "Restore and retrieve a user's complete purchase history from Apple App Store and Google Play Store using the Despia SDK."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/storage-vault",
-      "component": "docs.PageLegacy_NativeFeatures_StorageVault",
-      "meta": {
-        "title": "Storage Vault (Despia V3)",
-        "description": "Encrypted persistent storage backed by iCloud Key Value Store on iOS and Android Key/Value Backup on Android. Survives uninstall and reinstall."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/service-workers",
-      "component": "docs.PageLegacy_NativeFeatures_ServiceWorkers",
-      "meta": {
-        "title": "Service Workers (Despia V3)",
-        "description": "Run your web app's service worker inside the native app so cached pages and assets keep serving when the device has no connection."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/url-scheme",
-      "component": "docs.PageLegacy_NativeFeatures_UrlScheme",
-      "meta": {
-        "title": "URL Scheme (Despia V3)",
-        "description": "Set the custom protocol your app registers with iOS and Android so native authentication sessions can hand tokens back to your app."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/file-picker",
-      "component": "docs.PageLegacy_NativeFeatures_FilePicker",
-      "meta": {
-        "title": "File Picker (Despia V3)",
-        "description": "Route every file upload to the correct native picker based on the file types your input accepts."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/gps-location",
-      "component": "docs.PageLegacy_NativeFeatures_GpsLocation",
-      "meta": {
-        "title": "GPS Location (Despia V3)",
-        "description": "Track a user's real-time location with configurable time intervals, distance thresholds, live frontend callbacks, single reads, optional server delivery, and a long-range mode that keeps recording after the app is force-killed."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/gyroscope",
-      "component": "docs.PageLegacy_NativeFeatures_Gyroscope",
-      "meta": {
-        "title": "Gyroscope (Despia V3)",
-        "description": "Read live angular velocity from the device's gyroscope plus magnetic heading from the compass on a single channel, with a magnitude threshold for filtering low-motion noise."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/light-and-dark-mode",
-      "component": "docs.PageLegacy_NativeFeatures_LightAndDarkMode",
-      "meta": {
-        "title": "Light & Dark Mode (Despia V3)",
-        "description": "Implement automatic light and dark mode using CSS prefers-color-scheme and Despia's injected safe area variables, with no JavaScript or SDK calls required."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/admob/Iinterstitial",
-      "component": "docs.PageLegacy_NativeFeatures_Admob_Iinterstitial",
-      "meta": {
-        "title": "Interstitial Ads (Despia V3)",
-        "description": "Display a full-screen native AdMob interstitial ad at a natural transition point using a single fire-and-forget SDK call."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/admob/inline-ads",
-      "component": "docs.PageLegacy_NativeFeatures_Admob_InlineAds",
-      "meta": {
-        "title": "Inline Ads (Despia V3)",
-        "description": "Render AdMob ads as real DOM elements inside your web UI by bridging the Google Mobile Ads SDK to the Despia WebView. No native overlays, no z-index fights, just AdSense, GPT, or IMA tags loading in place."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/admob/rewarded-ads",
-      "component": "docs.PageLegacy_NativeFeatures_Admob_RewardedAds",
-      "meta": {
-        "title": "Rewarded Ads (Despia V3)",
-        "description": "Display a native AdMob rewarded video ad through Despia and grant in-app rewards only when the user completes the view."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/external-links",
-      "component": "docs.PageLegacy_NativeFeatures_ExternalLinks",
-      "meta": {
-        "title": "External Links (Despia V3)",
-        "description": "Control how your app routes external URLs, opening payment and OAuth flows in Safari for store compliance and everything else inside the in-app browser."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/device-indexing",
-      "component": "docs.PageLegacy_NativeFeatures_DeviceIndexing",
-      "meta": {
-        "title": "Device Indexing (Despia V3)",
-        "description": "Read the device's unique identifier through despia.uuid to track installs, link sessions, and prevent account sharing across your mobile app."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/haptic-feedback",
-      "component": "docs.PageLegacy_NativeFeatures_HapticFeedback",
-      "meta": {
-        "title": "Haptic Feedback (Despia V3)",
-        "description": "Trigger native tactile feedback through Despia using five preset haptic patterns mapped to standard interaction types."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/prevent-autoscroll",
-      "component": "docs.PageLegacy_NativeFeatures_PreventAutoscroll",
-      "meta": {
-        "title": "Prevent Autoscroll (Despia V3)",
-        "description": "Stop the native WebView from repositioning when the keyboard appears so your JavaScript keyboard handling stays in full control."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/contact-access",
-      "component": "docs.PageLegacy_NativeFeatures_ContactAccess",
-      "meta": {
-        "title": "Contact Access (Despia V3)",
-        "description": "Read the user's device contacts through Despia after requesting native permission, returned as a JSON object keyed by contact name."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/healthkit",
-      "component": "docs.PageLegacy_NativeFeatures_Healthkit",
-      "meta": {
-        "title": "HealthKit (Legacy) (Despia V3)",
-        "description": "Read and write Apple HealthKit data including steps, heart rate, sleep, workouts, and more within your Despia app."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/health-data/apple-health",
-      "component": "docs.PageLegacy_HealthData_AppleHealth",
-      "meta": {
-        "title": "Apple Health (Despia V3)",
-        "description": "Read and write Apple HealthKit data including steps, heart rate, sleep, workouts, and more within your Despia app."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/health-data/google-health",
-      "component": "docs.PageLegacy_HealthData_GoogleHealth",
-      "meta": {
-        "title": "Google Health (Despia V3)",
-        "description": "Google Health Connect integration for Android is coming soon to Despia."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/siri-shortcuts",
-      "component": "docs.PageLegacy_NativeFeatures_SiriShortcuts",
-      "meta": {
-        "title": "Siri Shortcuts (Despia V3)",
-        "description": "Register a natural language phrase as a Siri shortcut that calls a globally-defined JavaScript function in your app when spoken."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/biometrics",
-      "component": "docs.PageLegacy_NativeFeatures_Biometrics",
-      "meta": {
-        "title": "Biometrics (Despia V3)",
-        "description": "Trigger Face ID, Touch ID, or device passcode authentication through Despia and respond via three global callback functions."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/speech-recognition",
-      "component": "docs.PageLegacy_NativeFeatures_SpeechRecognition",
-      "meta": {
-        "title": "Speech Recognition (Despia V3)",
-        "description": "Convert spoken audio into text on-device using the native iOS speech recognition engine."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/app-privacy",
-      "component": "docs.PageLegacy_NativeFeatures_AppPrivacy",
-      "meta": {
-        "title": "App Privacy (Despia V3)",
-        "description": "Read the user's tracking consent status synchronously through despia.trackingDisabled to gate analytics and ad-tracking behavior."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/safe-areas",
-      "component": "docs.PageLegacy_NativeFeatures_SafeAreas",
-      "meta": {
-        "title": "Safe Areas (Despia V3)",
-        "description": "Handle notches, status bars, home indicators, and gesture bars using CSS variables injected by the Despia runtime, paired with a defensive env() fallback."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/screen-radius",
-      "component": "docs.PageLegacy_NativeFeatures_ScreenRadius",
-      "meta": {
-        "title": "Screen Radius (Despia V3)",
-        "description": "Read the device's physical screen corner radius and use it to build inner UI elements with perfectly concentric rounded corners."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/in-app-rating",
-      "component": "docs.PageLegacy_NativeFeatures_InAppRating",
-      "meta": {
-        "title": "In-App Rating (Despia V3)",
-        "description": "Show the operating system's native star rating prompt inside your app, or send users straight to the store review composer."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/action-sheet",
-      "component": "docs.PageLegacy_NativeFeatures_ActionSheet",
-      "meta": {
-        "title": "Action Sheet (Despia V3)",
-        "description": "Trigger a native iOS or Android action sheet from your web app and react to the user's selection."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/camera-roll",
-      "component": "docs.PageLegacy_NativeFeatures_CameraRoll",
-      "meta": {
-        "title": "Camera Roll (Despia V3)",
-        "description": "Save remote-hosted images to the device photo gallery through Despia using a single fire-and-forget SDK call with a CDN-hosted URL."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/offline-push",
-      "component": "docs.PageLegacy_NativeFeatures_OfflinePush",
-      "meta": {
-        "title": "Offline Push (Despia V3)",
-        "description": "Schedule a local notification on the device with a title, body, deep link, and delay in seconds, fully offline and triggered without a server round-trip."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/app-settings",
-      "component": "docs.PageLegacy_NativeFeatures_AppSettings",
-      "meta": {
-        "title": "App Settings (Despia V3)",
-        "description": "Open your app's native settings page directly so users can re-grant push notification, location, or camera permissions they previously denied."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/file-viewer",
-      "component": "docs.PageLegacy_NativeFeatures_FileViewer",
-      "meta": {
-        "title": "File Viewer (Despia V3)",
-        "description": "Open a remote file in a native previewer with consistent render fidelity across iOS and Android."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/home-widgets",
-      "component": "docs.PageLegacy_NativeFeatures_HomeWidgets",
-      "meta": {
-        "title": "Home Widgets (Despia V3)",
-        "description": "Render dynamic SVG content from your backend into iOS home screen widgets, refreshed in the background at the interval you specify."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/file-sharing",
-      "component": "docs.PageLegacy_NativeFeatures_FileSharing",
-      "meta": {
-        "title": "File Sharing (Despia V3)",
-        "description": "Open the device's native share sheet with a file from a CDN URL, letting users send it to any installed app, contact, or cloud service."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/focus-events",
-      "component": "docs.PageLegacy_NativeFeatures_FocusEvents",
-      "meta": {
-        "title": "Focus Events (Despia V3)",
-        "description": "Detect when your app enters the foreground or background using global window callbacks."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/screen-brightness",
-      "component": "docs.PageLegacy_NativeFeatures_ScreenBrightness",
-      "meta": {
-        "title": "Screen Brightness (Despia V3)",
-        "description": "Set screen brightness behavior for scanning workflows, with three modes for automatic, always-bright, and standard rendering."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/share-dialog",
-      "component": "docs.PageLegacy_NativeFeatures_ShareDialog",
-      "meta": {
-        "title": "Share Dialog (Despia V3)",
-        "description": "Open the native share sheet pre-populated with a text message and URL, letting users send the combination to any app, contact, or service installed on their device."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/clipboard",
-      "component": "docs.PageLegacy_NativeFeatures_Clipboard",
-      "meta": {
-        "title": "Clipboard (Despia V3)",
-        "description": "Read the device clipboard contents through Despia and use them inside your app, useful for paste-style flows like coupon codes, share links, and attribution tokens."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/store-location",
-      "component": "docs.PageLegacy_NativeFeatures_StoreLocation",
-      "meta": {
-        "title": "Store Location (Despia V3)",
-        "description": "Read the user's App Store or Play Store country code through despia.storeLocation to gate regional features and route payments correctly."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/share-extension",
-      "component": "docs.PageLegacy_NativeFeatures_ShareExtension",
-      "meta": {
-        "title": "Share Extension (Despia V3)",
-        "description": "Receive content shared into your app from other apps via the system share sheet, delivered through a single global callback that fires when your app launches with a shared payload."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/quick-actions",
-      "component": "docs.PageLegacy_NativeFeatures_QuickActions",
-      "meta": {
-        "title": "Quick Actions (Despia V3)",
-        "description": "Add native long-press shortcuts to your app icon that invoke a global JavaScript function when tapped, letting users jump straight into a specific workflow."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/simple-storage",
-      "component": "docs.PageLegacy_NativeFeatures_SimpleStorage",
-      "meta": {
-        "title": "Simple Storage (Despia V3)",
-        "description": "Single-slot key-value storage on the device through the Despia SDK. Legacy feature, kept for apps already shipping with it."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/print-documents",
-      "component": "docs.PageLegacy_NativeFeatures_PrintDocuments",
-      "meta": {
-        "title": "Print Documents (Despia V3)",
-        "description": "Open the native print dialog with a PDF or image from a CDN URL, letting users send the document to any connected printer through the system print interface."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/screenshot",
-      "component": "docs.PageLegacy_NativeFeatures_Screenshot",
-      "meta": {
-        "title": "Screenshot (Despia V3)",
-        "description": "Capture the visible page and save it directly to the device photo gallery through a single fire-and-forget Despia SDK call."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/notification-sounds",
-      "component": "docs.PageLegacy_NativeFeatures_NotificationSounds",
-      "meta": {
-        "title": "Notification Sounds (Despia V3)"
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/audio-player",
-      "component": "docs.PageLegacy_NativeFeatures_AudioPlayer",
-      "meta": {
-        "title": "Audio (Despia V3)",
-        "description": "Stream audio with a real native player, lock-screen controls, and live config updates."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/bluetooth",
-      "component": "docs.PageLegacy_NativeFeatures_Bluetooth",
-      "meta": {
-        "title": "Bluetooth (Despia V3)"
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/age-assurance",
-      "component": "docs.PageLegacy_NativeFeatures_AgeAssurance",
-      "meta": {
-        "title": "Age Assurance (Despia V3)",
-        "description": "Read the age range the operating system already holds for your user, with a three-state age gate that works the same on iOS and Android."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/native-features/sandbox",
-      "component": "docs.PageLegacy_NativeFeatures_Sandbox",
-      "meta": {
-        "title": "Sandbox (Despia V3)",
-        "description": "Repoint a compiled app at a test environment at runtime without rebuilding, then restore production when testing is done."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/editor/versioning",
-      "component": "docs.PageLegacy_Editor_Versioning",
-      "meta": {
-        "title": "Versioning (Despia V3)",
-        "description": "Set your app's public version number and raise it in fixed increments before every store submission."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/editor/publishing-an-update",
-      "component": "docs.PageLegacy_Editor_PublishingAnUpdate",
-      "meta": {
-        "title": "Publishing an Update (Despia V3)",
-        "description": "Ship a new binary after your first submission, and know which changes need one at all."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/roadblocks/deployment/apple-ios/health-kit",
-      "component": "docs.PageLegacy_Roadblocks_Deployment_AppleIos_HealthKit",
-      "meta": {
-        "title": "HealthKit (Despia V3)",
-        "description": "Your build failed after enabling HealthKit in the Despia editor. Here's why and how to fix it."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/roadblocks/deployment/apple-ios/att-and-tracking",
-      "component": "docs.PageLegacy_Roadblocks_Deployment_AppleIos_AttAndTracking",
-      "meta": {
-        "title": "ATT & Tracking (Despia V3)",
-        "description": "Your Despia build is blocked at submission over NSUserTrackingUsageDescription. Here is what the key means and how to clear it."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/roadblocks/deployment/update-bundle-id",
-      "component": "docs.PageLegacy_Roadblocks_Deployment_UpdateBundleId",
-      "meta": {
-        "title": "Update Bundle IDs (Despia V3)"
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/roadblocks/revenue-cat/missing-item",
-      "component": "docs.PageLegacy_Roadblocks_RevenueCat_MissingItem",
-      "meta": {
-        "title": "Missing Item (Despia V3)",
-        "description": "Your paywall is empty or checkout isn't working. Products aren't loading. Here's how to debug it."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/roadblocks/runtime/no-ota-updates",
-      "component": "docs.PageLegacy_Roadblocks_Runtime_NoOtaUpdates",
-      "meta": {
-        "title": "No OTA Updates (Despia V3)",
-        "description": "Your users aren't receiving OTA updates. Changes deployed to production don't appear in the app. Here's how to fix it."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/roadblocks/runtime/lost-auth-tokens",
-      "component": "docs.PageLegacy_Roadblocks_Runtime_LostAuthTokens",
-      "meta": {
-        "title": "Lost Auth Tokens (Despia V3)",
-        "description": "Your users close the app and when they reopen it, they're logged out. Here's how to fix it."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/roadblocks/runtime/o-auth-failures",
-      "component": "docs.PageLegacy_Roadblocks_Runtime_OAuthFailures",
-      "meta": {
-        "title": "OAuth Failures (Despia V3)",
-        "description": "OAuth not working in your Despia native app? This guide focuses on the key difference between web OAuth and Despia native OAuth."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/roadblocks/runtime/slow-apps",
-      "component": "docs.PageLegacy_Roadblocks_Runtime_SlowApps",
-      "meta": {
-        "title": "Slow Apps (Despia V3)",
-        "description": "Your Despia app feels sluggish. Here's how to fix it."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/roadblocks/runtime/empty-pages",
-      "component": "docs.PageLegacy_Roadblocks_Runtime_EmptyPages",
-      "meta": {
-        "title": "Empty Pages (Despia V3)",
-        "description": "Your app loads but shows a blank white screen. Here's how to fix it."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/roadblocks/runtime/wrong-framework",
-      "component": "docs.PageLegacy_Roadblocks_Runtime_WrongFramework",
-      "meta": {
-        "title": "Wrong Framework (Despia V3)",
-        "description": "Why Despia is its own native runtime, and how to configure AI tools to work with it correctly."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/roadblocks/runtime/watermark-bug",
-      "component": "docs.PageLegacy_Roadblocks_Runtime_WatermarkBug",
-      "meta": {
-        "title": "Watermark Bug (Despia V3)",
-        "description": "You upgraded to a commercial license but the Despia watermark is still visible in your app. Here is why and how to fix it."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/roadblocks/runtime/legacy-setups",
-      "component": "docs.PageLegacy_Roadblocks_Runtime_LegacySetups",
-      "meta": {
-        "title": "Legacy Setups (Despia V3)",
-        "description": "AI coding tools often generate outdated Despia setups. This guide covers the two most common mistakes: legacy environment detection and targeting the internal window.despia object."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/store-rejections/introduction",
-      "component": "docs.PageLegacy_StoreRejections_Introduction",
-      "meta": {
-        "title": "Introduction (Despia V3)",
-        "description": "Your app got rejected. Take a breath. This is normal, fixable, and part of shipping apps."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/store-rejections/common-rejection/minimum-functionality",
-      "component": "docs.PageLegacy_StoreRejections_CommonRejection_MinimumFunctionality",
-      "meta": {
-        "title": "Minimum Functionality (Despia V3)",
-        "description": "Your app was rejected for not meeting minimum functionality requirements. Here's what that means and how to fix it."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/store-rejections/common-rejection/non-mobile-design",
-      "component": "docs.PageLegacy_StoreRejections_CommonRejection_NonMobileDesign",
-      "meta": {
-        "title": "Non-Mobile Design (Despia V3)",
-        "description": "Your app was rejected because it looks like a website instead of a native mobile app. Here's how to fix it."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/store-rejections/common-rejection/in-app-purchases",
-      "component": "docs.PageLegacy_StoreRejections_CommonRejection_InAppPurchases",
-      "meta": {
-        "title": "In-App Purchases (Despia V3)",
-        "description": "Your app was rejected for issues with in-app purchases. Here's what went wrong and how to fix it."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/store-rejections/common-rejection/deceptive-paywalls",
-      "component": "docs.PageLegacy_StoreRejections_CommonRejection_DeceptivePaywalls",
-      "meta": {
-        "title": "Deceptive Paywalls (Despia V3)",
-        "description": "Your app was rejected because the paywall is misleading or uses dark patterns. Here's what reviewers flagged and how to fix it."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/store-rejections/common-rejection/privacy-policy",
-      "component": "docs.PageLegacy_StoreRejections_CommonRejection_PrivacyPolicy",
-      "meta": {
-        "title": "Privacy Policy (Despia V3)",
-        "description": "Your app was rejected because of a missing or inadequate privacy policy. Here's what's required and how to fix it."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/store-rejections/common-rejection/tracking-transparency",
-      "component": "docs.PageLegacy_StoreRejections_CommonRejection_TrackingTransparency",
-      "meta": {
-        "title": "Tracking Transparency (Despia V3)",
-        "description": "Your app was rejected for issues with Apple's App Tracking Transparency (ATT). Here's what went wrong and how to fix it."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/store-rejections/common-rejection/ai-processing",
-      "component": "docs.PageLegacy_StoreRejections_CommonRejection_AiProcessing",
-      "meta": {
-        "title": "AI Processing (Despia V3)",
-        "description": "Your app was rejected because it processes user data with AI without proper consent. Here's how to implement Apple's required AI consent flow."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/store-rejections/common-rejection/spam-and-copies",
-      "component": "docs.PageLegacy_StoreRejections_CommonRejection_SpamAndCopies",
-      "meta": {
-        "title": "Spam and Copies (Despia V3)",
-        "description": "Your app was rejected because it's too similar to existing apps. Here's how to differentiate and get approved."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/store-rejections/common-rejection/social-login-options",
-      "component": "docs.PageLegacy_StoreRejections_CommonRejection_SocialLoginOptions",
-      "meta": {
-        "title": "Social Login Options (Despia V3)",
-        "description": "Your app was rejected because it offers social login without including the platform's native option. Here's how to fix it."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/store-rejections/common-rejection/user-specific-data",
-      "component": "docs.PageLegacy_StoreRejections_CommonRejection_UserSpecificData",
-      "meta": {
-        "title": "User-Specific Data (Despia V3)",
-        "description": "Your app was rejected because it collects personal data that isn't necessary for its functionality. Here's how to fix it."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/store-rejections/common-rejection/blank-screen-redirects",
-      "component": "docs.PageLegacy_StoreRejections_CommonRejection_BlankScreenRedirects",
-      "meta": {
-        "title": "Blank Screen Redirects (Despia V3)",
-        "description": "Your app was rejected because it shows a blank or white screen during authentication. Here's how to fix it."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/platform-support/lovable",
-      "component": "docs.PageLegacy_PlatformSupport_Lovable",
-      "meta": {
-        "title": "Despia for Lovable (Despia V3)",
-        "description": "Ship your Lovable app to the App Store and Google Play with native billing, push notifications, attribution, and offline support built in."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/platform-support/base44",
-      "component": "docs.PageLegacy_PlatformSupport_Base44",
-      "meta": {
-        "title": "Despia for Base44 (Despia V3)",
-        "description": "Ship your Base44 app to the App Store and Google Play with native billing, push notifications, attribution, and offline support built in."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/platform-support/replit",
-      "component": "docs.PageLegacy_PlatformSupport_Replit",
-      "meta": {
-        "title": "Despia for Replit (Despia V3)",
-        "description": "Ship your Replit web app to the App Store and Google Play with native billing, push notifications, attribution, and offline support built in."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/platform-support/claude-code",
-      "component": "docs.PageLegacy_PlatformSupport_ClaudeCode",
-      "meta": {
-        "title": "Despia for Claude Code (Despia V3)",
-        "description": "Ship your Claude Code web app to the App Store and Google Play with native billing, push notifications, attribution, and offline support built in."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/platform-support/cursor",
-      "component": "docs.PageLegacy_PlatformSupport_Cursor",
-      "meta": {
-        "title": "Despia for Cursor (Despia V3)",
-        "description": "Ship your Cursor-built web app to the App Store and Google Play with native billing, push notifications, attribution, and offline support built in."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/how-it-works",
-      "component": "docs.PageLegacy_Lovable_HowItWorks",
-      "meta": {
-        "title": "How it Works (Despia V3)",
-        "description": "Add real native device features to your Lovable-generated app and deploy to App Stores - no native code required."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/user-agent",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_UserAgent",
-      "meta": {
-        "title": "User Agent (Despia V3)",
-        "description": "Detect whether your app is running in the Despia native runtime and identify the platform (iOS or Android) by checking the user agent string."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/onesignal",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_Onesignal",
-      "meta": {
-        "title": "OneSignal (Despia V3)",
-        "description": "Send targeted remote push notifications via OneSignal to users even when your app is closed."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/deeplinking",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_Deeplinking",
-      "meta": {
-        "title": "Deeplinking (Despia V3)",
-        "description": "Configure universal links (iOS) and app links (Android) to enable direct app opening from web URLs in your Lovable mobile app."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/o-auth-2-0/apple-auth",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_OAuth20_AppleAuth",
-      "meta": {
-        "title": "Apple Auth (Despia V3)"
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/oauth/google",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_Oauth_Google",
-      "meta": {
-        "title": "Google Auth (Despia V3)",
-        "description": "Access the real native Google OAuth 2.0 using the ASWebAuthSession and Chrome Custom Tabs via a simple to use SDK"
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/oauth/tiktok",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_Oauth_Tiktok",
-      "meta": {
-        "title": "TikTok Auth (Despia V3)",
-        "description": "Access the real native TikTok OAuth 2.0 using the ASWebAuthSession and Chrome Custom Tabs via a simple to use SDK"
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/paywalls",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_Paywalls",
-      "meta": {
-        "title": "Paywalls (Despia V3)",
-        "description": "Monetize your Lovable mobile app with seamless payment processing through Apple and Google's native billing systems using RevenueCat Paywalls."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/restore-purchase",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_RestorePurchase",
-      "meta": {
-        "title": "Restore Purchase (Despia V3)",
-        "description": "Restore and retrieve a user's complete purchase history from Apple App Store and Google Play Store using the Despia SDK."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/storage-vault",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_StorageVault",
-      "meta": {
-        "title": "Storage Vault (Despia V3)",
-        "description": "Store and retrieve user identity data that persists across app sessions through your Lovable mobile app using the Despia SDK. Perfect for identifying users, preventing trial abuse, and managing login sessions."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/gps-location-1",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_GpsLocation1",
-      "meta": {
-        "title": "GPS Location (Despia V3)",
-        "description": "Track and retrieve a user's real-time location data with configurable intervals using the Despia SDK."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/rewarded-ads",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_RewardedAds",
-      "meta": {
-        "title": "Rewarded Ads (Despia V3)",
-        "description": "Monetize your Lovable mobile app with native rewarded video advertisements that grant users in-app rewards."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/external-links",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_ExternalLinks",
-      "meta": {
-        "title": "External Links (Despia V3)",
-        "description": "Control how your app handles external links with custom routing for payments, OAuth, and deep linking"
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/device-indexing",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_DeviceIndexing",
-      "meta": {
-        "title": "Device Indexing (Despia V3)",
-        "description": "Access the unique device identifier of native mobile devices in your Lovable application."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/haptic-feedback",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_HapticFeedback",
-      "meta": {
-        "title": "Haptic Feedback (Despia V3)",
-        "description": "Add native tactile feedback to enhance user interactions in your Lovable mobile app."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/contact-access",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_ContactAccess",
-      "meta": {
-        "title": "Contact Access (Despia V3)",
-        "description": "Retrieve and display contact information from users' devices within your Lovable application."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/health-kit",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_HealthKit",
-      "meta": {
-        "title": "HealthKit (Despia V3)",
-        "description": "Retrieve and display health and fitness data from users' Apple HealthKit within your Lovable application."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/siri-shortcuts",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_SiriShortcuts",
-      "meta": {
-        "title": "Siri Shortcuts (Despia V3)",
-        "description": "Enable Siri voice shortcuts with custom natural language commands that trigger JavaScript functions in your Lovable mobile app using the Despia SDK."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/biometrics",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_Biometrics",
-      "meta": {
-        "title": "Biometrics (Despia V3)",
-        "description": "Add Face ID, Touch ID, and device passcode authentication to secure sensitive features in your Lovable application."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/app-privacy",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_AppPrivacy",
-      "meta": {
-        "title": "App Privacy (Despia V3)",
-        "description": "Check user privacy consent status for Apple's App Tracking Transparency (ATT), GDPR compliance, and privacy regulations in your Lovable application."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/safe-areas",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_SafeAreas",
-      "meta": {
-        "title": "Safe Areas (Despia V3)",
-        "description": "Handle device safe areas (notches, status bars, home indicators) using custom CSS variables for responsive mobile layouts in your Lovable application."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/camera-roll",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_CameraRoll",
-      "meta": {
-        "title": "Camera Roll (Despia V3)",
-        "description": "Save images directly to the device's photo gallery from your Lovable mobile app."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/offline-push",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_OfflinePush",
-      "meta": {
-        "title": "Offline Push (Despia V3)",
-        "description": "Send instant local notifications to users with customizable messages, titles, and timing through your Lovable mobile app."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/app-settings",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_AppSettings",
-      "meta": {
-        "title": "App Settings (Despia V3)",
-        "description": "Open your app's native settings page directly from within your Lovable mobile app to guide users to permission controls."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/home-widgets",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_HomeWidgets",
-      "meta": {
-        "title": "Home Widgets (Despia V3)",
-        "description": "Display dynamic SVG content in iOS home screen widgets with real-time data updates and user personalization through your Lovable mobile app."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/file-sharing",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_FileSharing",
-      "meta": {
-        "title": "File Sharing (Despia V3)",
-        "description": "Enable native file sharing capabilities in your Lovable mobile app, allowing users to share files of any type through their device's built-in sharing system."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/screen-brightness",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_ScreenBrightness",
-      "meta": {
-        "title": "Screen Brightness (Despia V3)",
-        "description": "Control device scanning behavior with configurable modes (auto, on, off) and automatic screen brightness adjustment through your Lovable mobile app using the Despia SDK."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/share-dialog",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_ShareDialog",
-      "meta": {
-        "title": "Share Dialog (Despia V3)",
-        "description": "Enable native social sharing capabilities with customizable message and URL parameters through your Lovable mobile app using the Despia SDK."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/clipboard",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_Clipboard",
-      "meta": {
-        "title": "Clipboard (Despia V3)",
-        "description": "Retrieve clipboard content from users' devices within your Lovable application."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/store-location",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_StoreLocation",
-      "meta": {
-        "title": "Store Location (Despia V3)",
-        "description": "Access the user's current store location for location-based services, regional content, and localized experiences in your Lovable application."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/share-extension",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_ShareExtension",
-      "meta": {
-        "title": "Share Extension (Despia V3)",
-        "description": "Access shared content (images and text) from other apps when your Lovable application is opened via share functionality."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/quick-actions",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_QuickActions",
-      "meta": {
-        "title": "Quick Actions (Despia V3)",
-        "description": "Create native mobile application shortcuts that allow users to access specific workflows in your Lovable app without even opening it."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/simple-storage",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_SimpleStorage",
-      "meta": {
-        "title": "Simple Storage (Despia V3)",
-        "description": "Persist data directly on the user's device using simple read/write commands with the Despia SDK."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/print-documents",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_PrintDocuments",
-      "meta": {
-        "title": "Print Documents (Despia V3)",
-        "description": "Enable native printing capabilities in your Lovable mobile app, allowing users to print images and PDFs directly from their device using the device's built-in print system."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/screenshot",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_Screenshot",
-      "meta": {
-        "title": "Screenshot (Despia V3)",
-        "description": "Capture full page screenshots and save them directly to the device's photo gallery through your Lovable mobile app using the Despia SDK."
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/legacy-features/one-signal-v1",
-      "component": "docs.PageLegacy_Lovable_LegacyFeatures_OneSignalV1",
-      "meta": {
-        "title": "OneSignal V1 (Despia V3)",
-        "description": "Send targeted remote push notifications via OneSignal to users even when your app is closed"
-      },
-      "tabRoot": true
-    },
-    {
-      "path": "/legacy/lovable/native-features/gps-location",
-      "component": "docs.PageLegacy_Lovable_NativeFeatures_GpsLocation",
-      "meta": {
-        "title": "GPS Location (Despia V3)",
-        "description": "Retrieve and monitor real-time location data from users' devices in the background within your Lovable application."
-      },
-      "tabRoot": true
+        "title": "Session (legacy)",
+        "description": "Check who's signed in, read the auto-refreshed JWT, and authenticate API calls."
+      }
     },
     {
       "path": "/legacy/authentication/payments/test",
-      "component": "docs.PageLegacy_Authentication_Payments_Test",
+      "component": "docs.LegacyAuthenticationPaymentsTest",
       "meta": {
-        "title": "Test (Despia V3)"
-      },
-      "tabRoot": true
+        "title": "Test (legacy)",
+        "description": "Legacy documentation for V3 deployments"
+      }
+    },
+    {
+      "path": "/legacy/best-practices/backend/one-signal/user-session",
+      "component": "docs.LegacyBestPracticesBackendOneSignalUserSession",
+      "meta": {
+        "title": "User Session (legacy)",
+        "description": "This guide covers user identity management for push notifications using OneSignal in Despia apps."
+      }
+    },
+    {
+      "path": "/legacy/best-practices/backend/revenuecat/cron-jobs",
+      "component": "docs.LegacyBestPracticesBackendRevenuecatCronJobs",
+      "meta": {
+        "title": "Cron Jobs (legacy)",
+        "description": "Implement a self-healing subscription sync system using scheduled cron jobs as a backup to webhooks. This ensures your database stays synchronized with RevenueCat even when webhooks fail or are delayed."
+      }
+    },
+    {
+      "path": "/legacy/best-practices/backend/revenuecat/user-session",
+      "component": "docs.LegacyBestPracticesBackendRevenuecatUserSession",
+      "meta": {
+        "title": "User Session (legacy)",
+        "description": "This guide covers user identity management for in-app purchases and subscriptions using RevenueCat in Despia apps."
+      }
+    },
+    {
+      "path": "/legacy/best-practices/backend/revenuecat/webhooks",
+      "component": "docs.LegacyBestPracticesBackendRevenuecatWebhooks",
+      "meta": {
+        "title": "Webhooks (legacy)",
+        "description": "Complete implementation guide for processing RevenueCat webhooks with authorization validation, event type handling, and entitlement management."
+      }
+    },
+    {
+      "path": "/legacy/best-practices/backend/user-session",
+      "component": "docs.LegacyBestPracticesBackendUserSession",
+      "meta": {
+        "title": "User Session (legacy)",
+        "description": "This guide covers the general user identity management pattern for Despia apps. This system is the foundation that all SDK integrations (RevenueCat, OneSignal, Stripe, etc.) build upon."
+      }
+    },
+    {
+      "path": "/legacy/best-practices/frontend/animations",
+      "component": "docs.LegacyBestPracticesFrontendAnimations",
+      "meta": {
+        "title": "Animations (legacy)",
+        "description": "CSS animation first. Scroll-driven CSS for drawers, sheets, parallax, and page transitions. JS fallback only where CSS is not supported."
+      }
+    },
+    {
+      "path": "/legacy/best-practices/frontend/performance",
+      "component": "docs.LegacyBestPracticesFrontendPerformance",
+      "meta": {
+        "title": "Performance (legacy)",
+        "description": "Build applications optimized for 60fps performance that degrade gracefully under system constraints. This guide covers proven techniques for JavaScript execution, rendering optimization, memory management, and asset delivery."
+      }
+    },
+    {
+      "path": "/legacy/best-practices/frontend/structure",
+      "component": "docs.LegacyBestPracticesFrontendStructure",
+      "meta": {
+        "title": "Structure (legacy)",
+        "description": "Essential patterns for building production-ready mobile applications with Despia. Learn how to structure root frames, handle device boundaries, implement scroll containers, and optimize touch interactions for native performance."
+      }
+    },
+    {
+      "path": "/legacy/best-practices/updates/editor",
+      "component": "docs.LegacyBestPracticesUpdatesEditor",
+      "meta": {
+        "title": "Editor (legacy)",
+        "description": "Changes made in the Despia editor affect the native binary. They require a rebuild and a new submission to the App Store and Google Play."
+      }
+    },
+    {
+      "path": "/legacy/best-practices/updates/interface",
+      "component": "docs.LegacyBestPracticesUpdatesInterface",
+      "meta": {
+        "title": "Interface (legacy)",
+        "description": "UI changes are the safest and most common use of OTA. They ship instantly, require no binary, and reach every user on the next app open."
+      }
+    },
+    {
+      "path": "/legacy/best-practices/updates/logic",
+      "component": "docs.LegacyBestPracticesUpdatesLogic",
+      "meta": {
+        "title": "Logic (legacy)",
+        "description": "Business rules, data handling, API integrations, state management, routing - all web layer. They ship via OTA, silently, with no review and no rebuild."
+      }
+    },
+    {
+      "path": "/legacy/best-practices/updates/overview",
+      "component": "docs.LegacyBestPracticesUpdatesOverview",
+      "meta": {
+        "title": "Overview (legacy)",
+        "description": "Getting OTA updates right means your app stays fast, your users stay unblocked, and you never give a reviewer a reason to push back."
+      }
+    },
+    {
+      "path": "/legacy/changelog",
+      "component": "docs.LegacyChangelog",
+      "meta": {
+        "title": "Changelog (legacy)",
+        "description": "New features, improvements, and fixes across the Despia platform."
+      }
+    },
+    {
+      "path": "/legacy/connectivity/nfc",
+      "component": "docs.LegacyConnectivityNfc",
+      "meta": {
+        "title": "NFC (legacy)",
+        "description": "Read from and write to NFC tags directly from your web app."
+      }
+    },
+    {
+      "path": "/legacy/connectivity/websockets",
+      "component": "docs.LegacyConnectivityWebsockets",
+      "meta": {
+        "title": "WebSockets (legacy)",
+        "description": "WebSocket connection owned by the native runtime, with durable message delivery across WebView reloads, suspension, and relaunch."
+      }
+    },
+    {
+      "path": "/legacy/custom-code/extensions",
+      "component": "docs.LegacyCustomCodeExtensions",
+      "meta": {
+        "title": "Extensions (legacy)",
+        "description": "Reference for building native iOS and Android plugins for Despia."
+      }
+    },
+    {
+      "path": "/legacy/deployment/apple-ios/automatic",
+      "component": "docs.LegacyDeploymentAppleIosAutomatic",
+      "meta": {
+        "title": "Automatic (legacy)",
+        "description": "Complete guide for building and publishing iOS applications using Despia"
+      }
+    },
+    {
+      "path": "/legacy/deployment/apple-ios/manual",
+      "component": "docs.LegacyDeploymentAppleIosManual",
+      "meta": {
+        "title": "Manual (legacy)",
+        "description": "Complete guide for exporting and working with your Despia application as native Swift code."
+      }
+    },
+    {
+      "path": "/legacy/deployment/google-android/automatic",
+      "component": "docs.LegacyDeploymentGoogleAndroidAutomatic",
+      "meta": {
+        "title": "Automatic (legacy)",
+        "description": "Complete guide for building and publishing Android applications using Despia."
+      }
+    },
+    {
+      "path": "/legacy/deployment/google-android/manual",
+      "component": "docs.LegacyDeploymentGoogleAndroidManual",
+      "meta": {
+        "title": "Manual (legacy)",
+        "description": "Complete guide for exporting and working with your Despia application as native Android code."
+      }
+    },
+    {
+      "path": "/legacy/editor/publishing-an-update",
+      "component": "docs.LegacyEditorPublishingAnUpdate",
+      "meta": {
+        "title": "Publishing an Update (legacy)",
+        "description": "Ship a new binary after your first submission, and know which changes need one at all."
+      }
+    },
+    {
+      "path": "/legacy/editor/versioning",
+      "component": "docs.LegacyEditorVersioning",
+      "meta": {
+        "title": "Versioning (legacy)",
+        "description": "Set your app's public version number and raise it in fixed increments before every store submission."
+      }
     },
     {
       "path": "/legacy/extensions/introduction",
-      "component": "docs.PageLegacy_Extensions_Introduction",
+      "component": "docs.LegacyExtensionsIntroduction",
       "meta": {
-        "title": "Introduction (Despia V3)",
+        "title": "Introduction (legacy)",
         "description": "A native extension system for advanced developers solving problems Despia cannot anticipate. Wrap any iOS and Android SDK into a plugin, declarative, open source, callable from your web layer."
-      },
-      "tabRoot": true
+      }
+    },
+    {
+      "path": "/legacy/health-data/apple-health",
+      "component": "docs.LegacyHealthDataAppleHealth",
+      "meta": {
+        "title": "Apple Health (legacy)",
+        "description": "Read and write Apple HealthKit data including steps, heart rate, sleep, workouts, and more within your Despia app."
+      }
+    },
+    {
+      "path": "/legacy/health-data/google-health",
+      "component": "docs.LegacyHealthDataGoogleHealth",
+      "meta": {
+        "title": "Google Health (legacy)",
+        "description": "Google Health Connect integration for Android is coming soon to Despia."
+      }
+    },
+    {
+      "path": "/legacy/introduction-1",
+      "component": "docs.LegacyIntroduction1",
+      "meta": {
+        "title": "Introduction (legacy)",
+        "description": "Read Apple Health and OAuth wearable data natively and deliver it to your backend or your web app on demand, using the native Terra SDK bundled at runtime."
+      }
+    },
+    {
+      "path": "/legacy/introduction",
+      "component": "docs.LegacyIntroduction",
+      "meta": {
+        "title": "Introduction (legacy)",
+        "description": "Despia lets your web app call native device features and ship to iOS and Android - no Swift, no Java, no terminal."
+      }
+    },
+    {
+      "path": "/legacy/local-cdn/introduction",
+      "component": "docs.LegacyLocalCdnIntroduction",
+      "meta": {
+        "title": "Introduction (legacy)",
+        "description": "Cache gigabytes of media on-device with O(1) memory usage and background downloads that continue after the app is closed."
+      }
+    },
+    {
+      "path": "/legacy/local-cdn/reference",
+      "component": "docs.LegacyLocalCdnReference",
+      "meta": {
+        "title": "Reference (legacy)",
+        "description": "Complete API reference for localcdn:// commands, the contentServerChange callback, and the HTTP upload API."
+      }
+    },
+    {
+      "path": "/legacy/local-database/introduction",
+      "component": "docs.LegacyLocalDatabaseIntroduction",
+      "meta": {
+        "title": "Introduction (legacy)",
+        "description": "Native local SQLite database with optional real-time backend sync for Despia apps."
+      }
+    },
+    {
+      "path": "/legacy/local-database/reference",
+      "component": "docs.LegacyLocalDatabaseReference",
+      "meta": {
+        "title": "Reference (legacy)",
+        "description": "Complete reference for @despia/powersync, init, query, write, watch, migrate, search, and sync."
+      }
+    },
+    {
+      "path": "/legacy/local-server/introduction",
+      "component": "docs.LegacyLocalServerIntroduction",
+      "meta": {
+        "title": "Introduction (legacy)",
+        "description": "Ship native iOS and Android apps that boot instantly and work completely offline by serving your web build from an on-device HTTP server."
+      }
+    },
+    {
+      "path": "/legacy/local-server/reference",
+      "component": "docs.LegacyLocalServerReference",
+      "meta": {
+        "title": "Reference (legacy)",
+        "description": "Plugin installation, framework configuration, manifest schema, and troubleshooting for the Despia local server."
+      }
+    },
+    {
+      "path": "/legacy/lovable/how-it-works",
+      "component": "docs.LegacyLovableHowItWorks",
+      "meta": {
+        "title": "How it Works (legacy)",
+        "description": "Add real native device features to your Lovable-generated app and deploy to App Stores - no native code required."
+      }
+    },
+    {
+      "path": "/legacy/lovable/legacy-features/one-signal-v1",
+      "component": "docs.LegacyLovableLegacyFeaturesOneSignalV1",
+      "meta": {
+        "title": "OneSignal V1 (legacy)",
+        "description": "Send targeted remote push notifications via OneSignal to users even when your app is closed"
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/app-privacy",
+      "component": "docs.LegacyLovableNativeFeaturesAppPrivacy",
+      "meta": {
+        "title": "App Privacy (legacy)",
+        "description": "Check user privacy consent status for Apple's App Tracking Transparency (ATT), GDPR compliance, and privacy regulations in your Lovable application."
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/app-settings",
+      "component": "docs.LegacyLovableNativeFeaturesAppSettings",
+      "meta": {
+        "title": "App Settings (legacy)",
+        "description": "Open your app's native settings page directly from within your Lovable mobile app to guide users to permission controls."
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/biometrics",
+      "component": "docs.LegacyLovableNativeFeaturesBiometrics",
+      "meta": {
+        "title": "Biometrics (legacy)",
+        "description": "Add Face ID, Touch ID, and device passcode authentication to secure sensitive features in your Lovable application."
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/camera-roll",
+      "component": "docs.LegacyLovableNativeFeaturesCameraRoll",
+      "meta": {
+        "title": "Camera Roll (legacy)",
+        "description": "Save images directly to the device's photo gallery from your Lovable mobile app."
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/clipboard",
+      "component": "docs.LegacyLovableNativeFeaturesClipboard",
+      "meta": {
+        "title": "Clipboard (legacy)",
+        "description": "Retrieve clipboard content from users' devices within your Lovable application."
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/contact-access",
+      "component": "docs.LegacyLovableNativeFeaturesContactAccess",
+      "meta": {
+        "title": "Contact Access (legacy)",
+        "description": "Retrieve and display contact information from users' devices within your Lovable application."
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/deeplinking",
+      "component": "docs.LegacyLovableNativeFeaturesDeeplinking",
+      "meta": {
+        "title": "Deeplinking (legacy)",
+        "description": "Configure universal links (iOS) and app links (Android) to enable direct app opening from web URLs in your Lovable mobile app."
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/device-indexing",
+      "component": "docs.LegacyLovableNativeFeaturesDeviceIndexing",
+      "meta": {
+        "title": "Device Indexing (legacy)",
+        "description": "Access the unique device identifier of native mobile devices in your Lovable application."
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/external-links",
+      "component": "docs.LegacyLovableNativeFeaturesExternalLinks",
+      "meta": {
+        "title": "External Links (legacy)",
+        "description": "Control how your app handles external links with custom routing for payments, OAuth, and deep linking"
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/file-sharing",
+      "component": "docs.LegacyLovableNativeFeaturesFileSharing",
+      "meta": {
+        "title": "File Sharing (legacy)",
+        "description": "Enable native file sharing capabilities in your Lovable mobile app, allowing users to share files of any type through their device's built-in sharing system."
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/gps-location-1",
+      "component": "docs.LegacyLovableNativeFeaturesGpsLocation1",
+      "meta": {
+        "title": "GPS Location (legacy)",
+        "description": "Track and retrieve a user's real-time location data with configurable intervals using the Despia SDK."
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/gps-location",
+      "component": "docs.LegacyLovableNativeFeaturesGpsLocation",
+      "meta": {
+        "title": "GPS Location (legacy)",
+        "description": "Retrieve and monitor real-time location data from users' devices in the background within your Lovable application."
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/haptic-feedback",
+      "component": "docs.LegacyLovableNativeFeaturesHapticFeedback",
+      "meta": {
+        "title": "Haptic Feedback (legacy)",
+        "description": "Add native tactile feedback to enhance user interactions in your Lovable mobile app."
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/health-kit",
+      "component": "docs.LegacyLovableNativeFeaturesHealthKit",
+      "meta": {
+        "title": "HealthKit (legacy)",
+        "description": "Retrieve and display health and fitness data from users' Apple HealthKit within your Lovable application."
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/home-widgets",
+      "component": "docs.LegacyLovableNativeFeaturesHomeWidgets",
+      "meta": {
+        "title": "Home Widgets (legacy)",
+        "description": "Display dynamic SVG content in iOS home screen widgets with real-time data updates and user personalization through your Lovable mobile app."
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/o-auth-2-0/apple-auth",
+      "component": "docs.LegacyLovableNativeFeaturesOAuth20AppleAuth",
+      "meta": {
+        "title": "Apple Auth (legacy)",
+        "description": "Legacy documentation for V3 deployments"
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/oauth/google",
+      "component": "docs.LegacyLovableNativeFeaturesOauthGoogle",
+      "meta": {
+        "title": "Google Auth (legacy)",
+        "description": "Access the real native Google OAuth 2.0 using the ASWebAuthSession and Chrome Custom Tabs via a simple to use SDK"
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/oauth/tiktok",
+      "component": "docs.LegacyLovableNativeFeaturesOauthTiktok",
+      "meta": {
+        "title": "TikTok Auth (legacy)",
+        "description": "Access the real native TikTok OAuth 2.0 using the ASWebAuthSession and Chrome Custom Tabs via a simple to use SDK"
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/offline-push",
+      "component": "docs.LegacyLovableNativeFeaturesOfflinePush",
+      "meta": {
+        "title": "Offline Push (legacy)",
+        "description": "Send instant local notifications to users with customizable messages, titles, and timing through your Lovable mobile app."
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/onesignal",
+      "component": "docs.LegacyLovableNativeFeaturesOnesignal",
+      "meta": {
+        "title": "OneSignal (legacy)",
+        "description": "Send targeted remote push notifications via OneSignal to users even when your app is closed."
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/paywalls",
+      "component": "docs.LegacyLovableNativeFeaturesPaywalls",
+      "meta": {
+        "title": "Paywalls (legacy)",
+        "description": "Monetize your Lovable mobile app with seamless payment processing through Apple and Google's native billing systems using RevenueCat Paywalls."
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/print-documents",
+      "component": "docs.LegacyLovableNativeFeaturesPrintDocuments",
+      "meta": {
+        "title": "Print Documents (legacy)",
+        "description": "Enable native printing capabilities in your Lovable mobile app, allowing users to print images and PDFs directly from their device using the device's built-in print system."
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/quick-actions",
+      "component": "docs.LegacyLovableNativeFeaturesQuickActions",
+      "meta": {
+        "title": "Quick Actions (legacy)",
+        "description": "Create native mobile application shortcuts that allow users to access specific workflows in your Lovable app without even opening it."
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/restore-purchase",
+      "component": "docs.LegacyLovableNativeFeaturesRestorePurchase",
+      "meta": {
+        "title": "Restore Purchase (legacy)",
+        "description": "Restore and retrieve a user's complete purchase history from Apple App Store and Google Play Store using the Despia SDK."
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/rewarded-ads",
+      "component": "docs.LegacyLovableNativeFeaturesRewardedAds",
+      "meta": {
+        "title": "Rewarded Ads (legacy)",
+        "description": "Monetize your Lovable mobile app with native rewarded video advertisements that grant users in-app rewards."
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/safe-areas",
+      "component": "docs.LegacyLovableNativeFeaturesSafeAreas",
+      "meta": {
+        "title": "Safe Areas (legacy)",
+        "description": "Handle device safe areas (notches, status bars, home indicators) using custom CSS variables for responsive mobile layouts in your Lovable application."
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/screen-brightness",
+      "component": "docs.LegacyLovableNativeFeaturesScreenBrightness",
+      "meta": {
+        "title": "Screen Brightness (legacy)",
+        "description": "Control device scanning behavior with configurable modes (auto, on, off) and automatic screen brightness adjustment through your Lovable mobile app using the Despia SDK."
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/screenshot",
+      "component": "docs.LegacyLovableNativeFeaturesScreenshot",
+      "meta": {
+        "title": "Screenshot (legacy)",
+        "description": "Capture full page screenshots and save them directly to the device's photo gallery through your Lovable mobile app using the Despia SDK."
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/share-dialog",
+      "component": "docs.LegacyLovableNativeFeaturesShareDialog",
+      "meta": {
+        "title": "Share Dialog (legacy)",
+        "description": "Enable native social sharing capabilities with customizable message and URL parameters through your Lovable mobile app using the Despia SDK."
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/share-extension",
+      "component": "docs.LegacyLovableNativeFeaturesShareExtension",
+      "meta": {
+        "title": "Share Extension (legacy)",
+        "description": "Access shared content (images and text) from other apps when your Lovable application is opened via share functionality."
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/simple-storage",
+      "component": "docs.LegacyLovableNativeFeaturesSimpleStorage",
+      "meta": {
+        "title": "Simple Storage (legacy)",
+        "description": "Persist data directly on the user's device using simple read/write commands with the Despia SDK."
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/siri-shortcuts",
+      "component": "docs.LegacyLovableNativeFeaturesSiriShortcuts",
+      "meta": {
+        "title": "Siri Shortcuts (legacy)",
+        "description": "Enable Siri voice shortcuts with custom natural language commands that trigger JavaScript functions in your Lovable mobile app using the Despia SDK."
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/storage-vault",
+      "component": "docs.LegacyLovableNativeFeaturesStorageVault",
+      "meta": {
+        "title": "Storage Vault (legacy)",
+        "description": "Store and retrieve user identity data that persists across app sessions through your Lovable mobile app using the Despia SDK. Perfect for identifying users, preventing trial abuse, and managing login sessions."
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/store-location",
+      "component": "docs.LegacyLovableNativeFeaturesStoreLocation",
+      "meta": {
+        "title": "Store Location (legacy)",
+        "description": "Access the user's current store location for location-based services, regional content, and localized experiences in your Lovable application."
+      }
+    },
+    {
+      "path": "/legacy/lovable/native-features/user-agent",
+      "component": "docs.LegacyLovableNativeFeaturesUserAgent",
+      "meta": {
+        "title": "User Agent (legacy)",
+        "description": "Detect whether your app is running in the Despia native runtime and identify the platform (iOS or Android) by checking the user agent string."
+      }
+    },
+    {
+      "path": "/legacy/machine-learning/vision/ocr",
+      "component": "docs.LegacyMachineLearningVisionOcr",
+      "meta": {
+        "title": "OCR (legacy)",
+        "description": "Run native optical character recognition on any image on iOS and Android, with no server round-trips and no third-party API keys."
+      }
+    },
+    {
+      "path": "/legacy/machine-learning/voice/speech-recognition",
+      "component": "docs.LegacyMachineLearningVoiceSpeechRecognition",
+      "meta": {
+        "title": "Speech Recognition (legacy)",
+        "description": "Convert spoken audio into text on-device using the native iOS speech recognition engine."
+      }
+    },
+    {
+      "path": "/legacy/mcp-server",
+      "component": "docs.LegacyMcpServer",
+      "meta": {
+        "title": "MCP Server (legacy)",
+        "description": "Ship true native features for your web-native apps faster and with more precision using the Despia MCP."
+      }
+    },
+    {
+      "path": "/legacy/native-features/action-sheet",
+      "component": "docs.LegacyNativeFeaturesActionSheet",
+      "meta": {
+        "title": "Action Sheet (legacy)",
+        "description": "Trigger a native iOS or Android action sheet from your web app and react to the user's selection."
+      }
+    },
+    {
+      "path": "/legacy/native-features/admob/Iinterstitial",
+      "component": "docs.LegacyNativeFeaturesAdmobIinterstitial",
+      "meta": {
+        "title": "Interstitial Ads (legacy)",
+        "description": "Display a full-screen native AdMob interstitial ad at a natural transition point using a single fire-and-forget SDK call."
+      }
+    },
+    {
+      "path": "/legacy/native-features/admob/inline-ads",
+      "component": "docs.LegacyNativeFeaturesAdmobInlineAds",
+      "meta": {
+        "title": "Inline Ads (legacy)",
+        "description": "Render AdMob ads as real DOM elements inside your web UI by bridging the Google Mobile Ads SDK to the Despia WebView. No native overlays, no z-index fights, just AdSense, GPT, or IMA tags loading in place."
+      }
+    },
+    {
+      "path": "/legacy/native-features/admob/rewarded-ads",
+      "component": "docs.LegacyNativeFeaturesAdmobRewardedAds",
+      "meta": {
+        "title": "Rewarded Ads (legacy)",
+        "description": "Display a native AdMob rewarded video ad through Despia and grant in-app rewards only when the user completes the view."
+      }
+    },
+    {
+      "path": "/legacy/native-features/age-assurance",
+      "component": "docs.LegacyNativeFeaturesAgeAssurance",
+      "meta": {
+        "title": "Age Assurance (legacy)",
+        "description": "Read the age range the operating system already holds for your user, with a three-state age gate that works the same on iOS and Android."
+      }
+    },
+    {
+      "path": "/legacy/native-features/app-privacy",
+      "component": "docs.LegacyNativeFeaturesAppPrivacy",
+      "meta": {
+        "title": "App Privacy (legacy)",
+        "description": "Read the user's tracking consent status synchronously through despia.trackingDisabled to gate analytics and ad-tracking behavior."
+      }
+    },
+    {
+      "path": "/legacy/native-features/app-settings",
+      "component": "docs.LegacyNativeFeaturesAppSettings",
+      "meta": {
+        "title": "App Settings (legacy)",
+        "description": "Open your app's native settings page directly so users can re-grant push notification, location, or camera permissions they previously denied."
+      }
+    },
+    {
+      "path": "/legacy/native-features/audio-player",
+      "component": "docs.LegacyNativeFeaturesAudioPlayer",
+      "meta": {
+        "title": "Audio (legacy)",
+        "description": "Stream audio with a real native player, lock-screen controls, and live config updates."
+      }
+    },
+    {
+      "path": "/legacy/native-features/biometrics",
+      "component": "docs.LegacyNativeFeaturesBiometrics",
+      "meta": {
+        "title": "Biometrics (legacy)",
+        "description": "Trigger Face ID, Touch ID, or device passcode authentication through Despia and respond via three global callback functions."
+      }
+    },
+    {
+      "path": "/legacy/native-features/bluetooth",
+      "component": "docs.LegacyNativeFeaturesBluetooth",
+      "meta": {
+        "title": "Bluetooth (legacy)",
+        "description": "Legacy documentation for V3 deployments"
+      }
+    },
+    {
+      "path": "/legacy/native-features/camera-roll",
+      "component": "docs.LegacyNativeFeaturesCameraRoll",
+      "meta": {
+        "title": "Camera Roll (legacy)",
+        "description": "Save remote-hosted images to the device photo gallery through Despia using a single fire-and-forget SDK call with a CDN-hosted URL."
+      }
+    },
+    {
+      "path": "/legacy/native-features/clipboard",
+      "component": "docs.LegacyNativeFeaturesClipboard",
+      "meta": {
+        "title": "Clipboard (legacy)",
+        "description": "Read the device clipboard contents through Despia and use them inside your app, useful for paste-style flows like coupon codes, share links, and attribution tokens."
+      }
+    },
+    {
+      "path": "/legacy/native-features/contact-access",
+      "component": "docs.LegacyNativeFeaturesContactAccess",
+      "meta": {
+        "title": "Contact Access (legacy)",
+        "description": "Read the user's device contacts through Despia after requesting native permission, returned as a JSON object keyed by contact name."
+      }
+    },
+    {
+      "path": "/legacy/native-features/deeplinking",
+      "component": "docs.LegacyNativeFeaturesDeeplinking",
+      "meta": {
+        "title": "Deeplinking (legacy)",
+        "description": "Configure universal links on iOS and app links on Android so URLs from your domain open directly inside your Despia app instead of the mobile browser."
+      }
+    },
+    {
+      "path": "/legacy/native-features/device-indexing",
+      "component": "docs.LegacyNativeFeaturesDeviceIndexing",
+      "meta": {
+        "title": "Device Indexing (legacy)",
+        "description": "Read the device's unique identifier through despia.uuid to track installs, link sessions, and prevent account sharing across your mobile app."
+      }
+    },
+    {
+      "path": "/legacy/native-features/external-links",
+      "component": "docs.LegacyNativeFeaturesExternalLinks",
+      "meta": {
+        "title": "External Links (legacy)",
+        "description": "Control how your app routes external URLs, opening payment and OAuth flows in Safari for store compliance and everything else inside the in-app browser."
+      }
+    },
+    {
+      "path": "/legacy/native-features/file-picker",
+      "component": "docs.LegacyNativeFeaturesFilePicker",
+      "meta": {
+        "title": "File Picker (legacy)",
+        "description": "Route every file upload to the correct native picker based on the file types your input accepts."
+      }
+    },
+    {
+      "path": "/legacy/native-features/file-sharing",
+      "component": "docs.LegacyNativeFeaturesFileSharing",
+      "meta": {
+        "title": "File Sharing (legacy)",
+        "description": "Open the device's native share sheet with a file from a CDN URL, letting users send it to any installed app, contact, or cloud service."
+      }
+    },
+    {
+      "path": "/legacy/native-features/file-viewer",
+      "component": "docs.LegacyNativeFeaturesFileViewer",
+      "meta": {
+        "title": "File Viewer (legacy)",
+        "description": "Open a remote file in a native previewer with consistent render fidelity across iOS and Android."
+      }
+    },
+    {
+      "path": "/legacy/native-features/focus-events",
+      "component": "docs.LegacyNativeFeaturesFocusEvents",
+      "meta": {
+        "title": "Focus Events (legacy)",
+        "description": "Detect when your app enters the foreground or background using global window callbacks."
+      }
+    },
+    {
+      "path": "/legacy/native-features/gps-location",
+      "component": "docs.LegacyNativeFeaturesGpsLocation",
+      "meta": {
+        "title": "GPS Location (legacy)",
+        "description": "Track a user's real-time location with configurable time intervals, distance thresholds, live frontend callbacks, single reads, optional server delivery, and a long-range mode that keeps recording after the app is force-killed."
+      }
+    },
+    {
+      "path": "/legacy/native-features/gyroscope",
+      "component": "docs.LegacyNativeFeaturesGyroscope",
+      "meta": {
+        "title": "Gyroscope (legacy)",
+        "description": "Read live angular velocity from the device's gyroscope plus magnetic heading from the compass on a single channel, with a magnitude threshold for filtering low-motion noise."
+      }
+    },
+    {
+      "path": "/legacy/native-features/haptic-feedback",
+      "component": "docs.LegacyNativeFeaturesHapticFeedback",
+      "meta": {
+        "title": "Haptic Feedback (legacy)",
+        "description": "Trigger native tactile feedback through Despia using five preset haptic patterns mapped to standard interaction types."
+      }
+    },
+    {
+      "path": "/legacy/native-features/healthkit",
+      "component": "docs.LegacyNativeFeaturesHealthkit",
+      "meta": {
+        "title": "HealthKit (Legacy) (legacy)",
+        "description": "Read and write Apple HealthKit data including steps, heart rate, sleep, workouts, and more within your Despia app."
+      }
+    },
+    {
+      "path": "/legacy/native-features/home-widgets",
+      "component": "docs.LegacyNativeFeaturesHomeWidgets",
+      "meta": {
+        "title": "Home Widgets (legacy)",
+        "description": "Render dynamic SVG content from your backend into iOS home screen widgets, refreshed in the background at the interval you specify."
+      }
+    },
+    {
+      "path": "/legacy/native-features/in-app-rating",
+      "component": "docs.LegacyNativeFeaturesInAppRating",
+      "meta": {
+        "title": "In-App Rating (legacy)",
+        "description": "Show the operating system's native star rating prompt inside your app, or send users straight to the store review composer."
+      }
+    },
+    {
+      "path": "/legacy/native-features/light-and-dark-mode",
+      "component": "docs.LegacyNativeFeaturesLightAndDarkMode",
+      "meta": {
+        "title": "Light & Dark Mode (legacy)",
+        "description": "Implement automatic light and dark mode using CSS prefers-color-scheme and Despia's injected safe area variables, with no JavaScript or SDK calls required."
+      }
+    },
+    {
+      "path": "/legacy/native-features/notification-sounds",
+      "component": "docs.LegacyNativeFeaturesNotificationSounds",
+      "meta": {
+        "title": "Notification Sounds (legacy)",
+        "description": "Legacy documentation for V3 deployments"
+      }
+    },
+    {
+      "path": "/legacy/native-features/oauth/apple",
+      "component": "docs.LegacyNativeFeaturesOauthApple",
+      "meta": {
+        "title": "Apple Auth (legacy)",
+        "description": "Sign In with Apple, platform-aware. Native Face ID on iOS, Chrome Custom Tabs on Android, popup on web."
+      }
+    },
+    {
+      "path": "/legacy/native-features/oauth/easy-login-flow",
+      "component": "docs.LegacyNativeFeaturesOauthEasyLoginFlow",
+      "meta": {
+        "title": "Easy OAuth (legacy)",
+        "description": "Finish social sign-in on your own domain, with the provider's redirect landing directly in your app and no callback page to build."
+      }
+    },
+    {
+      "path": "/legacy/native-features/oauth/google",
+      "component": "docs.LegacyNativeFeaturesOauthGoogle",
+      "meta": {
+        "title": "Google Auth (legacy)",
+        "description": "Sign In with Google using the Despia OAuth bridge. Opens ASWebAuthenticationSession on iOS and Chrome Custom Tabs on Android, with a standard popup on web."
+      }
+    },
+    {
+      "path": "/legacy/native-features/oauth/introduction",
+      "component": "docs.LegacyNativeFeaturesOauthIntroduction",
+      "meta": {
+        "title": "Introduction (legacy)",
+        "description": "How OAuth authentication works in Despia apps. Provider-agnostic, the same flow works for Google, Apple, TikTok, GitHub, or any OAuth 2.0 provider."
+      }
+    },
+    {
+      "path": "/legacy/native-features/oauth/tiktok",
+      "component": "docs.LegacyNativeFeaturesOauthTiktok",
+      "meta": {
+        "title": "TikTok Auth (legacy)",
+        "description": "Sign In with TikTok using the Despia OAuth bridge. Opens ASWebAuthenticationSession on iOS and Chrome Custom Tabs on Android, with a standard redirect on web."
+      }
+    },
+    {
+      "path": "/legacy/native-features/offline-push",
+      "component": "docs.LegacyNativeFeaturesOfflinePush",
+      "meta": {
+        "title": "Offline Push (legacy)",
+        "description": "Schedule a local notification on the device with a title, body, deep link, and delay in seconds, fully offline and triggered without a server round-trip."
+      }
+    },
+    {
+      "path": "/legacy/native-features/onesignal/introduction",
+      "component": "docs.LegacyNativeFeaturesOnesignalIntroduction",
+      "meta": {
+        "title": "Introduction (legacy)",
+        "description": "Send targeted push notifications to specific users even when your app is closed, using the native OneSignal SDK bundled at runtime."
+      }
+    },
+    {
+      "path": "/legacy/native-features/onesignal/reference",
+      "component": "docs.LegacyNativeFeaturesOnesignalReference",
+      "meta": {
+        "title": "Reference (legacy)",
+        "description": "Full API reference for OneSignal push notifications in Despia: client-side schemes, backend payload options, deep linking fields, segmentation, and critical alerts."
+      }
+    },
+    {
+      "path": "/legacy/native-features/paywalls",
+      "component": "docs.LegacyNativeFeaturesPaywalls",
+      "meta": {
+        "title": "Paywalls (legacy)",
+        "description": "Monetize your app with seamless payment processing through Apple and Google's native billing systems using RevenueCat Paywalls."
+      }
+    },
+    {
+      "path": "/legacy/native-features/prevent-autoscroll",
+      "component": "docs.LegacyNativeFeaturesPreventAutoscroll",
+      "meta": {
+        "title": "Prevent Autoscroll (legacy)",
+        "description": "Stop the native WebView from repositioning when the keyboard appears so your JavaScript keyboard handling stays in full control."
+      }
+    },
+    {
+      "path": "/legacy/native-features/print-documents",
+      "component": "docs.LegacyNativeFeaturesPrintDocuments",
+      "meta": {
+        "title": "Print Documents (legacy)",
+        "description": "Open the native print dialog with a PDF or image from a CDN URL, letting users send the document to any connected printer through the system print interface."
+      }
+    },
+    {
+      "path": "/legacy/native-features/purchases",
+      "component": "docs.LegacyNativeFeaturesPurchases",
+      "meta": {
+        "title": "Purchases (legacy)",
+        "description": "Purchase a specific product directly using RevenueCat through Apple App Store and Google Play billing."
+      }
+    },
+    {
+      "path": "/legacy/native-features/quick-actions",
+      "component": "docs.LegacyNativeFeaturesQuickActions",
+      "meta": {
+        "title": "Quick Actions (legacy)",
+        "description": "Add native long-press shortcuts to your app icon that invoke a global JavaScript function when tapped, letting users jump straight into a specific workflow."
+      }
+    },
+    {
+      "path": "/legacy/native-features/restore-purchase",
+      "component": "docs.LegacyNativeFeaturesRestorePurchase",
+      "meta": {
+        "title": "Restore Purchase (legacy)",
+        "description": "Restore and retrieve a user's complete purchase history from Apple App Store and Google Play Store using the Despia SDK."
+      }
+    },
+    {
+      "path": "/legacy/native-features/revenuecat/introduction",
+      "component": "docs.LegacyNativeFeaturesRevenuecatIntroduction",
+      "meta": {
+        "title": "Introduction (legacy)",
+        "description": "Native App Store and Google Play billing in your web app via the Despia SDK and RevenueCat."
+      }
+    },
+    {
+      "path": "/legacy/native-features/revenuecat/reference",
+      "component": "docs.LegacyNativeFeaturesRevenuecatReference",
+      "meta": {
+        "title": "Reference (legacy)",
+        "description": "Complete reference for all Despia in-app purchase schemes, parameters, callbacks, entitlement checks, and webhook handling."
+      }
+    },
+    {
+      "path": "/legacy/native-features/safe-areas",
+      "component": "docs.LegacyNativeFeaturesSafeAreas",
+      "meta": {
+        "title": "Safe Areas (legacy)",
+        "description": "Handle notches, status bars, home indicators, and gesture bars using CSS variables injected by the Despia runtime, paired with a defensive env() fallback."
+      }
+    },
+    {
+      "path": "/legacy/native-features/sandbox",
+      "component": "docs.LegacyNativeFeaturesSandbox",
+      "meta": {
+        "title": "Sandbox (legacy)",
+        "description": "Repoint a compiled app at a test environment at runtime without rebuilding, then restore production when testing is done."
+      }
+    },
+    {
+      "path": "/legacy/native-features/screen-brightness",
+      "component": "docs.LegacyNativeFeaturesScreenBrightness",
+      "meta": {
+        "title": "Screen Brightness (legacy)",
+        "description": "Set screen brightness behavior for scanning workflows, with three modes for automatic, always-bright, and standard rendering."
+      }
+    },
+    {
+      "path": "/legacy/native-features/screen-radius",
+      "component": "docs.LegacyNativeFeaturesScreenRadius",
+      "meta": {
+        "title": "Screen Radius (legacy)",
+        "description": "Read the device's physical screen corner radius and use it to build inner UI elements with perfectly concentric rounded corners."
+      }
+    },
+    {
+      "path": "/legacy/native-features/screenshot",
+      "component": "docs.LegacyNativeFeaturesScreenshot",
+      "meta": {
+        "title": "Screenshot (legacy)",
+        "description": "Capture the visible page and save it directly to the device photo gallery through a single fire-and-forget Despia SDK call."
+      }
+    },
+    {
+      "path": "/legacy/native-features/service-workers",
+      "component": "docs.LegacyNativeFeaturesServiceWorkers",
+      "meta": {
+        "title": "Service Workers (legacy)",
+        "description": "Run your web app's service worker inside the native app so cached pages and assets keep serving when the device has no connection."
+      }
+    },
+    {
+      "path": "/legacy/native-features/share-dialog",
+      "component": "docs.LegacyNativeFeaturesShareDialog",
+      "meta": {
+        "title": "Share Dialog (legacy)",
+        "description": "Open the native share sheet pre-populated with a text message and URL, letting users send the combination to any app, contact, or service installed on their device."
+      }
+    },
+    {
+      "path": "/legacy/native-features/share-extension",
+      "component": "docs.LegacyNativeFeaturesShareExtension",
+      "meta": {
+        "title": "Share Extension (legacy)",
+        "description": "Receive content shared into your app from other apps via the system share sheet, delivered through a single global callback that fires when your app launches with a shared payload."
+      }
+    },
+    {
+      "path": "/legacy/native-features/simple-storage",
+      "component": "docs.LegacyNativeFeaturesSimpleStorage",
+      "meta": {
+        "title": "Simple Storage (legacy)",
+        "description": "Single-slot key-value storage on the device through the Despia SDK. Legacy feature, kept for apps already shipping with it."
+      }
+    },
+    {
+      "path": "/legacy/native-features/siri-shortcuts",
+      "component": "docs.LegacyNativeFeaturesSiriShortcuts",
+      "meta": {
+        "title": "Siri Shortcuts (legacy)",
+        "description": "Register a natural language phrase as a Siri shortcut that calls a globally-defined JavaScript function in your app when spoken."
+      }
+    },
+    {
+      "path": "/legacy/native-features/speech-recognition",
+      "component": "docs.LegacyNativeFeaturesSpeechRecognition",
+      "meta": {
+        "title": "Speech Recognition (legacy)",
+        "description": "Convert spoken audio into text on-device using the native iOS speech recognition engine."
+      }
+    },
+    {
+      "path": "/legacy/native-features/storage-vault",
+      "component": "docs.LegacyNativeFeaturesStorageVault",
+      "meta": {
+        "title": "Storage Vault (legacy)",
+        "description": "Encrypted persistent storage backed by iCloud Key Value Store on iOS and Android Key/Value Backup on Android. Survives uninstall and reinstall."
+      }
+    },
+    {
+      "path": "/legacy/native-features/store-location",
+      "component": "docs.LegacyNativeFeaturesStoreLocation",
+      "meta": {
+        "title": "Store Location (legacy)",
+        "description": "Read the user's App Store or Play Store country code through despia.storeLocation to gate regional features and route payments correctly."
+      }
+    },
+    {
+      "path": "/legacy/native-features/url-scheme",
+      "component": "docs.LegacyNativeFeaturesUrlScheme",
+      "meta": {
+        "title": "URL Scheme (legacy)",
+        "description": "Set the custom protocol your app registers with iOS and Android so native authentication sessions can hand tokens back to your app."
+      }
+    },
+    {
+      "path": "/legacy/native-features/user-agent",
+      "component": "docs.LegacyNativeFeaturesUserAgent",
+      "meta": {
+        "title": "User Agent (legacy)",
+        "description": "Detect whether your app is running in the Despia native runtime and identify the platform to conditionally render features like in-app purchases or native modules."
+      }
+    },
+    {
+      "path": "/legacy/payments/introduction",
+      "component": "docs.LegacyPaymentsIntroduction",
+      "meta": {
+        "title": "Introduction (legacy)",
+        "description": "App Store and Google Play billing via RevenueCat, plus Stripe for physical goods and real-world services."
+      }
+    },
+    {
+      "path": "/legacy/payments/revenuecat/introduction",
+      "component": "docs.LegacyPaymentsRevenuecatIntroduction",
+      "meta": {
+        "title": "Introduction (legacy)",
+        "description": "Native App Store and Google Play billing in your web app via the Despia SDK and RevenueCat."
+      }
+    },
+    {
+      "path": "/legacy/payments/revenuecat/reference",
+      "component": "docs.LegacyPaymentsRevenuecatReference",
+      "meta": {
+        "title": "Reference (legacy)",
+        "description": "Complete reference for all Despia in-app purchase schemes, parameters, callbacks, entitlement checks, and webhook handling."
+      }
+    },
+    {
+      "path": "/legacy/payments/stripe/introduction",
+      "component": "docs.LegacyPaymentsStripeIntroduction",
+      "meta": {
+        "title": "Introduction (legacy)",
+        "description": "Native Stripe PaymentSheet and CustomerSheet in your web app via the Despia SDK."
+      }
+    },
+    {
+      "path": "/legacy/payments/stripe/payment",
+      "component": "docs.LegacyPaymentsStripePayment",
+      "meta": {
+        "title": "Payment (legacy)",
+        "description": "Show the native Stripe Payment Sheet from your web app and receive the result through a single global callback."
+      }
+    },
+    {
+      "path": "/legacy/platform-support/base44",
+      "component": "docs.LegacyPlatformSupportBase44",
+      "meta": {
+        "title": "Despia for Base44 (legacy)",
+        "description": "Ship your Base44 app to the App Store and Google Play with native billing, push notifications, attribution, and offline support built in."
+      }
+    },
+    {
+      "path": "/legacy/platform-support/claude-code",
+      "component": "docs.LegacyPlatformSupportClaudeCode",
+      "meta": {
+        "title": "Despia for Claude Code (legacy)",
+        "description": "Ship your Claude Code web app to the App Store and Google Play with native billing, push notifications, attribution, and offline support built in."
+      }
+    },
+    {
+      "path": "/legacy/platform-support/cursor",
+      "component": "docs.LegacyPlatformSupportCursor",
+      "meta": {
+        "title": "Despia for Cursor (legacy)",
+        "description": "Ship your Cursor-built web app to the App Store and Google Play with native billing, push notifications, attribution, and offline support built in."
+      }
+    },
+    {
+      "path": "/legacy/platform-support/lovable",
+      "component": "docs.LegacyPlatformSupportLovable",
+      "meta": {
+        "title": "Despia for Lovable (legacy)",
+        "description": "Ship your Lovable app to the App Store and Google Play with native billing, push notifications, attribution, and offline support built in."
+      }
+    },
+    {
+      "path": "/legacy/platform-support/replit",
+      "component": "docs.LegacyPlatformSupportReplit",
+      "meta": {
+        "title": "Despia for Replit (legacy)",
+        "description": "Ship your Replit web app to the App Store and Google Play with native billing, push notifications, attribution, and offline support built in."
+      }
+    },
+    {
+      "path": "/legacy/reference",
+      "component": "docs.LegacyReference",
+      "meta": {
+        "title": "Reference (legacy)",
+        "description": "Full API reference for Terra health data in Despia: client-side schemes, injected globals, event payloads, and backend responsibilities."
+      }
     },
     {
       "path": "/legacy/refernce",
-      "component": "docs.PageLegacy_Refernce",
+      "component": "docs.LegacyRefernce",
       "meta": {
-        "title": "Reference (Despia V3)",
+        "title": "Reference (legacy)",
         "description": "Cache remote files locally for offline access with background downloads"
-      },
-      "tabRoot": true
+      }
+    },
+    {
+      "path": "/legacy/roadblocks/deployment/apple-ios/att-and-tracking",
+      "component": "docs.LegacyRoadblocksDeploymentAppleIosAttAndTracking",
+      "meta": {
+        "title": "ATT & Tracking (legacy)",
+        "description": "Your Despia build is blocked at submission over NSUserTrackingUsageDescription. Here is what the key means and how to clear it."
+      }
+    },
+    {
+      "path": "/legacy/roadblocks/deployment/apple-ios/health-kit",
+      "component": "docs.LegacyRoadblocksDeploymentAppleIosHealthKit",
+      "meta": {
+        "title": "HealthKit (legacy)",
+        "description": "Your build failed after enabling HealthKit in the Despia editor. Here's why and how to fix it."
+      }
+    },
+    {
+      "path": "/legacy/roadblocks/deployment/update-bundle-id",
+      "component": "docs.LegacyRoadblocksDeploymentUpdateBundleId",
+      "meta": {
+        "title": "Update Bundle IDs (legacy)",
+        "description": "Legacy documentation for V3 deployments"
+      }
+    },
+    {
+      "path": "/legacy/roadblocks/revenue-cat/missing-item",
+      "component": "docs.LegacyRoadblocksRevenueCatMissingItem",
+      "meta": {
+        "title": "Missing Item (legacy)",
+        "description": "Your paywall is empty or checkout isn't working. Products aren't loading. Here's how to debug it."
+      }
+    },
+    {
+      "path": "/legacy/roadblocks/runtime/empty-pages",
+      "component": "docs.LegacyRoadblocksRuntimeEmptyPages",
+      "meta": {
+        "title": "Empty Pages (legacy)",
+        "description": "Your app loads but shows a blank white screen. Here's how to fix it."
+      }
+    },
+    {
+      "path": "/legacy/roadblocks/runtime/legacy-setups",
+      "component": "docs.LegacyRoadblocksRuntimeLegacySetups",
+      "meta": {
+        "title": "Legacy Setups (legacy)",
+        "description": "AI coding tools often generate outdated Despia setups. This guide covers the two most common mistakes: legacy environment detection and targeting the internal window.despia object."
+      }
+    },
+    {
+      "path": "/legacy/roadblocks/runtime/lost-auth-tokens",
+      "component": "docs.LegacyRoadblocksRuntimeLostAuthTokens",
+      "meta": {
+        "title": "Lost Auth Tokens (legacy)",
+        "description": "Your users close the app and when they reopen it, they're logged out. Here's how to fix it."
+      }
+    },
+    {
+      "path": "/legacy/roadblocks/runtime/no-ota-updates",
+      "component": "docs.LegacyRoadblocksRuntimeNoOtaUpdates",
+      "meta": {
+        "title": "No OTA Updates (legacy)",
+        "description": "Your users aren't receiving OTA updates. Changes deployed to production don't appear in the app. Here's how to fix it."
+      }
+    },
+    {
+      "path": "/legacy/roadblocks/runtime/o-auth-failures",
+      "component": "docs.LegacyRoadblocksRuntimeOAuthFailures",
+      "meta": {
+        "title": "OAuth Failures (legacy)",
+        "description": "OAuth not working in your Despia native app? This guide focuses on the key difference between web OAuth and Despia native OAuth."
+      }
+    },
+    {
+      "path": "/legacy/roadblocks/runtime/slow-apps",
+      "component": "docs.LegacyRoadblocksRuntimeSlowApps",
+      "meta": {
+        "title": "Slow Apps (legacy)",
+        "description": "Your Despia app feels sluggish. Here's how to fix it."
+      }
+    },
+    {
+      "path": "/legacy/roadblocks/runtime/watermark-bug",
+      "component": "docs.LegacyRoadblocksRuntimeWatermarkBug",
+      "meta": {
+        "title": "Watermark Bug (legacy)",
+        "description": "You upgraded to a commercial license but the Despia watermark is still visible in your app. Here is why and how to fix it."
+      }
+    },
+    {
+      "path": "/legacy/roadblocks/runtime/wrong-framework",
+      "component": "docs.LegacyRoadblocksRuntimeWrongFramework",
+      "meta": {
+        "title": "Wrong Framework (legacy)",
+        "description": "Why Despia is its own native runtime, and how to configure AI tools to work with it correctly."
+      }
+    },
+    {
+      "path": "/legacy/store-rejections/common-rejection/ai-processing",
+      "component": "docs.LegacyStoreRejectionsCommonRejectionAiProcessing",
+      "meta": {
+        "title": "AI Processing (legacy)",
+        "description": "Your app was rejected because it processes user data with AI without proper consent. Here's how to implement Apple's required AI consent flow."
+      }
+    },
+    {
+      "path": "/legacy/store-rejections/common-rejection/blank-screen-redirects",
+      "component": "docs.LegacyStoreRejectionsCommonRejectionBlankScreenRedirects",
+      "meta": {
+        "title": "Blank Screen Redirects (legacy)",
+        "description": "Your app was rejected because it shows a blank or white screen during authentication. Here's how to fix it."
+      }
+    },
+    {
+      "path": "/legacy/store-rejections/common-rejection/deceptive-paywalls",
+      "component": "docs.LegacyStoreRejectionsCommonRejectionDeceptivePaywalls",
+      "meta": {
+        "title": "Deceptive Paywalls (legacy)",
+        "description": "Your app was rejected because the paywall is misleading or uses dark patterns. Here's what reviewers flagged and how to fix it."
+      }
+    },
+    {
+      "path": "/legacy/store-rejections/common-rejection/in-app-purchases",
+      "component": "docs.LegacyStoreRejectionsCommonRejectionInAppPurchases",
+      "meta": {
+        "title": "In-App Purchases (legacy)",
+        "description": "Your app was rejected for issues with in-app purchases. Here's what went wrong and how to fix it."
+      }
+    },
+    {
+      "path": "/legacy/store-rejections/common-rejection/minimum-functionality",
+      "component": "docs.LegacyStoreRejectionsCommonRejectionMinimumFunctionality",
+      "meta": {
+        "title": "Minimum Functionality (legacy)",
+        "description": "Your app was rejected for not meeting minimum functionality requirements. Here's what that means and how to fix it."
+      }
+    },
+    {
+      "path": "/legacy/store-rejections/common-rejection/non-mobile-design",
+      "component": "docs.LegacyStoreRejectionsCommonRejectionNonMobileDesign",
+      "meta": {
+        "title": "Non-Mobile Design (legacy)",
+        "description": "Your app was rejected because it looks like a website instead of a native mobile app. Here's how to fix it."
+      }
+    },
+    {
+      "path": "/legacy/store-rejections/common-rejection/privacy-policy",
+      "component": "docs.LegacyStoreRejectionsCommonRejectionPrivacyPolicy",
+      "meta": {
+        "title": "Privacy Policy (legacy)",
+        "description": "Your app was rejected because of a missing or inadequate privacy policy. Here's what's required and how to fix it."
+      }
+    },
+    {
+      "path": "/legacy/store-rejections/common-rejection/social-login-options",
+      "component": "docs.LegacyStoreRejectionsCommonRejectionSocialLoginOptions",
+      "meta": {
+        "title": "Social Login Options (legacy)",
+        "description": "Your app was rejected because it offers social login without including the platform's native option. Here's how to fix it."
+      }
+    },
+    {
+      "path": "/legacy/store-rejections/common-rejection/spam-and-copies",
+      "component": "docs.LegacyStoreRejectionsCommonRejectionSpamAndCopies",
+      "meta": {
+        "title": "Spam and Copies (legacy)",
+        "description": "Your app was rejected because it's too similar to existing apps. Here's how to differentiate and get approved."
+      }
+    },
+    {
+      "path": "/legacy/store-rejections/common-rejection/tracking-transparency",
+      "component": "docs.LegacyStoreRejectionsCommonRejectionTrackingTransparency",
+      "meta": {
+        "title": "Tracking Transparency (legacy)",
+        "description": "Your app was rejected for issues with Apple's App Tracking Transparency (ATT). Here's what went wrong and how to fix it."
+      }
+    },
+    {
+      "path": "/legacy/store-rejections/common-rejection/user-specific-data",
+      "component": "docs.LegacyStoreRejectionsCommonRejectionUserSpecificData",
+      "meta": {
+        "title": "User-Specific Data (legacy)",
+        "description": "Your app was rejected because it collects personal data that isn't necessary for its functionality. Here's how to fix it."
+      }
+    },
+    {
+      "path": "/legacy/store-rejections/introduction",
+      "component": "docs.LegacyStoreRejectionsIntroduction",
+      "meta": {
+        "title": "Introduction (legacy)",
+        "description": "Your app got rejected. Take a breath. This is normal, fixable, and part of shipping apps."
+      }
+    },
+    {
+      "path": "/legacy/wallet/pkpass",
+      "component": "docs.LegacyWalletPkpass",
+      "meta": {
+        "title": "PK Pass (legacy)",
+        "description": "Add passes to a user's device wallet directly from your web app."
+      }
     }
   ],
   "siteUrl": "https://despia.com/docs",
@@ -4061,7 +3159,8 @@
       "shellRoutes": [
         "/"
       ]
-    }
+    },
+    "boot": "after-load"
   },
   "owner": {
     "workspace": "despia"
@@ -4069,5 +3168,9 @@
   "modules": [
     "clipboard",
     "appearance"
-  ]
+  ],
+  "notFound": "docs.V2NotFound",
+  "router": {
+    "transition": "dsx"
+  }
 }

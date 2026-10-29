@@ -42,6 +42,10 @@ export const SECTIONS = [
         ["/convert/quickstart", "Quickstart", "From your web app's URL to a build on your phone."],
       ] },
       { title: "Moving over", pages: [
+        ["/convert/from-v3-web-app", "V3 web app to V4", "Keep your site, keep your old despia() calls working, and move to dsx.module one page at a time."],
+        ["/convert/from-v3-native-rebuild", "V3 native rebuild", "Rebuild screens as native DSX screens, one at a time. Not yet available to start from the console."],
+        ["/convert/v3-feature-map", "V3 to V4 feature map", "Every V3 feature and the V4 package or API it moves to, with the gaps marked."],
+        ["/convert/since-the-beta", "What changed since the V4 beta", "The renamed commands, paths and credentials, and what to use instead."],
       ] },
     ],
   },

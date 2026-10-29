@@ -16,7 +16,8 @@
     "parity": "node scripts/setup-parity.mjs",
     "bench": "node --experimental-strip-types --no-warnings scripts/bench-search.mjs",
     "integrations": "node scripts/sync-integrations.mjs",
-    "hub": "node scripts/sync-hub.mjs"
+    "hub": "node scripts/sync-hub.mjs",
+    "check:map": "node scripts/check-migrate-map.mjs"
   },
   "dependencies": {
     "@despia-native/compiler": "0.1.0",

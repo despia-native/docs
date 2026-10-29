@@ -1,7 +1,7 @@
 ---
 title: AppsFlyer
 description: Attribute installs and purchases to ad campaigns with AppsFlyer.
-package: Core/AppsFlyer
+package: Core/Growth/Modules/AppsFlyer
 section: packages
 group: Analytics and attribution
 icon: sparkles

@@ -22,6 +22,7 @@
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, posix, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
+import { isHiddenLegacy } from "./hidden.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const src = join(root, "legacy", "mintlify");
@@ -102,6 +103,7 @@ function walkNav(items, groups) {
   const nodes = [];
   for (const item of items) {
     if (typeof item === "string") {
+      if (isHiddenLegacy("/" + item)) continue;
       navOrder.push({ path: "/" + item, groups });
       nodes.push({ page: LEGACY + "/" + item, icon: pageIcon("/" + item) });
     } else {
@@ -124,6 +126,7 @@ function walkFiles(dir) {
 }
 const allPaths = walkFiles(src)
   .map((abs) => "/" + relative(src, abs).split(sep).join("/").replace(/\.mdx$/, ""))
+  .filter((p) => !isHiddenLegacy(p))
   .filter((p) => !p.startsWith("/snippets/")) // snippet sources are includes, never pages
   .sort();
 const inNav = new Set(navOrder.map((n) => n.path));

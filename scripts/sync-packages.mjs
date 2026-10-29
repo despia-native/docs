@@ -19,6 +19,7 @@ import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+import { isHiddenPath } from "./hidden.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const repo = process.env.DESPIA_FRAMEWORK;
@@ -34,7 +35,7 @@ const SRC = "OpenSource/Engine/TypeScript/packages/project/src";
 
 const tmp = mkdtempSync(join(tmpdir(), "despia-pkgdocs-"));
 try {
-  for (const f of ["package-docs.ts", "package-docs-data.generated.ts", "article.ts"]) writeFileSync(join(tmp, f), git("show", `${commit}:${SRC}/${f}`));
+  for (const f of ["package-docs.ts", "package-docs-data.generated.ts", "article.ts", "provider-matrix.ts", "contract-types.ts"]) writeFileSync(join(tmp, f), git("show", `${commit}:${SRC}/${f}`));
   const { PACKAGE_SOURCES } = await import(pathToFileURL(join(tmp, "package-docs-data.generated.ts")).href);
   const { buildPackageDocs } = await import(pathToFileURL(join(tmp, "package-docs.ts")).href);
 
@@ -73,6 +74,7 @@ try {
   const packages = [];
   for (const src of PACKAGE_SOURCES) {
     const command = typeof src.manifest.command === "string" && src.manifest.command !== "" ? src.manifest.command : null;
+    if (isHiddenPath(src.path)) continue;
     if (command === null && !catalogPaths.has(src.path)) continue;
     const d = buildPackageDocs(src, { all: PACKAGE_SOURCES });
     const raw = manifestOf(src.path);
@@ -131,7 +133,7 @@ try {
   }
   // A catalog package the reference generator leaves out (a commercial package) still has its store listing: its page is
   // that listing, with no reference.
-  for (const path of [...catalogPaths].filter((x) => !packages.some((p) => p.path === x))) {
+  for (const path of [...catalogPaths].filter((x) => !isHiddenPath(x) && !packages.some((p) => p.path === x))) {
     const raw = manifestOf(path);
     const listing = raw.listing ?? null;
     const option = capabilities.options.find((o) => (o.primary ?? o.footprint?.modules?.[0] ?? o.id) === path);

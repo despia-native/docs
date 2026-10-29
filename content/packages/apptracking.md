@@ -1,7 +1,7 @@
 ---
 title: AppTracking
 description: Ask the user for tracking permission and read their answer.
-package: Core/WebPlatform/AppTracking
+package: Core/AppTracking
 section: packages
 group: Analytics and attribution
 icon: lock.shield
