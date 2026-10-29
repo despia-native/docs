@@ -37,9 +37,9 @@ The Despia Console tests a key with the store before it saves it, checks that it
 | :-- | :-- |
 | Apps, New app | `despia account create --web https://your-app.com` |
 | Builds, Build | `despia build ios --cloud` |
-| App Stores, Add | `despia stores add asc` or `despia stores link asc` |
+| App Stores, Add | `despia store connections add asc` or `despia store connections link asc` |
 | Members, Invite | `despia account invite` |
 | Access Tokens | `despia workspace tokens` |
 | Plan and Credits | `despia workspace credits` |
 
-`despia stores link asc` prints a short-lived link that opens the Despia Console's upload page, for when you would rather pick the key file in a browser.
+`despia store connections link asc` prints a short-lived link that opens the Despia Console's upload page, for when you would rather pick the key file in a browser.

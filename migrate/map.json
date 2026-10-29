@@ -16,8 +16,8 @@
    "status": "partial",
    "v4": {
     "package": "Core/Legacy",
-    "api": "despia init --from-v3; window.dsx.module.<command>.<action>()",
-    "docs": "/convert/from-v3"
+    "api": "window.dsx.module.<command>.<action>() (the converter runs on Despia's side)",
+    "docs": "/convert/from-v3-web-app"
    },
    "note": "v3 despia() calls keep working through the optional Core/Legacy polyfill; new code calls window.dsx.",
    "evidence": [
@@ -2042,7 +2042,7 @@
    "v4": {
     "package": "Core/Legacy",
     "api": "Core/Legacy polyfill answers window.despia; new code uses window.dsx",
-    "docs": "/convert/from-v3"
+    "docs": "/convert/from-v3-web-app"
    },
    "note": "The window.despia setups this page warns about are what the optional Legacy package polyfills.",
    "evidence": [

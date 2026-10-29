@@ -35,8 +35,8 @@ Submit the build for review. When the store approves it, release it, all at once
 
 ## Before you submit
 
-- **The store listing.** `despia listing pull` writes your store text into files, `despia listing check` checks every field and screenshot against the store limits, and `despia listing push` uploads your edits.
-- **Privacy answers.** `despia declarations` drafts the App Privacy and Data safety answers from the packages your app uses.
+- **The store listing.** `despia store listing pull` writes your store text into files, `despia store listing lint` checks every field and screenshot against the store limits, and `despia store listing apply` uploads your edits.
+- **Privacy answers.** `despia store declarations` drafts the App Privacy and Data safety answers from the packages your app uses.
 - **What the stores refuse.** `despia validate` checks a build for what an upload would reject.
 - **App Review.** [App Review](/app-review) explains the guidelines apps run into and how to pass them.
 

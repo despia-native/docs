@@ -28,8 +28,8 @@ On the same page:
 In the [console](https://console.despia.com), open **App Stores** and add App Store Connect: choose the `.p8` file and enter the Key ID and the Issuer ID. From a terminal:
 
 ```sh
-npx @despia-native/cli stores add asc --file ./AuthKey.p8 --issuer-id <issuer-id> --key-id <key-id>
-npx @despia-native/cli stores add asc --file ./AuthKey.p8 --issuer-id <issuer-id> --key-id <key-id> --apply
+npx @despia-native/cli store connections add asc --file ./AuthKey.p8 --issuer-id <issuer-id> --key-id <key-id>
+npx @despia-native/cli store connections add asc --file ./AuthKey.p8 --issuer-id <issuer-id> --key-id <key-id> --apply
 ```
 
 The first command checks everything and shows what it would do; `--apply` connects the key. `stores link asc` prints a short-lived link to upload the file in the Despia Console instead.
@@ -41,9 +41,9 @@ The first command checks everything and shows what it would do; `--apply` connec
 Before it saves the key, Despia tests it with Apple and checks its role. Nothing is stored if the test fails, and the Despia Console shows the steps to fix it. The key is stored encrypted and never shown again.
 
 ```sh
-npx @despia-native/cli stores list
-npx @despia-native/cli stores test <connection-id>
-npx @despia-native/cli stores role <connection-id>
+npx @despia-native/cli store connections list
+npx @despia-native/cli store connections test <connection-id>
+npx @despia-native/cli store connections role <connection-id>
 ```
 
 ## Why App Manager

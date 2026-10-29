@@ -55,12 +55,12 @@ despia --help
 | `despia login` | Sign in once on this machine |
 | `despia build ios --cloud` | Build the iOS app on Despia Cloud (`android` for Android) |
 | `despia builds` | List, follow, read the log of, cancel or download a cloud build |
-| `despia stores add` | Connect an App Store Connect Key or a Google Play Service Account |
+| `despia store connections add` | Connect an App Store Connect Key or a Google Play Service Account |
 | `despia testers add` | Invite a TestFlight tester, or open a Play testing track |
 | `despia publish` | Upload to TestFlight or Play internal testing, then promote and release |
-| `despia submit` | Submit a build for store review |
-| `despia releases` | Where each store submission stands |
-| `despia listing pull` / `push` | Your store listing as files you can edit and upload |
+| `despia store submit` | Submit a build for store review |
+| `despia store releases` | Where each store submission stands |
+| `despia store listing pull` / `apply` | Your store listing as files you can edit and upload |
 
 A cloud build checks everything first and prints the cost before it starts:
 
@@ -96,8 +96,8 @@ See [Use Despia with your AI agent](/dsx/agents).
 A command that changes something outside your project (a store, a workspace, a payment) prints what it would do and stops. Run it again with `--apply` to do it:
 
 ```sh
-despia stores add asc --file ./AuthKey.p8 --issuer-id <issuer-id> --key-id <key-id>
-despia stores add asc --file ./AuthKey.p8 --issuer-id <issuer-id> --key-id <key-id> --apply
+despia store connections add asc --file ./AuthKey.p8 --issuer-id <issuer-id> --key-id <key-id>
+despia store connections add asc --file ./AuthKey.p8 --issuer-id <issuer-id> --key-id <key-id> --apply
 ```
 
 Keys and secrets are read from a file or from standard input, never from a flag value, and are never printed back.

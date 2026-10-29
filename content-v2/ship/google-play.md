@@ -33,8 +33,8 @@ In [Play Console](https://play.google.com/console), open **Users and permissions
 In the [console](https://console.despia.com), open **App Stores** and add Google Play with the JSON file. From a terminal:
 
 ```sh
-npx @despia-native/cli stores add play --file despia-service-account.json
-npx @despia-native/cli stores add play --file despia-service-account.json --apply
+npx @despia-native/cli store connections add play --file despia-service-account.json
+npx @despia-native/cli store connections add play --file despia-service-account.json --apply
 ```
 
 :::
@@ -48,8 +48,8 @@ Google Play lets you create an app's listing, with its package name, before the 
 When you connect the account, Despia checks that the key works, that both APIs are enabled, and which apps and permissions the Service Account can see. Nothing is stored if a check fails.
 
 ```sh
-npx @despia-native/cli stores details <connection-id>
-npx @despia-native/cli stores role <connection-id> --package com.example.app
+npx @despia-native/cli store connections details <connection-id>
+npx @despia-native/cli store connections role <connection-id> --package com.example.app
 ```
 
 `role` checks the Service Account's release permissions on one package.

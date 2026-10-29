@@ -20,8 +20,8 @@ To upload a build to testing as soon as it is built, add `--publish testflight` 
 ## Submit for review
 
 ```sh
-npx despia submit --project <project-id>
-npx despia submit --project <project-id> --apply
+npx despia store submit --project <project-id>
+npx despia store submit --project <project-id> --apply
 ```
 
 `submit` first prints a checklist: the build, the store version, the listing, the privacy answers. With `--apply` it submits the newest finished release build. On iOS the release stays manual by default, so you choose when the approved version goes live.
@@ -29,9 +29,9 @@ npx despia submit --project <project-id> --apply
 ## Follow a submission
 
 ```sh
-npx despia releases list
-npx despia releases show --submission <submission-id>
-npx despia releases refresh --submission <submission-id>
+npx despia store releases list
+npx despia store releases show --submission <submission-id>
+npx despia store releases refresh --submission <submission-id>
 ```
 
 `releases list` shows every submission and what is live now.
@@ -41,7 +41,7 @@ npx despia releases refresh --submission <submission-id>
 Copy the reviewer's message from App Store Connect or Play Console into a file, then:
 
 ```sh
-npx despia releases rejection --submission <submission-id> --reason-file rejection.txt
+npx despia store releases rejection --submission <submission-id> --reason-file rejection.txt
 ```
 
 Despia attaches the message to the submission and prints the fixes that match it. [App Review](/app-review) explains the guidelines apps run into most, with a fix and a reply for each.
@@ -53,7 +53,7 @@ When a version is approved, release it from the Despia Console or with `despia p
 ## The next version
 
 ```sh
-npx despia releases new --bump minor --apply
+npx despia store releases new --bump minor --apply
 ```
 
 This creates the next store version, numbered above every version the store knows. On iOS it is created in App Store Connect.
