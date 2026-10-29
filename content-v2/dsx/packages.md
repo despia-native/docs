@@ -24,7 +24,7 @@ Every action is `dsx.module.<package>.<action>(args)`. It returns a promise, so 
 <stack style="padding: 20px">
   <head>
     <action as="share">
-      await dsx.module.share.url({ url: 'https://example.com/listings/cozy-loft', message: 'Check out this listing' });
+      await dsx.module.share.present({ url: 'https://example.com/listings/cozy-loft', text: 'Check out this listing' });
     </action>
   </head>
   <button label="Share" icon="square.and.arrow.up" on:tap="dsx.action.share()"/>

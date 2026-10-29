@@ -253,7 +253,7 @@
    "status": "partial",
    "v4": {
     "package": "Core/Legacy/Modules/ContentServer",
-    "api": "optional ContentServer (dsx.module.legacy.cdn); modern: dsx.module.files.url()",
+    "api": "optional ContentServer (dsx.module.cdn); modern: dsx.module.files.url()",
     "docs": null
    },
    "note": "The v3 on-device HTTP server survives only as an optional Legacy package; modern apps use Core/Files.",
@@ -269,7 +269,7 @@
    "status": "partial",
    "v4": {
     "package": "Core/Legacy/Modules/ContentServer",
-    "api": "optional ContentServer (dsx.module.legacy.cdn); modern: dsx.module.files.url()",
+    "api": "optional ContentServer (dsx.module.cdn); modern: dsx.module.files.url()",
     "docs": null
    },
    "note": "The v3 on-device HTTP server survives only as an optional Legacy package; modern apps use Core/Files.",
@@ -349,7 +349,7 @@
    "status": "partial",
    "v4": {
     "package": "Core/Legacy/Modules/ContentServer",
-    "api": "dsx.module.legacy.cdn.upload() / url() / list() / remove(); modern: dsx.module.files.download() / url()",
+    "api": "dsx.module.cdn.upload() / url() / list() / remove(); modern: dsx.module.files.download() / url()",
     "docs": null
    },
    "note": "The LocalCDN store lives in the optional ContentServer package; no Legacy row translates localcdn:// verbs.",
@@ -366,7 +366,7 @@
    "status": "partial",
    "v4": {
     "package": "Core/Legacy/Modules/ContentServer",
-    "api": "dsx.module.legacy.cdn.upload() / url() / list() / remove(); modern: dsx.module.files.download() / url()",
+    "api": "dsx.module.cdn.upload() / url() / list() / remove(); modern: dsx.module.files.download() / url()",
     "docs": null
    },
    "note": "The LocalCDN store lives in the optional ContentServer package; no Legacy row translates localcdn:// verbs.",
@@ -484,7 +484,7 @@
    "status": "partial",
    "v4": {
     "package": "Core/Store",
-    "api": "dsx.module.store.checkout() / paywall() / restore(); RevenueCat and Payments packages",
+    "api": "dsx.module.store.purchase() / paywall(); RevenueCat and Payments packages",
     "docs": null
    },
    "note": "v4 has a unified Store layer plus Core/RevenueCat and Core/Payments for card payments.",
@@ -587,7 +587,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/Growth/Modules/AppsFlyer",
-    "api": "dsx.module.appsflyer.log_event() / set_user_id() / get_uid() / get_attribution() / set_consent() / log_ad_revenue()",
+    "api": "dsx.module.appsflyer.logEvent() / setUserId() / uid() / attribution() / setConsent() / logAdRevenue()",
     "docs": null
    },
    "note": "Every appsflyer:// host has a Legacy row with the same verb names; appsFlyerUID/Attribution/Referrer globals kept.",
@@ -604,7 +604,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/Growth/Modules/AppsFlyer",
-    "api": "dsx.module.appsflyer.log_event() / set_user_id() / get_uid() / get_attribution() / set_consent() / log_ad_revenue()",
+    "api": "dsx.module.appsflyer.logEvent() / setUserId() / uid() / attribution() / setConsent() / logAdRevenue()",
     "docs": null
    },
    "note": "Every appsflyer:// host has a Legacy row with the same verb names; appsFlyerUID/Attribution/Referrer globals kept.",
@@ -621,7 +621,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/Growth/Modules/AppsFlyer",
-    "api": "dsx.module.appsflyer.set_user_id() / set_email() / set_phone() / get_uid()",
+    "api": "dsx.module.appsflyer.setUserId() / setUserData() / uid()",
     "docs": null
    },
    "note": "Identity hosts map 1:1 onto AppsFlyer actions.",
@@ -637,7 +637,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/Growth/Modules/AppsFlyer",
-    "api": "dsx.module.appsflyer.get_attribution() (window.appsFlyerAttribution)",
+    "api": "dsx.module.appsflyer.attribution() (window.appsFlyerAttribution)",
     "docs": null
    },
    "note": "get_attribution maps 1:1; attribution/referrer globals seeded by Legacy.",
@@ -669,7 +669,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/Growth/Modules/AppsFlyer",
-    "api": "dsx.module.appsflyer.get_attribution()",
+    "api": "dsx.module.appsflyer.attribution()",
     "docs": null
    },
    "note": "Campaign data is read through attribution; campaign setup itself is AppsFlyer dashboard work.",
@@ -685,7 +685,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/Growth/Modules/AppsFlyer",
-    "api": "dsx.module.appsflyer.log_event({ event_name, ... })",
+    "api": "dsx.module.appsflyer.logEvent()",
     "docs": null
    },
    "note": "log_event maps 1:1.",
@@ -701,7 +701,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/Growth/Modules/AppsFlyer",
-    "api": "dsx.module.appsflyer.log_ad_revenue()",
+    "api": "dsx.module.appsflyer.logAdRevenue()",
     "docs": null
    },
    "note": "log_ad_revenue maps 1:1.",
@@ -717,7 +717,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/Growth/Modules/AppsFlyer",
-    "api": "dsx.module.appsflyer.set_consent()",
+    "api": "dsx.module.appsflyer.setConsent()",
     "docs": null
    },
    "note": "set_consent maps 1:1.",
@@ -899,7 +899,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/Notify/Modules/OneSignal",
-    "api": "dsx.module.onesignal.login({ user_id }) / onesignal.id(); dsx.module.notify.permission.request()",
+    "api": "dsx.module.onesignal.login({ user_id }); dsx.module.notify.permission.request()",
     "docs": null
    },
    "note": "setonesignalplayerid maps to onesignal.login, registerpush to notify.permission.request; window.onesignalplayerid is still seeded by Legacy.",
@@ -917,7 +917,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/Notify/Modules/OneSignal",
-    "api": "dsx.module.onesignal.login({ user_id }) / onesignal.id(); dsx.module.notify.permission.request()",
+    "api": "dsx.module.onesignal.login({ user_id }); dsx.module.notify.permission.request()",
     "docs": null
    },
    "note": "setonesignalplayerid maps to onesignal.login, registerpush to notify.permission.request; window.onesignalplayerid is still seeded by Legacy.",
@@ -1073,7 +1073,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/Store/Modules/RevenueCat",
-    "api": "dsx.module.revenuecat.purchase({ ... }) / dsx.module.store.checkout()",
+    "api": "dsx.module.revenuecat.purchase({ ... }) / dsx.module.store.purchase()",
     "docs": null
    },
    "note": "revenuecat://purchase maps to revenuecat.purchase; Core/Store.checkout is the provider-neutral form.",
@@ -1239,7 +1239,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/Growth/Modules/AdMob",
-    "api": "dsx.module.admob.interstitial()",
+    "api": "dsx.module.admob.show()",
     "docs": null
    },
    "note": "admob://interstitial maps to admob.interstitial.",
@@ -1255,7 +1255,7 @@
    "status": "partial",
    "v4": {
     "package": "Core/Growth/Modules/AdMob",
-    "api": "dsx.module.admob.banner()",
+    "api": "dsx.module.admob.show()",
     "docs": null
    },
    "note": "v3 bridged ad tags into the DOM; v4 AdMob declares a banner action but no Legacy row translates the v3 inline setup.",
@@ -1271,7 +1271,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/Growth/Modules/AdMob",
-    "api": "dsx.module.admob.rewarded() (earned broadcast -> window.updateRewardedStatus)",
+    "api": "dsx.module.admob.show() (earned broadcast -> window.updateRewardedStatus)",
     "docs": null
    },
    "note": "displayrewardedad:// maps to admob.rewarded; the earned event is re-delivered as updateRewardedStatus.",
@@ -1355,7 +1355,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/Contacts",
-    "api": "dsx.module.contacts.read() / permission.request() / pick()",
+    "api": "dsx.module.contacts.list() / permission.request() / pick()",
     "docs": null
    },
    "note": "readcontacts:// and requestcontactpermission:// have Legacy rows.",
@@ -1424,7 +1424,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/Legacy/Modules/Siri",
-    "api": "dsx.module.legacy.siri.add({ command, payload })",
+    "api": "dsx.module.siri.add({ command, payload })",
     "docs": null
    },
    "note": "addtosiri:// is answered by the optional LegacySiri package; modern assistant integration lives in Core/Intents / Core/Assistants.",
@@ -1621,7 +1621,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/Legacy/Modules/ImageWidget",
-    "api": "dsx.module.legacy.imagewidget.receive() (v3 widget://); modern: dsx.module.widget.update()",
+    "api": "dsx.module.imagewidget.receive() (v3 widget://); modern: dsx.module.widget.update()",
     "docs": "/packages/imagewidget"
    },
    "note": "widget:// is answered by the optional LegacyWidgets package; new widgets are authored in DSX via Core/Widgets.",
@@ -1638,7 +1638,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/FileSharing",
-    "api": "dsx.module.filesharing.share({ url, filename })",
+    "api": "dsx.module.share.present({ url })",
     "docs": null
    },
    "note": "sharefile:// and download:// map to filesharing.share; no Legacy row found for the bare https:// spelling.",
@@ -1671,7 +1671,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/ScreenBrightness",
-    "api": "dsx.module.brightness.enable() / disable() / auto() / set()",
+    "api": "dsx.module.brightness.set() / get() / restore()",
     "docs": null
    },
    "note": "scanningmode://on|off|auto map to brightness.enable/disable/auto.",
@@ -1687,7 +1687,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/SocialShare",
-    "api": "dsx.module.share.url({ message, url })",
+    "api": "dsx.module.share.present({ text, url })",
     "docs": null
    },
    "note": "shareapp:// maps to share.url.",
@@ -2262,7 +2262,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/Notify/Modules/OneSignal",
-    "api": "dsx.module.onesignal.login({ user_id }) / onesignal.id(); dsx.module.notify.permission.request()",
+    "api": "dsx.module.onesignal.login({ user_id }); dsx.module.notify.permission.request()",
     "docs": null
    },
    "note": "setonesignalplayerid maps to onesignal.login, registerpush to notify.permission.request; window.onesignalplayerid is still seeded by Legacy.",
@@ -2417,7 +2417,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/Growth/Modules/AdMob",
-    "api": "dsx.module.admob.rewarded() (earned broadcast -> window.updateRewardedStatus)",
+    "api": "dsx.module.admob.show() (earned broadcast -> window.updateRewardedStatus)",
     "docs": null
    },
    "note": "displayrewardedad:// maps to admob.rewarded; the earned event is re-delivered as updateRewardedStatus.",
@@ -2485,7 +2485,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/Contacts",
-    "api": "dsx.module.contacts.read() / permission.request() / pick()",
+    "api": "dsx.module.contacts.list() / permission.request() / pick()",
     "docs": null
    },
    "note": "readcontacts:// and requestcontactpermission:// have Legacy rows.",
@@ -2520,7 +2520,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/Legacy/Modules/Siri",
-    "api": "dsx.module.legacy.siri.add({ command, payload })",
+    "api": "dsx.module.siri.add({ command, payload })",
     "docs": null
    },
    "note": "addtosiri:// is answered by the optional LegacySiri package; modern assistant integration lives in Core/Intents / Core/Assistants.",
@@ -2636,7 +2636,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/Legacy/Modules/ImageWidget",
-    "api": "dsx.module.legacy.imagewidget.receive() (v3 widget://); modern: dsx.module.widget.update()",
+    "api": "dsx.module.imagewidget.receive() (v3 widget://); modern: dsx.module.widget.update()",
     "docs": "/packages/imagewidget"
    },
    "note": "widget:// is answered by the optional LegacyWidgets package; new widgets are authored in DSX via Core/Widgets.",
@@ -2653,7 +2653,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/FileSharing",
-    "api": "dsx.module.filesharing.share({ url, filename })",
+    "api": "dsx.module.share.present({ url })",
     "docs": null
    },
    "note": "sharefile:// and download:// map to filesharing.share; no Legacy row found for the bare https:// spelling.",
@@ -2670,7 +2670,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/ScreenBrightness",
-    "api": "dsx.module.brightness.enable() / disable() / auto() / set()",
+    "api": "dsx.module.brightness.set() / get() / restore()",
     "docs": null
    },
    "note": "scanningmode://on|off|auto map to brightness.enable/disable/auto.",
@@ -2686,7 +2686,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/SocialShare",
-    "api": "dsx.module.share.url({ message, url })",
+    "api": "dsx.module.share.present({ text, url })",
     "docs": null
    },
    "note": "shareapp:// maps to share.url.",
@@ -2816,7 +2816,7 @@
    "status": "mapped",
    "v4": {
     "package": "Core/Notify/Modules/OneSignal",
-    "api": "dsx.module.onesignal.id() (window.onesignalplayerid page global)",
+    "api": "dsx.module.onesignal.login(); the Legacy package sets window.onesignalplayerid",
     "docs": null
    },
    "note": "Legacy page row seeds window.onesignalplayerid from onesignal.id(); getonesignalplayerid:// also mapped.",
@@ -2875,7 +2875,7 @@
    "status": "partial",
    "v4": {
     "package": "Core/Legacy/Modules/ContentServer",
-    "api": "dsx.module.legacy.cdn.upload() / url() / list() / remove(); modern: dsx.module.files.download() / url()",
+    "api": "dsx.module.cdn.upload() / url() / list() / remove(); modern: dsx.module.files.download() / url()",
     "docs": null
    },
    "note": "The LocalCDN store lives in the optional ContentServer package; no Legacy row translates localcdn:// verbs.",

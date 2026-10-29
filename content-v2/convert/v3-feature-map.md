@@ -18,7 +18,7 @@ Old `despia('scheme://...')` calls keep running through the `Legacy` package whi
 
 | V3 page | Status | V4 package | V4 API | Notes |
 | :-- | :-- | :-- | :-- | :-- |
-| Introduction | Partial | `Core/Legacy` | `despia init --from-v3; window.dsx.module.<command>.<action>()` | v3 despia() calls keep working through the optional Core/Legacy polyfill; new code calls window.dsx. [Docs](/convert/from-v3) |
+| Introduction | Partial | `Core/Legacy` | `window.dsx.module.<command>.<action>() (the converter runs on Despia's side)` | v3 despia() calls keep working through the optional Core/Legacy polyfill; new code calls window.dsx. [Docs](/convert/from-v3-web-app) |
 | MCP Server | Mapped |  | `https://docs.despia.com/mcp (tools: search, fetch-page, list-sections; each takes space)` | The docs site runs its own MCP server over streamable HTTP; v4, legacy, migration and troubleshooting docs are one server with a space argument. |
 | Changelog | Not applicable |  |  | v3 release notes; no v4 counterpart needed. |
 
@@ -52,12 +52,12 @@ Old `despia('scheme://...')` calls keep running through the `Legacy` package whi
 
 | V3 page | Status | V4 package | V4 API | Notes |
 | :-- | :-- | :-- | :-- | :-- |
-| Introduction | Partial | `Core/Legacy/Modules/ContentServer` | `optional ContentServer (dsx.module.legacy.cdn); modern: dsx.module.files.url()` | The v3 on-device HTTP server survives only as an optional Legacy package; modern apps use Core/Files. |
-| Reference | Partial | `Core/Legacy/Modules/ContentServer` | `optional ContentServer (dsx.module.legacy.cdn); modern: dsx.module.files.url()` | The v3 on-device HTTP server survives only as an optional Legacy package; modern apps use Core/Files. |
+| Introduction | Partial | `Core/Legacy/Modules/ContentServer` | `optional ContentServer (dsx.module.cdn); modern: dsx.module.files.url()` | The v3 on-device HTTP server survives only as an optional Legacy package; modern apps use Core/Files. |
+| Reference | Partial | `Core/Legacy/Modules/ContentServer` | `optional ContentServer (dsx.module.cdn); modern: dsx.module.files.url()` | The v3 on-device HTTP server survives only as an optional Legacy package; modern apps use Core/Files. |
 | Introduction | Partial | `@despia-native/sync-client` | `dsx.module.sync.records() / mutate() / pull() / push() over local SQLite` | v3 used PowerSync; v4 Despia Sync device client keeps a local SQLite and syncs with pull/push. |
 | Reference | Partial | `@despia-native/sync-client` | `dsx.module.sync.records() / mutate() / pull() / push() over local SQLite` | v3 used PowerSync; v4 Despia Sync device client keeps a local SQLite and syncs with pull/push. |
-| Introduction | Partial | `Core/Legacy/Modules/ContentServer` | `dsx.module.legacy.cdn.upload() / url() / list() / remove(); modern: dsx.module.files.download() / url()` | The LocalCDN store lives in the optional ContentServer package; no Legacy row translates localcdn:// verbs. |
-| Reference | Partial | `Core/Legacy/Modules/ContentServer` | `dsx.module.legacy.cdn.upload() / url() / list() / remove(); modern: dsx.module.files.download() / url()` | The LocalCDN store lives in the optional ContentServer package; no Legacy row translates localcdn:// verbs. |
+| Introduction | Partial | `Core/Legacy/Modules/ContentServer` | `dsx.module.cdn.upload() / url() / list() / remove(); modern: dsx.module.files.download() / url()` | The LocalCDN store lives in the optional ContentServer package; no Legacy row translates localcdn:// verbs. |
+| Reference | Partial | `Core/Legacy/Modules/ContentServer` | `dsx.module.cdn.upload() / url() / list() / remove(); modern: dsx.module.files.download() / url()` | The LocalCDN store lives in the optional ContentServer package; no Legacy row translates localcdn:// verbs. |
 
 ## Authentication
 
@@ -74,7 +74,7 @@ Old `despia('scheme://...')` calls keep running through the `Legacy` package whi
 
 | V3 page | Status | V4 package | V4 API | Notes |
 | :-- | :-- | :-- | :-- | :-- |
-| Introduction | Partial | `Core/Store` | `dsx.module.store.checkout() / paywall() / restore(); RevenueCat and Payments packages` | v4 has a unified Store layer plus Core/RevenueCat and Core/Payments for card payments. |
+| Introduction | Partial | `Core/Store` | `dsx.module.store.purchase() / paywall(); RevenueCat and Payments packages` | v4 has a unified Store layer plus Core/RevenueCat and Core/Payments for card payments. |
 | Introduction | Mapped | `Core/Store/Modules/RevenueCat` | `dsx.module.revenuecat.purchase() / paywall() / catalog() / customer() / history() / center()` | revenuecat://* and getpurchasehistory:// have Legacy rows; the unified Core/Store layer also exists for new code. |
 | Reference | Mapped | `Core/Store/Modules/RevenueCat` | `dsx.module.revenuecat.purchase() / paywall() / catalog() / customer() / history() / center()` | revenuecat://* and getpurchasehistory:// have Legacy rows; the unified Core/Store layer also exists for new code. |
 | Introduction | Mapped | `Core/Payments` | `dsx.module.payments.payment() / manage() / connectBank() / payAch(); dsx.module.stripe.connectOnboard()` | stripe:// hosts map onto the Payments package (Stripe processor module). |
@@ -90,15 +90,15 @@ Old `despia('scheme://...')` calls keep running through the `Legacy` package whi
 
 | V3 page | Status | V4 package | V4 API | Notes |
 | :-- | :-- | :-- | :-- | :-- |
-| Introduction | Mapped | `Core/Growth/Modules/AppsFlyer` | `dsx.module.appsflyer.log_event() / set_user_id() / get_uid() / get_attribution() / set_consent() / log_ad_revenue()` | Every appsflyer:// host has a Legacy row with the same verb names; appsFlyerUID/Attribution/Referrer globals kept. |
-| Testing | Mapped | `Core/Growth/Modules/AppsFlyer` | `dsx.module.appsflyer.log_event() / set_user_id() / get_uid() / get_attribution() / set_consent() / log_ad_revenue()` | Every appsflyer:// host has a Legacy row with the same verb names; appsFlyerUID/Attribution/Referrer globals kept. |
-| Identity | Mapped | `Core/Growth/Modules/AppsFlyer` | `dsx.module.appsflyer.set_user_id() / set_email() / set_phone() / get_uid()` | Identity hosts map 1:1 onto AppsFlyer actions. |
-| Attribution | Mapped | `Core/Growth/Modules/AppsFlyer` | `dsx.module.appsflyer.get_attribution() (window.appsFlyerAttribution)` | get_attribution maps 1:1; attribution/referrer globals seeded by Legacy. |
+| Introduction | Mapped | `Core/Growth/Modules/AppsFlyer` | `dsx.module.appsflyer.logEvent() / setUserId() / uid() / attribution() / setConsent() / logAdRevenue()` | Every appsflyer:// host has a Legacy row with the same verb names; appsFlyerUID/Attribution/Referrer globals kept. |
+| Testing | Mapped | `Core/Growth/Modules/AppsFlyer` | `dsx.module.appsflyer.logEvent() / setUserId() / uid() / attribution() / setConsent() / logAdRevenue()` | Every appsflyer:// host has a Legacy row with the same verb names; appsFlyerUID/Attribution/Referrer globals kept. |
+| Identity | Mapped | `Core/Growth/Modules/AppsFlyer` | `dsx.module.appsflyer.setUserId() / setUserData() / uid()` | Identity hosts map 1:1 onto AppsFlyer actions. |
+| Attribution | Mapped | `Core/Growth/Modules/AppsFlyer` | `dsx.module.appsflyer.attribution() (window.appsFlyerAttribution)` | get_attribution maps 1:1; attribution/referrer globals seeded by Legacy. |
 | Deep Linking | Mapped | `Core/Growth/Modules/AppsFlyer` | `appsflyer deep_link broadcast (window.onAppsFlyerDeepLink)` | The deep_link broadcast is re-delivered to window.onAppsFlyerDeepLink by Legacy. |
-| Campaigns | Mapped | `Core/Growth/Modules/AppsFlyer` | `dsx.module.appsflyer.get_attribution()` | Campaign data is read through attribution; campaign setup itself is AppsFlyer dashboard work. |
-| Events | Mapped | `Core/Growth/Modules/AppsFlyer` | `dsx.module.appsflyer.log_event({ event_name, ... })` | log_event maps 1:1. |
-| Ad Revenue | Mapped | `Core/Growth/Modules/AppsFlyer` | `dsx.module.appsflyer.log_ad_revenue()` | log_ad_revenue maps 1:1. |
-| Consent | Mapped | `Core/Growth/Modules/AppsFlyer` | `dsx.module.appsflyer.set_consent()` | set_consent maps 1:1. |
+| Campaigns | Mapped | `Core/Growth/Modules/AppsFlyer` | `dsx.module.appsflyer.attribution()` | Campaign data is read through attribution; campaign setup itself is AppsFlyer dashboard work. |
+| Events | Mapped | `Core/Growth/Modules/AppsFlyer` | `dsx.module.appsflyer.logEvent()` | log_event maps 1:1. |
+| Ad Revenue | Mapped | `Core/Growth/Modules/AppsFlyer` | `dsx.module.appsflyer.logAdRevenue()` | log_ad_revenue maps 1:1. |
+| Consent | Mapped | `Core/Growth/Modules/AppsFlyer` | `dsx.module.appsflyer.setConsent()` | set_consent maps 1:1. |
 | Introduction | Partial | `Core/Growth` | `dsx.module.growth.track() / identify() / reset() with the PostHog destination (posthog.send)` | v4 routes analytics through Growth with PostHog as a destination; no Legacy row for posthog:// verbs (capture, flags, opt_out...). |
 | Reference | Partial | `Core/Growth` | `dsx.module.growth.track() / identify() / reset() with the PostHog destination (posthog.send)` | v4 routes analytics through Growth with PostHog as a destination; no Legacy row for posthog:// verbs (capture, flags, opt_out...). |
 
@@ -134,8 +134,8 @@ Old `despia('scheme://...')` calls keep running through the `Legacy` package whi
 | V3 page | Status | V4 package | V4 API | Notes |
 | :-- | :-- | :-- | :-- | :-- |
 | User Agent | Partial | `Core/Dom` | `Dom config useragent_iphone / useragent_ipad / useragent_android; window.dsx.has(name)` | Custom user agent strings are Dom config; feature detection in v4 is window.dsx.has(). [Docs](/web-apps/outside-despia) |
-| Introduction | Mapped | `Core/Notify/Modules/OneSignal` | `dsx.module.onesignal.login({ user_id }) / onesignal.id(); dsx.module.notify.permission.request()` | setonesignalplayerid maps to onesignal.login, registerpush to notify.permission.request; window.onesignalplayerid is still seeded by Legacy. |
-| Reference | Mapped | `Core/Notify/Modules/OneSignal` | `dsx.module.onesignal.login({ user_id }) / onesignal.id(); dsx.module.notify.permission.request()` | setonesignalplayerid maps to onesignal.login, registerpush to notify.permission.request; window.onesignalplayerid is still seeded by Legacy. |
+| Introduction | Mapped | `Core/Notify/Modules/OneSignal` | `dsx.module.onesignal.login({ user_id }); dsx.module.notify.permission.request()` | setonesignalplayerid maps to onesignal.login, registerpush to notify.permission.request; window.onesignalplayerid is still seeded by Legacy. |
+| Reference | Mapped | `Core/Notify/Modules/OneSignal` | `dsx.module.onesignal.login({ user_id }); dsx.module.notify.permission.request()` | setonesignalplayerid maps to onesignal.login, registerpush to notify.permission.request; window.onesignalplayerid is still seeded by Legacy. |
 | Deeplinking | Mapped | `Mandatory/App` | `App config 'domains' / 'associated_domains' (+ 'app_link_paths')` | Universal links and Android app links are declared in the App package config, which drives the entitlement and autoVerify filters. |
 | Introduction | Mapped | `Core/Store/Modules/RevenueCat` | `dsx.module.revenuecat.purchase() / paywall() / catalog() / customer() / history() / center()` | revenuecat://* and getpurchasehistory:// have Legacy rows; the unified Core/Store layer also exists for new code. |
 | Reference | Mapped | `Core/Store/Modules/RevenueCat` | `dsx.module.revenuecat.purchase() / paywall() / catalog() / customer() / history() / center()` | revenuecat://* and getpurchasehistory:// have Legacy rows; the unified Core/Store layer also exists for new code. |
@@ -144,7 +144,7 @@ Old `despia('scheme://...')` calls keep running through the `Legacy` package whi
 | Apple Auth | Mapped | `Core/Auth/OAuth` | `dsx.module.oauth.start({ url }); native Sign in with Apple: dsx.module.apple.signIn()` | Web OAuth goes through oauth.start; the native Apple sheet is Core/Auth/Auth/Modules/Apple. [Docs](/packages/oauth) |
 | Google Auth | Mapped | `Core/Auth/OAuth` | `dsx.module.oauth.start({ url, callback: "https" })` | v4 runs the provider in ASWebAuthenticationSession / Custom Tab and resolves in one await; the oauth://?url= wire spelling is still parsed. [Docs](/packages/oauth) |
 | TikTok Auth | Mapped | `Core/Auth/OAuth` | `dsx.module.oauth.start({ url, callback: "https" })` | v4 runs the provider in ASWebAuthenticationSession / Custom Tab and resolves in one await; the oauth://?url= wire spelling is still parsed. [Docs](/packages/oauth) |
-| Purchases | Mapped | `Core/Store/Modules/RevenueCat` | `dsx.module.revenuecat.purchase({ ... }) / dsx.module.store.checkout()` | revenuecat://purchase maps to revenuecat.purchase; Core/Store.checkout is the provider-neutral form. |
+| Purchases | Mapped | `Core/Store/Modules/RevenueCat` | `dsx.module.revenuecat.purchase({ ... }) / dsx.module.store.purchase()` | revenuecat://purchase maps to revenuecat.purchase; Core/Store.checkout is the provider-neutral form. |
 | Paywalls | Mapped | `Core/Store/Modules/RevenueCat` | `dsx.module.revenuecat.paywall()` | revenuecat://launchPaywall maps to revenuecat.paywall; Core/Store also has store.paywall. |
 | Restore Purchase | Mapped | `Core/Store/Modules/RevenueCat` | `dsx.module.revenuecat.history() (window.restoredData); dsx.module.store.restore()` | getpurchasehistory:// maps to revenuecat.history and Legacy re-seeds window.restoredData on each page. |
 | Storage Vault | Mapped | `Core/IdentityVault` | `dsx.module.identityvault.write() / read()` | setvault:// and readvault:// have Legacy rows onto IdentityVault. |
@@ -154,18 +154,18 @@ Old `despia('scheme://...')` calls keep running through the `Legacy` package whi
 | GPS Location | Mapped | `Core/Legacy/Modules/Location` | `dsx.module.location.start() / stop() / current(); background.on() / background.off()` | location://, stoplocation:// and backgroundlocationon/off have Legacy rows; Core/Geo is the full modern geo package. |
 | Gyroscope | Mapped | `Core/Legacy/Modules/Gyroscope` | `dsx.module.gyroscope.start() / stop()` | gyroscope:// maps to gyroscope.start/stop; onGyroscopeChange and gyroscopeActive are re-delivered by Legacy. |
 | Light & Dark Mode | Mapped | `Core/Basics/Appearance` | `dsx.module.appearance.get() / context.resolved; dsx.module.systembars.set({ status: { style } })` | statusbartextcolor:// maps to systembars.set; window.isDarkMode is seeded from appearance.context.resolved. |
-| Interstitial Ads | Mapped | `Core/Growth/Modules/AdMob` | `dsx.module.admob.interstitial()` | admob://interstitial maps to admob.interstitial. |
-| Inline Ads | Partial | `Core/Growth/Modules/AdMob` | `dsx.module.admob.banner()` | v3 bridged ad tags into the DOM; v4 AdMob declares a banner action but no Legacy row translates the v3 inline setup. |
-| Rewarded Ads | Mapped | `Core/Growth/Modules/AdMob` | `dsx.module.admob.rewarded() (earned broadcast -> window.updateRewardedStatus)` | displayrewardedad:// maps to admob.rewarded; the earned event is re-delivered as updateRewardedStatus. |
+| Interstitial Ads | Mapped | `Core/Growth/Modules/AdMob` | `dsx.module.admob.show()` | admob://interstitial maps to admob.interstitial. |
+| Inline Ads | Partial | `Core/Growth/Modules/AdMob` | `dsx.module.admob.show()` | v3 bridged ad tags into the DOM; v4 AdMob declares a banner action but no Legacy row translates the v3 inline setup. |
+| Rewarded Ads | Mapped | `Core/Growth/Modules/AdMob` | `dsx.module.admob.show() (earned broadcast -> window.updateRewardedStatus)` | displayrewardedad:// maps to admob.rewarded; the earned event is re-delivered as updateRewardedStatus. |
 | External Links | Mapped | `Core/Dom` | `Dom config external_link_handling / safari_whitelist / always_open_in_inapp_tab; dsx.module.browser.open()` | Link routing rules are Dom package config; browser.open opens a URL explicitly. |
 | Device Indexing | Mapped | `Core/DeviceUUID` | `dsx.module.uuid.get() (window.uuid page global)` | get-uuid:// maps to uuid.get and Legacy seeds window.uuid on every page. |
 | Haptic Feedback | Mapped | `Core/Basics/Haptics` | `dsx.module.haptic.light() / medium() / heavy() / success() / warning() / error()` | Each v3 *haptic:// verb has a Legacy row onto the Haptics package. |
 | Prevent Autoscroll | Mapped | `Core/Dom/Modules/PreventDefault` | `dsx.module.preventdefault.autoscroll()` | Same verb exists on the PreventDefault package; no Legacy row translates the old preventdefault:// spelling. |
-| Contact Access | Mapped | `Core/Contacts` | `dsx.module.contacts.read() / permission.request() / pick()` | readcontacts:// and requestcontactpermission:// have Legacy rows. |
+| Contact Access | Mapped | `Core/Contacts` | `dsx.module.contacts.list() / permission.request() / pick()` | readcontacts:// and requestcontactpermission:// have Legacy rows. |
 | HealthKit (Legacy) | Mapped | `Core/Health` | `dsx.module.health.read() / write() / observe() / workouts()` | readhealthkit://, writehealthkit:// and healthkit://observe\|unobserve\|workouts have Legacy rows. |
 | Apple Health | Mapped | `Core/Health` | `dsx.module.health.read() / write() / observe() / workouts()` | readhealthkit://, writehealthkit:// and healthkit://observe\|unobserve\|workouts have Legacy rows. |
 | Google Health | Partial | `Core/Health` | `dsx.module.health.read() / write() (Android facet on Health Connect)` | v3 page was a coming-soon stub; v4 HealthKit package maps reads/writes onto Health Connect on Android. |
-| Siri Shortcuts | Mapped | `Core/Legacy/Modules/Siri` | `dsx.module.legacy.siri.add({ command, payload })` | addtosiri:// is answered by the optional LegacySiri package; modern assistant integration lives in Core/Intents / Core/Assistants. |
+| Siri Shortcuts | Mapped | `Core/Legacy/Modules/Siri` | `dsx.module.siri.add({ command, payload })` | addtosiri:// is answered by the optional LegacySiri package; modern assistant integration lives in Core/Intents / Core/Assistants. |
 | Biometrics | Mapped | `Core/Biometric` | `dsx.module.biometric.authenticate({ reason }) / supported()` | bioauth:// maps to biometric.authenticate; onBioAuthSuccess/Failure/Unavailable callbacks kept by Legacy. |
 | Speech Recognition | Mapped | `Core/WebPlatform/SpeechRecognition` | `dsx.module.speechrecognition.start() / stop() / abort()` | speechrecognition://start\|stop\|abort have Legacy rows and events are re-delivered to onSpeechRecognitionEvent. |
 | App Privacy | Mapped | `Core/AppTracking` | `dsx.module.apptracking.permission.status() / permission.request()` | window.trackingDisabled is seeded from apptracking.permission.status by a Legacy page row. |
@@ -177,11 +177,11 @@ Old `despia('scheme://...')` calls keep running through the `Legacy` package whi
 | Offline Push | Mapped | `Core/Legacy/Modules/LocalPush` | `dsx.module.localpush.send() / schedule() / unschedule()` | sendlocalpushmsg:// (and its cancel hosts) map onto LocalPush. |
 | App Settings | Mapped | `Core/Basics/AppSettings` | `dsx.module.settings.notifications() (also location, bluetooth, wifi...)` | settingsapp://notifications has a Legacy row; per-feature permission.openSettings also exists. |
 | File Viewer | Mapped | `Core/FileViewer` | `dsx.module.fileviewer.preview({ ... })` | Same capability on the FileViewer package; no Legacy row translates fileviewer:// spellings. |
-| Home Widgets | Mapped | `Core/Legacy/Modules/ImageWidget` | `dsx.module.legacy.imagewidget.receive() (v3 widget://); modern: dsx.module.widget.update()` | widget:// is answered by the optional LegacyWidgets package; new widgets are authored in DSX via Core/Widgets. [Docs](/packages/imagewidget) |
-| File Sharing | Mapped | `Core/FileSharing` | `dsx.module.filesharing.share({ url, filename })` | sharefile:// and download:// map to filesharing.share; no Legacy row found for the bare https:// spelling. |
+| Home Widgets | Mapped | `Core/Legacy/Modules/ImageWidget` | `dsx.module.imagewidget.receive() (v3 widget://); modern: dsx.module.widget.update()` | widget:// is answered by the optional LegacyWidgets package; new widgets are authored in DSX via Core/Widgets. [Docs](/packages/imagewidget) |
+| File Sharing | Mapped | `Core/FileSharing` | `dsx.module.share.present({ url })` | sharefile:// and download:// map to filesharing.share; no Legacy row found for the bare https:// spelling. |
 | Focus Events | Mapped | `Core/Basics/Focus` | `focus context 'focused'; dsx.on("focus", ...) (window.focusin/focusout via Legacy)` | Focus broadcasts are re-delivered to window.focusin()/focusout() by Legacy push rows. |
-| Screen Brightness | Mapped | `Core/ScreenBrightness` | `dsx.module.brightness.enable() / disable() / auto() / set()` | scanningmode://on\|off\|auto map to brightness.enable/disable/auto. |
-| Share Dialog | Mapped | `Core/SocialShare` | `dsx.module.share.url({ message, url })` | shareapp:// maps to share.url. |
+| Screen Brightness | Mapped | `Core/ScreenBrightness` | `dsx.module.brightness.set() / get() / restore()` | scanningmode://on\|off\|auto map to brightness.enable/disable/auto. |
+| Share Dialog | Mapped | `Core/SocialShare` | `dsx.module.share.present({ text, url })` | shareapp:// maps to share.url. |
 | Clipboard | Mapped | `Core/Clipboard` | `dsx.module.clipboard.read() / write()` | getclipboard:// maps to clipboard.read. |
 | Store Location | Mapped | `Core/Store` | `dsx.module.store.storefront() (window.storeLocation)` | Legacy seeds window.storeLocation from store.storefront on every page; getstorelocation:// also mapped. |
 | Share Extension | Mapped | `Core/Extensions/ShareExtension` | `dsx.module.sharetarget.take(); dsx.on("sharetarget", ...)` | sharetarget received broadcasts are re-delivered to window.onSharedDataReceived by Legacy. |
@@ -217,7 +217,7 @@ Old `despia('scheme://...')` calls keep running through the `Legacy` package whi
 | Empty Pages | Not applicable |  |  | Web routing/hosting troubleshooting. |
 | Wrong Framework | Not applicable |  |  | Framework selection troubleshooting. |
 | Watermark Bug | Not applicable |  |  | v3 licence watermark build issue. |
-| Legacy Setups | Partial | `Core/Legacy` | `Core/Legacy polyfill answers window.despia; new code uses window.dsx` | The window.despia setups this page warns about are what the optional Legacy package polyfills. [Docs](/convert/from-v3) |
+| Legacy Setups | Partial | `Core/Legacy` | `Core/Legacy polyfill answers window.despia; new code uses window.dsx` | The window.despia setups this page warns about are what the optional Legacy package polyfills. [Docs](/convert/from-v3-web-app) |
 
 ## Store Rejections
 
@@ -252,7 +252,7 @@ Old `despia('scheme://...')` calls keep running through the `Legacy` package whi
 | :-- | :-- | :-- | :-- | :-- |
 | How it Works | Partial | `Core/Legacy` | `window.dsx.module.<command>.<action>(); Legacy answers old despia() calls` | The despia-native URL-scheme model becomes window.dsx module calls; Legacy keeps old calls working. [Docs](/web-apps) |
 | User Agent | Partial | `Core/Dom` | `Dom config useragent_iphone / useragent_ipad / useragent_android; window.dsx.has(name)` | Custom user agent strings are Dom config; feature detection in v4 is window.dsx.has(). [Docs](/web-apps/outside-despia) |
-| OneSignal | Mapped | `Core/Notify/Modules/OneSignal` | `dsx.module.onesignal.login({ user_id }) / onesignal.id(); dsx.module.notify.permission.request()` | setonesignalplayerid maps to onesignal.login, registerpush to notify.permission.request; window.onesignalplayerid is still seeded by Legacy. |
+| OneSignal | Mapped | `Core/Notify/Modules/OneSignal` | `dsx.module.onesignal.login({ user_id }); dsx.module.notify.permission.request()` | setonesignalplayerid maps to onesignal.login, registerpush to notify.permission.request; window.onesignalplayerid is still seeded by Legacy. |
 | Deeplinking | Mapped | `Mandatory/App` | `App config 'domains' / 'associated_domains' (+ 'app_link_paths')` | Universal links and Android app links are declared in the App package config, which drives the entitlement and autoVerify filters. |
 | Apple Auth | Mapped | `Core/Auth/OAuth` | `dsx.module.oauth.start({ url }); native Sign in with Apple: dsx.module.apple.signIn()` | Web OAuth goes through oauth.start; the native Apple sheet is Core/Auth/Auth/Modules/Apple. [Docs](/packages/oauth) |
 | Google Auth | Mapped | `Core/Auth/OAuth` | `dsx.module.oauth.start({ url, callback: "https" })` | v4 runs the provider in ASWebAuthenticationSession / Custom Tab and resolves in one await; the oauth://?url= wire spelling is still parsed. [Docs](/packages/oauth) |
@@ -261,23 +261,23 @@ Old `despia('scheme://...')` calls keep running through the `Legacy` package whi
 | Restore Purchase | Mapped | `Core/Store/Modules/RevenueCat` | `dsx.module.revenuecat.history() (window.restoredData); dsx.module.store.restore()` | getpurchasehistory:// maps to revenuecat.history and Legacy re-seeds window.restoredData on each page. |
 | Storage Vault | Mapped | `Core/IdentityVault` | `dsx.module.identityvault.write() / read()` | setvault:// and readvault:// have Legacy rows onto IdentityVault. |
 | GPS Location | Mapped | `Core/Legacy/Modules/Location` | `dsx.module.location.start() / stop() / current(); background.on() / background.off()` | location://, stoplocation:// and backgroundlocationon/off have Legacy rows; Core/Geo is the full modern geo package. |
-| Rewarded Ads | Mapped | `Core/Growth/Modules/AdMob` | `dsx.module.admob.rewarded() (earned broadcast -> window.updateRewardedStatus)` | displayrewardedad:// maps to admob.rewarded; the earned event is re-delivered as updateRewardedStatus. |
+| Rewarded Ads | Mapped | `Core/Growth/Modules/AdMob` | `dsx.module.admob.show() (earned broadcast -> window.updateRewardedStatus)` | displayrewardedad:// maps to admob.rewarded; the earned event is re-delivered as updateRewardedStatus. |
 | External Links | Mapped | `Core/Dom` | `Dom config external_link_handling / safari_whitelist / always_open_in_inapp_tab; dsx.module.browser.open()` | Link routing rules are Dom package config; browser.open opens a URL explicitly. |
 | Device Indexing | Mapped | `Core/DeviceUUID` | `dsx.module.uuid.get() (window.uuid page global)` | get-uuid:// maps to uuid.get and Legacy seeds window.uuid on every page. |
 | Haptic Feedback | Mapped | `Core/Basics/Haptics` | `dsx.module.haptic.light() / medium() / heavy() / success() / warning() / error()` | Each v3 *haptic:// verb has a Legacy row onto the Haptics package. |
-| Contact Access | Mapped | `Core/Contacts` | `dsx.module.contacts.read() / permission.request() / pick()` | readcontacts:// and requestcontactpermission:// have Legacy rows. |
+| Contact Access | Mapped | `Core/Contacts` | `dsx.module.contacts.list() / permission.request() / pick()` | readcontacts:// and requestcontactpermission:// have Legacy rows. |
 | HealthKit | Mapped | `Core/Health` | `dsx.module.health.read() / write() / observe() / workouts()` | readhealthkit://, writehealthkit:// and healthkit://observe\|unobserve\|workouts have Legacy rows. |
-| Siri Shortcuts | Mapped | `Core/Legacy/Modules/Siri` | `dsx.module.legacy.siri.add({ command, payload })` | addtosiri:// is answered by the optional LegacySiri package; modern assistant integration lives in Core/Intents / Core/Assistants. |
+| Siri Shortcuts | Mapped | `Core/Legacy/Modules/Siri` | `dsx.module.siri.add({ command, payload })` | addtosiri:// is answered by the optional LegacySiri package; modern assistant integration lives in Core/Intents / Core/Assistants. |
 | Biometrics | Mapped | `Core/Biometric` | `dsx.module.biometric.authenticate({ reason }) / supported()` | bioauth:// maps to biometric.authenticate; onBioAuthSuccess/Failure/Unavailable callbacks kept by Legacy. |
 | App Privacy | Mapped | `Core/AppTracking` | `dsx.module.apptracking.permission.status() / permission.request()` | window.trackingDisabled is seeded from apptracking.permission.status by a Legacy page row. |
 | Safe Areas | Mapped | `Core/SystemBars` | `systembars context 'insets' + --safe-area-* CSS variables` | SystemBars publishes the --safe-area-* custom properties; Legacy seeds window.safeAreaInsets. |
 | Camera Roll | Mapped | `Core/Media/Modules/Library` | `dsx.module.library.save(); v3 route: dsx.module.legacy.saveImage({ url })` | savethisimage:// is answered by Legacy saveImage; the modern call is library.save. |
 | Offline Push | Mapped | `Core/Legacy/Modules/LocalPush` | `dsx.module.localpush.send() / schedule() / unschedule()` | sendlocalpushmsg:// (and its cancel hosts) map onto LocalPush. |
 | App Settings | Mapped | `Core/Basics/AppSettings` | `dsx.module.settings.notifications() (also location, bluetooth, wifi...)` | settingsapp://notifications has a Legacy row; per-feature permission.openSettings also exists. |
-| Home Widgets | Mapped | `Core/Legacy/Modules/ImageWidget` | `dsx.module.legacy.imagewidget.receive() (v3 widget://); modern: dsx.module.widget.update()` | widget:// is answered by the optional LegacyWidgets package; new widgets are authored in DSX via Core/Widgets. [Docs](/packages/imagewidget) |
-| File Sharing | Mapped | `Core/FileSharing` | `dsx.module.filesharing.share({ url, filename })` | sharefile:// and download:// map to filesharing.share; no Legacy row found for the bare https:// spelling. |
-| Screen Brightness | Mapped | `Core/ScreenBrightness` | `dsx.module.brightness.enable() / disable() / auto() / set()` | scanningmode://on\|off\|auto map to brightness.enable/disable/auto. |
-| Share Dialog | Mapped | `Core/SocialShare` | `dsx.module.share.url({ message, url })` | shareapp:// maps to share.url. |
+| Home Widgets | Mapped | `Core/Legacy/Modules/ImageWidget` | `dsx.module.imagewidget.receive() (v3 widget://); modern: dsx.module.widget.update()` | widget:// is answered by the optional LegacyWidgets package; new widgets are authored in DSX via Core/Widgets. [Docs](/packages/imagewidget) |
+| File Sharing | Mapped | `Core/FileSharing` | `dsx.module.share.present({ url })` | sharefile:// and download:// map to filesharing.share; no Legacy row found for the bare https:// spelling. |
+| Screen Brightness | Mapped | `Core/ScreenBrightness` | `dsx.module.brightness.set() / get() / restore()` | scanningmode://on\|off\|auto map to brightness.enable/disable/auto. |
+| Share Dialog | Mapped | `Core/SocialShare` | `dsx.module.share.present({ text, url })` | shareapp:// maps to share.url. |
 | Clipboard | Mapped | `Core/Clipboard` | `dsx.module.clipboard.read() / write()` | getclipboard:// maps to clipboard.read. |
 | Store Location | Mapped | `Core/Store` | `dsx.module.store.storefront() (window.storeLocation)` | Legacy seeds window.storeLocation from store.storefront on every page; getstorelocation:// also mapped. |
 | Share Extension | Mapped | `Core/Extensions/ShareExtension` | `dsx.module.sharetarget.take(); dsx.on("sharetarget", ...)` | sharetarget received broadcasts are re-delivered to window.onSharedDataReceived by Legacy. |
@@ -285,7 +285,7 @@ Old `despia('scheme://...')` calls keep running through the `Legacy` package whi
 | Simple Storage | Mapped | `Core/Basics/ValueStore` | `dsx.module.storage.get() / set()` | writevalue:// and readvalue:// map to storage.set/get under key appSettings. [Docs](/packages/files) |
 | Print Documents | Mapped | `Core/PrintDocuments` | `dsx.module.print.document({ url, jobName })` | printitem:// maps to print.document. |
 | Screenshot | Mapped | `Core/Capture` | `dsx.module.capture.screen(); v3 route: dsx.module.legacy.takeScreenshot()` | takescreenshot:// is answered by Legacy's takeScreenshot; Core/Capture (capture.screen) is the modern package. |
-| OneSignal V1 | Mapped | `Core/Notify/Modules/OneSignal` | `dsx.module.onesignal.id() (window.onesignalplayerid page global)` | Legacy page row seeds window.onesignalplayerid from onesignal.id(); getonesignalplayerid:// also mapped. |
+| OneSignal V1 | Mapped | `Core/Notify/Modules/OneSignal` | `dsx.module.onesignal.login(); the Legacy package sets window.onesignalplayerid` | Legacy page row seeds window.onesignalplayerid from onesignal.id(); getonesignalplayerid:// also mapped. |
 | GPS Location | Mapped | `Core/Legacy/Modules/Location` | `dsx.module.location.background.on() / background.off()` | backgroundlocationon:// and backgroundlocationoff:// map to location.background.on/off. |
 
 ## (orphan) Extensions
@@ -304,4 +304,4 @@ Old `despia('scheme://...')` calls keep running through the `Legacy` package whi
 
 | V3 page | Status | V4 package | V4 API | Notes |
 | :-- | :-- | :-- | :-- | :-- |
-| Reference | Partial | `Core/Legacy/Modules/ContentServer` | `dsx.module.legacy.cdn.upload() / url() / list() / remove(); modern: dsx.module.files.download() / url()` | The LocalCDN store lives in the optional ContentServer package; no Legacy row translates localcdn:// verbs. |
+| Reference | Partial | `Core/Legacy/Modules/ContentServer` | `dsx.module.cdn.upload() / url() / list() / remove(); modern: dsx.module.files.download() / url()` | The LocalCDN store lives in the optional ContentServer package; no Legacy row translates localcdn:// verbs. |

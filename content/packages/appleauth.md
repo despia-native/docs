@@ -15,7 +15,7 @@ backend verifies, plus the person's name and email the first time they sign in. 
 Apple entitlement for you when the package is in your app.
 
 ```js
-const apple = await dsx.module.appleauth.signIn({ nonce, scopes: "name email" })
+const apple = await dsx.module.apple.signIn({ nonce, scopes: "name email" })
 // apple.idToken, apple.nonce, apple.userIdentifier, apple.email, apple.givenName, apple.familyName
 ```
 
@@ -29,7 +29,7 @@ const apple = await dsx.module.appleauth.signIn({ nonce, scopes: "name email" })
 ## How the flow works
 
 1. Your page asks your backend for a **nonce**: a random, single-use value tied to this sign-in attempt.
-2. The page calls `dsx.module.appleauth.signIn({ nonce })`. Apple's sheet appears; the person confirms with Face ID.
+2. The page calls `dsx.module.apple.signIn({ nonce })`. Apple's sheet appears; the person confirms with Face ID.
 3. The call resolves with `idToken` (a JWT signed by Apple) and the **raw** `nonce`. Apple put the SHA-256 hash of that
    nonce inside the token.
 4. The page posts both to your backend, which verifies the token's signature, issuer, audience and nonce, and then signs
@@ -52,12 +52,12 @@ export function AppleSignIn() {
   const [error, setError] = useState<string | null>(null)
 
   async function signIn() {
-    // Android builds and plain browsers have no appleauth: use your web sign-in there
-    if (!dsx.has("appleauth")) return startWebSignIn()
+    // Android builds and plain browsers have no apple: use your web sign-in there
+    if (!dsx.has("apple")) return startWebSignIn()
 
     const { nonce } = await fetch("/api/auth/apple/nonce", { method: "POST" }).then((r) => r.json())
     try {
-      const apple = await dsx.module.appleauth.signIn({ nonce, scopes: "name email" })
+      const apple = await dsx.module.apple.signIn({ nonce, scopes: "name email" })
       const res = await fetch("/api/auth/apple", {
         method: "POST",
         headers: { "content-type": "application/json" },
@@ -85,7 +85,7 @@ declare function startWebSignIn(): void
 In DSX markup the same button is one line, and it only shows where the package exists:
 
 ```xml
-<button label="Continue with Apple" visible-if="dsx.has('appleauth')" on:tap="dsx.module.appleauth.signIn()"/>
+<button label="Continue with Apple" visible-if="dsx.has('apple')" on:tap="dsx.module.apple.signIn()"/>
 ```
 
 ## Verify the token on your backend
@@ -138,7 +138,7 @@ import { createClient } from "@supabase/supabase-js"
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
 
-const apple = await dsx.module.appleauth.signIn({ scopes: "name email" })
+const apple = await dsx.module.apple.signIn({ scopes: "name email" })
 const { data, error } = await supabase.auth.signInWithIdToken({
   provider: "apple",
   token: apple.idToken,
@@ -172,7 +172,7 @@ The call rejects with an error whose `code` says what happened and whose `messag
 ## Where it works
 
 Sign in with Apple uses Apple's own API, so it exists on iOS and macOS only. On Android, and in a plain browser,
-`dsx.has("appleauth")` is `false`: send people to your web sign-in there. Ask `dsx.has`, never the operating system.
+`dsx.has("apple")` is `false`: send people to your web sign-in there. Ask `dsx.has`, never the operating system.
 
 <Note>
 **Already using Apple's JS SDK?** If your web app calls `AppleID.auth.signIn()` with `usePopup: true`, you do not have
@@ -180,7 +180,7 @@ to change it. From iOS 17.5 that popup cannot complete inside an app's web view,
 with the native Apple sheet and resolves the same object the web SDK would (`authorization.id_token`, `code`, `state`,
 and `user` on the first sign-in); closing the sheet rejects with `popup_closed_by_user`, as on the web. It applies on
 your app's own pages only, and the redirect mode is left to Apple's SDK. The token's audience is then your bundle
-identifier rather than your Services ID, so let your backend accept both. Use `dsx.module.appleauth.signIn()` when you
+identifier rather than your Services ID, so let your backend accept both. Use `dsx.module.apple.signIn()` when you
 want the token in one awaited call.
 </Note>
 
