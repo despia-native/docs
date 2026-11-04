@@ -126,6 +126,7 @@ if (isDespiaIOS) {
 | :-- | :-- | :-- |
 | URL | A full HTTPS URL to your SVG endpoint | Must respond with `Content-Type: image/svg+xml`. Use a path that includes the user ID so each user gets their own widget |
 | `refresh` | Minutes between refreshes | Whole minutes only. Common values: `1`, `2`, `3`, `5`, `10`, `15`, `30`, `60`. iOS may extend the interval under battery pressure, so treat your value as a minimum, not a guarantee |
+| `value` | Any string, URL-encoded | Optional. Handed to `window.onWidgetOpen` when the user taps the widget. See [Open the app from the widget](#open-the-app-from-the-widget) |
 
 ```javascript
 const userId  = currentUser.id
@@ -166,6 +167,42 @@ function WidgetSync({ user }) {
 ```
 
 To change the refresh rate later (for example, slowing it down for inactive users), call again with a new `refresh` value. The OS replaces the previous registration with the new one.
+
+---
+
+## Open the app from the widget
+
+Add `value` to the `widget://` call and a tap on the widget opens your app and calls `window.onWidgetOpen` with that value. Use it to send the user straight to the screen the widget shows, for example an order, a match or a profile.
+
+```javascript
+if (isDespiaIOS) {
+    despia(`widget://https://myapp.com/widgets/user/${user.id}?refresh=10&value=${encodeURIComponent('orders/42')}`)
+}
+```
+
+Define the handler early, before your app finishes loading:
+
+```javascript
+window.onWidgetOpen = ({ value }) => {
+    router.push(`/${value}`)
+}
+```
+
+How it behaves:
+
+- `value` and `refresh` are read by Despia and removed before the image URL is fetched. Every other query parameter reaches your SVG endpoint unchanged.
+- Each `widget://` call replaces the previous one. A call without `value` turns the tap action off again, and a tap then only opens the app.
+- When the tap starts the app from closed, Despia waits for your page to finish loading before it calls `window.onWidgetOpen`.
+- The same object is also stored in `window.widgetOpenData`, so a page that registers its handler later can still read the last tap.
+- The value is passed as a string. Encode it with `encodeURIComponent` and keep it short; do not put secrets in it.
+
+<Note>
+  Your SVG endpoint must not use a query parameter named `value` or `refresh` for its own data, because Despia removes both from the image URL.
+</Note>
+
+<Info>
+  Requires an iOS build made after this feature shipped. Older builds ignore `value` and open the app without calling `window.onWidgetOpen`.
+</Info>
 
 ---
 

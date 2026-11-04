@@ -114,7 +114,22 @@ const dynamicSvg = svgTemplate
 return dynamicSvg;
 ```
 
-### 6. Refresh Rate Options
+### 6. Open the App from the Widget
+
+Add `value` and a tap on the widget opens your app and calls `window.onWidgetOpen` with it:
+
+```javascript
+despia(`widget://${svgWidgetUrl}?refresh=${refreshTime}&value=${encodeURIComponent('orders/42')}`)
+
+window.onWidgetOpen = ({ value }) => {
+  // e.g. navigate to the screen the widget shows
+  console.log('Widget opened with', value);
+};
+```
+
+`value` and `refresh` are removed before the SVG URL is fetched. A later `widget://` call without `value` turns the tap action off. When the tap starts the app from closed, `window.onWidgetOpen` runs after the page has loaded, and the last value is also in `window.widgetOpenData`.
+
+### 7. Refresh Rate Options
 
 Choose appropriate refresh intervals:
 
