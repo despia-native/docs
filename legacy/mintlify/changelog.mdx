@@ -4,6 +4,29 @@ description: "New features, improvements, and fixes across the Despia platform."
 icon: "clock-rotate-left"
 ---
 
+<Update label="November 04, 2026" description="Home Widgets - open your app on the right screen from a widget tap">
+  ## Home Widgets: open the app from the widget
+
+  A tap on your home screen widget can now take the user straight to the screen the widget shows. Add `value` to the `widget://` call and the tap opens your app and calls `window.onWidgetOpen` with that value.
+
+  ```javascript
+  despia(`widget://https://myapp.com/widgets/user/${user.id}?refresh=10&value=${encodeURIComponent('orders/42')}`)
+
+  window.onWidgetOpen = ({ value }) => {
+      router.push(`/${value}`)
+  }
+  ```
+
+  **What ships today:**
+
+  - **The `value` parameter.** Optional on `widget://`. Despia reads `value` and `refresh` and removes them before the image URL is fetched, so every other query parameter reaches your SVG endpoint unchanged.
+  - **`window.onWidgetOpen({ value })`.** Called when the user taps the widget. When the tap starts the app from closed, Despia waits for your page to finish loading first.
+  - **`window.widgetOpenData`.** Holds the same object, so a page that registers its handler later can still read the last tap.
+  - **Turning it off.** Each `widget://` call replaces the previous one. A call without `value` turns the tap action off again, and a tap then only opens the app.
+
+  This feature is iOS only and needs a new build. Older builds ignore `value` and open the app without calling `window.onWidgetOpen`. The [Home Widgets documentation](/native-features/home-widgets#open-the-app-from-the-widget) has the full details.
+</Update>
+
 <Update label="September 13, 2026" description="Infrastructure - DNS resolution during the V3 to V4 migration">
   ## V3 to V4 migration - if a Despia page says "This site can't be reached"
 
