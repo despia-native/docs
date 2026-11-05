@@ -1,0 +1,134 @@
+---
+title: sheet
+description: The overlay twin implements modal sheet/inset/full modes, normalized detents, title/close/action chrome, focus containment/restoration, and dismissal.
+order: 3
+section: components
+element: sheet
+category: overlay
+scope: library
+platforms: web,ios,android,desktop
+properties: [{"name":"action","type":"string","default":null},{"name":"action-disabled","type":"bool","default":"false"},{"name":"action-icon","type":"sf-symbol","default":null},{"name":"action-side","type":"enum","default":"trailing","values":["leading","trailing"]},{"name":"back","type":"bool","default":"false"},{"name":"close","type":"enum","default":"leading","values":["leading","trailing","none"]},{"name":"detents","type":"csv","default":"half,full","values":["content","half","full"]},{"name":"mode","type":"enum","default":"sheet","values":["sheet","card","cover"]},{"name":"on:action","type":"action","default":null},{"name":"on:back","type":"action","default":null},{"name":"on:dismiss","type":"action","default":null},{"name":"present","type":"expr","default":null},{"name":"subtitle","type":"string","default":null},{"name":"title","type":"string","default":null}]
+actions: ["action","back","dismiss"]
+catalog: 0.1.0
+commit: 468dc3f018c7ba11202d2d17f04f9e04ad2e336e
+generator: ClosedSource/scripts/generate_component_docs.rb
+---
+
+# sheet
+
+The overlay twin implements modal sheet/inset/full modes, normalized detents, title/close/action chrome, focus containment/restoration, and dismissal.
+
+<RefMeta platforms="Web,iOS,Android,Desktop">
+Category: Overlay - Live specimens: the [System gallery](/system).
+</RefMeta>
+
+## Usage
+
+```dsx
+<sheet present="dsx.variable.show" detents="half,full" title="Episodes" on:dismiss="dsx.variable.show = false"><list bind="dsx.variable.episodes" scroll="false"><text bind="dsx.this.title"/></list></sheet>
+```
+
+`sheet` takes children.
+
+## Catalog specimen
+
+`SheetDefault.dsx`, verbatim from the catalog:
+
+```dsx
+<vstack style="width: 100%; gap: 8px">
+  <head>
+    <variable as="show">return false</variable>
+  </head>
+  <button label="Open the sheet" style="width: 100%" on:tap="dsx.variable.show = true"/>
+  <sheet present="dsx.variable.show" detents="half,full" title="Episodes" on:dismiss="dsx.variable.show = false">
+    <text value="Sheet content"/>
+  </sheet>
+</vstack>
+```
+
+Every component in the library is authored at four rungs in the catalog (default, system words, one property override, fully custom), so the cost of leaving the system design is visible in one place. The [System gallery](/system) runs them.
+
+## States
+
+| Renderer | Audited | Dated | Evidence |
+|---|---|---|---|
+| web | yes | 2026-08-18 | probe: opens on present bind, scrim shown, focus moves in + Tab trapped, Escape fires on:dismiss, action/close chrome renders - w8 Chromium probe (compileComponent->bootDsx, full skin), scratchpad/w8/*.mjs, shots/w8-audit-* |
+| ios | review | 2026-08-18 | present lifecycle (two-way bool; on:dismiss on swipe or programmatic close), detent selection incl. the measured content detent, standard chrome states (close/action raise events), drawer vs floating card vs cover modes (SheetAnchor, ClosedSource/DSX/Modules/Mandatory/Foundation/Components/Structure/Sheet/swift/Sheet.swift); CI-asserted: the content detent presents through the REAL platform sheet at measured height (ClosedSource/RuntimeUITests/RuntimeLaunchUITests.swift testLiteralEntityRendersOnceInsideMeasuredNativeSheet). Verified-by-review; the visual capture awaits the iOS capture lane. |
+| android | review | 2026-08-18 | VERIFIED-BY-REVIEW: present= two-way; standard half/full + full-only contracts ride the REAL M3 ModalBottomSheet (system scrim, drag handle, predictive BACK - Sheets.kt:358-383); content detents + card/cover ride the custom compositor with detent snapping/fling projection JVM-pinned (SheetMath - SheetMathTest green) + presentation-policy split pinned (AndroidSheetPresentationPolicyTest green, gradle :render:testDebugUnitTest run 2026-08-18: 292 tests, 1 failure (StackButtonsTest#systemButtonsDelegateTheirDefaultPalettesToMaterial3 - a stale source-grep of the pre-W9 disabled literal, not a behavior break)); scroll-expands-sheet nested-scroll seam; chrome close/action buttons. |
+| desktop | unaudited | unaudited | none recorded |
+
+Rest, hover on a fine pointer, pressed, focus visible and disabled, in both colour schemes, plus loading, error and empty where the component has them.
+
+## Attributes
+
+| Attribute | Type | Default | Notes |
+|---|---|---|---|
+| `action` | `string` |  |  |
+| `action-disabled` | `bool` | `false` | The confirming action stays dimmed and inert until the form is valid (SwiftUI's `.disabled` on the `.confirmationAction` item): `action-disabled="{{ dsx.variable.emails == '' }}"`. The trailing action is the sheet's prominent confirm (accent fill, bold); the close is a neutral grey circle. |
+| `action-icon` | `sf-symbol` |  |  |
+| `action-side` | `leading` \| `trailing` | `trailing` | `trailing` |
+| `back` | `bool` | `false` | The sheet is on a PUSHED step of its own NavigationStack: the bar's back chevron takes the leading place (a leading close stands down) and raises `on:back`. |
+| `close` | `leading` \| `trailing` \| `none` | `leading` | `none` |
+| `detents` | `content` \| `half` \| `full` | `half,full` | Stops: `content` / `half` / `full`. `content` is **fit-content, for any markup**: the slot lays out at its ideal height, scrolls and structural spacers contribute their intrinsic size, the sheet hugs it with a 90% screen cap, taller content scrolls, and async rows resize the sheet live. |
+| `mode` | `sheet` \| `card` \| `cover` | `sheet` | `sheet` = edge-to-edge drawer · `card` = floating inset card (AirPods-style) that **sheds the gap** at the `full` detent and becomes a drawer · `cover` = full-screen modal, no detents. |
+| `on:action` | `action` |  | The chrome action button. |
+| `on:back` | `action` |  | The back chevron. |
+| `on:dismiss` | `action` |  | Fires on close (swipe or programmatic). |
+| `present` | `expr` |  | **An expression, never a bare key** - the value is evaluated as one expression on every platform, so it is spelled `present="dsx.variable.showEpisodes"` (or `dsx.global.*`); a bare `present="showEpisodes"` reads **null** and nothing ever presents, and `despia lint` reports it (`bare-reach`). **Two-way like `bind=`:** set it true to open, and a dismissal (swipe, scrim, the system close control, a navigation) **writes it back false** through the same path before `on:dismiss` fires. |
+| `subtitle` | `string` |  | A second, quieter line under the inline title (SwiftUI's `.navigationSubtitle`, iOS 26): a multi-step sheet says `subtitle="Step 2 of 3"` instead of drawing a stepper in its content. |
+| `title` | `string` |  | Standard drawer chrome: centered header title. Declaring `title`/`close`/`action` renders the built-in header (the REAL system close control + system sheet-header language) - stop hand-rolling header rows. |
+
+Every element also carries the [universal attributes](/components/attributes): accessibility, animation, `class`, `style` and the platform suffixes.
+
+## Events
+
+| Event | Handler |
+|---|---|
+| `action` | `on:action="..."` |
+| `back` | `on:back="..."` |
+| `dismiss` | `on:dismiss="..."` |
+
+A payload arrives FLAT in the handler scope, so a declared action names the key bare (`message="message"`), never through an `event` plane.
+
+## Platform notes
+
+| Renderer | Grammar | What that means |
+|---|---|---|
+| web | `supported` | the built in renderer implements this element |
+| ios | `reference` | the reference renderer this element is specified against |
+| android | `enforced` | implemented and pinned by the element parity test |
+| desktop | `captured` | the desktop capture plane composed and measured this element at both locked widths |
+
+The overlay twin implements modal sheet/inset/full modes, normalized detents, title/close/action chrome, focus containment/restoration, and dismissal.
+
+**Known limits on the web**
+
+- Detents and drag behavior adapt to browser viewport/input rather than reproducing native sheet physics.
+
+**Implementation notes.** content detent = fit-content capped at 90% of screen. An unstyled sheet wears the platform presentation material; `style="background: ..."` replaces it (systemBackground is retired, E107). The card's gap is the knob --dsx-sheet-inset (constitution Article 12), not a prop. Android twin: Material ModalBottomSheet / inset Card / full-screen Dialog (Sheet.swift header).
+
+Declared platforms: `ios`, `android`, `web`.
+
+**Adaptivity (web, 2026-08-18).** desktop: centered card 704x540 over blurred scrim; compact 390: full-width bottom sheet (bottom=844, w=390); safe-area insets in overlay CSS - shots/w8-audit-overlays*.png - w8 Chromium probe (compileComponent->bootDsx, full skin), scratchpad/w8/*.mjs, shots/w8-audit-*
+
+## Theming
+
+DSX has one styling vocabulary and it is CSS. Three doors reach this element, and they differ only in how often the look repeats: `style="..."` for a declaration list on one element, `class="..."` for a name declared in a `<style>` block, and the component's own sheet for everything a whole screen shares.
+
+On the web this element's root carries `dsx-overlay-host dsx-sheet-host`, the stable class the contract application CSS targets. It is a rendering fact you can read, not a styling hook to depend on: style the element, not the class the renderer stamps.
+
+Web runtime: `overlay`.
+
+## Accessibility
+
+| Renderer | Audited | Dated | Evidence |
+|---|---|---|---|
+| web | yes | 2026-08-18 | grabber restructured to role=slider (vertical, valuenow/min/max/text legal - clears the w8 axe critical aria-allowed-attr) with unchanged click/ArrowUp/Down/Home/End detents; role=dialog aria-modal, labelled by title, Tab trapped, Escape dismisses; axe serious+critical clean open, light+dark - w9 Chromium probe (compileComponent->instantiate, full skin) scratchpad/w9/probe.mjs + CI oracle packages/dom/oracle/application-controls-browser.ts / overlay-controls-browser.ts, shots/w9-drawer-menubar-* |
+| ios | review | 2026-08-18 | System sheet semantics + labeled chrome (Close accessibilityLabel, Sheet.swift:123,186); the content surface is exposed under dsx.sheet.content (CI queries it); assistive dismissal is the system sheet's own. Verified-by-review; the visual capture awaits the iOS capture lane. |
+| android | review | 2026-08-18 | VERIFIED-BY-REVIEW: M3 ModalBottomSheet accessibility semantics + system BACK on the standard path (Sheets.kt header); the custom compositor carries dsxAccessibleDismiss (Sheets.kt:515,675) and chrome activations (Sheets.kt:627,647); on-device: DsxInteractiveStateUiTest opens a measured-detent sheet and asserts its native text surface. |
+| desktop | unaudited | unaudited | none recorded |
+
+Every element carries `aria-label`, `aria-description`, `aria-valuetext`, `role`, `aria-pressed` and `aria-hidden`. A control that draws an icon beside text is one group with one label, never two announcements; see the [universal attributes](/components/attributes).
+
+This page is GENERATED by ClosedSource/scripts/generate_component_docs.rb. A hand edit here is overwritten on the next run by design: fix the ledger instead (the attribute and event contract in `OpenSource/Documentation/reference/stack-elements.json`, the platform support and the audit in `OpenSource/Conformance/library/matrix.json`, the description and the web limits in `OpenSource/Engine/TypeScript/support/element-support.json`, the specimen in `OpenSource/Catalog`).
+
