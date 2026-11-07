@@ -105,14 +105,6 @@
             ]
           },
           {
-            "group": "Local Database",
-            "icon": "database",
-            "pages": [
-              "local-database/introduction",
-              "local-database/reference"
-            ]
-          },
-          {
             "group": "Local CDN",
             "icon": "box-open",
             "pages": [
@@ -577,5 +569,9 @@
   },
   "seo": {
     "indexing": "all"
-  }
+  },
+  "redirects": [
+    { "source": "/local-database/introduction", "destination": "/native-features/storage-vault" },
+    { "source": "/local-database/reference", "destination": "/native-features/storage-vault" }
+  ]
 }
