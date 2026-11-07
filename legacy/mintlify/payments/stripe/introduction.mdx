@@ -57,7 +57,7 @@ Native iOS and Android Stripe payments fully bridged to your web layer. Take pay
 
 ## Stripe and Despia setup
 
-Configure Stripe, wire up your backend, then rebuild the Despia app to include the native sheet. The steps go in order, each one feeds the next.
+Configure Stripe, wire up your backend, enable Stripe in the Despia Editor, then rebuild the Despia app to include the native sheet. The steps go in order, each one feeds the next.
 
 <Steps>
   <Step title="Create a Stripe account">
@@ -75,13 +75,16 @@ Configure Stripe, wire up your backend, then rebuild the Despia app to include t
   <Step title="Set up webhooks">
     Go to **Developers \> Webhooks \> Add an endpoint** in the Stripe Dashboard. Point it at your backend (e.g. `https://yourapp.com/api/stripe/webhook`) and subscribe to at least `payment_intent.succeeded`, `payment_intent.payment_failed`, and `charge.refunded`. The `completed` event you receive in your web app is a client-side signal only. Final order fulfillment, receipts, and dispute records must come from webhooks. See [Stripe's webhook guide](https://docs.stripe.com/webhooks) for signature verification and event handling.
   </Step>
+  <Step title="Enable Stripe in Despia">
+    Open the Despia Editor and go to **App \> Settings \> Integrations \> Stripe**. Turn the **Stripe** switch on and save. The switch decides whether the native Stripe SDK is compiled into your app. Apple's guideline 2.5.19 asks apps not to ship native features they do not use, so turn it off if your app does not take Stripe payments. No keys are pasted here: the publishable key is passed per call in the `despia()` command.
+  </Step>
   <Step title="Rebuild your app">
-    Trigger a fresh build from the Despia Editor. The Stripe SDK has to be compiled into the app binary, so this cannot be applied over-the-air. After the build finishes, calls to `stripe://payment` and `stripe://manage` will function in production. No keys need to be pasted into the Despia Editor since the publishable key is passed per call in the `despia()` command.
+    Trigger a fresh build from the Despia Editor. The Stripe SDK has to be compiled into the app binary, so neither the switch nor the SDK can be applied over-the-air. After the build finishes, calls to `stripe://payment` and `stripe://manage` will function in production.
   </Step>
 </Steps>
 
 <Warning>
-  Skipping the rebuild leaves the Stripe native runtime out of the binary. Calls to `stripe://payment` and `stripe://manage` will fail silently with no sheet shown and no event fired. If payments stop working after editing settings, rebuild before opening a support ticket.
+  With the Stripe switch off, or before the rebuild, the Stripe native runtime is not in the binary. Calls to `stripe://payment` and `stripe://manage` show no sheet; the runtime logs `stripe:// is not included in this build` to the console and dispatches a `despia-feature-not-included` event on `window` with `detail.scheme` set to `stripe`. If payments stop working after editing settings, check the switch and rebuild before opening a support ticket.
 </Warning>
 
 ---
