@@ -41,7 +41,7 @@ for (const name of readdirSync(pub)) {
 // Also at this seam: the per-page <link rel="canonical"> (from public/canonical.json, which the
 // compiler writes: every page canonical at docs.despia.com, the promoted /migrate/guide at its
 // modern original) and the markdown alternate. The route table has no per-route head rows yet
-// (a framework gap, recorded in evidence/web-launch/STATUS.md), so the stamp lands here, on the
+// (a framework gap), so the stamp lands here, on the
 // same deployable-tree pass as docs.js.
 const canonicalFile = join(pub, "canonical.json");
 const canonical = existsSync(canonicalFile) ? JSON.parse(readFileSync(canonicalFile, "utf8")) : {};
