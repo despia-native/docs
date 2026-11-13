@@ -522,9 +522,9 @@ const MD_COMPONENTS = `{{ { ':field': { component: 'FieldRow', props: { label: '
 // ── code formatting (owner: JSON and JavaScript are formatted, never one long line) ─────────────
 // A json/jsonc fence that parses is re-printed with JSON.stringify(value, null, 2) when it is not
 // already multi-line; a fence that does not parse is left exactly as written and reported
-// (evidence/web-launch/code-format-report.txt). Shell, log, diff and every other language are
+// (.despia/code-format-report.txt, not tracked). Shell, log, diff and every other language are
 // never touched. JS/TS one-liners are reported, not rewritten: no formatter ships with the docs
-// toolchain (see STATUS).
+// toolchain.
 const formatReport = [];
 function stripJsonComments(text) {
   return text.replace(/("(?:[^"\\]|\\.)*")|\/\/[^\n]*|\/\*[\s\S]*?\*\//g, (m, str) => (str !== undefined ? str : ""));
@@ -1584,8 +1584,8 @@ writeFileSync(join(publicDir, "sitemap.xml"), [
 writeFileSync(join(publicDir, "canonical.json"), JSON.stringify(Object.fromEntries(entries.map((p) =>
   [p.route, site + (p.meta?.canonicalOf ?? p.route)]))) + "\n");
 
-mkdirSync(join(root, "evidence", "web-launch"), { recursive: true });
-writeFileSync(join(root, "evidence", "web-launch", "code-format-report.txt"),
+mkdirSync(join(root, ".despia"), { recursive: true });
+writeFileSync(join(root, ".despia", "code-format-report.txt"),
   formatReport.length === 0 ? "every json block parsed; no one-line JS/TS over 100 chars\n" : formatReport.join("\n") + "\n");
 
 const counts = SPACES.map((s) => `${s.id} ${entries.filter((p) => p.space === s.id).length}`).join(", ");

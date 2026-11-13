@@ -1,6 +1,6 @@
 {
   "defaults": { "device": "desktop", "scheme": "light", "target": "web", "at": "2026-10-02T09:41:00Z" },
-  "outDir": "evidence/web-launch/shots",
+  "outDir": ".despia/shots",
   "shots": [
     { "document": "pages/PageFramework_Guides_Routing", "route": "/framework/guides/routing", "as": "01-modern-page", "allowEmpty": true },
     { "document": "pages/PageLegacy_Payments_Stripe_Introduction", "route": "/legacy/payments/stripe/introduction", "as": "02-legacy-steps-tabs-cards", "allowEmpty": true },
